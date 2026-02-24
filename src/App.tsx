@@ -7,17 +7,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ResetPassword from "./pages/ResetPassword";
-import Profile from "./pages/Profile";
-import TeamManagement from "./pages/TeamManagement";
-import ContentApproval from "./pages/ContentApproval";
-import Analytics from "./pages/Analytics";
-import About from "./pages/About";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
+import Index from "./Index";
+import Login from "./Login";
+import Signup from "./Signup";
+import ResetPassword from "./ResetPassword";
+import Profile from "./Profile";
+import TeamManagement from "./TeamManagement";
+import ContentApproval from "./ContentApproval";
+import Analytics from "./Analytics";
+import About from "./About";
+import Privacy from "./Privacy";
+import Terms from "./Terms";
 
 
 
