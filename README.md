@@ -1,2 +1,3 @@
-# Bearer-of-News
-Collaborative Facebook content management platform enabling teams to create, review, and approve posts with security. Page admins maintain complete control—final publishing is always a manual click within Facebook's native interface. 100% compliant with Facebook policies. No auto-posting. AI-powered enhancement included. 
+# React + TypeScript + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
