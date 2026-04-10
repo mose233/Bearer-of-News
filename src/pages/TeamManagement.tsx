@@ -18,7 +18,6 @@ interface TeamMember {
   last_active: string;
   joined_at: string;
   email?: string;
-  name?: string;
 }
 
 export default function TeamManagement() {
@@ -37,7 +36,7 @@ export default function TeamManagement() {
 
   const loadTeamData = async () => {
     if (!user) return;
-    
+
     try {
       let { data: team } = await supabase
         .from('teams')
@@ -69,9 +68,14 @@ export default function TeamManagement() {
     }
   };
 
-  // ✅ FIXED INVITE FUNCTION
+  // ✅ FIXED INVITE SYSTEM (NO EMAIL DEPENDENCY)
   const handleInvite = async () => {
     console.log("Invite clicked");
+
+    if (!teamId) {
+      alert("Team not ready");
+      return;
+    }
 
     if (!inviteEmail) {
       alert("Enter email");
@@ -81,23 +85,54 @@ export default function TeamManagement() {
     try {
       setInviteLoading(true);
 
-      // ✅ Create user (this works on frontend)
-      const { data, error } = await supabase.auth.signUp({
-        email: inviteEmail,
-        password: "temporary123456"
-      });
+      // 🔍 1. Check if user already exists
+      const { data: existingUser } = await supabase
+        .from('profiles') // make sure you have this table
+        .select('id, email')
+        .eq('email', inviteEmail)
+        .single();
 
-      console.log("Signup result:", { data, error });
-
-      if (error) {
-        alert(error.message);
+      if (!existingUser) {
+        alert("User not found. Ask them to sign up first.");
         return;
       }
 
-      alert("User invited successfully!");
+      // 🔍 2. Check if already in team
+      const { data: existingMember } = await supabase
+        .from('team_members')
+        .select('id')
+        .eq('team_id', teamId)
+        .eq('user_id', existingUser.id)
+        .single();
+
+      if (existingMember) {
+        alert("User already in team");
+        return;
+      }
+
+      // ✅ 3. Add to team
+      const { error } = await supabase
+        .from('team_members')
+        .insert({
+          team_id: teamId,
+          user_id: existingUser.id,
+          role: inviteRole,
+          status: 'active',
+          joined_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error(error);
+        alert("Failed to add member");
+        return;
+      }
+
+      alert("Member added successfully!");
 
       setInviteEmail('');
       setInviteOpen(false);
+
+      loadTeamData();
 
     } catch (err) {
       console.error("Crash:", err);
@@ -112,6 +147,7 @@ export default function TeamManagement() {
       .from('team_members')
       .update({ role: newRole })
       .eq('id', memberId);
+
     loadTeamData();
   };
 
@@ -133,27 +169,38 @@ export default function TeamManagement() {
             <Users className="w-8 h-8" />
             Team Management
           </h1>
-          <p className="text-muted-foreground mt-2">Manage your team members and permissions</p>
+          <p className="text-muted-foreground mt-2">
+            Manage your team members and permissions
+          </p>
         </div>
+
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogTrigger asChild>
-            <Button><UserPlus className="w-4 h-4 mr-2" />Invite Member</Button>
+            <Button>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Invite Member
+            </Button>
           </DialogTrigger>
+
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Invite Team Member</DialogTitle>
-              <DialogDescription>Send an invitation to join your team</DialogDescription>
+              <DialogDescription>
+                Add an existing user to your team
+              </DialogDescription>
             </DialogHeader>
+
             <div className="space-y-4">
               <div>
                 <Label>Email Address</Label>
                 <Input
                   type="email"
-                  placeholder="colleague@example.com"
+                  placeholder="user must already have account"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                 />
               </div>
+
               <div>
                 <Label>Role</Label>
                 <Select value={inviteRole} onValueChange={(v: any) => setInviteRole(v)}>
@@ -167,11 +214,16 @@ export default function TeamManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleInvite} className="w-full" disabled={inviteLoading}>
-                {inviteLoading ? "Sending..." : (
+
+              <Button
+                onClick={handleInvite}
+                className="w-full"
+                disabled={inviteLoading}
+              >
+                {inviteLoading ? "Adding..." : (
                   <>
                     <Mail className="w-4 h-4 mr-2" />
-                    Send Invitation
+                    Add to Team
                   </>
                 )}
               </Button>
@@ -183,8 +235,11 @@ export default function TeamManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Team Members ({members.length})</CardTitle>
-          <CardDescription>View and manage team member roles and permissions</CardDescription>
+          <CardDescription>
+            View and manage team member roles
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
           <div className="space-y-4">
             {members.map((member) => (
@@ -194,33 +249,30 @@ export default function TeamManagement() {
                     {getRoleIcon(member.role)}
                   </div>
                   <div>
-                    <p className="font-medium">{member.email || 'Team Member'}</p>
+                    <p className="font-medium">{member.email || 'User'}</p>
                     <p className="text-sm text-muted-foreground">
                       Joined {new Date(member.joined_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
-                    {member.status}
-                  </Badge>
-                  <Select value={member.role} onValueChange={(v) => updateRole(member.id, v)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                      <SelectItem value="editor">Editor</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
+                <Select value={member.role} onValueChange={(v) => updateRole(member.id, v)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="viewer">Viewer</SelectItem>
+                    <SelectItem value="editor">Editor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             ))}
+
             {members.length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
                 <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No team members yet. Invite your first member to get started!</p>
+                <p>No team members yet</p>
               </div>
             )}
           </div>
