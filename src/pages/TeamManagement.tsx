@@ -15,9 +15,7 @@ interface TeamMember {
   user_id: string;
   role: 'admin' | 'editor' | 'viewer';
   status: string;
-  last_active: string;
   joined_at: string;
-  email?: string;
 }
 
 export default function TeamManagement() {
@@ -68,16 +66,9 @@ export default function TeamManagement() {
     }
   };
 
-  // ✅ FIXED INVITE SYSTEM (NO EMAIL DEPENDENCY)
+  // ✅ NEW INVITE SYSTEM (LINK-BASED)
   const handleInvite = async () => {
-    console.log("Invite clicked");
-
-    if (!teamId) {
-      alert("Team not ready");
-      return;
-    }
-
-    if (!inviteEmail) {
+    if (!teamId || !inviteEmail) {
       alert("Enter email");
       return;
     }
@@ -85,57 +76,32 @@ export default function TeamManagement() {
     try {
       setInviteLoading(true);
 
-      // 🔍 1. Check if user already exists
-      const { data: existingUser } = await supabase
-        .from('profiles') // make sure you have this table
-        .select('id, email')
-        .eq('email', inviteEmail)
-        .single();
+      const token = crypto.randomUUID();
 
-      if (!existingUser) {
-        alert("User not found. Ask them to sign up first.");
-        return;
-      }
-
-      // 🔍 2. Check if already in team
-      const { data: existingMember } = await supabase
-        .from('team_members')
-        .select('id')
-        .eq('team_id', teamId)
-        .eq('user_id', existingUser.id)
-        .single();
-
-      if (existingMember) {
-        alert("User already in team");
-        return;
-      }
-
-      // ✅ 3. Add to team
       const { error } = await supabase
-        .from('team_members')
+        .from('team_invitations')
         .insert({
           team_id: teamId,
-          user_id: existingUser.id,
+          email: inviteEmail,
           role: inviteRole,
-          status: 'active',
-          joined_at: new Date().toISOString()
+          token
         });
 
       if (error) {
         console.error(error);
-        alert("Failed to add member");
+        alert("Failed to create invite");
         return;
       }
 
-      alert("Member added successfully!");
+      const inviteLink = `${window.location.origin}/join?token=${token}`;
+
+      alert(`Invite link:\n${inviteLink}`);
 
       setInviteEmail('');
       setInviteOpen(false);
 
-      loadTeamData();
-
     } catch (err) {
-      console.error("Crash:", err);
+      console.error(err);
       alert("Something went wrong");
     } finally {
       setInviteLoading(false);
@@ -178,7 +144,7 @@ export default function TeamManagement() {
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="w-4 h-4 mr-2" />
-              Invite Member
+              Invite Team Member
             </Button>
           </DialogTrigger>
 
@@ -186,7 +152,7 @@ export default function TeamManagement() {
             <DialogHeader>
               <DialogTitle>Invite Team Member</DialogTitle>
               <DialogDescription>
-                Add an existing user to your team
+                Generate an invite link to join your team
               </DialogDescription>
             </DialogHeader>
 
@@ -195,7 +161,7 @@ export default function TeamManagement() {
                 <Label>Email Address</Label>
                 <Input
                   type="email"
-                  placeholder="user must already have account"
+                  placeholder="user email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                 />
@@ -220,10 +186,10 @@ export default function TeamManagement() {
                 className="w-full"
                 disabled={inviteLoading}
               >
-                {inviteLoading ? "Adding..." : (
+                {inviteLoading ? "Generating..." : (
                   <>
                     <Mail className="w-4 h-4 mr-2" />
-                    Add to Team
+                    Generate Invite Link
                   </>
                 )}
               </Button>
@@ -249,7 +215,7 @@ export default function TeamManagement() {
                     {getRoleIcon(member.role)}
                   </div>
                   <div>
-                    <p className="font-medium">{member.email || 'User'}</p>
+                    <p className="font-medium">User</p>
                     <p className="text-sm text-muted-foreground">
                       Joined {new Date(member.joined_at).toLocaleDateString()}
                     </p>
