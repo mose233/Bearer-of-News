@@ -49,10 +49,11 @@ export default function ContentApproval() {
     const { data, error } = await supabase
       .from('content_drafts')
       .select(`
-        *,
-        author:users!content_drafts_user_id_fkey(email),
-        reviewer:users!content_drafts_reviewed_by_fkey(email)
-      `)
+        .select(`
+  *,
+  author:profiles!content_drafts_user_id_fkey(email),
+  reviewer:profiles!content_drafts_reviewed_by_fkey(email)
+`)
       .order('created_at', { ascending: false });
 
     if (!error && data) setDrafts(data);
