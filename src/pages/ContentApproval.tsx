@@ -48,7 +48,6 @@ export default function ContentApproval() {
   const fetchDrafts = async () => {
     const { data, error } = await supabase
       .from('content_drafts')
-      .select(`
         .select(`
   *,
   author:profiles!content_drafts_user_id_fkey(email),
