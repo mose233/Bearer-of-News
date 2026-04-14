@@ -5,10 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,7 +33,10 @@ export default function ContentApproval() {
     fetchDrafts();
   }, []);
 
+  // ✅ FETCH DRAFTS
   const fetchDrafts = async () => {
+    console.log("Fetching drafts...");
+
     const { data, error } = await supabase
       .from('content_drafts')
       .select(`
@@ -43,30 +45,46 @@ export default function ContentApproval() {
       `)
       .order('created_at', { ascending: false });
 
-    if (!error && data) setDrafts(data);
+    console.log("Fetch result:", { data, error });
+
+    if (error) {
+      console.error("Fetch error:", error);
+    }
+
+    if (data) setDrafts(data);
     setLoading(false);
   };
 
+  // ✅ CREATE DRAFT (FIXED)
   const createDraft = async () => {
-    if (!newDraft.title || !newDraft.content) {
-      alert("Fill all fields");
+    if (!newDraft.content) {
+      alert("Content is required");
       return;
     }
 
-    const { error } = await supabase.from('content_drafts').insert({
-      title: newDraft.title,
-      content: newDraft.content,
-      user_id: user?.id,
-      status: 'draft'
-    });
+    console.log("Creating draft...");
+
+    const { data, error } = await supabase
+      .from('content_drafts')
+      .insert([
+        {
+          title: newDraft.title || null,
+          content: newDraft.content,
+          user_id: user?.id,
+          status: 'draft'
+        }
+      ])
+      .select();
+
+    console.log("Insert result:", { data, error });
 
     if (error) {
-      console.error(error);
+      console.error("Insert error:", error);
       alert("Failed to create draft");
       return;
     }
 
-    toast({ title: 'Draft created successfully' });
+    toast({ title: 'Draft saved successfully' });
 
     setCreateDialog(false);
     setNewDraft({ title: '', content: '' });
@@ -74,25 +92,39 @@ export default function ContentApproval() {
     fetchDrafts();
   };
 
+  // ✅ SUBMIT FOR REVIEW
   const submitForReview = async (id: string) => {
-    await supabase
+    console.log("Submitting draft:", id);
+
+    const { error } = await supabase
       .from('content_drafts')
       .update({ status: 'pending' })
       .eq('id', id);
 
+    if (error) {
+      console.error(error);
+      alert("Failed to submit");
+      return;
+    }
+
+    toast({ title: 'Submitted for review' });
+
     fetchDrafts();
   };
 
+  // ✅ STATUS BADGES
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'draft':
-        return <Badge>Draft</Badge>;
+        return <Badge><FileText className="w-3 h-3 mr-1" />Draft</Badge>;
       case 'pending':
-        return <Badge variant="outline">Pending</Badge>;
+        return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case 'approved':
-        return <Badge className="bg-green-600">Approved</Badge>;
+        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+      default:
+        return null;
     }
   };
 
@@ -106,7 +138,7 @@ export default function ContentApproval() {
       <div className="flex justify-between mb-6">
         <h1 className="text-3xl font-bold">Content Approval</h1>
 
-        {/* ✅ ALWAYS ENABLED */}
+        {/* CREATE DRAFT */}
         <Dialog open={createDialog} onOpenChange={setCreateDialog}>
           <DialogTrigger asChild>
             <Button>Create Draft</Button>
@@ -115,11 +147,14 @@ export default function ContentApproval() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create Draft</DialogTitle>
+              <DialogDescription>
+                Write your content and save as draft
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <Input
-                placeholder="Title"
+                placeholder="Title (optional)"
                 value={newDraft.title}
                 onChange={(e) =>
                   setNewDraft({ ...newDraft, title: e.target.value })
@@ -158,7 +193,7 @@ export default function ContentApproval() {
             {filterDrafts(status).map(draft => (
               <Card key={draft.id} className="mb-4">
                 <CardHeader>
-                  <CardTitle>{draft.title}</CardTitle>
+                  <CardTitle>{draft.title || "Untitled"}</CardTitle>
                   {getStatusBadge(draft.status)}
                 </CardHeader>
 
@@ -176,6 +211,12 @@ export default function ContentApproval() {
                 </CardContent>
               </Card>
             ))}
+
+            {filterDrafts(status).length === 0 && (
+              <p className="text-center text-muted-foreground mt-6">
+                No {status} content
+              </p>
+            )}
           </TabsContent>
         ))}
       </Tabs>
