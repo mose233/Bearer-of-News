@@ -81,7 +81,7 @@ export default function ContentApproval() {
         owner_id: user?.id
       })
       .select()
-      .single();
+      .maybeSingle();
 
     console.log("🛠️ Create team result:", { newTeam, createError });
 
