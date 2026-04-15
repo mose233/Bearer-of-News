@@ -28,10 +28,49 @@ export default function ContentApproval() {
   const [loading, setLoading] = useState(true);
   const [createDialog, setCreateDialog] = useState(false);
   const [newDraft, setNewDraft] = useState({ title: '', content: '' });
+  const [teamId, setTeamId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDrafts();
-  }, []);
+    if (user) {
+      loadTeam();
+      fetchDrafts();
+    }
+  }, [user]);
+
+  // ✅ LOAD TEAM (FIXES 406 ERROR)
+  const loadTeam = async () => {
+    console.log("Loading team...");
+
+    const { data: team, error } = await supabase
+      .from('teams')
+      .select('id')
+      .eq('owner_id', user?.id)
+      .maybeSingle();
+
+    console.log("Team result:", { team, error });
+
+    if (!team) {
+      console.log("No team found → creating one...");
+
+      const { data: newTeam, error: createError } = await supabase
+        .from('teams')
+        .insert({
+          name: 'My Team',
+          owner_id: user?.id
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error("Create team error:", createError);
+        return;
+      }
+
+      setTeamId(newTeam.id);
+    } else {
+      setTeamId(team.id);
+    }
+  };
 
   // ✅ FETCH DRAFTS
   const fetchDrafts = async () => {
@@ -55,14 +94,24 @@ export default function ContentApproval() {
     setLoading(false);
   };
 
-  // ✅ CREATE DRAFT (FIXED)
+  // ✅ CREATE DRAFT (FINAL FIXED)
   const createDraft = async () => {
     if (!newDraft.content) {
       alert("Content is required");
       return;
     }
 
-    console.log("Creating draft...");
+    if (!user) {
+      alert("User not found");
+      return;
+    }
+
+    console.log("Creating draft...", {
+      title: newDraft.title,
+      content: newDraft.content,
+      user_id: user.id,
+      team_id: teamId
+    });
 
     const { data, error } = await supabase
       .from('content_drafts')
@@ -70,7 +119,8 @@ export default function ContentApproval() {
         {
           title: newDraft.title || null,
           content: newDraft.content,
-          user_id: user?.id,
+          user_id: user.id,
+          team_id: teamId,
           status: 'draft'
         }
       ])
@@ -138,7 +188,6 @@ export default function ContentApproval() {
       <div className="flex justify-between mb-6">
         <h1 className="text-3xl font-bold">Content Approval</h1>
 
-        {/* CREATE DRAFT */}
         <Dialog open={createDialog} onOpenChange={setCreateDialog}>
           <DialogTrigger asChild>
             <Button>Create Draft</Button>
