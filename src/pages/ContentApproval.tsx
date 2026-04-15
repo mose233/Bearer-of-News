@@ -28,18 +28,25 @@ export default function ContentApproval() {
   const [loading, setLoading] = useState(true);
   const [createDialog, setCreateDialog] = useState(false);
   const [newDraft, setNewDraft] = useState({ title: '', content: '' });
+
   const [teamId, setTeamId] = useState<string | null>(null);
+  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
 
   useEffect(() => {
     if (user) {
       loadTeam();
-      fetchDrafts();
     }
   }, [user]);
 
-  // ✅ LOAD TEAM (FIXES 406 ERROR)
+  useEffect(() => {
+    if (teamId) {
+      fetchDrafts();
+    }
+  }, [teamId]);
+
+  // ✅ LOAD OR CREATE TEAM (FIXED PROPERLY)
   const loadTeam = async () => {
-    console.log("Loading team...");
+    console.log("🔄 Loading team...");
 
     const { data: team, error } = await supabase
       .from('teams')
@@ -47,34 +54,48 @@ export default function ContentApproval() {
       .eq('owner_id', user?.id)
       .maybeSingle();
 
-    console.log("Team result:", { team, error });
+    console.log("👥 Team fetch:", { team, error });
 
-    if (!team) {
-      console.log("No team found → creating one...");
-
-      const { data: newTeam, error: createError } = await supabase
-        .from('teams')
-        .insert({
-          name: 'My Team',
-          owner_id: user?.id
-        })
-        .select()
-        .single();
-
-      if (createError) {
-        console.error("Create team error:", createError);
-        return;
-      }
-
-      setTeamId(newTeam.id);
-    } else {
-      setTeamId(team.id);
+    if (error) {
+      console.error("❌ Team fetch error:", error);
+      return;
     }
+
+    if (team) {
+      console.log("✅ Existing team found:", team.id);
+      setTeamId(team.id);
+      return;
+    }
+
+    // 🚨 Prevent infinite loop
+    if (isCreatingTeam) return;
+
+    setIsCreatingTeam(true);
+
+    console.log("⚠️ No team → creating one...");
+
+    const { data: newTeam, error: createError } = await supabase
+      .from('teams')
+      .insert({
+        name: 'My Team',
+        owner_id: user?.id
+      })
+      .select()
+      .single();
+
+    console.log("🛠️ Create team result:", { newTeam, createError });
+
+    if (createError) {
+      console.error("❌ Create team error:", createError);
+      return;
+    }
+
+    setTeamId(newTeam.id);
   };
 
   // ✅ FETCH DRAFTS
   const fetchDrafts = async () => {
-    console.log("Fetching drafts...");
+    console.log("📥 Fetching drafts...");
 
     const { data, error } = await supabase
       .from('content_drafts')
@@ -84,29 +105,30 @@ export default function ContentApproval() {
       `)
       .order('created_at', { ascending: false });
 
-    console.log("Fetch result:", { data, error });
+    console.log("📊 Draft fetch result:", { data, error });
 
     if (error) {
-      console.error("Fetch error:", error);
+      console.error("❌ Fetch drafts error:", error);
+      return;
     }
 
     if (data) setDrafts(data);
     setLoading(false);
   };
 
-  // ✅ CREATE DRAFT (FINAL FIXED)
+  // ✅ CREATE DRAFT (SAFE)
   const createDraft = async () => {
     if (!newDraft.content) {
       alert("Content is required");
       return;
     }
 
-    if (!user) {
-      alert("User not found");
+    if (!user || !teamId) {
+      alert("User or Team not ready yet");
       return;
     }
 
-    console.log("Creating draft...", {
+    console.log("📝 Creating draft...", {
       title: newDraft.title,
       content: newDraft.content,
       user_id: user.id,
@@ -126,10 +148,10 @@ export default function ContentApproval() {
       ])
       .select();
 
-    console.log("Insert result:", { data, error });
+    console.log("📦 Insert result:", { data, error });
 
     if (error) {
-      console.error("Insert error:", error);
+      console.error("❌ Insert error:", error);
       alert("Failed to create draft");
       return;
     }
@@ -144,7 +166,7 @@ export default function ContentApproval() {
 
   // ✅ SUBMIT FOR REVIEW
   const submitForReview = async (id: string) => {
-    console.log("Submitting draft:", id);
+    console.log("📤 Submitting draft:", id);
 
     const { error } = await supabase
       .from('content_drafts')
@@ -152,7 +174,7 @@ export default function ContentApproval() {
       .eq('id', id);
 
     if (error) {
-      console.error(error);
+      console.error("❌ Submit error:", error);
       alert("Failed to submit");
       return;
     }
@@ -190,7 +212,7 @@ export default function ContentApproval() {
 
         <Dialog open={createDialog} onOpenChange={setCreateDialog}>
           <DialogTrigger asChild>
-            <Button>Create Draft</Button>
+            <Button disabled={!teamId}>Create Draft</Button>
           </DialogTrigger>
 
           <DialogContent>
