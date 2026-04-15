@@ -32,6 +32,8 @@ export default function ContentApproval() {
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
 
+  const [inviteEmail, setInviteEmail] = useState('');
+
   useEffect(() => {
     if (user) {
       loadTeam();
@@ -44,7 +46,7 @@ export default function ContentApproval() {
     }
   }, [teamId]);
 
-  // ✅ FINAL FIXED VERSION (NO 406, NO DUPLICATES, SAFE)
+  // ✅ LOAD TEAM
   const loadTeam = async () => {
     console.log("🔄 Loading team...");
 
@@ -54,7 +56,7 @@ export default function ContentApproval() {
       .from('teams')
       .select('id')
       .eq('owner_id', user.id)
-      .limit(1); // ✅ CRITICAL FIX
+      .limit(1);
 
     console.log("👥 Team fetch:", { data, error });
 
@@ -63,19 +65,14 @@ export default function ContentApproval() {
       return;
     }
 
-    // ✅ If team exists
     if (data && data.length > 0) {
-      console.log("✅ Existing team:", data[0].id);
       setTeamId(data[0].id);
       return;
     }
 
-    // 🚨 Prevent duplicate creation
     if (isCreatingTeam) return;
 
     setIsCreatingTeam(true);
-
-    console.log("⚠️ No team found → creating...");
 
     const { data: newTeam, error: createError } = await supabase
       .from('teams')
@@ -85,23 +82,18 @@ export default function ContentApproval() {
       })
       .select();
 
-    console.log("🛠️ Create result:", { newTeam, createError });
-
     if (createError) {
       console.error("❌ Create team error:", createError);
       return;
     }
 
     if (newTeam && newTeam.length > 0) {
-      console.log("✅ New team created:", newTeam[0].id);
       setTeamId(newTeam[0].id);
     }
   };
 
   // ✅ FETCH DRAFTS
   const fetchDrafts = async () => {
-    console.log("📥 Fetching drafts...");
-
     const { data, error } = await supabase
       .from('content_drafts')
       .select(`
@@ -121,7 +113,7 @@ export default function ContentApproval() {
     setLoading(false);
   };
 
-  // ✅ CREATE DRAFT
+  // ✅ FIXED CREATE DRAFT
   const createDraft = async () => {
     if (!newDraft.content) {
       alert("Content is required");
@@ -133,24 +125,23 @@ export default function ContentApproval() {
       return;
     }
 
+    console.log("📝 Creating draft...");
+
     const { data, error } = await supabase
       .from('content_drafts')
-      .insert([
-        {
-          title: newDraft.title || null,
-          content: newDraft.content,
-          user_id: user.id,
-          team_id: teamId,
-          status: 'draft'
-        }
-      ])
-      .select();
+      .insert({
+        title: newDraft.title || null,
+        content: newDraft.content,
+        user_id: user.id,
+        team_id: teamId,
+        status: 'draft'
+      })
+      .select('*');
 
-    console.log("📦 Insert:", { data, error });
+    console.log("📦 Insert FULL:", JSON.stringify({ data, error }, null, 2));
 
     if (error) {
-      console.error("❌ Insert error:", error);
-      alert("Failed to create draft");
+      alert(error.message);
       return;
     }
 
@@ -162,6 +153,41 @@ export default function ContentApproval() {
     fetchDrafts();
   };
 
+  // ✅ FIXED INVITE MEMBER
+  const inviteMember = async () => {
+    if (!inviteEmail) {
+      alert("Email is required");
+      return;
+    }
+
+    if (!user || !teamId) {
+      alert("User or Team missing");
+      return;
+    }
+
+    console.log("📨 Sending invite...");
+
+    const { data, error } = await supabase
+      .from('team_invitations')
+      .insert({
+        email: inviteEmail.trim(),
+        team_id: teamId,
+        invited_by: user.id,
+        status: 'pending'
+      })
+      .select('*');
+
+    console.log("📨 Invite FULL:", JSON.stringify({ data, error }, null, 2));
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    toast({ title: 'Invitation sent!' });
+    setInviteEmail('');
+  };
+
   // ✅ SUBMIT FOR REVIEW
   const submitForReview = async (id: string) => {
     const { error } = await supabase
@@ -170,17 +196,14 @@ export default function ContentApproval() {
       .eq('id', id);
 
     if (error) {
-      console.error("❌ Submit error:", error);
       alert("Failed to submit");
       return;
     }
 
     toast({ title: 'Submitted for review' });
-
     fetchDrafts();
   };
 
-  // ✅ STATUS BADGES
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'draft':
@@ -205,6 +228,15 @@ export default function ContentApproval() {
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="flex justify-between mb-6">
         <h1 className="text-3xl font-bold">Content Approval</h1>
+
+        <div className="flex gap-2">
+          <Input
+            placeholder="Invite email"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+          />
+          <Button onClick={inviteMember}>Invite</Button>
+        </div>
 
         <Dialog open={createDialog} onOpenChange={setCreateDialog}>
           <DialogTrigger asChild>
