@@ -44,14 +44,17 @@ export default function ContentApproval() {
     }
   }, [teamId]);
 
-  // ✅ FIXED: NO .single() / .maybeSingle() → NO 406 EVER
+  // ✅ FINAL FIXED VERSION (NO 406, NO DUPLICATES, SAFE)
   const loadTeam = async () => {
     console.log("🔄 Loading team...");
+
+    if (!user) return;
 
     const { data, error } = await supabase
       .from('teams')
       .select('id')
-      .eq('owner_id', user?.id);
+      .eq('owner_id', user.id)
+      .limit(1); // ✅ CRITICAL FIX
 
     console.log("👥 Team fetch:", { data, error });
 
@@ -60,28 +63,29 @@ export default function ContentApproval() {
       return;
     }
 
+    // ✅ If team exists
     if (data && data.length > 0) {
-      console.log("✅ Existing team found:", data[0].id);
+      console.log("✅ Existing team:", data[0].id);
       setTeamId(data[0].id);
       return;
     }
 
-    // 🚨 Prevent infinite loop
+    // 🚨 Prevent duplicate creation
     if (isCreatingTeam) return;
 
     setIsCreatingTeam(true);
 
-    console.log("⚠️ No team → creating one...");
+    console.log("⚠️ No team found → creating...");
 
     const { data: newTeam, error: createError } = await supabase
       .from('teams')
       .insert({
         name: 'My Team',
-        owner_id: user?.id
+        owner_id: user.id
       })
       .select();
 
-    console.log("🛠️ Create team result:", { newTeam, createError });
+    console.log("🛠️ Create result:", { newTeam, createError });
 
     if (createError) {
       console.error("❌ Create team error:", createError);
@@ -89,6 +93,7 @@ export default function ContentApproval() {
     }
 
     if (newTeam && newTeam.length > 0) {
+      console.log("✅ New team created:", newTeam[0].id);
       setTeamId(newTeam[0].id);
     }
   };
@@ -105,10 +110,10 @@ export default function ContentApproval() {
       `)
       .order('created_at', { ascending: false });
 
-    console.log("📊 Draft fetch result:", { data, error });
+    console.log("📊 Draft result:", { data, error });
 
     if (error) {
-      console.error("❌ Fetch drafts error:", error);
+      console.error("❌ Draft fetch error:", error);
       return;
     }
 
@@ -128,8 +133,6 @@ export default function ContentApproval() {
       return;
     }
 
-    console.log("📝 Creating draft...");
-
     const { data, error } = await supabase
       .from('content_drafts')
       .insert([
@@ -143,7 +146,7 @@ export default function ContentApproval() {
       ])
       .select();
 
-    console.log("📦 Insert result:", { data, error });
+    console.log("📦 Insert:", { data, error });
 
     if (error) {
       console.error("❌ Insert error:", error);
@@ -161,8 +164,6 @@ export default function ContentApproval() {
 
   // ✅ SUBMIT FOR REVIEW
   const submitForReview = async (id: string) => {
-    console.log("📤 Submitting draft:", id);
-
     const { error } = await supabase
       .from('content_drafts')
       .update({ status: 'pending' })
