@@ -44,26 +44,25 @@ export default function ContentApproval() {
     }
   }, [teamId]);
 
-  // ✅ LOAD OR CREATE TEAM (FIXED PROPERLY)
+  // ✅ FIXED: NO .single() / .maybeSingle() → NO 406 EVER
   const loadTeam = async () => {
     console.log("🔄 Loading team...");
 
-    const { data: team, error } = await supabase
+    const { data, error } = await supabase
       .from('teams')
       .select('id')
-      .eq('owner_id', user?.id)
-      .maybeSingle();
+      .eq('owner_id', user?.id);
 
-    console.log("👥 Team fetch:", { team, error });
+    console.log("👥 Team fetch:", { data, error });
 
     if (error) {
       console.error("❌ Team fetch error:", error);
       return;
     }
 
-    if (team) {
-      console.log("✅ Existing team found:", team.id);
-      setTeamId(team.id);
+    if (data && data.length > 0) {
+      console.log("✅ Existing team found:", data[0].id);
+      setTeamId(data[0].id);
       return;
     }
 
@@ -80,8 +79,7 @@ export default function ContentApproval() {
         name: 'My Team',
         owner_id: user?.id
       })
-      .select()
-      .maybeSingle();
+      .select();
 
     console.log("🛠️ Create team result:", { newTeam, createError });
 
@@ -90,7 +88,9 @@ export default function ContentApproval() {
       return;
     }
 
-    setTeamId(newTeam.id);
+    if (newTeam && newTeam.length > 0) {
+      setTeamId(newTeam[0].id);
+    }
   };
 
   // ✅ FETCH DRAFTS
@@ -116,7 +116,7 @@ export default function ContentApproval() {
     setLoading(false);
   };
 
-  // ✅ CREATE DRAFT (SAFE)
+  // ✅ CREATE DRAFT
   const createDraft = async () => {
     if (!newDraft.content) {
       alert("Content is required");
@@ -128,12 +128,7 @@ export default function ContentApproval() {
       return;
     }
 
-    console.log("📝 Creating draft...", {
-      title: newDraft.title,
-      content: newDraft.content,
-      user_id: user.id,
-      team_id: teamId
-    });
+    console.log("📝 Creating draft...");
 
     const { data, error } = await supabase
       .from('content_drafts')
