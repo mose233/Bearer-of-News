@@ -13,11 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Draft {
 id: string;
-title: string;
+title: string | null;
 content: string;
 status: string;
 created_at: string;
-author: { email: string };
+author?: { email: string };
 }
 
 export default function ContentApproval() {
@@ -30,59 +30,39 @@ const [createDialog, setCreateDialog] = useState(false);
 const [newDraft, setNewDraft] = useState({ title: '', content: '' });
 
 const [teamId, setTeamId] = useState<string | null>(null);
-const [isCreatingTeam, setIsCreatingTeam] = useState(false);
-
 const [inviteEmail, setInviteEmail] = useState('');
 
 useEffect(() => {
-if (user) {
-loadTeam();
-}
+if (user) loadTeam();
 }, [user]);
 
 useEffect(() => {
-if (teamId) {
-fetchDrafts();
-}
+if (teamId) fetchDrafts();
 }, [teamId]);
 
-// ✅ LOAD TEAM
+// LOAD TEAM
 const loadTeam = async () => {
 if (!user) return;
 
 ```
-const { data, error } = await supabase
+const { data } = await supabase
   .from('teams')
   .select('id')
   .eq('owner_id', user.id)
   .limit(1);
-
-if (error) {
-  console.error(error);
-  return;
-}
 
 if (data && data.length > 0) {
   setTeamId(data[0].id);
   return;
 }
 
-if (isCreatingTeam) return;
-
-setIsCreatingTeam(true);
-
-const { data: newTeam, error: createError } = await supabase
+const { data: newTeam } = await supabase
   .from('teams')
   .insert({
     name: 'My Team',
     owner_id: user.id
   })
   .select();
-
-if (createError) {
-  console.error(createError);
-  return;
-}
 
 if (newTeam && newTeam.length > 0) {
   setTeamId(newTeam[0].id);
@@ -91,40 +71,25 @@ if (newTeam && newTeam.length > 0) {
 
 };
 
-// ✅ FETCH DRAFTS
+// FETCH DRAFTS
 const fetchDrafts = async () => {
-const { data, error } = await supabase
+const { data } = await supabase
 .from('content_drafts')
-.select(`         *,
-        author:profiles!content_drafts_user_id_fkey(email)
-      `)
+.select('*')
 .order('created_at', { ascending: false });
 
 ```
-if (error) {
-  console.error(error);
-  return;
-}
-
 if (data) setDrafts(data);
 setLoading(false);
 ```
 
 };
 
-// ✅ CREATE DRAFT
+// CREATE DRAFT
 const createDraft = async () => {
-if (!newDraft.content) {
-alert("Content is required");
-return;
-}
+if (!newDraft.content || !user || !teamId) return;
 
 ```
-if (!user || !teamId) {
-  alert("User or Team not ready yet");
-  return;
-}
-
 const { error } = await supabase
   .from('content_drafts')
   .insert({
@@ -140,33 +105,24 @@ if (error) {
   return;
 }
 
-toast({ title: 'Draft saved successfully' });
+toast({ title: 'Draft saved' });
 
 setCreateDialog(false);
 setNewDraft({ title: '', content: '' });
-
 fetchDrafts();
 ```
 
 };
 
-// ✅ INVITE MEMBER
+// INVITE
 const inviteMember = async () => {
-if (!inviteEmail) {
-alert("Email is required");
-return;
-}
+if (!inviteEmail || !user || !teamId) return;
 
 ```
-if (!user || !teamId) {
-  alert("User or Team missing");
-  return;
-}
-
 const { error } = await supabase
   .from('team_invitations')
   .insert({
-    email: inviteEmail.trim(),
+    email: inviteEmail,
     team_id: teamId,
     invited_by: user.id,
     status: 'pending'
@@ -177,51 +133,37 @@ if (error) {
   return;
 }
 
-toast({ title: 'Invitation sent!' });
+toast({ title: 'Invite sent' });
 setInviteEmail('');
 ```
 
 };
 
-// ✅ SUBMIT FOR REVIEW + EMAIL
+// SUBMIT + EMAIL
 const submitForReview = async (id: string) => {
-if (!user) {
-alert("User not found");
-return;
-}
+if (!user) return;
 
 ```
 const draft = drafts.find(d => d.id === id);
+if (!draft) return;
 
-if (!draft) {
-  alert("Draft not found");
-  return;
-}
-
-const { error } = await supabase
+await supabase
   .from('content_drafts')
   .update({ status: 'pending' })
   .eq('id', id);
 
-if (error) {
-  alert("Failed to submit");
-  return;
-}
-
-// 🔥 SEND EMAIL
+// EMAIL
 try {
   await fetch(
     'https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/send-draft-email',
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: user.email,
         draftTitle: draft.title || "Untitled",
-        draftContent: draft.content || "",
-        senderName: user.email || "User"
+        draftContent: draft.content,
+        senderName: user.email
       }),
     }
   );
@@ -229,34 +171,18 @@ try {
   console.error(err);
 }
 
-toast({ title: 'Submitted for review (email sent)' });
-
+toast({ title: 'Submitted & email sent' });
 fetchDrafts();
 ```
 
 };
 
-const getStatusBadge = (status: string) => {
-switch (status) {
-case 'draft':
-return <Badge><FileText className="w-3 h-3 mr-1" />Draft</Badge>;
-case 'pending':
-return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-case 'approved':
-return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
-case 'rejected':
-return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
-default:
-return null;
-}
-};
-
 const filterDrafts = (status: string) =>
 drafts.filter(d => d.status === status);
 
-if (loading) return <div className="p-8">Loading...</div>;
+if (loading) return <div className="p-6">Loading...</div>;
 
-return ( <div className="container mx-auto p-6 max-w-6xl"> <div className="flex justify-between mb-6"> <h1 className="text-3xl font-bold">Content Approval</h1>
+return ( <div className="p-6 max-w-5xl mx-auto"> <div className="flex justify-between mb-6"> <h1 className="text-2xl font-bold">Content Approval</h1>
 
 ```
     <div className="flex gap-2">
@@ -270,51 +196,40 @@ return ( <div className="container mx-auto p-6 max-w-6xl"> <div className="flex 
 
     <Dialog open={createDialog} onOpenChange={setCreateDialog}>
       <DialogTrigger asChild>
-        <Button disabled={!teamId}>Create Draft</Button>
+        <Button>Create Draft</Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Draft</DialogTitle>
-          <DialogDescription>
-            Write your content and save as draft
-          </DialogDescription>
+          <DialogDescription>Write content</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <Input
-            placeholder="Title (optional)"
-            value={newDraft.title}
-            onChange={(e) =>
-              setNewDraft({ ...newDraft, title: e.target.value })
-            }
-          />
+        <Input
+          placeholder="Title"
+          value={newDraft.title}
+          onChange={(e) =>
+            setNewDraft({ ...newDraft, title: e.target.value })
+          }
+        />
 
-          <Textarea
-            rows={6}
-            placeholder="Write content..."
-            value={newDraft.content}
-            onChange={(e) =>
-              setNewDraft({ ...newDraft, content: e.target.value })
-            }
-          />
+        <Textarea
+          placeholder="Content..."
+          value={newDraft.content}
+          onChange={(e) =>
+            setNewDraft({ ...newDraft, content: e.target.value })
+          }
+        />
 
-          <Button onClick={createDraft} className="w-full">
-            Save Draft
-          </Button>
-        </div>
+        <Button onClick={createDraft}>Save Draft</Button>
       </DialogContent>
     </Dialog>
   </div>
 
   <Tabs defaultValue="draft">
-    <TabsList className="grid grid-cols-2">
-      <TabsTrigger value="draft">
-        Drafts ({filterDrafts('draft').length})
-      </TabsTrigger>
-      <TabsTrigger value="pending">
-        Pending ({filterDrafts('pending').length})
-      </TabsTrigger>
+    <TabsList>
+      <TabsTrigger value="draft">Drafts</TabsTrigger>
+      <TabsTrigger value="pending">Pending</TabsTrigger>
     </TabsList>
 
     {['draft', 'pending'].map(status => (
@@ -323,18 +238,14 @@ return ( <div className="container mx-auto p-6 max-w-6xl"> <div className="flex 
           <Card key={draft.id} className="mb-4">
             <CardHeader>
               <CardTitle>{draft.title || "Untitled"}</CardTitle>
-              {getStatusBadge(draft.status)}
             </CardHeader>
 
             <CardContent>
-              <p className="mb-3">{draft.content}</p>
+              <p>{draft.content}</p>
 
               {status === 'draft' && (
-                <Button
-                  size="sm"
-                  onClick={() => submitForReview(draft.id)}
-                >
-                  Submit for Review
+                <Button onClick={() => submitForReview(draft.id)}>
+                  Submit
                 </Button>
               )}
             </CardContent>
@@ -342,9 +253,7 @@ return ( <div className="container mx-auto p-6 max-w-6xl"> <div className="flex 
         ))}
 
         {filterDrafts(status).length === 0 && (
-          <p className="text-center text-muted-foreground mt-6">
-            No {status} content
-          </p>
+          <p>No {status} content</p>
         )}
       </TabsContent>
     ))}
