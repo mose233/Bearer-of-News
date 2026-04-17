@@ -12,313 +12,345 @@ import { CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Draft {
-  id: string;
-  title: string;
-  content: string;
-  status: string;
-  created_at: string;
-  author: { email: string };
+id: string;
+title: string;
+content: string;
+status: string;
+created_at: string;
+author: { email: string };
 }
 
 export default function ContentApproval() {
-  const { user } = useAuth();
-  const { toast } = useToast();
+const { user } = useAuth();
+const { toast } = useToast();
 
-  const [drafts, setDrafts] = useState<Draft[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [createDialog, setCreateDialog] = useState(false);
-  const [newDraft, setNewDraft] = useState({ title: '', content: '' });
+const [drafts, setDrafts] = useState<Draft[]>([]);
+const [loading, setLoading] = useState(true);
+const [createDialog, setCreateDialog] = useState(false);
+const [newDraft, setNewDraft] = useState({ title: '', content: '' });
 
-  const [teamId, setTeamId] = useState<string | null>(null);
-  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+const [teamId, setTeamId] = useState<string | null>(null);
+const [isCreatingTeam, setIsCreatingTeam] = useState(false);
 
-  const [inviteEmail, setInviteEmail] = useState('');
+const [inviteEmail, setInviteEmail] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      loadTeam();
-    }
-  }, [user]);
+useEffect(() => {
+if (user) {
+loadTeam();
+}
+}, [user]);
 
-  useEffect(() => {
-    if (teamId) {
-      fetchDrafts();
-    }
-  }, [teamId]);
+useEffect(() => {
+if (teamId) {
+fetchDrafts();
+}
+}, [teamId]);
 
-  // ✅ LOAD TEAM
-  const loadTeam = async () => {
-    console.log("🔄 Loading team...");
+// ✅ LOAD TEAM
+const loadTeam = async () => {
+if (!user) return;
 
-    if (!user) return;
+```
+const { data, error } = await supabase
+  .from('teams')
+  .select('id')
+  .eq('owner_id', user.id)
+  .limit(1);
 
-    const { data, error } = await supabase
-      .from('teams')
-      .select('id')
-      .eq('owner_id', user.id)
-      .limit(1);
+if (error) {
+  console.error(error);
+  return;
+}
 
-    console.log("👥 Team fetch:", { data, error });
+if (data && data.length > 0) {
+  setTeamId(data[0].id);
+  return;
+}
 
-    if (error) {
-      console.error("❌ Team fetch error:", error);
-      return;
-    }
+if (isCreatingTeam) return;
 
-    if (data && data.length > 0) {
-      setTeamId(data[0].id);
-      return;
-    }
+setIsCreatingTeam(true);
 
-    if (isCreatingTeam) return;
+const { data: newTeam, error: createError } = await supabase
+  .from('teams')
+  .insert({
+    name: 'My Team',
+    owner_id: user.id
+  })
+  .select();
 
-    setIsCreatingTeam(true);
+if (createError) {
+  console.error(createError);
+  return;
+}
 
-    const { data: newTeam, error: createError } = await supabase
-      .from('teams')
-      .insert({
-        name: 'My Team',
-        owner_id: user.id
-      })
-      .select();
+if (newTeam && newTeam.length > 0) {
+  setTeamId(newTeam[0].id);
+}
+```
 
-    if (createError) {
-      console.error("❌ Create team error:", createError);
-      return;
-    }
+};
 
-    if (newTeam && newTeam.length > 0) {
-      setTeamId(newTeam[0].id);
-    }
-  };
-
-  // ✅ FETCH DRAFTS
-  const fetchDrafts = async () => {
-    const { data, error } = await supabase
-      .from('content_drafts')
-      .select(`
-        *,
+// ✅ FETCH DRAFTS
+const fetchDrafts = async () => {
+const { data, error } = await supabase
+.from('content_drafts')
+.select(`         *,
         author:profiles!content_drafts_user_id_fkey(email)
       `)
-      .order('created_at', { ascending: false });
+.order('created_at', { ascending: false });
 
-    console.log("📊 Draft result:", { data, error });
+```
+if (error) {
+  console.error(error);
+  return;
+}
 
-    if (error) {
-      console.error("❌ Draft fetch error:", error);
-      return;
+if (data) setDrafts(data);
+setLoading(false);
+```
+
+};
+
+// ✅ CREATE DRAFT
+const createDraft = async () => {
+if (!newDraft.content) {
+alert("Content is required");
+return;
+}
+
+```
+if (!user || !teamId) {
+  alert("User or Team not ready yet");
+  return;
+}
+
+const { error } = await supabase
+  .from('content_drafts')
+  .insert({
+    title: newDraft.title || null,
+    content: newDraft.content,
+    user_id: user.id,
+    team_id: teamId,
+    status: 'draft'
+  });
+
+if (error) {
+  alert(error.message);
+  return;
+}
+
+toast({ title: 'Draft saved successfully' });
+
+setCreateDialog(false);
+setNewDraft({ title: '', content: '' });
+
+fetchDrafts();
+```
+
+};
+
+// ✅ INVITE MEMBER
+const inviteMember = async () => {
+if (!inviteEmail) {
+alert("Email is required");
+return;
+}
+
+```
+if (!user || !teamId) {
+  alert("User or Team missing");
+  return;
+}
+
+const { error } = await supabase
+  .from('team_invitations')
+  .insert({
+    email: inviteEmail.trim(),
+    team_id: teamId,
+    invited_by: user.id,
+    status: 'pending'
+  });
+
+if (error) {
+  alert(error.message);
+  return;
+}
+
+toast({ title: 'Invitation sent!' });
+setInviteEmail('');
+```
+
+};
+
+// ✅ SUBMIT FOR REVIEW + EMAIL
+const submitForReview = async (id: string) => {
+if (!user) {
+alert("User not found");
+return;
+}
+
+```
+const draft = drafts.find(d => d.id === id);
+
+if (!draft) {
+  alert("Draft not found");
+  return;
+}
+
+const { error } = await supabase
+  .from('content_drafts')
+  .update({ status: 'pending' })
+  .eq('id', id);
+
+if (error) {
+  alert("Failed to submit");
+  return;
+}
+
+// 🔥 SEND EMAIL
+try {
+  await fetch(
+    'https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/send-draft-email',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: user.email,
+        draftTitle: draft.title || "Untitled",
+        draftContent: draft.content || "",
+        senderName: user.email || "User"
+      }),
     }
-
-    if (data) setDrafts(data);
-    setLoading(false);
-  };
-
-  // ✅ FIXED CREATE DRAFT
-  const createDraft = async () => {
-    if (!newDraft.content) {
-      alert("Content is required");
-      return;
-    }
-
-    if (!user || !teamId) {
-      alert("User or Team not ready yet");
-      return;
-    }
-
-    console.log("📝 Creating draft...");
-
-    const { data, error } = await supabase
-      .from('content_drafts')
-      .insert({
-        title: newDraft.title || null,
-        content: newDraft.content,
-        user_id: user.id,
-        team_id: teamId,
-        status: 'draft'
-      })
-      .select('*');
-
-    console.log("📦 Insert FULL:", JSON.stringify({ data, error }, null, 2));
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    toast({ title: 'Draft saved successfully' });
-
-    setCreateDialog(false);
-    setNewDraft({ title: '', content: '' });
-
-    fetchDrafts();
-  };
-
-  // ✅ FIXED INVITE MEMBER
-  const inviteMember = async () => {
-    if (!inviteEmail) {
-      alert("Email is required");
-      return;
-    }
-
-    if (!user || !teamId) {
-      alert("User or Team missing");
-      return;
-    }
-
-    console.log("📨 Sending invite...");
-
-    const { data, error } = await supabase
-      .from('team_invitations')
-      .insert({
-        email: inviteEmail.trim(),
-        team_id: teamId,
-        invited_by: user.id,
-        status: 'pending'
-      })
-      .select('*');
-
-    console.log("📨 Invite FULL:", JSON.stringify({ data, error }, null, 2));
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    toast({ title: 'Invitation sent!' });
-    setInviteEmail('');
-  };
-
-  // ✅ SUBMIT FOR REVIEW
-  const submitForReview = async (id: string) => {
-    const { error } = await supabase
-      .from('content_drafts')
-      .update({ status: 'pending' })
-      .eq('id', id);
-
-    if (error) {
-      alert("Failed to submit");
-      return;
-    }
-
-    toast({ title: 'Submitted for review' });
-    fetchDrafts();
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return <Badge><FileText className="w-3 h-3 mr-1" />Draft</Badge>;
-      case 'pending':
-        return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-      case 'approved':
-        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
-      default:
-        return null;
-    }
-  };
-
-  const filterDrafts = (status: string) =>
-    drafts.filter(d => d.status === status);
-
-  if (loading) return <div className="p-8">Loading...</div>;
-
-  return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-3xl font-bold">Content Approval</h1>
-
-        <div className="flex gap-2">
-          <Input
-            placeholder="Invite email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-          />
-          <Button onClick={inviteMember}>Invite</Button>
-        </div>
-
-        <Dialog open={createDialog} onOpenChange={setCreateDialog}>
-          <DialogTrigger asChild>
-            <Button disabled={!teamId}>Create Draft</Button>
-          </DialogTrigger>
-
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Draft</DialogTitle>
-              <DialogDescription>
-                Write your content and save as draft
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <Input
-                placeholder="Title (optional)"
-                value={newDraft.title}
-                onChange={(e) =>
-                  setNewDraft({ ...newDraft, title: e.target.value })
-                }
-              />
-
-              <Textarea
-                rows={6}
-                placeholder="Write content..."
-                value={newDraft.content}
-                onChange={(e) =>
-                  setNewDraft({ ...newDraft, content: e.target.value })
-                }
-              />
-
-              <Button onClick={createDraft} className="w-full">
-                Save Draft
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <Tabs defaultValue="draft">
-        <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="draft">
-            Drafts ({filterDrafts('draft').length})
-          </TabsTrigger>
-          <TabsTrigger value="pending">
-            Pending ({filterDrafts('pending').length})
-          </TabsTrigger>
-        </TabsList>
-
-        {['draft', 'pending'].map(status => (
-          <TabsContent key={status} value={status}>
-            {filterDrafts(status).map(draft => (
-              <Card key={draft.id} className="mb-4">
-                <CardHeader>
-                  <CardTitle>{draft.title || "Untitled"}</CardTitle>
-                  {getStatusBadge(draft.status)}
-                </CardHeader>
-
-                <CardContent>
-                  <p className="mb-3">{draft.content}</p>
-
-                  {status === 'draft' && (
-                    <Button
-                      size="sm"
-                      onClick={() => submitForReview(draft.id)}
-                    >
-                      Submit for Review
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-
-            {filterDrafts(status).length === 0 && (
-              <p className="text-center text-muted-foreground mt-6">
-                No {status} content
-              </p>
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
-    </div>
   );
+} catch (err) {
+  console.error(err);
+}
+
+toast({ title: 'Submitted for review (email sent)' });
+
+fetchDrafts();
+```
+
+};
+
+const getStatusBadge = (status: string) => {
+switch (status) {
+case 'draft':
+return <Badge><FileText className="w-3 h-3 mr-1" />Draft</Badge>;
+case 'pending':
+return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+case 'approved':
+return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
+case 'rejected':
+return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+default:
+return null;
+}
+};
+
+const filterDrafts = (status: string) =>
+drafts.filter(d => d.status === status);
+
+if (loading) return <div className="p-8">Loading...</div>;
+
+return ( <div className="container mx-auto p-6 max-w-6xl"> <div className="flex justify-between mb-6"> <h1 className="text-3xl font-bold">Content Approval</h1>
+
+```
+    <div className="flex gap-2">
+      <Input
+        placeholder="Invite email"
+        value={inviteEmail}
+        onChange={(e) => setInviteEmail(e.target.value)}
+      />
+      <Button onClick={inviteMember}>Invite</Button>
+    </div>
+
+    <Dialog open={createDialog} onOpenChange={setCreateDialog}>
+      <DialogTrigger asChild>
+        <Button disabled={!teamId}>Create Draft</Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Draft</DialogTitle>
+          <DialogDescription>
+            Write your content and save as draft
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <Input
+            placeholder="Title (optional)"
+            value={newDraft.title}
+            onChange={(e) =>
+              setNewDraft({ ...newDraft, title: e.target.value })
+            }
+          />
+
+          <Textarea
+            rows={6}
+            placeholder="Write content..."
+            value={newDraft.content}
+            onChange={(e) =>
+              setNewDraft({ ...newDraft, content: e.target.value })
+            }
+          />
+
+          <Button onClick={createDraft} className="w-full">
+            Save Draft
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </div>
+
+  <Tabs defaultValue="draft">
+    <TabsList className="grid grid-cols-2">
+      <TabsTrigger value="draft">
+        Drafts ({filterDrafts('draft').length})
+      </TabsTrigger>
+      <TabsTrigger value="pending">
+        Pending ({filterDrafts('pending').length})
+      </TabsTrigger>
+    </TabsList>
+
+    {['draft', 'pending'].map(status => (
+      <TabsContent key={status} value={status}>
+        {filterDrafts(status).map(draft => (
+          <Card key={draft.id} className="mb-4">
+            <CardHeader>
+              <CardTitle>{draft.title || "Untitled"}</CardTitle>
+              {getStatusBadge(draft.status)}
+            </CardHeader>
+
+            <CardContent>
+              <p className="mb-3">{draft.content}</p>
+
+              {status === 'draft' && (
+                <Button
+                  size="sm"
+                  onClick={() => submitForReview(draft.id)}
+                >
+                  Submit for Review
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+
+        {filterDrafts(status).length === 0 && (
+          <p className="text-center text-muted-foreground mt-6">
+            No {status} content
+          </p>
+        )}
+      </TabsContent>
+    ))}
+  </Tabs>
+</div>
+```
+
+);
 }
