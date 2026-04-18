@@ -52,7 +52,6 @@ export default function ContentApproval() {
       return;
     }
 
-    // create team if none
     const { data: newTeam } = await supabase
       .from('teams')
       .insert({
@@ -153,43 +152,66 @@ export default function ContentApproval() {
   };
 
   // =========================
-  // SUBMIT + EMAIL
+  // SUBMIT + EMAIL (FIXED)
   // =========================
   const submitForReview = async (id: string) => {
-    const draft = drafts.find(d => d.id === id);
-    if (!draft || !user) return;
+    console.log("🚀 Submitting:", id);
 
-    // update status
+    if (!user || !user.email) {
+      alert("User email missing");
+      return;
+    }
+
+    const draft = drafts.find(d => d.id === id);
+
+    if (!draft) {
+      alert("Draft not found");
+      return;
+    }
+
+    // 1️⃣ Update status
     const { error } = await supabase
       .from('content_drafts')
       .update({ status: 'pending' })
       .eq('id', id);
 
     if (error) {
+      console.error(error);
       alert('Failed to submit');
       return;
     }
 
-    // send email
+    // 2️⃣ Send email (FIXED PAYLOAD)
     try {
-      await fetch(
+      const res = await fetch(
         'https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/send-draft-email',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             to: user.email,
-            draftTitle: draft.title || 'Untitled',
-            draftContent: draft.content,
+            subject: "New Draft Submitted",
+            draftTitle: draft.title ?? "Untitled",
+            draftContent: draft.content ?? "",
             senderName: user.email
           })
         }
       );
+
+      const data = await res.json();
+      console.log("📧 Email response:", data);
+
+      if (!res.ok) {
+        console.error("Email failed:", data);
+      }
+
     } catch (err) {
-      console.error(err);
+      console.error("❌ Email error:", err);
     }
 
-    toast({ title: 'Submitted & email sent' });
+    toast({ title: 'Submitted & email triggered' });
     fetchDrafts();
   };
 
