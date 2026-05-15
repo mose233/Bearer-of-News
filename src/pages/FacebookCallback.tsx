@@ -40,4 +40,4 @@ export default function FacebookCallback() {
       <p className="text-lg">Connecting to Facebook...</p>
     </div>
   );
-}
+}                                  

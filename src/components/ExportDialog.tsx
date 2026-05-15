@@ -12,7 +12,6 @@ interface ExportDialogProps {
   onExport: (format: string, metrics: string[], emailRecipients?: string[]) => Promise<void>;
 }
 
-
 const availableMetrics = [
   { id: 'total_content', label: 'Total Content' },
   { id: 'approval_rate', label: 'Approval Rate' },
@@ -25,24 +24,12 @@ const availableMetrics = [
 
 export function ExportDialog({ open, onOpenChange, onExport }: ExportDialogProps) {
   const [format, setFormat] = useState<'csv' | 'pdf'>('csv');
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(availableMetrics.map(m => m.id));
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(
+    availableMetrics.map(m => m.id)
+  );
   const [loading, setLoading] = useState(false);
   const [sendEmail, setSendEmail] = useState(false);
   const [emailRecipients, setEmailRecipients] = useState('');
-
-  const handleExport = async () => {
-    setLoading(true);
-    try {
-      const recipients = sendEmail && emailRecipients 
-        ? emailRecipients.split(',').map(e => e.trim()) 
-        : undefined;
-      await onExport(format, selectedMetrics, recipients);
-      onOpenChange(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   const toggleMetric = (metricId: string) => {
     setSelectedMetrics(prev =>
@@ -52,14 +39,40 @@ export function ExportDialog({ open, onOpenChange, onExport }: ExportDialogProps
     );
   };
 
+  const handleExport = async () => {
+    if (selectedMetrics.length === 0) return;
+
+    setLoading(true);
+
+    try {
+      const recipients =
+        sendEmail && emailRecipients
+          ? emailRecipients
+              .split(',')
+              .map(e => e.trim())
+              .filter(Boolean) // ✅ removes empty emails (IMPORTANT FIX)
+          : undefined;
+
+      await onExport(format, selectedMetrics, recipients);
+
+      onOpenChange(false);
+    } catch (err) {
+      console.error('EXPORT ERROR:', err);
+      alert('Export failed. Check console or server logs.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Export Analytics Report</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
+          {/* FORMAT */}
           <div>
             <Label className="mb-2 block">Export Format</Label>
             <div className="flex gap-2">
@@ -80,6 +93,7 @@ export function ExportDialog({ open, onOpenChange, onExport }: ExportDialogProps
             </div>
           </div>
 
+          {/* METRICS */}
           <div>
             <Label className="mb-2 block">Select Metrics</Label>
             <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -98,22 +112,28 @@ export function ExportDialog({ open, onOpenChange, onExport }: ExportDialogProps
             </div>
           </div>
 
+          {/* EMAIL */}
           <div className="border-t pt-4">
             <div className="flex items-center space-x-2 mb-3">
               <Checkbox
                 id="send-email"
                 checked={sendEmail}
-                onCheckedChange={(checked) => setSendEmail(checked as boolean)}
+                onCheckedChange={(checked) => setSendEmail(!!checked)}
               />
-              <label htmlFor="send-email" className="text-sm font-medium cursor-pointer flex items-center">
+              <label
+                htmlFor="send-email"
+                className="text-sm font-medium cursor-pointer flex items-center"
+              >
                 <Mail className="w-4 h-4 mr-1" />
                 Send via Email
               </label>
             </div>
-            
+
             {sendEmail && (
               <div>
-                <Label htmlFor="email-recipients" className="text-xs">Recipients (comma-separated)</Label>
+                <Label htmlFor="email-recipients" className="text-xs">
+                  Recipients (comma-separated)
+                </Label>
                 <Input
                   id="email-recipients"
                   value={emailRecipients}
@@ -125,11 +145,20 @@ export function ExportDialog({ open, onOpenChange, onExport }: ExportDialogProps
             )}
           </div>
 
-          <Button onClick={handleExport} disabled={loading || selectedMetrics.length === 0} className="w-full">
-            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
+          {/* SUBMIT */}
+          <Button
+            onClick={handleExport}
+            disabled={loading || selectedMetrics.length === 0}
+            className="w-full"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <FileDown className="w-4 h-4 mr-2" />
+            )}
+
             {sendEmail ? 'Export & Send Email' : 'Export Report'}
           </Button>
-
         </div>
       </DialogContent>
     </Dialog>

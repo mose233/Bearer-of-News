@@ -1,7 +1,24 @@
 import React from 'react';
 import { Brain, Target, Shield, BarChart3 } from 'lucide-react';
+import { supabase } from '../supabase';
 
 const AIFeaturesSection: React.FC = () => {
+
+  const signInWithFacebook = async () => {
+    console.log('BUTTON CLICKED');
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        scopes: 'pages_show_list,pages_read_engagement'
+      }
+    });
+
+    if (error) {
+      console.error('Login error:', error.message);
+    }
+  };
+
   const features = [
     {
       icon: Brain,
@@ -37,13 +54,15 @@ const AIFeaturesSection: React.FC = () => {
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+          {/* LEFT SIDE */}
           <div className="space-y-8">
             <div>
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
                 AI-Powered Content Enhancement
               </h2>
               <p className="text-xl text-gray-600 leading-relaxed">
-                Leverage advanced AI tools to improve content quality, maintain brand consistency, 
+                Leverage advanced AI tools to improve content quality, maintain brand consistency,
                 and predict performance before publishing.
               </p>
             </div>
@@ -58,7 +77,9 @@ const AIFeaturesSection: React.FC = () => {
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        feature.tier === 'Free' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        feature.tier === 'Free'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-blue-100 text-blue-800'
                       }`}>
                         {feature.tier}
                       </span>
@@ -69,24 +90,33 @@ const AIFeaturesSection: React.FC = () => {
               ))}
             </div>
 
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors">
-              Try AI Features Free
+            {/* ✅ CLEAN FACEBOOK BUTTON */}
+            <button
+              onClick={signInWithFacebook}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors w-full cursor-pointer"
+            >
+              Continue with Facebook
             </button>
+
           </div>
 
+          {/* RIGHT SIDE */}
           <div className="relative">
-            <img 
+            <img
               src="https://d64gsuwffb70l.cloudfront.net/68d29e79a897c8e646376bfe_1758633664080_7f68b4e4.webp"
               alt="AI Content Analysis"
               className="rounded-2xl shadow-2xl"
             />
-            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
+            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg pointer-events-none">
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-900">AI Analysis Complete</span>
+                <span className="text-sm font-medium text-gray-900">
+                  AI Analysis Complete
+                </span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
