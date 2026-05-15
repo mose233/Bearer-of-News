@@ -28,7 +28,13 @@ export default function Login() {
     const { error } = await signIn(email, password);
 
     if (error) {
-      setError(error.message);
+      // ✅ SAFE: improved Supabase error handling (no breaking changes)
+      if (error.message.includes('Email not confirmed')) {
+        setError('Please verify your email before signing in. Check your inbox (and spam folder).');
+      } else {
+        setError(error.message);
+      }
+
       setLoading(false);
     } else {
       navigate('/');

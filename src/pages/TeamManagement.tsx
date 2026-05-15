@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Mail, Shield, Eye, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
@@ -48,6 +47,7 @@ export default function TeamManagement() {
           .insert({ name: 'My Team', owner_id: user.id })
           .select()
           .single();
+
         team = newTeam;
       }
 
@@ -66,36 +66,55 @@ export default function TeamManagement() {
     }
   };
 
-  // ✅ NEW INVITE SYSTEM (LINK-BASED)
+  // ✅ INVITE SYSTEM WITH EMAIL
   const handleInvite = async () => {
-    if (!teamId || !inviteEmail) {
-      alert("Enter email");
+    if (!teamId || !inviteEmail || !user) {
+      alert("Missing required fields");
       return;
     }
 
     try {
       setInviteLoading(true);
 
+      // Generate unique token
       const token = crypto.randomUUID();
 
+      // Save invite in database
       const { error } = await supabase
         .from('team_invitations')
-        .insert({
-          team_id: teamId,
-          email: inviteEmail,
-          role: inviteRole,
-          token
-        });
+        .insert([
+          {
+            team_id: teamId,
+            email: inviteEmail,
+            role: inviteRole,
+            status: 'pending',
+            invited_by: user.id,
+            token: token
+          }
+        ]);
 
       if (error) {
-        console.error(error);
+        console.error('Invite error:', error);
         alert("Failed to create invite");
         return;
       }
 
+      // Create invite link
       const inviteLink = `${window.location.origin}/join?token=${token}`;
 
-      alert(`Invite link:\n${inviteLink}`);
+      // ✅ SEND EMAIL (Cloudflare function)
+      await fetch('/send-invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: inviteEmail,
+          link: inviteLink
+        })
+      });
+
+      alert("Invite sent successfully!");
 
       setInviteEmail('');
       setInviteOpen(false);
@@ -152,23 +171,25 @@ export default function TeamManagement() {
             <DialogHeader>
               <DialogTitle>Invite Team Member</DialogTitle>
               <DialogDescription>
-                Generate an invite link to join your team
+                Add a member to your team
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <div>
-                <Label>Email Address</Label>
-                <Input
-                  type="email"
-                  placeholder="user email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                />
+                <Label htmlFor="inviteEmail">Email Address</Label>
+<Input
+  id="inviteEmail"
+  name="inviteEmail"
+  type="email"
+  placeholder="user email"
+  value={inviteEmail}
+  onChange={(e) => setInviteEmail(e.target.value)}
+/>
               </div>
 
               <div>
-                <Label>Role</Label>
+                <Label htmlFor="inviteRole">Role</Label>
                 <Select value={inviteRole} onValueChange={(v: any) => setInviteRole(v)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -186,10 +207,10 @@ export default function TeamManagement() {
                 className="w-full"
                 disabled={inviteLoading}
               >
-                {inviteLoading ? "Generating..." : (
+                {inviteLoading ? "Sending..." : (
                   <>
                     <Mail className="w-4 h-4 mr-2" />
-                    Generate Invite Link
+                    Send Invite
                   </>
                 )}
               </Button>
@@ -202,7 +223,7 @@ export default function TeamManagement() {
         <CardHeader>
           <CardTitle>Team Members ({members.length})</CardTitle>
           <CardDescription>
-            View and manage team member roles
+            View and manage team roles
           </CardDescription>
         </CardHeader>
 

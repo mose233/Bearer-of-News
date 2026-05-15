@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -14,11 +14,14 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
+import ContentReview from "./pages/ContentReview";
+import ContentStudio from "./pages/ContentStudio";
 import Analytics from "./pages/Analytics";
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import Join from "./pages/Join";
 
 const queryClient = new QueryClient();
 
@@ -34,22 +37,33 @@ const App = () => {
             <AuthProvider>
               <Routes>
 
-                {/* ✅ ROOT (Dashboard) */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* ✅ PUBLIC LANDING PAGE */}
+                <Route path="/" element={<Index />} />
 
                 {/* ✅ AUTH ROUTES */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route
+                  path="/reset-password"
+                  element={<ResetPassword />}
+                />
+
+                {/* ✅ PUBLIC JOIN PAGE */}
+                <Route path="/join" element={<Join />} />
 
                 {/* ✅ PROTECTED ROUTES */}
+
+                {/* Dashboard */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Profile */}
                 <Route
                   path="/profile"
                   element={
@@ -59,6 +73,7 @@ const App = () => {
                   }
                 />
 
+                {/* Team */}
                 <Route
                   path="/team"
                   element={
@@ -68,6 +83,7 @@ const App = () => {
                   }
                 />
 
+                {/* Content Approval */}
                 <Route
                   path="/content"
                   element={
@@ -77,6 +93,27 @@ const App = () => {
                   }
                 />
 
+                {/* ✅ CONTENT REVIEW PAGE */}
+                <Route
+                  path="/content-review/:id"
+                  element={
+                    <ProtectedRoute>
+                      <ContentReview />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* ✅ AI CONTENT STUDIO */}
+                <Route
+                  path="/content-studio"
+                  element={
+                    <ProtectedRoute>
+                      <ContentStudio />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Analytics */}
                 <Route
                   path="/analytics"
                   element={
@@ -86,12 +123,12 @@ const App = () => {
                   }
                 />
 
-                {/* ✅ PUBLIC ROUTES */}
+                {/* ✅ PUBLIC INFO PAGES */}
                 <Route path="/about" element={<About />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
 
-                {/* ✅ FALLBACK */}
+                {/* ✅ 404 */}
                 <Route path="*" element={<NotFound />} />
 
               </Routes>

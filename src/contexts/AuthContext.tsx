@@ -21,50 +21,109 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    console.log('🔥 AuthProvider mounted');
+
+    // GET EXISTING SESSION
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('✅ Existing session:', session);
+
+      if (error) {
+        console.error('❌ Session error:', error);
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // LISTEN FOR LOGIN / LOGOUT
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 Auth state changed:', event);
+      console.log('👤 User:', session?.user);
+
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('🛑 Auth subscription removed');
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  // SIGN UP
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName: string
+  ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } }
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
     });
+
+    console.log('📝 Sign up:', data);
+
     return { data, error };
   };
 
+  // EMAIL LOGIN
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    console.log('🔐 Sign in:', data);
+
     return { data, error };
   };
 
+  // LOGOUT
   const signOut = async () => {
+    console.log('🚪 Signing out');
+
     await supabase.auth.signOut();
+
+    setUser(null);
+    setSession(null);
   };
 
+  // RESET PASSWORD
   const resetPassword = async (email: string) => {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
     return { data, error };
   };
 
+  // UPDATE PROFILE
   const updateProfile = async (updates: any) => {
     const { data, error } = await supabase.auth.updateUser(updates);
+
     return { data, error };
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, resetPassword, updateProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        signUp,
+        signIn,
+        signOut,
+        resetPassword,
+        updateProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -72,6 +131,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+
   return context;
 };
