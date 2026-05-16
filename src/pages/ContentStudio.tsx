@@ -38,6 +38,7 @@ const ContentStudio = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceText, setVoiceText] = useState("");
   const [speechRate, setSpeechRate] = useState(1);
+  const [voiceVolume, setVoiceVolume] = useState(1);
   const [aiVoiceBlob, setAiVoiceBlob] = useState<Blob | null>(null);
 
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
@@ -48,6 +49,7 @@ const ContentStudio = () => {
   const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
   const [musicPreview, setMusicPreview] = useState("");
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(0.18);
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
@@ -89,6 +91,33 @@ const ContentStudio = () => {
     return () => clearInterval(interval);
   }, [isPlaying, imagePreviews.length]);
 
+  const generateAIScript = () => {
+    const prompt = videoPrompt.trim();
+
+    if (!prompt) {
+      alert("Please write a video prompt first.");
+      return;
+    }
+
+    const cleanPrompt = prompt.replace(/\s+/g, " ");
+
+    const generatedCaption = `🚨 Breaking Update: ${cleanPrompt}
+
+Stay informed with XNewsApp for the latest updates, verified reports, and developing stories.`;
+
+    const generatedVoice = `Breaking news update from XNewsApp.
+
+${cleanPrompt}
+
+We are following this developing story closely. Stay with XNewsApp for timely updates, clear reporting, and trusted news coverage.`;
+
+    setFacebookCaption(generatedCaption);
+    setVoiceText(generatedVoice);
+    setAiVoiceBlob(null);
+
+    alert("AI script generated successfully.");
+  };
+
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
 
@@ -125,6 +154,7 @@ const ContentStudio = () => {
       audioRef.current.pause();
       setIsMusicPlaying(false);
     } else {
+      audioRef.current.volume = musicVolume;
       audioRef.current.play();
       setIsMusicPlaying(true);
     }
@@ -245,6 +275,18 @@ const ContentStudio = () => {
       await ffmpeg.deleteFile("final-video.mp4");
     } catch {}
 
+    try {
+      await ffmpeg.deleteFile("final-mixed-video.mp4");
+    } catch {}
+
+    try {
+      await ffmpeg.deleteFile("voiceover.mp3");
+    } catch {}
+
+    try {
+      await ffmpeg.deleteFile("background-music");
+    } catch {}
+
     for (let i = 0; i < imagePreviews.length; i++) {
       const image = imagePreviews[i];
 
@@ -335,6 +377,12 @@ const ContentStudio = () => {
         "slideshow.mp4",
         "-i",
         "voiceover.mp3",
+        "-filter_complex",
+        `[1:a]volume=${voiceVolume}[voice]`,
+        "-map",
+        "0:v",
+        "-map",
+        "[voice]",
         "-c:v",
         "copy",
         "-c:a",
@@ -361,14 +409,111 @@ const ContentStudio = () => {
     }
   };
 
+  const exportFinalMixedMp4 = async () => {
+    try {
+      if (imagePreviews.length === 0) {
+        alert("Please upload images first.");
+        return;
+      }
+
+      if (!voiceText.trim() && !aiVoiceBlob) {
+        alert("Please type voice text first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setIsExporting(true);
+
+      const ffmpeg = await createSlideshowVideo();
+
+      let voiceBlob = aiVoiceBlob;
+
+      if (!voiceBlob) {
+        voiceBlob = await generateVoice(voiceText);
+        setAiVoiceBlob(voiceBlob);
+      }
+
+      const voiceBuffer = await voiceBlob.arrayBuffer();
+
+      await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
+
+      if (backgroundMusic) {
+        const musicBuffer = await backgroundMusic.arrayBuffer();
+
+        await ffmpeg.writeFile(
+          "background-music",
+          new Uint8Array(musicBuffer)
+        );
+
+        await ffmpeg.exec([
+          "-i",
+          "slideshow.mp4",
+          "-i",
+          "voiceover.mp3",
+          "-stream_loop",
+          "-1",
+          "-i",
+          "background-music",
+          "-filter_complex",
+          `[1:a]volume=${voiceVolume}[voice];[2:a]volume=${musicVolume}[music];[voice][music]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+          "-map",
+          "0:v",
+          "-map",
+          "[aout]",
+          "-c:v",
+          "copy",
+          "-c:a",
+          "aac",
+          "-shortest",
+          "final-mixed-video.mp4",
+        ]);
+      } else {
+        await ffmpeg.exec([
+          "-i",
+          "slideshow.mp4",
+          "-i",
+          "voiceover.mp3",
+          "-filter_complex",
+          `[1:a]volume=${voiceVolume}[voice]`,
+          "-map",
+          "0:v",
+          "-map",
+          "[voice]",
+          "-c:v",
+          "copy",
+          "-c:a",
+          "aac",
+          "-shortest",
+          "final-mixed-video.mp4",
+        ]);
+      }
+
+      const data = await ffmpeg.readFile("final-mixed-video.mp4");
+
+      const finalBlob = new Blob([data], {
+        type: "video/mp4",
+      });
+
+      saveAs(finalBlob, "xnewsapp-final-mixed-video.mp4");
+
+      alert("Final mixed MP4 exported successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export final mixed MP4.");
+    } finally {
+      setIsRecording(false);
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-6xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold">AI Content Studio</h1>
 
         <p className="text-gray-500 mt-2">
-          Upload videos or images, create media content, add AI voiceover, and
-          share instantly to Facebook.
+          Upload videos or images, create scripts, add AI voiceover, mix
+          background music, and share instantly to Facebook.
         </p>
       </div>
 
@@ -388,6 +533,13 @@ const ContentStudio = () => {
                 placeholder="Example: Breaking news about floods in Nairobi..."
                 className="w-full border rounded-lg p-3 min-h-[120px]"
               />
+
+              <Button
+                onClick={generateAIScript}
+                className="bg-cyan-600 hover:bg-cyan-700"
+              >
+                Generate AI Script
+              </Button>
             </div>
 
             <div className="space-y-2">
@@ -426,6 +578,22 @@ const ContentStudio = () => {
                   step="0.1"
                   value={speechRate}
                   onChange={(e) => setSpeechRate(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm">
+                  AI Voice Volume: {Math.round(voiceVolume * 100)}%
+                </label>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.05"
+                  value={voiceVolume}
+                  onChange={(e) => setVoiceVolume(Number(e.target.value))}
                   className="w-full"
                 />
               </div>
@@ -475,6 +643,29 @@ const ContentStudio = () => {
                 accept="audio/*"
                 onChange={handleMusicUpload}
               />
+
+              <div className="space-y-2">
+                <label className="text-sm">
+                  Background Music Volume: {Math.round(musicVolume * 100)}%
+                </label>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={musicVolume}
+                  onChange={(e) => {
+                    const volume = Number(e.target.value);
+                    setMusicVolume(volume);
+
+                    if (audioRef.current) {
+                      audioRef.current.volume = volume;
+                    }
+                  }}
+                  className="w-full"
+                />
+              </div>
 
               {backgroundMusic && (
                 <div className="space-y-3 border rounded-xl p-4">
@@ -558,6 +749,16 @@ const ContentStudio = () => {
                 {isRecording || isExporting
                   ? "Exporting Narrated MP4..."
                   : "Export Narrated MP4"}
+              </Button>
+
+              <Button
+                onClick={exportFinalMixedMp4}
+                disabled={isRecording || isExporting}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isRecording || isExporting
+                  ? "Exporting Final MP4..."
+                  : "Export Final Mixed MP4"}
               </Button>
             </div>
           </CardContent>
