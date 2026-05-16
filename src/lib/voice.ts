@@ -1,31 +1,17 @@
-const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
-
-const voiceId = "t3QyKN6o4OpslvrclLKC";
-
-export const generateVoice = async (text: string): Promise<Blob> => {
-  if (!apiKey) {
-    throw new Error("Missing VITE_ELEVENLABS_API_KEY");
+export const generateVoice = async (
+  text: string
+): Promise<Blob> => {
+  if (!text.trim()) {
+    throw new Error("Missing voice text");
   }
 
-  const response = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-    {
-      method: "POST",
-      headers: {
-        "xi-api-key": apiKey,
-        "Content-Type": "application/json",
-        Accept: "audio/mpeg",
-      },
-      body: JSON.stringify({
-        text,
-        model_id: "eleven_multilingual_v2",
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
-        },
-      }),
-    }
-  );
+  const response = await fetch("/api/generate-voice", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text }),
+  });
 
   if (!response.ok) {
     throw new Error(await response.text());
