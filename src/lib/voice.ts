@@ -1,6 +1,6 @@
 const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
 
-const voiceId = "21m00Tcm4TlvDq8ikWAM";
+const voiceId = "t3QyKN6o4OpslvrclLKC";
 
 export const generateVoice = async (text: string): Promise<Blob> => {
   if (!apiKey) {
