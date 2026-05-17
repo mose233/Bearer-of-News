@@ -10,7 +10,23 @@ export async function onRequestPost(context: any) {
         JSON.stringify({ error: "Missing text" }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    if (!env.ELEVENLABS_API_KEY) {
+      return new Response(
+        JSON.stringify({
+          error: "ELEVENLABS_API_KEY missing in Cloudflare",
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
     }
@@ -43,7 +59,9 @@ export async function onRequestPost(context: any) {
 
       return new Response(errorText, {
         status: response.status,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
     }
 
@@ -55,12 +73,17 @@ export async function onRequestPost(context: any) {
         "Content-Type": "audio/mpeg",
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     return new Response(
-      JSON.stringify({ error: "Voice generation failed" }),
+      JSON.stringify({
+        error: "Voice generation failed",
+        details: error?.message || "Unknown error",
+      }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
   }
