@@ -6,7 +6,7 @@ export async function onRequestPost(context: any) {
     const text = body.text;
 
     const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/t3QyKN6o4OpslvrclLKC",
+      "https://api.elevenlabs.io/v1/text-to-speech/wjn0Mi52d78kyNVrYrHy",
       {
         method: "POST",
         headers: {
