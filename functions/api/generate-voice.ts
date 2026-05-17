@@ -1,38 +1,73 @@
 export async function onRequestPost(context: any) {
   try {
-    const { request } = context;
+    const { request, env } = context;
 
     const body = await request.json();
     const text = body.text;
 
-    const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/wjn0Mi52d78kyNVrYrHy",
-      {
-        method: "POST",
-        headers: {
-          "xi-api-key": "sk_52e427cd343c2efa5e5c96d3c8d3a273bf221d3037960484",
-          "Content-Type": "application/json",
-          Accept: "audio/mpeg",
-        },
-        body: JSON.stringify({
-          text,
-          model_id: "eleven_multilingual_v2",
+    if (!text || !text.trim()) {
+      return new Response(
+        JSON.stringify({ error: "Missing text" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (!env.OPENAI_API_KEY) {
+      return new Response(
+        JSON.stringify({
+          error: "OPENAI_API_KEY missing in Cloudflare",
         }),
-      }
-    );
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const response = await fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini-tts",
+        voice: "alloy",
+        input: text,
+        format: "mp3",
+      }),
+    });
 
     if (!response.ok) {
-      return new Response(await response.text(), {
+      const errorText = await response.text();
+
+      return new Response(errorText, {
         status: response.status,
+        headers: { "Content-Type": "application/json" },
       });
     }
 
-    return new Response(await response.arrayBuffer(), {
+    const audio = await response.arrayBuffer();
+
+    return new Response(audio, {
+      status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
       },
     });
-  } catch (err) {
-    return new Response(JSON.stringify(err), { status: 500 });
+  } catch (error: any) {
+    return new Response(
+      JSON.stringify({
+        error: "Voice generation failed",
+        details: error?.message || "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
