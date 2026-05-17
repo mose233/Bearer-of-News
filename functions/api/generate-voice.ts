@@ -10,7 +10,7 @@ export async function onRequestPost(context: any) {
       {
         method: "POST",
         headers: {
-          "xi-api-key": "PASTE_YOUR_EXACT_NEW_ELEVENLABS_KEY_HERE",
+          "xi-api-key": "sk_52e427cd343c2efa5e5c96d3c8d3a273bf221d3037960484",
           "Content-Type": "application/json",
           Accept: "audio/mpeg",
         },
