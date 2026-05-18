@@ -33,31 +33,13 @@ import { generateVoice } from "@/lib/voice";
 const ContentStudio = () => {
   const [videoPrompt, setVideoPrompt] = useState("");
   const [facebookCaption, setFacebookCaption] = useState("");
+  const [contentType, setContentType] = useState("breaking");
 
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceText, setVoiceText] = useState("");
   const [speechRate, setSpeechRate] = useState(1);
   const [voiceVolume, setVoiceVolume] = useState(1);
-  const [selectedVoice, setSelectedVoice] = useState("alloy");
-  const voiceOptions = [
-  {
-    label: "News Anchor",
-    value: "alloy",
-  },
-  {
-    label: "Calm Presenter",
-    value: "sage",
-  },
-  {
-    label: "Strong Reporter",
-    value: "ash",
-  },
-  {
-    label: "Documentary Voice",
-    value: "verse",
-  },
-];
   const [aiVoiceBlob, setAiVoiceBlob] = useState<Blob | null>(null);
 
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
@@ -120,18 +102,75 @@ const ContentStudio = () => {
 
     const cleanPrompt = prompt.replace(/\s+/g, " ");
 
-    const generatedCaption = `🚨 Breaking Update: ${cleanPrompt}
+    const templates = {
+      breaking: {
+        caption: `🚨 BREAKING NEWS: ${cleanPrompt}
 
-Stay informed with XNewsApp for the latest updates, verified reports, and developing stories.`;
-
-    const generatedVoice = `Breaking news update from XNewsApp.
+Stay informed with XNewsApp for verified updates and developing stories.`,
+        voice: `Breaking news from XNewsApp.
 
 ${cleanPrompt}
 
-We are following this developing story closely. Stay with XNewsApp for timely updates, clear reporting, and trusted news coverage.`;
+We are closely following this developing story. Stay with XNewsApp for trusted updates.`,
+      },
+      sports: {
+        caption: `⚽ SPORTS UPDATE: ${cleanPrompt}
 
-    setFacebookCaption(generatedCaption);
-    setVoiceText(generatedVoice);
+Catch the latest sports action with XNewsApp.`,
+        voice: `Sports update from XNewsApp.
+
+${cleanPrompt}
+
+Stay tuned for more match analysis, scores, and breaking sports news.`,
+      },
+      entertainment: {
+        caption: `🎬 ENTERTAINMENT UPDATE: ${cleanPrompt}
+
+Stay connected with celebrity news and trending entertainment stories.`,
+        voice: `Entertainment update from XNewsApp.
+
+${cleanPrompt}
+
+More entertainment headlines coming your way soon.`,
+      },
+      politics: {
+        caption: `🏛 POLITICAL UPDATE: ${cleanPrompt}
+
+Stay informed with balanced political coverage from XNewsApp.`,
+        voice: `Political news update from XNewsApp.
+
+${cleanPrompt}
+
+Stay with us for trusted analysis and developments.`,
+      },
+      business: {
+        caption: `📈 BUSINESS UPDATE: ${cleanPrompt}
+
+Get the latest financial and business news with XNewsApp.`,
+        voice: `Business update from XNewsApp.
+
+${cleanPrompt}
+
+Stay informed on markets, finance, and economic trends.`,
+      },
+      general: {
+        caption: `📰 NEWS UPDATE: ${cleanPrompt}
+
+Stay informed with XNewsApp.`,
+        voice: `News update from XNewsApp.
+
+${cleanPrompt}
+
+Stay with us for more verified updates.`,
+      },
+    };
+
+    const selected =
+      templates[contentType as keyof typeof templates] ||
+      templates.breaking;
+
+    setFacebookCaption(selected.caption);
+    setVoiceText(selected.voice);
     setAiVoiceBlob(null);
 
     alert("AI script generated successfully.");
@@ -268,7 +307,7 @@ We are following this developing story closely. Stay with XNewsApp for timely up
 
       setIsExporting(true);
 
-      const audioBlob = await generateVoice(voiceText, selectedVoice);
+      const audioBlob = await generateVoice(voiceText);
 
       setAiVoiceBlob(audioBlob);
 
@@ -383,7 +422,7 @@ We are following this developing story closely. Stay with XNewsApp for timely up
       let voiceBlob = aiVoiceBlob;
 
       if (!voiceBlob) {
-        voiceBlob = await generateVoice(voiceText, selectedVoice);
+        voiceBlob = await generateVoice(voiceText);
         setAiVoiceBlob(voiceBlob);
       }
 
@@ -448,7 +487,7 @@ We are following this developing story closely. Stay with XNewsApp for timely up
       let voiceBlob = aiVoiceBlob;
 
       if (!voiceBlob) {
-        voiceBlob = await generateVoice(voiceText, selectedVoice);
+        voiceBlob = await generateVoice(voiceText);
         setAiVoiceBlob(voiceBlob);
       }
 
@@ -544,6 +583,23 @@ We are following this developing story closely. Stay with XNewsApp for timely up
 
           <CardContent className="space-y-5">
             <div className="space-y-2">
+              <label className="text-sm font-medium">Content Type</label>
+
+              <select
+                value={contentType}
+                onChange={(e) => setContentType(e.target.value)}
+                className="w-full border rounded-lg p-3 bg-background"
+              >
+                <option value="breaking">Breaking News</option>
+                <option value="sports">Sports</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="politics">Politics</option>
+                <option value="business">Business</option>
+                <option value="general">General News</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium">Video Prompt</label>
 
               <textarea
@@ -576,23 +632,6 @@ We are following this developing story closely. Stay with XNewsApp for timely up
               <label className="font-semibold text-sm">
                 AI Voiceover Script
               </label>
-              <div className="space-y-2">
-  <label className="text-sm font-medium">
-    Voice Style
-  </label>
-
-  <select
-    value={selectedVoice}
-    onChange={(e) => setSelectedVoice(e.target.value)}
-    className="w-full border rounded-lg p-3 bg-background"
-  >
-    {voiceOptions.map((voice) => (
-      <option key={voice.value} value={voice.value}>
-        {voice.label}
-      </option>
-    ))}
-  </select>
-</div>
 
               <textarea
                 value={voiceText}
