@@ -4,6 +4,7 @@ import { saveAs } from "file-saver";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import PromptPanel from "@/components/creator/PromptPanel";
+import AiImagesPanel from "@/components/creator/AiImagesPanel";
 import MediaUploader from "@/components/creator/MediaUploader";
 import VoicePanel from "@/components/creator/VoicePanel";
 import MusicPanel from "@/components/creator/MusicPanel";
@@ -12,6 +13,7 @@ import ExportPanel from "@/components/creator/ExportPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice } from "@/lib/voice";
+import { generateSceneImage } from "@/lib/creator/imageGeneration";
 
 import {
   CreatorContentType,
@@ -50,6 +52,13 @@ export default function CreatorStudio() {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
 
+  const [aiImagePrompt, setAiImagePrompt] = useState("");
+  const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(
+    null
+  );
+  const [generatedImagePreview, setGeneratedImagePreview] = useState("");
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -70,9 +79,13 @@ export default function CreatorStudio() {
         URL.revokeObjectURL(musicPreview);
       }
 
+      if (generatedImagePreview) {
+        URL.revokeObjectURL(generatedImagePreview);
+      }
+
       window.speechSynthesis.cancel();
     };
-  }, [mediaPreviews, musicPreview]);
+  }, [mediaPreviews, musicPreview, generatedImagePreview]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -105,6 +118,10 @@ export default function CreatorStudio() {
     setVoiceText(generated.voice);
     setAiVoiceBlob(null);
 
+    if (!aiImagePrompt.trim()) {
+      setAiImagePrompt(videoPrompt);
+    }
+
     alert("Script generated successfully.");
   };
 
@@ -120,6 +137,51 @@ export default function CreatorStudio() {
     setMediaFiles(files);
     setMediaPreviews(previews);
     setCurrentIndex(0);
+  };
+
+  const handleGenerateImage = async () => {
+    try {
+      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
+
+      if (!prompt) {
+        alert("Please write an AI image prompt first.");
+        return;
+      }
+
+      setIsGeneratingImage(true);
+
+      const result = await generateSceneImage(prompt, "1024x1024");
+
+      if (generatedImagePreview) {
+        URL.revokeObjectURL(generatedImagePreview);
+      }
+
+      setGeneratedImageFile(result.file);
+      setGeneratedImagePreview(result.previewUrl);
+
+      alert("AI scene image generated successfully.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate AI scene image.");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const handleAddGeneratedImage = () => {
+    if (!generatedImageFile || !generatedImagePreview) {
+      alert("Please generate an AI scene image first.");
+      return;
+    }
+
+    setMediaFiles((prev) => [...prev, generatedImageFile]);
+    setMediaPreviews((prev) => [...prev, generatedImagePreview]);
+    setCurrentIndex(mediaFiles.length);
+
+    setGeneratedImageFile(null);
+    setGeneratedImagePreview("");
+
+    alert("AI image added to video timeline.");
   };
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -248,7 +310,7 @@ export default function CreatorStudio() {
   const handleExportSilentMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
-        alert("Please upload images first.");
+        alert("Please upload or generate images first.");
         return;
       }
 
@@ -270,7 +332,7 @@ export default function CreatorStudio() {
   const handleExportNarratedMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
-        alert("Please upload images first.");
+        alert("Please upload or generate images first.");
         return;
       }
 
@@ -303,7 +365,7 @@ export default function CreatorStudio() {
   const handleExportFinalMixedMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
-        alert("Please upload images first.");
+        alert("Please upload or generate images first.");
         return;
       }
 
@@ -343,7 +405,7 @@ export default function CreatorStudio() {
       }
 
       if (imagePreviews.length === 0) {
-        alert("Please upload images first.");
+        alert("Please upload or generate images first.");
         return;
       }
 
@@ -385,8 +447,8 @@ export default function CreatorStudio() {
         <h1 className="text-3xl font-bold">Creator Studio AI</h1>
 
         <p className="text-gray-500 mt-2">
-          Create social videos with scripts, AI voice, uploaded visuals,
-          background music, MP4 export, and Facebook sharing.
+          Create social videos with scripts, AI voice, AI-generated scenes,
+          uploaded visuals, background music, MP4 export, and Facebook sharing.
         </p>
       </div>
 
@@ -410,6 +472,15 @@ export default function CreatorStudio() {
                 setAiVoiceBlob(null);
               }}
               onGenerateScript={handleGenerateScript}
+            />
+
+            <AiImagesPanel
+              aiImagePrompt={aiImagePrompt}
+              setAiImagePrompt={setAiImagePrompt}
+              isGeneratingImage={isGeneratingImage}
+              generatedImagePreview={generatedImagePreview}
+              onGenerateImage={handleGenerateImage}
+              onAddGeneratedImage={handleAddGeneratedImage}
             />
 
             <VoicePanel
