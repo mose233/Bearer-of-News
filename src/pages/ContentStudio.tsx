@@ -268,7 +268,7 @@ We are following this developing story closely. Stay with XNewsApp for timely up
 
       setIsExporting(true);
 
-      const audioBlob = await generateVoice(voiceText);
+      const audioBlob = await generateVoice(voiceText, selectedVoice);
 
       setAiVoiceBlob(audioBlob);
 
@@ -383,7 +383,7 @@ We are following this developing story closely. Stay with XNewsApp for timely up
       let voiceBlob = aiVoiceBlob;
 
       if (!voiceBlob) {
-        voiceBlob = await generateVoice(voiceText);
+        voiceBlob = await generateVoice(voiceText, selectedVoice);
         setAiVoiceBlob(voiceBlob);
       }
 
@@ -448,7 +448,7 @@ We are following this developing story closely. Stay with XNewsApp for timely up
       let voiceBlob = aiVoiceBlob;
 
       if (!voiceBlob) {
-        voiceBlob = await generateVoice(voiceText);
+        voiceBlob = await generateVoice(voiceText, selectedVoice);
         setAiVoiceBlob(voiceBlob);
       }
 
