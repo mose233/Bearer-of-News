@@ -1,5 +1,6 @@
 export const generateVoice = async (
-  text: string
+  text: string,
+  voice: string = "alloy"
 ): Promise<Blob> => {
   if (!text.trim()) {
     throw new Error("Missing voice text");
@@ -10,7 +11,10 @@ export const generateVoice = async (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({
+      text,
+      voice,
+    }),
   });
 
   if (!response.ok) {
