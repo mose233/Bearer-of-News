@@ -2,20 +2,47 @@ export async function onRequestPost(context: any) {
   try {
     const { request, env } = context;
 
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+
+    if (!body) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          stage: "request_json",
+          error: "Invalid JSON body",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const text = body.text;
     const requestedVoice = body.voice || "alloy";
 
     if (!text || !text.trim()) {
-      return new Response(JSON.stringify({ error: "Missing text" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          stage: "validation",
+          error: "Missing text",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     if (!env.OPENAI_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY missing in Cloudflare" }),
+        JSON.stringify({
+          ok: false,
+          stage: "env",
+          error: "OPENAI_API_KEY missing in Cloudflare",
+          hasOpenAIKey: false,
+        }),
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
@@ -45,21 +72,35 @@ export async function onRequestPost(context: any) {
     if (!response.ok) {
       const errorText = await response.text();
 
-      return new Response(errorText, {
-        status: response.status,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          stage: "openai_response",
+          status: response.status,
+          openaiError: errorText,
+        }),
+        {
+          status: response.status,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     const audio = await response.arrayBuffer();
 
     return new Response(audio, {
       status: 200,
-      headers: { "Content-Type": "audio/mpeg" },
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "X-XNews-Voice-Debug": "success",
+        "X-XNews-Voice": safeVoice,
+      },
     });
   } catch (error: any) {
     return new Response(
       JSON.stringify({
+        ok: false,
+        stage: "catch",
         error: "Voice generation failed",
         details: error?.message || String(error),
       }),
