@@ -16,6 +16,7 @@ import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
 import ContentReview from "./pages/ContentReview";
 import ContentStudio from "./pages/ContentStudio";
+import CreatorStudio from "./pages/CreatorStudio";
 import Analytics from "./pages/Analytics";
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
@@ -36,17 +37,13 @@ const App = () => {
           <BrowserRouter>
             <AuthProvider>
               <Routes>
-
                 {/* ✅ PUBLIC LANDING PAGE */}
                 <Route path="/" element={<Index />} />
 
                 {/* ✅ AUTH ROUTES */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
-                <Route
-                  path="/reset-password"
-                  element={<ResetPassword />}
-                />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
                 {/* ✅ PUBLIC JOIN PAGE */}
                 <Route path="/join" element={<Join />} />
@@ -103,7 +100,17 @@ const App = () => {
                   }
                 />
 
-                {/* ✅ AI CONTENT STUDIO */}
+                {/* ✅ NEW CREATOR STUDIO AI */}
+                <Route
+                  path="/creator-studio"
+                  element={
+                    <ProtectedRoute>
+                      <CreatorStudio />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* ✅ KEEP OLD CONTENT STUDIO AS BACKUP */}
                 <Route
                   path="/content-studio"
                   element={
@@ -130,11 +137,9 @@ const App = () => {
 
                 {/* ✅ 404 */}
                 <Route path="*" element={<NotFound />} />
-
               </Routes>
             </AuthProvider>
           </BrowserRouter>
-
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
