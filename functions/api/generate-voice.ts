@@ -30,7 +30,7 @@ export async function onRequestPost(context: any) {
     const response = await fetch("https://api.openai.com/v1/audio/speech", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        Authorization: "Bearer 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",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
