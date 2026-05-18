@@ -39,6 +39,25 @@ const ContentStudio = () => {
   const [voiceText, setVoiceText] = useState("");
   const [speechRate, setSpeechRate] = useState(1);
   const [voiceVolume, setVoiceVolume] = useState(1);
+  const [selectedVoice, setSelectedVoice] = useState("alloy");
+  const voiceOptions = [
+  {
+    label: "News Anchor",
+    value: "alloy",
+  },
+  {
+    label: "Calm Presenter",
+    value: "sage",
+  },
+  {
+    label: "Strong Reporter",
+    value: "ash",
+  },
+  {
+    label: "Documentary Voice",
+    value: "verse",
+  },
+];
   const [aiVoiceBlob, setAiVoiceBlob] = useState<Blob | null>(null);
 
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
@@ -557,6 +576,23 @@ We are following this developing story closely. Stay with XNewsApp for timely up
               <label className="font-semibold text-sm">
                 AI Voiceover Script
               </label>
+              <div className="space-y-2">
+  <label className="text-sm font-medium">
+    Voice Style
+  </label>
+
+  <select
+    value={selectedVoice}
+    onChange={(e) => setSelectedVoice(e.target.value)}
+    className="w-full border rounded-lg p-3 bg-background"
+  >
+    {voiceOptions.map((voice) => (
+      <option key={voice.value} value={voice.value}>
+        {voice.label}
+      </option>
+    ))}
+  </select>
+</div>
 
               <textarea
                 value={voiceText}
