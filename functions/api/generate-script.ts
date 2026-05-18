@@ -5,7 +5,7 @@ export async function onRequestPost(context: any) {
     const body = await request.json();
     const prompt = body.prompt;
 
-    if (!prompt) {
+    if (!prompt || !prompt.trim()) {
       return new Response(
         JSON.stringify({
           error: "Missing prompt",
@@ -19,10 +19,12 @@ export async function onRequestPost(context: any) {
       );
     }
 
-    if (!env.GROQ_API_KEY) {
+    const apiKey = env.OPENAI_API_KEY;
+
+    if (!apiKey) {
       return new Response(
         JSON.stringify({
-          error: "Missing GROQ_API_KEY",
+          error: "OPENAI_API_KEY missing in Cloudflare",
         }),
         {
           status: 500,
@@ -34,20 +36,20 @@ export async function onRequestPost(context: any) {
     }
 
     const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
+      "https://api.openai.com/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${env.GROQ_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
+          model: "gpt-4o-mini",
           messages: [
             {
               role: "system",
               content:
-                "You are a professional breaking news scriptwriter for XNewsApp. Return JSON only. Do not include markdown.",
+                "You are a professional breaking news scriptwriter for XNewsApp. Return JSON only.",
             },
             {
               role: "user",
@@ -56,10 +58,10 @@ Create a short professional news package from this topic:
 
 ${prompt}
 
-Return valid JSON only in this exact format:
+Return JSON in this format:
 {
-  "caption": "A Facebook-ready caption with a strong news hook and 1-3 hashtags.",
-  "voiceScript": "A clear 30-45 second news voiceover script."
+  "caption": "Facebook-ready caption with hashtags",
+  "voiceScript": "30-45 second professional voice script"
 }
 `,
             },
@@ -73,57 +75,22 @@ Return valid JSON only in this exact format:
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-
-      return new Response(
-        JSON.stringify({
-          error: "Groq request failed",
-          details: errorText,
-        }),
-        {
-          status: response.status,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      return new Response(await response.text(), {
+        status: response.status,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      return new Response(
-        JSON.stringify({
-          error: "No script returned from Groq",
-        }),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      throw new Error("No content returned");
     }
 
-    let parsed;
-
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid JSON returned from Groq",
-          raw: content,
-        }),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
+    const parsed = JSON.parse(content);
 
     return new Response(
       JSON.stringify({
@@ -137,10 +104,11 @@ Return valid JSON only in this exact format:
         },
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     return new Response(
       JSON.stringify({
         error: "Script generation failed",
+        details: error?.message || String(error),
       }),
       {
         status: 500,
