@@ -127,12 +127,6 @@ export default function ExportPanel({
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
-        <p className="text-xs font-medium leading-5 text-amber-100">
-          Review your video before sharing. Avoid copyrighted media, misleading
-          claims, impersonation, spam, or unsafe content.
-        </p>
-      </div>
     </div>
   );
 }
