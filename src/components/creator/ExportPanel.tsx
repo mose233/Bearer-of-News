@@ -1,4 +1,12 @@
-import { Download, Facebook, Film, Loader2, Settings2, Volume2 } from "lucide-react";
+import {
+  Download,
+  Facebook,
+  Film,
+  Loader2,
+  Settings2,
+  Volume2,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type ExportPanelProps = {
@@ -25,11 +33,21 @@ export default function ExportPanel({
   const busy = isRecording || isExporting;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 text-white">
+      <div>
+        <h3 className="text-base font-extrabold text-white">
+          Export & Publishing
+        </h3>
+
+        <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
+          Render your final video, export MP4 versions, and share to Facebook.
+        </p>
+      </div>
+
       <Button
         onClick={onGenerateCompleteVideo}
         disabled={busy}
-        className="h-14 w-full rounded-2xl bg-creator-purple text-base font-bold text-white shadow-creator hover:bg-purple-700 disabled:opacity-60"
+        className="h-14 w-full rounded-3xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-base font-extrabold text-white shadow-2xl hover:opacity-95 disabled:opacity-60"
       >
         {busy ? (
           <span className="flex items-center gap-2">
@@ -38,7 +56,7 @@ export default function ExportPanel({
           </span>
         ) : (
           <span className="flex items-center gap-2">
-            <Film className="h-5 w-5" />
+            <Sparkles className="h-5 w-5" />
             Generate Complete AI Video
           </span>
         )}
@@ -48,36 +66,36 @@ export default function ExportPanel({
         <Button
           variant="outline"
           onClick={onShareToFacebook}
-          className="h-12 rounded-2xl border-white/10 bg-white/5 text-creator-text hover:bg-white/10"
+          className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800"
         >
-          <Facebook className="mr-2 h-4 w-4" />
+          <Facebook className="mr-2 h-4 w-4 text-blue-300" />
           Share to Facebook
         </Button>
 
         <Button
-          variant="secondary"
+          variant="outline"
           onClick={onInitializeFFmpeg}
           disabled={isExporting}
-          className="h-12 rounded-2xl bg-white/10 text-creator-text hover:bg-white/15 disabled:opacity-60"
+          className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
         >
           {isExporting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Settings2 className="mr-2 h-4 w-4" />
+            <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
           )}
           {isExporting ? "Loading..." : "Initialize FFmpeg"}
         </Button>
 
         <Button
-          variant="secondary"
+          variant="outline"
           onClick={onExportSilentMp4}
           disabled={isRecording}
-          className="h-12 rounded-2xl bg-white/10 text-creator-text hover:bg-white/15 disabled:opacity-60"
+          className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
         >
           {isRecording ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Download className="mr-2 h-4 w-4" />
+            <Film className="mr-2 h-4 w-4 text-cyan-300" />
           )}
           {isRecording ? "Rendering..." : "Silent MP4"}
         </Button>
@@ -85,7 +103,7 @@ export default function ExportPanel({
         <Button
           onClick={onExportNarratedMp4}
           disabled={busy}
-          className="h-12 rounded-2xl bg-creator-amber text-white hover:bg-amber-600 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 disabled:opacity-60"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -98,7 +116,7 @@ export default function ExportPanel({
         <Button
           onClick={onExportFinalMixedMp4}
           disabled={busy}
-          className="h-12 rounded-2xl bg-creator-blue text-white hover:bg-blue-700 disabled:opacity-60 sm:col-span-2"
+          className="h-12 rounded-2xl bg-cyan-600 text-white font-bold hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -109,10 +127,12 @@ export default function ExportPanel({
         </Button>
       </div>
 
-      <p className="text-xs leading-5 text-creator-muted">
-        Review your video before sharing. Avoid copyrighted media, misleading claims,
-        impersonation, spam, or unsafe content.
-      </p>
+      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
+        <p className="text-xs font-medium leading-5 text-amber-100">
+          Review your video before sharing. Avoid copyrighted media, misleading
+          claims, impersonation, spam, or unsafe content.
+        </p>
+      </div>
     </div>
   );
 }
