@@ -13,29 +13,44 @@ export type ExportVideoOptions = {
   musicVolume?: number;
 };
 
+export type ExportPhotoMusicVideoOptions = {
+  imageFile: File;
+  imagePreview: string;
+  audioFile: File;
+  durationSeconds?: number;
+  musicVolume?: number;
+};
+
+async function cleanupFFmpegFiles(files: string[]) {
+  const ffmpeg = await loadFFmpeg();
+
+  for (const file of files) {
+    try {
+      await ffmpeg.deleteFile(file);
+    } catch {
+      // Safe to ignore missing files.
+    }
+  }
+
+  return ffmpeg;
+}
+
 export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
   if (imagePreviews.length === 0) {
     throw new Error("Please upload images first.");
   }
 
-  const ffmpeg = await loadFFmpeg();
-
-  const cleanupFiles = [
+  const ffmpeg = await cleanupFFmpegFiles([
     "slideshow.mp4",
     "final-video.mp4",
     "final-mixed-video.mp4",
     "final-auto-video.mp4",
+    "photo-music-video.mp4",
     "voiceover.mp3",
     "background-music",
-  ];
-
-  for (const file of cleanupFiles) {
-    try {
-      await ffmpeg.deleteFile(file);
-    } catch {
-      // File may not exist yet. Safe to ignore.
-    }
-  }
+    "photo-music-audio",
+    "photo-music-image.png",
+  ]);
 
   for (let i = 0; i < imagePreviews.length; i++) {
     const image = imagePreviews[i];
@@ -53,7 +68,7 @@ export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
     "-i",
     "image%d.png",
     "-vf",
-    "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,format=yuv420p",
+    "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
     "-c:v",
     "libx264",
     "-pix_fmt",
@@ -183,6 +198,73 @@ export async function exportFinalMixedMp4({
   }
 
   const data = await ffmpeg.readFile("final-mixed-video.mp4");
+
+  return new Blob([data], {
+    type: "video/mp4",
+  });
+}
+
+export async function exportPhotoMusicVideoMp4({
+  imageFile,
+  imagePreview,
+  audioFile,
+  durationSeconds = 15,
+  musicVolume = 0.85,
+}: ExportPhotoMusicVideoOptions) {
+  if (!imageFile || !imagePreview) {
+    throw new Error("Please upload a photo first.");
+  }
+
+  if (!audioFile) {
+    throw new Error("Please upload a song first.");
+  }
+
+  const safeDuration = Math.min(Math.max(durationSeconds, 5), 60);
+
+  const ffmpeg = await cleanupFFmpegFiles([
+    "photo-music-video.mp4",
+    "photo-music-image.png",
+    "photo-music-audio",
+  ]);
+
+  const imageResponse = await fetch(imagePreview);
+  const imageBlob = await imageResponse.blob();
+  const imageBuffer = await imageBlob.arrayBuffer();
+
+  await ffmpeg.writeFile("photo-music-image.png", new Uint8Array(imageBuffer));
+
+  const audioBuffer = await audioFile.arrayBuffer();
+
+  await ffmpeg.writeFile("photo-music-audio", new Uint8Array(audioBuffer));
+
+  await ffmpeg.exec([
+    "-loop",
+    "1",
+    "-i",
+    "photo-music-image.png",
+    "-stream_loop",
+    "-1",
+    "-i",
+    "photo-music-audio",
+    "-t",
+    String(safeDuration),
+    "-vf",
+    "scale=760:1350:force_original_aspect_ratio=increase,crop=720:1280,zoompan=z='min(zoom+0.0015,1.18)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',format=yuv420p",
+    "-filter:a",
+    `volume=${musicVolume}`,
+    "-c:v",
+    "libx264",
+    "-c:a",
+    "aac",
+    "-pix_fmt",
+    "yuv420p",
+    "-preset",
+    "ultrafast",
+    "-shortest",
+    "photo-music-video.mp4",
+  ]);
+
+  const data = await ffmpeg.readFile("photo-music-video.mp4");
 
   return new Blob([data], {
     type: "video/mp4",
