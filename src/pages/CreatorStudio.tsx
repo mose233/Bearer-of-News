@@ -17,6 +17,11 @@ import { generateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 
 import {
+  generateMultiScenePlan,
+  MultiScenePlan,
+} from "@/lib/creator/multiSceneGenerator";
+
+import {
   CreatorContentType,
   generateCreatorContent,
 } from "@/lib/creator/templates";
@@ -60,6 +65,7 @@ export default function CreatorStudio() {
   );
   const [generatedImagePreview, setGeneratedImagePreview] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [multiScenePlan, setMultiScenePlan] = useState<MultiScenePlan[]>([]);
 
   const [photoMusicImageFile, setPhotoMusicImageFile] =
     useState<File | null>(null);
@@ -123,6 +129,13 @@ export default function CreatorStudio() {
     }
   }, [musicVolume]);
 
+  const addSceneToTimeline = (file: File, preview: string, duration = 5) => {
+    setMediaFiles((prev) => [...prev, file]);
+    setMediaPreviews((prev) => [...prev, preview]);
+    setSceneDurations((prev) => [...prev, duration]);
+    setCurrentIndex(mediaFiles.length);
+  };
+
   const handleGenerateScript = () => {
     if (!videoPrompt.trim()) {
       alert("Please write a video prompt first.");
@@ -185,10 +198,7 @@ export default function CreatorStudio() {
       return;
     }
 
-    setMediaFiles((prev) => [...prev, photoMusicImageFile]);
-    setMediaPreviews((prev) => [...prev, photoMusicImagePreview]);
-    setSceneDurations((prev) => [...prev, 5]);
-    setCurrentIndex(mediaFiles.length);
+    addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, 5);
 
     alert("Photo music video scene added to timeline.");
   };
@@ -218,6 +228,7 @@ export default function CreatorStudio() {
       }
 
       setIsGeneratingImage(true);
+      setMultiScenePlan([]);
 
       const result = await generateSceneImage(prompt, "1024x1024");
 
@@ -237,16 +248,92 @@ export default function CreatorStudio() {
     }
   };
 
+  const handleGenerateMultiScenePlan = () => {
+    try {
+      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
+
+      if (!prompt) {
+        alert("Please write a prompt first.");
+        return;
+      }
+
+      if (generatedImagePreview) {
+        URL.revokeObjectURL(generatedImagePreview);
+      }
+
+      setGeneratedImageFile(null);
+      setGeneratedImagePreview("");
+
+      const plan = generateMultiScenePlan(prompt, 4);
+
+      setMultiScenePlan(plan);
+
+      alert("4-scene plan generated.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate scene plan.");
+    }
+  };
+
+  const handleGenerateSceneFromPlan = async (index: number) => {
+    try {
+      const scene = multiScenePlan[index];
+
+      if (!scene) {
+        alert("Scene not found.");
+        return;
+      }
+
+      setIsGeneratingImage(true);
+
+      const result = await generateSceneImage(scene.prompt, "1024x1024");
+
+      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
+
+      alert(`Scene ${index + 1} added to timeline.`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate scene.");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const handleGenerateAllScenesFromPlan = async () => {
+    try {
+      if (multiScenePlan.length === 0) {
+        alert("Please generate a scene plan first.");
+        return;
+      }
+
+      setIsGeneratingImage(true);
+
+      for (const scene of multiScenePlan) {
+        const result = await generateSceneImage(scene.prompt, "1024x1024");
+
+        setMediaFiles((prev) => [...prev, result.file]);
+        setMediaPreviews((prev) => [...prev, result.previewUrl]);
+        setSceneDurations((prev) => [...prev, scene.duration]);
+      }
+
+      setCurrentIndex(mediaFiles.length);
+
+      alert("All scenes generated and added to timeline.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate all scenes.");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const handleAddGeneratedImage = () => {
     if (!generatedImageFile || !generatedImagePreview) {
       alert("Please generate an AI scene image first.");
       return;
     }
 
-    setMediaFiles((prev) => [...prev, generatedImageFile]);
-    setMediaPreviews((prev) => [...prev, generatedImagePreview]);
-    setSceneDurations((prev) => [...prev, 5]);
-    setCurrentIndex(mediaFiles.length);
+    addSceneToTimeline(generatedImageFile, generatedImagePreview, 5);
 
     setGeneratedImageFile(null);
     setGeneratedImagePreview("");
@@ -622,8 +709,12 @@ export default function CreatorStudio() {
                   setAiImagePrompt={setAiImagePrompt}
                   isGeneratingImage={isGeneratingImage}
                   generatedImagePreview={generatedImagePreview}
+                  multiScenePlan={multiScenePlan}
                   onGenerateImage={handleGenerateImage}
+                  onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
                   onAddGeneratedImage={handleAddGeneratedImage}
+                  onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
+                  onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
                 />
 
                 <MediaUploader onMediaUpload={handleMediaUpload} />
