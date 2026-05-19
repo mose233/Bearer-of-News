@@ -49,6 +49,7 @@ export default function CreatorStudio() {
 
   const [isRecording, setIsRecording] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState("");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
@@ -213,6 +214,7 @@ export default function CreatorStudio() {
       }
 
       setIsExportingPhotoMusic(true);
+      setExportStatus("Rendering photo music video MP4...");
 
       const videoBlob = await exportPhotoMusicVideoMp4({
         imageFile: photoMusicImageFile,
@@ -230,6 +232,7 @@ export default function CreatorStudio() {
       alert("Failed to export photo music video.");
     } finally {
       setIsExportingPhotoMusic(false);
+      setExportStatus("");
     }
   };
 
@@ -502,6 +505,7 @@ export default function CreatorStudio() {
       }
 
       setIsExporting(true);
+      setExportStatus("Generating AI voice...");
 
       const audioBlob = await generateVoice(voiceText);
 
@@ -515,6 +519,7 @@ export default function CreatorStudio() {
       alert("Failed to generate AI voice.");
     } finally {
       setIsExporting(false);
+      setExportStatus("");
     }
   };
 
@@ -533,15 +538,21 @@ export default function CreatorStudio() {
   const initializeFFmpeg = async () => {
     try {
       setIsExporting(true);
+      setExportStatus("Loading FFmpeg engine...");
 
       const ffmpeg = await loadFFmpeg();
 
       console.log("FFmpeg engine ready:", ffmpeg);
 
-      alert("FFmpeg loaded successfully.");
+      setExportStatus("FFmpeg ready.");
+
+      setTimeout(() => {
+        setExportStatus("");
+      }, 2000);
     } catch (error) {
       console.error(error);
       alert("Failed to load FFmpeg.");
+      setExportStatus("");
     } finally {
       setIsExporting(false);
     }
@@ -555,6 +566,7 @@ export default function CreatorStudio() {
       }
 
       setIsRecording(true);
+      setExportStatus("Rendering silent MP4...");
 
       const videoBlob = await exportSilentMp4(imagePreviews);
 
@@ -566,6 +578,7 @@ export default function CreatorStudio() {
       alert("Failed to export silent MP4.");
     } finally {
       setIsRecording(false);
+      setExportStatus("");
     }
   };
 
@@ -583,6 +596,7 @@ export default function CreatorStudio() {
 
       setIsRecording(true);
       setIsExporting(true);
+      setExportStatus("Mixing narration into video...");
 
       const videoBlob = await exportNarratedMp4({
         imagePreviews,
@@ -599,6 +613,7 @@ export default function CreatorStudio() {
     } finally {
       setIsRecording(false);
       setIsExporting(false);
+      setExportStatus("");
     }
   };
 
@@ -616,6 +631,7 @@ export default function CreatorStudio() {
 
       setIsRecording(true);
       setIsExporting(true);
+      setExportStatus("Mixing voice + background music...");
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
@@ -634,6 +650,7 @@ export default function CreatorStudio() {
     } finally {
       setIsRecording(false);
       setIsExporting(false);
+      setExportStatus("");
     }
   };
 
@@ -651,11 +668,14 @@ export default function CreatorStudio() {
 
       setIsRecording(true);
       setIsExporting(true);
+      setExportStatus("Preparing complete AI video...");
 
       const generated = generateCreatorContent(contentType, videoPrompt);
 
       setFacebookCaption(generated.caption);
       setVoiceText(generated.voice);
+
+      setExportStatus("Generating AI narration...");
 
       const voiceResult = await tryGenerateVoice(generated.voice);
 
@@ -663,6 +683,8 @@ export default function CreatorStudio() {
         alert(
           "AI voice API unavailable. Exporting video without generated AI voice."
         );
+
+        setExportStatus("Exporting silent fallback MP4...");
 
         const videoBlob = await exportSilentMp4(imagePreviews);
 
@@ -674,6 +696,8 @@ export default function CreatorStudio() {
       const voiceBlob = voiceResult.blob;
 
       setAiVoiceBlob(voiceBlob);
+
+      setExportStatus("Rendering final MP4...");
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
@@ -692,6 +716,7 @@ export default function CreatorStudio() {
     } finally {
       setIsRecording(false);
       setIsExporting(false);
+      setExportStatus("");
     }
   };
 
@@ -872,6 +897,7 @@ export default function CreatorStudio() {
                 <ExportPanel
                   isRecording={isRecording}
                   isExporting={isExporting}
+                  exportStatus={exportStatus}
                   onGenerateCompleteVideo={handleGenerateCompleteVideo}
                   onShareToFacebook={shareToFacebook}
                   onInitializeFFmpeg={initializeFFmpeg}
@@ -898,7 +924,7 @@ export default function CreatorStudio() {
             className="h-12 w-full rounded-2xl bg-violet-600 text-sm font-bold text-white shadow-creator disabled:opacity-60"
           >
             {isRecording || isExporting
-              ? "Generating video..."
+              ? exportStatus || "Generating video..."
               : "Generate Complete AI Video"}
           </button>
         </div>
