@@ -60,7 +60,13 @@ export default function CreatorStudio() {
   );
   const [generatedImagePreview, setGeneratedImagePreview] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  
+
+  const [photoMusicImageFile, setPhotoMusicImageFile] =
+    useState<File | null>(null);
+  const [photoMusicImagePreview, setPhotoMusicImagePreview] = useState("");
+  const [photoMusicAudioName, setPhotoMusicAudioName] = useState("");
+  const [photoMusicStyle, setPhotoMusicStyle] = useState("Music Video");
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -75,9 +81,6 @@ export default function CreatorStudio() {
 
   useEffect(() => {
     return () => {
-      if (photoMusicImagePreview) {
-  URL.revokeObjectURL(photoMusicImagePreview);
-}
       mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
 
       if (musicPreview) {
@@ -88,9 +91,18 @@ export default function CreatorStudio() {
         URL.revokeObjectURL(generatedImagePreview);
       }
 
+      if (photoMusicImagePreview) {
+        URL.revokeObjectURL(photoMusicImagePreview);
+      }
+
       window.speechSynthesis.cancel();
     };
-  }, [mediaPreviews, musicPreview, generatedImagePreview]);
+  }, [
+    mediaPreviews,
+    musicPreview,
+    generatedImagePreview,
+    photoMusicImagePreview,
+  ]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -131,60 +143,56 @@ export default function CreatorStudio() {
   };
 
   const handlePhotoMusicPhotoUpload = (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = e.target.files?.[0];
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  if (photoMusicImagePreview) {
-    URL.revokeObjectURL(photoMusicImagePreview);
-  }
+    if (photoMusicImagePreview) {
+      URL.revokeObjectURL(photoMusicImagePreview);
+    }
 
-  const preview = URL.createObjectURL(file);
+    const preview = URL.createObjectURL(file);
 
-  setPhotoMusicImageFile(file);
-  setPhotoMusicImagePreview(preview);
-};
+    setPhotoMusicImageFile(file);
+    setPhotoMusicImagePreview(preview);
+  };
 
-const handlePhotoMusicAudioUpload = (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = e.target.files?.[0];
+  const handlePhotoMusicAudioUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  setPhotoMusicAudioFile(file);
-  setPhotoMusicAudioName(file.name);
+    setPhotoMusicAudioName(file.name);
+    setBackgroundMusic(file);
 
-  setBackgroundMusic(file);
+    if (musicPreview) {
+      URL.revokeObjectURL(musicPreview);
+    }
 
-  if (musicPreview) {
-    URL.revokeObjectURL(musicPreview);
-  }
+    const preview = URL.createObjectURL(file);
 
-  const preview = URL.createObjectURL(file);
+    setMusicPreview(preview);
+    setIsMusicPlaying(false);
+  };
 
-  setMusicPreview(preview);
-  setIsMusicPlaying(false);
-};
+  const handleAddPhotoMusicSceneToTimeline = () => {
+    if (!photoMusicImageFile || !photoMusicImagePreview) {
+      alert("Please upload a photo first.");
+      return;
+    }
 
-const handleAddPhotoMusicSceneToTimeline = () => {
-  if (!photoMusicImageFile || !photoMusicImagePreview) {
-    alert("Please upload a photo first.");
-    return;
-  }
+    setMediaFiles((prev) => [...prev, photoMusicImageFile]);
+    setMediaPreviews((prev) => [...prev, photoMusicImagePreview]);
+    setSceneDurations((prev) => [...prev, 5]);
+    setCurrentIndex(mediaFiles.length);
 
-  setMediaFiles((prev) => [...prev, photoMusicImageFile]);
+    alert("Photo music video scene added to timeline.");
+  };
 
-  setMediaPreviews((prev) => [...prev, photoMusicImagePreview]);
-
-  setSceneDurations((prev) => [...prev, 5]);
-
-  setCurrentIndex(mediaFiles.length);
-
-  alert("Photo music video scene added to timeline.");
-};
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
 
@@ -619,15 +627,16 @@ const handleAddPhotoMusicSceneToTimeline = () => {
                 />
 
                 <MediaUploader onMediaUpload={handleMediaUpload} />
+
                 <PhotoMusicVideoPanel
-  photoMusicImagePreview={photoMusicImagePreview}
-  photoMusicAudioName={photoMusicAudioName}
-  photoMusicStyle={photoMusicStyle}
-  setPhotoMusicStyle={setPhotoMusicStyle}
-  onPhotoUpload={handlePhotoMusicPhotoUpload}
-  onAudioUpload={handlePhotoMusicAudioUpload}
-  onAddPhotoSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
-/>
+                  photoMusicImagePreview={photoMusicImagePreview}
+                  photoMusicAudioName={photoMusicAudioName}
+                  photoMusicStyle={photoMusicStyle}
+                  setPhotoMusicStyle={setPhotoMusicStyle}
+                  onPhotoUpload={handlePhotoMusicPhotoUpload}
+                  onAudioUpload={handlePhotoMusicAudioUpload}
+                  onAddPhotoSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+                />
               </CardContent>
             </Card>
 
