@@ -10,6 +10,7 @@ import VoicePanel from "@/components/creator/VoicePanel";
 import MusicPanel from "@/components/creator/MusicPanel";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
+import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice } from "@/lib/voice";
@@ -59,6 +60,8 @@ export default function CreatorStudio() {
   );
   const [generatedImagePreview, setGeneratedImagePreview] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatedImagePreview, setGeneratedImagePreview] = useState("");
+const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -74,6 +77,9 @@ export default function CreatorStudio() {
 
   useEffect(() => {
     return () => {
+      if (photoMusicImagePreview) {
+  URL.revokeObjectURL(photoMusicImagePreview);
+}
       mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
 
       if (musicPreview) {
@@ -126,6 +132,61 @@ export default function CreatorStudio() {
     alert("Script generated successfully.");
   };
 
+  const handlePhotoMusicPhotoUpload = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  if (photoMusicImagePreview) {
+    URL.revokeObjectURL(photoMusicImagePreview);
+  }
+
+  const preview = URL.createObjectURL(file);
+
+  setPhotoMusicImageFile(file);
+  setPhotoMusicImagePreview(preview);
+};
+
+const handlePhotoMusicAudioUpload = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  setPhotoMusicAudioFile(file);
+  setPhotoMusicAudioName(file.name);
+
+  setBackgroundMusic(file);
+
+  if (musicPreview) {
+    URL.revokeObjectURL(musicPreview);
+  }
+
+  const preview = URL.createObjectURL(file);
+
+  setMusicPreview(preview);
+  setIsMusicPlaying(false);
+};
+
+const handleAddPhotoMusicSceneToTimeline = () => {
+  if (!photoMusicImageFile || !photoMusicImagePreview) {
+    alert("Please upload a photo first.");
+    return;
+  }
+
+  setMediaFiles((prev) => [...prev, photoMusicImageFile]);
+
+  setMediaPreviews((prev) => [...prev, photoMusicImagePreview]);
+
+  setSceneDurations((prev) => [...prev, 5]);
+
+  setCurrentIndex(mediaFiles.length);
+
+  alert("Photo music video scene added to timeline.");
+};
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
 
@@ -560,6 +621,15 @@ export default function CreatorStudio() {
                 />
 
                 <MediaUploader onMediaUpload={handleMediaUpload} />
+                <PhotoMusicVideoPanel
+  photoMusicImagePreview={photoMusicImagePreview}
+  photoMusicAudioName={photoMusicAudioName}
+  photoMusicStyle={photoMusicStyle}
+  setPhotoMusicStyle={setPhotoMusicStyle}
+  onPhotoUpload={handlePhotoMusicPhotoUpload}
+  onAudioUpload={handlePhotoMusicAudioUpload}
+  onAddPhotoSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+/>
               </CardContent>
             </Card>
 
