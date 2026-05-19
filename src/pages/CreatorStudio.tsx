@@ -60,9 +60,7 @@ export default function CreatorStudio() {
   );
   const [generatedImagePreview, setGeneratedImagePreview] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [generatedImagePreview, setGeneratedImagePreview] = useState("");
-const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
