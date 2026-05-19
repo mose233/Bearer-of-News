@@ -45,6 +45,7 @@ export default function ExportPanel({
       </div>
 
       <Button
+        type="button"
         onClick={onGenerateCompleteVideo}
         disabled={busy}
         className="h-14 w-full rounded-3xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-base font-extrabold text-white shadow-2xl hover:opacity-95 disabled:opacity-60"
@@ -64,6 +65,7 @@ export default function ExportPanel({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button
+          type="button"
           variant="outline"
           onClick={onShareToFacebook}
           className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800"
@@ -73,6 +75,7 @@ export default function ExportPanel({
         </Button>
 
         <Button
+          type="button"
           variant="outline"
           onClick={onInitializeFFmpeg}
           disabled={isExporting}
@@ -87,6 +90,7 @@ export default function ExportPanel({
         </Button>
 
         <Button
+          type="button"
           variant="outline"
           onClick={onExportSilentMp4}
           disabled={isRecording}
@@ -101,9 +105,10 @@ export default function ExportPanel({
         </Button>
 
         <Button
+          type="button"
           onClick={onExportNarratedMp4}
           disabled={busy}
-          className="h-12 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-amber-500 font-bold text-white hover:bg-amber-600 disabled:opacity-60"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -114,9 +119,10 @@ export default function ExportPanel({
         </Button>
 
         <Button
+          type="button"
           onClick={onExportFinalMixedMp4}
           disabled={busy}
-          className="h-12 rounded-2xl bg-cyan-600 text-white font-bold hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
+          className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -126,7 +132,6 @@ export default function ExportPanel({
           Final Mixed MP4
         </Button>
       </div>
-
     </div>
   );
 }
