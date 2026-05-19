@@ -13,7 +13,7 @@ import ExportPanel from "@/components/creator/ExportPanel";
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
-import { generateVoice } from "@/lib/voice";
+import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 
 import {
@@ -517,60 +517,63 @@ export default function CreatorStudio() {
     }
   };
 
-  const handleExportSilentMp4 = async () => {
-    try {
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
-        return;
-      }
+  const handleGenerateCompleteVideo = async () => {
+  try {
+    if (!videoPrompt.trim()) {
+      alert("Please write a video prompt first.");
+      return;
+    }
 
-      setIsRecording(true);
+    if (imagePreviews.length === 0) {
+      alert("Please upload or generate images first.");
+      return;
+    }
+
+    setIsRecording(true);
+    setIsExporting(true);
+
+    const generated = generateCreatorContent(contentType, videoPrompt);
+
+    setFacebookCaption(generated.caption);
+    setVoiceText(generated.voice);
+
+    const voiceResult = await tryGenerateVoice(generated.voice);
+
+    if (!voiceResult.ok || !voiceResult.blob) {
+      alert(
+        "AI voice API unavailable. Exporting video without generated AI voice."
+      );
 
       const videoBlob = await exportSilentMp4(imagePreviews);
 
-      saveAs(videoBlob, "creator-studio-silent-video.mp4");
+      saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
 
-      alert("Silent MP4 exported successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to export silent MP4.");
-    } finally {
-      setIsRecording(false);
+      return;
     }
-  };
 
-  const handleExportNarratedMp4 = async () => {
-    try {
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
-        return;
-      }
+    const voiceBlob = voiceResult.blob;
 
-      if (!aiVoiceBlob) {
-        alert("Please generate AI voice first.");
-        return;
-      }
+    setAiVoiceBlob(voiceBlob);
 
-      setIsRecording(true);
-      setIsExporting(true);
+    const videoBlob = await exportFinalMixedMp4({
+      imagePreviews,
+      voiceBlob,
+      voiceVolume,
+      backgroundMusic,
+      musicVolume,
+    });
 
-      const videoBlob = await exportNarratedMp4({
-        imagePreviews,
-        voiceBlob: aiVoiceBlob,
-        voiceVolume,
-      });
+    saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
 
-      saveAs(videoBlob, "creator-studio-narrated-video.mp4");
-
-      alert("Narrated MP4 exported successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to export narrated MP4.");
-    } finally {
-      setIsRecording(false);
-      setIsExporting(false);
-    }
-  };
+    alert("Complete AI video generated successfully!");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to generate complete AI video.");
+  } finally {
+    setIsRecording(false);
+    setIsExporting(false);
+  }
+};
 
   const handleExportFinalMixedMp4 = async () => {
     try {
