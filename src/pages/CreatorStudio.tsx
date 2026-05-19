@@ -232,17 +232,9 @@ export default function CreatorStudio() {
 
     utterance.rate = speechRate;
 
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-    };
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
 
     speechRef.current = utterance;
 
@@ -442,104 +434,193 @@ export default function CreatorStudio() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Creator Studio AI</h1>
+    <main className="creator-shell">
+      <div className="mx-auto max-w-7xl px-4 py-4 pb-28 sm:px-6 lg:px-8 lg:py-8">
+        <header className="mb-5 space-y-3 sm:mb-8">
+          <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-creator-muted">
+            Creator Studio AI
+          </div>
 
-        <p className="text-gray-500 mt-2">
-          Create social videos with scripts, AI voice, AI-generated scenes,
-          uploaded visuals, background music, MP4 export, and Facebook sharing.
-        </p>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight text-creator-text sm:text-4xl">
+              Create social videos from your phone
+            </h1>
+
+            <p className="max-w-2xl text-sm leading-6 text-creator-muted sm:text-base">
+              Build Facebook-ready videos with prompts, AI scenes, narration,
+              music, captions, uploads, and MP4 export.
+            </p>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_430px] lg:gap-6">
+          <section className="space-y-4">
+            <Card className="creator-card overflow-hidden">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
+                <CardTitle className="text-lg font-bold text-creator-text">
+                  1. Write your video idea
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-5 px-4 py-5 sm:px-6">
+                <PromptPanel
+                  videoPrompt={videoPrompt}
+                  setVideoPrompt={setVideoPrompt}
+                  contentType={contentType}
+                  setContentType={setContentType}
+                  facebookCaption={facebookCaption}
+                  setFacebookCaption={setFacebookCaption}
+                  voiceText={voiceText}
+                  setVoiceText={(value) => {
+                    setVoiceText(value);
+                    setAiVoiceBlob(null);
+                  }}
+                  onGenerateScript={handleGenerateScript}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="creator-card overflow-hidden">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
+                <CardTitle className="text-lg font-bold text-creator-text">
+                  2. Generate or upload scenes
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-5 px-4 py-5 sm:px-6">
+                <AiImagesPanel
+                  aiImagePrompt={aiImagePrompt}
+                  setAiImagePrompt={setAiImagePrompt}
+                  isGeneratingImage={isGeneratingImage}
+                  generatedImagePreview={generatedImagePreview}
+                  onGenerateImage={handleGenerateImage}
+                  onAddGeneratedImage={handleAddGeneratedImage}
+                />
+
+                <MediaUploader onMediaUpload={handleMediaUpload} />
+              </CardContent>
+            </Card>
+
+            <Card className="creator-card overflow-hidden lg:hidden">
+              <CardHeader className="border-b border-white/10 px-4 py-4">
+                <CardTitle className="text-lg font-bold text-creator-text">
+                  3. Preview
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-4 py-5">
+                <PreviewPanel
+                  mediaFiles={mediaFiles}
+                  imagePreviews={imagePreviews}
+                  currentIndex={currentIndex}
+                  setCurrentIndex={setCurrentIndex}
+                  isPlaying={isPlaying}
+                  setIsPlaying={setIsPlaying}
+                  facebookCaption={facebookCaption}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="creator-card overflow-hidden">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
+                <CardTitle className="text-lg font-bold text-creator-text">
+                  4. Voice and music
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-6 px-4 py-5 sm:px-6">
+                <VoicePanel
+                  speechRate={speechRate}
+                  setSpeechRate={setSpeechRate}
+                  voiceVolume={voiceVolume}
+                  setVoiceVolume={setVoiceVolume}
+                  isSpeaking={isSpeaking}
+                  aiVoiceBlob={aiVoiceBlob}
+                  isExporting={isExporting}
+                  onPlayVoiceover={startVoiceover}
+                  onStopVoiceover={stopVoiceover}
+                  onGenerateRealVoice={generateRealVoice}
+                />
+
+                <MusicPanel
+                  backgroundMusic={backgroundMusic}
+                  musicPreview={musicPreview}
+                  musicVolume={musicVolume}
+                  setMusicVolume={setMusicVolume}
+                  isMusicPlaying={isMusicPlaying}
+                  audioRef={audioRef}
+                  onMusicUpload={handleMusicUpload}
+                  onToggleMusic={toggleMusic}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="creator-card overflow-hidden">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
+                <CardTitle className="text-lg font-bold text-creator-text">
+                  5. Export and share
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-4 py-5 sm:px-6">
+                <ExportPanel
+                  isRecording={isRecording}
+                  isExporting={isExporting}
+                  onGenerateCompleteVideo={handleGenerateCompleteVideo}
+                  onShareToFacebook={shareToFacebook}
+                  onInitializeFFmpeg={initializeFFmpeg}
+                  onExportSilentMp4={handleExportSilentMp4}
+                  onExportNarratedMp4={handleExportNarratedMp4}
+                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+                />
+              </CardContent>
+            </Card>
+          </section>
+
+          <aside className="hidden lg:block">
+            <div className="sticky top-6 space-y-4">
+              <Card className="creator-card overflow-hidden">
+                <CardHeader className="border-b border-white/10 px-5 py-4">
+                  <CardTitle className="text-lg font-bold text-creator-text">
+                    Live Preview
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className="px-5 py-5">
+                  <PreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                    facebookCaption={facebookCaption}
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-xs leading-5 text-creator-muted">
+                Facebook-safe reminder: review generated videos before posting,
+                avoid misleading claims, copyrighted media, impersonation, spam,
+                or unsafe content.
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-creator-bg/95 px-4 py-3 backdrop-blur lg:hidden">
+          <button
+            type="button"
+            onClick={handleGenerateCompleteVideo}
+            disabled={isRecording || isExporting}
+            className="h-12 w-full rounded-2xl bg-creator-purple text-sm font-bold text-white shadow-creator disabled:opacity-60"
+          >
+            {isRecording || isExporting
+              ? "Generating video..."
+              : "Generate Complete AI Video"}
+          </button>
+        </div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create Video</CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            <PromptPanel
-              videoPrompt={videoPrompt}
-              setVideoPrompt={setVideoPrompt}
-              contentType={contentType}
-              setContentType={setContentType}
-              facebookCaption={facebookCaption}
-              setFacebookCaption={setFacebookCaption}
-              voiceText={voiceText}
-              setVoiceText={(value) => {
-                setVoiceText(value);
-                setAiVoiceBlob(null);
-              }}
-              onGenerateScript={handleGenerateScript}
-            />
-
-            <AiImagesPanel
-              aiImagePrompt={aiImagePrompt}
-              setAiImagePrompt={setAiImagePrompt}
-              isGeneratingImage={isGeneratingImage}
-              generatedImagePreview={generatedImagePreview}
-              onGenerateImage={handleGenerateImage}
-              onAddGeneratedImage={handleAddGeneratedImage}
-            />
-
-            <VoicePanel
-              speechRate={speechRate}
-              setSpeechRate={setSpeechRate}
-              voiceVolume={voiceVolume}
-              setVoiceVolume={setVoiceVolume}
-              isSpeaking={isSpeaking}
-              aiVoiceBlob={aiVoiceBlob}
-              isExporting={isExporting}
-              onPlayVoiceover={startVoiceover}
-              onStopVoiceover={stopVoiceover}
-              onGenerateRealVoice={generateRealVoice}
-            />
-
-            <MusicPanel
-              backgroundMusic={backgroundMusic}
-              musicPreview={musicPreview}
-              musicVolume={musicVolume}
-              setMusicVolume={setMusicVolume}
-              isMusicPlaying={isMusicPlaying}
-              audioRef={audioRef}
-              onMusicUpload={handleMusicUpload}
-              onToggleMusic={toggleMusic}
-            />
-
-            <MediaUploader onMediaUpload={handleMediaUpload} />
-
-            <ExportPanel
-              isRecording={isRecording}
-              isExporting={isExporting}
-              onGenerateCompleteVideo={handleGenerateCompleteVideo}
-              onShareToFacebook={shareToFacebook}
-              onInitializeFFmpeg={initializeFFmpeg}
-              onExportSilentMp4={handleExportSilentMp4}
-              onExportNarratedMp4={handleExportNarratedMp4}
-              onExportFinalMixedMp4={handleExportFinalMixedMp4}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Video Preview</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <PreviewPanel
-              mediaFiles={mediaFiles}
-              imagePreviews={imagePreviews}
-              currentIndex={currentIndex}
-              setCurrentIndex={setCurrentIndex}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              facebookCaption={facebookCaption}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    </main>
   );
 }
