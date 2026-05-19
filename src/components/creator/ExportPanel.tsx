@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 type ExportPanelProps = {
   isRecording: boolean;
   isExporting: boolean;
+  exportStatus?: string;
   onGenerateCompleteVideo: () => void;
   onShareToFacebook: () => void;
   onInitializeFFmpeg: () => void;
@@ -23,6 +24,7 @@ type ExportPanelProps = {
 export default function ExportPanel({
   isRecording,
   isExporting,
+  exportStatus = "",
   onGenerateCompleteVideo,
   onShareToFacebook,
   onInitializeFFmpeg,
@@ -44,6 +46,18 @@ export default function ExportPanel({
         </p>
       </div>
 
+      {exportStatus && (
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
+          <div className="flex items-center gap-3">
+            {busy && <Loader2 className="h-4 w-4 animate-spin text-cyan-200" />}
+
+            <p className="text-sm font-bold leading-5 text-cyan-100">
+              {exportStatus}
+            </p>
+          </div>
+        </div>
+      )}
+
       <Button
         type="button"
         onClick={onGenerateCompleteVideo}
@@ -53,7 +67,7 @@ export default function ExportPanel({
         {busy ? (
           <span className="flex items-center gap-2">
             <Loader2 className="h-5 w-5 animate-spin" />
-            Generating video...
+            Working...
           </span>
         ) : (
           <span className="flex items-center gap-2">
