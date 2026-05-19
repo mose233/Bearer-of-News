@@ -1,18 +1,18 @@
 import { ImagePlus, Images, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { GeneratedSceneImage } from "@/lib/creator/imageGeneration";
+import type { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 
 type AiImagesPanelProps = {
   aiImagePrompt: string;
   setAiImagePrompt: (value: string) => void;
   isGeneratingImage: boolean;
   generatedImagePreview: string;
-  generatedScenes?: GeneratedSceneImage[];
+  multiScenePlan?: MultiScenePlan[];
   onGenerateImage: () => void;
-  onGenerateMultipleImages?: () => void;
+  onGenerateMultiScenePlan?: () => void;
   onAddGeneratedImage: () => void;
-  onAddGeneratedScene?: (index: number) => void;
-  onAddAllGeneratedScenes?: () => void;
+  onGenerateSceneFromPlan?: (index: number) => void;
+  onGenerateAllScenesFromPlan?: () => void;
 };
 
 const inputClass =
@@ -23,22 +23,24 @@ export default function AiImagesPanel({
   setAiImagePrompt,
   isGeneratingImage,
   generatedImagePreview,
-  generatedScenes = [],
+  multiScenePlan = [],
   onGenerateImage,
-  onGenerateMultipleImages,
+  onGenerateMultiScenePlan,
   onAddGeneratedImage,
-  onAddGeneratedScene,
-  onAddAllGeneratedScenes,
+  onGenerateSceneFromPlan,
+  onGenerateAllScenesFromPlan,
 }: AiImagesPanelProps) {
-  const hasMultipleScenes = generatedScenes.length > 0;
+  const hasMultiScenePlan = multiScenePlan.length > 0;
 
   return (
     <div className="space-y-4 rounded-3xl border border-white/10 bg-slate-950/40 p-4 text-white">
       <div>
-        <h3 className="text-base font-extrabold text-white">AI Scene Generator</h3>
+        <h3 className="text-base font-extrabold text-white">
+          AI Scene Generator
+        </h3>
 
         <p className="mt-1 text-sm font-medium leading-6 text-slate-300">
-          Generate one scene or create multiple mock scenes for your video timeline.
+          Generate one scene, or split your idea into a 4-scene video plan.
         </p>
       </div>
 
@@ -62,15 +64,15 @@ export default function AiImagesPanel({
 
         <Button
           type="button"
-          onClick={onGenerateMultipleImages}
-          disabled={isGeneratingImage || !onGenerateMultipleImages}
+          onClick={onGenerateMultiScenePlan}
+          disabled={isGeneratingImage || !onGenerateMultiScenePlan}
           className="h-12 rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white hover:bg-violet-700 disabled:opacity-60"
         >
           <Images className="mr-2 h-5 w-5" />
-          {isGeneratingImage ? "Generating..." : "Generate 4 Scenes"}
+          Generate 4-Scene Plan
         </Button>
 
-        {generatedImagePreview && !hasMultipleScenes && (
+        {generatedImagePreview && !hasMultiScenePlan && (
           <Button
             type="button"
             onClick={onAddGeneratedImage}
@@ -81,54 +83,52 @@ export default function AiImagesPanel({
           </Button>
         )}
 
-        {hasMultipleScenes && (
+        {hasMultiScenePlan && (
           <Button
             type="button"
-            onClick={onAddAllGeneratedScenes}
-            disabled={!onAddAllGeneratedScenes}
+            onClick={onGenerateAllScenesFromPlan}
+            disabled={isGeneratingImage || !onGenerateAllScenesFromPlan}
             className="h-12 rounded-2xl bg-emerald-600 px-5 text-sm font-extrabold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
             <ImagePlus className="mr-2 h-5 w-5" />
-            Add All Scenes
+            Generate All Scenes
           </Button>
         )}
       </div>
 
-      {hasMultipleScenes ? (
+      {hasMultiScenePlan && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {generatedScenes.map((scene, index) => (
+          {multiScenePlan.map((scene, index) => (
             <div
               key={`${scene.title}-${index}`}
-              className="rounded-3xl border border-white/10 bg-black p-3"
+              className="rounded-3xl border border-white/10 bg-black/40 p-4"
             >
-              <img
-                src={scene.previewUrl}
-                alt={scene.title}
-                className="h-56 w-full rounded-2xl object-cover"
-              />
-
-              <div className="mt-3">
-                <p className="text-sm font-extrabold text-white">
-                  {scene.title}
-                </p>
-
-                <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-slate-300">
-                  {scene.prompt}
-                </p>
+              <div className="mb-3 inline-flex rounded-full bg-violet-500/20 px-3 py-1 text-xs font-extrabold text-violet-100">
+                Scene {index + 1} · {scene.duration}s
               </div>
+
+              <h4 className="text-sm font-extrabold text-white">
+                {scene.title}
+              </h4>
+
+              <p className="mt-2 line-clamp-4 text-xs font-medium leading-5 text-slate-300">
+                {scene.prompt}
+              </p>
 
               <Button
                 type="button"
-                onClick={() => onAddGeneratedScene?.(index)}
-                disabled={!onAddGeneratedScene}
-                className="mt-3 h-10 w-full rounded-2xl bg-cyan-600 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
+                onClick={() => onGenerateSceneFromPlan?.(index)}
+                disabled={isGeneratingImage || !onGenerateSceneFromPlan}
+                className="mt-4 h-10 w-full rounded-2xl bg-cyan-600 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
               >
-                Add Scene {index + 1}
+                Generate Scene {index + 1}
               </Button>
             </div>
           ))}
         </div>
-      ) : generatedImagePreview ? (
+      )}
+
+      {generatedImagePreview && !hasMultiScenePlan && (
         <div className="rounded-3xl border border-white/10 bg-black p-3">
           <img
             src={generatedImagePreview}
@@ -136,7 +136,7 @@ export default function AiImagesPanel({
             className="mx-auto max-h-[360px] w-full rounded-2xl object-contain"
           />
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
