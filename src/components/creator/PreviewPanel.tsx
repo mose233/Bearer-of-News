@@ -5,6 +5,9 @@ import {
   ChevronRight,
   Image as ImageIcon,
   Video,
+  Trash2,
+  Copy,
+  Clock,
 } from "lucide-react";
 
 import type { ImagePreviewItem } from "@/lib/creator/videoExport";
@@ -17,6 +20,10 @@ type PreviewPanelProps = {
   isPlaying: boolean;
   setIsPlaying: (value: boolean) => void;
   facebookCaption: string;
+  sceneDurations?: number[];
+  onDeleteScene?: (index: number) => void;
+  onDuplicateScene?: (index: number) => void;
+  onUpdateSceneDuration?: (index: number, duration: number) => void;
 };
 
 export default function PreviewPanel({
@@ -27,10 +34,13 @@ export default function PreviewPanel({
   isPlaying,
   setIsPlaying,
   facebookCaption,
+  sceneDurations = [],
+  onDeleteScene,
+  onDuplicateScene,
+  onUpdateSceneDuration,
 }: PreviewPanelProps) {
   const nextSlide = () => {
     if (imagePreviews.length === 0) return;
-
     setCurrentIndex((prev) =>
       prev === imagePreviews.length - 1 ? 0 : prev + 1
     );
@@ -38,7 +48,6 @@ export default function PreviewPanel({
 
   const prevSlide = () => {
     if (imagePreviews.length === 0) return;
-
     setCurrentIndex((prev) =>
       prev === 0 ? imagePreviews.length - 1 : prev - 1
     );
@@ -128,49 +137,93 @@ export default function PreviewPanel({
           <h3 className="text-sm font-bold text-creator-text">Timeline</h3>
 
           <span className="text-xs text-creator-muted">
-            {mediaFiles.length} file{mediaFiles.length === 1 ? "" : "s"}
+            {mediaFiles.length} scene{mediaFiles.length === 1 ? "" : "s"}
           </span>
         </div>
 
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {mediaFiles.map((file, index) => (
-            <button
-              key={`${file.name}-${index}`}
-              type="button"
-              onClick={() => {
-                if (file.type.startsWith("image/")) {
-                  const imageIndex = imagePreviews.findIndex(
-                    (item) => item.file === file
-                  );
+          {mediaFiles.map((file, index) => {
+            const imageIndex = imagePreviews.findIndex(
+              (item) => item.file === file
+            );
 
-                  if (imageIndex >= 0) {
-                    setCurrentIndex(imageIndex);
-                  }
-                }
-              }}
-              className="min-w-[130px] rounded-2xl border border-white/10 bg-black/20 p-3 text-left transition hover:bg-white/10"
-            >
-              <div className="mb-3 flex h-16 items-center justify-center rounded-xl bg-white/10">
-                {file.type.startsWith("image/") ? (
-                  <ImageIcon className="h-6 w-6 text-creator-blue" />
-                ) : (
-                  <Video className="h-6 w-6 text-creator-purple" />
-                )}
+            const isSelected = imageIndex === currentIndex;
+            const duration = sceneDurations[index] || 5;
+
+            return (
+              <div
+                key={`${file.name}-${index}`}
+                className={`min-w-[160px] rounded-2xl border p-3 text-left transition ${
+                  isSelected
+                    ? "border-creator-purple bg-creator-purple/20"
+                    : "border-white/10 bg-black/20 hover:bg-white/10"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (imageIndex >= 0) {
+                      setCurrentIndex(imageIndex);
+                    }
+                  }}
+                  className="w-full text-left"
+                >
+                  <div className="mb-3 flex h-16 items-center justify-center rounded-xl bg-white/10">
+                    {file.type.startsWith("image/") ? (
+                      <ImageIcon className="h-6 w-6 text-creator-blue" />
+                    ) : (
+                      <Video className="h-6 w-6 text-creator-purple" />
+                    )}
+                  </div>
+
+                  <p className="truncate text-xs font-semibold text-creator-text">
+                    Scene {index + 1}
+                  </p>
+
+                  <p className="mt-1 truncate text-[11px] text-creator-muted">
+                    {file.name}
+                  </p>
+                </button>
+
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-black/25 px-2 py-2">
+                  <Clock className="h-4 w-4 text-creator-muted" />
+
+                  <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={duration}
+                    onChange={(e) =>
+                      onUpdateSceneDuration?.(index, Number(e.target.value))
+                    }
+                    className="w-full bg-transparent text-xs font-semibold text-creator-text outline-none"
+                  />
+
+                  <span className="text-[11px] text-creator-muted">sec</span>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onDuplicateScene?.(index)}
+                    className="flex h-9 items-center justify-center rounded-xl bg-white/10 text-xs font-semibold text-creator-text hover:bg-white/15"
+                  >
+                    <Copy className="mr-1 h-3.5 w-3.5" />
+                    Copy
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onDeleteScene?.(index)}
+                    className="flex h-9 items-center justify-center rounded-xl bg-red-500/20 text-xs font-semibold text-red-200 hover:bg-red-500/30"
+                  >
+                    <Trash2 className="mr-1 h-3.5 w-3.5" />
+                    Delete
+                  </button>
+                </div>
               </div>
-
-              <p className="truncate text-xs font-semibold text-creator-text">
-                Scene {index + 1}
-              </p>
-
-              <p className="mt-1 truncate text-[11px] text-creator-muted">
-                {file.name}
-              </p>
-
-              <p className="mt-1 text-[11px] text-creator-faint">
-                {Math.round(file.size / 1024)} KB
-              </p>
-            </button>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
