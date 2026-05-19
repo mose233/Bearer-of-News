@@ -1,3 +1,9 @@
+export type VoiceGenerationResult = {
+  ok: boolean;
+  blob: Blob | null;
+  error?: string;
+};
+
 export const generateVoice = async (
   text: string,
   voice: string = "alloy"
@@ -18,8 +24,37 @@ export const generateVoice = async (
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    const errorText = await response.text();
+
+    throw new Error(
+      errorText || "Voice generation failed. API key may be missing."
+    );
   }
 
   return await response.blob();
+};
+
+export const tryGenerateVoice = async (
+  text: string,
+  voice: string = "alloy"
+): Promise<VoiceGenerationResult> => {
+  try {
+    const blob = await generateVoice(text, voice);
+
+    return {
+      ok: true,
+      blob,
+    };
+  } catch (error) {
+    console.warn("Voice generation fallback:", error);
+
+    return {
+      ok: false,
+      blob: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Voice generation failed. Use browser voice preview or add an API key.",
+    };
+  }
 };
