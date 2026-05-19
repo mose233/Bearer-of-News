@@ -51,6 +51,7 @@ export default function CreatorStudio() {
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [sceneDurations, setSceneDurations] = useState<number[]>([]);
 
   const [aiImagePrompt, setAiImagePrompt] = useState("");
   const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(
@@ -136,6 +137,7 @@ export default function CreatorStudio() {
 
     setMediaFiles(files);
     setMediaPreviews(previews);
+    setSceneDurations(files.map(() => 5));
     setCurrentIndex(0);
   };
 
@@ -176,12 +178,79 @@ export default function CreatorStudio() {
 
     setMediaFiles((prev) => [...prev, generatedImageFile]);
     setMediaPreviews((prev) => [...prev, generatedImagePreview]);
+    setSceneDurations((prev) => [...prev, 5]);
     setCurrentIndex(mediaFiles.length);
 
     setGeneratedImageFile(null);
     setGeneratedImagePreview("");
 
     alert("AI image added to video timeline.");
+  };
+
+  const handleDeleteScene = (index: number) => {
+    const fileToDelete = mediaFiles[index];
+    const previewToDelete = mediaPreviews[index];
+
+    if (!fileToDelete) return;
+
+    if (previewToDelete) {
+      URL.revokeObjectURL(previewToDelete);
+    }
+
+    const nextFiles = mediaFiles.filter((_, itemIndex) => itemIndex !== index);
+    const nextPreviews = mediaPreviews.filter(
+      (_, itemIndex) => itemIndex !== index
+    );
+    const nextDurations = sceneDurations.filter(
+      (_, itemIndex) => itemIndex !== index
+    );
+
+    setMediaFiles(nextFiles);
+    setMediaPreviews(nextPreviews);
+    setSceneDurations(nextDurations);
+
+    setCurrentIndex((prev) => {
+      if (nextFiles.length === 0) return 0;
+      if (prev >= nextFiles.length) return nextFiles.length - 1;
+      return prev;
+    });
+  };
+
+  const handleDuplicateScene = (index: number) => {
+    const fileToCopy = mediaFiles[index];
+    const previewToCopy = mediaPreviews[index];
+
+    if (!fileToCopy || !previewToCopy) return;
+
+    setMediaFiles((prev) => [
+      ...prev.slice(0, index + 1),
+      fileToCopy,
+      ...prev.slice(index + 1),
+    ]);
+
+    setMediaPreviews((prev) => [
+      ...prev.slice(0, index + 1),
+      previewToCopy,
+      ...prev.slice(index + 1),
+    ]);
+
+    setSceneDurations((prev) => [
+      ...prev.slice(0, index + 1),
+      prev[index] || 5,
+      ...prev.slice(index + 1),
+    ]);
+
+    setCurrentIndex(index + 1);
+  };
+
+  const handleUpdateSceneDuration = (index: number, duration: number) => {
+    const safeDuration = Math.min(Math.max(duration || 1, 1), 30);
+
+    setSceneDurations((prev) => {
+      const next = [...prev];
+      next[index] = safeDuration;
+      return next;
+    });
   };
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,13 +300,11 @@ export default function CreatorStudio() {
     const utterance = new SpeechSynthesisUtterance(voiceText);
 
     utterance.rate = speechRate;
-
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
 
     speechRef.current = utterance;
-
     window.speechSynthesis.speak(utterance);
   };
 
@@ -504,7 +571,7 @@ export default function CreatorStudio() {
             <Card className="creator-card overflow-hidden lg:hidden">
               <CardHeader className="border-b border-white/10 px-4 py-4">
                 <CardTitle className="text-lg font-bold text-creator-text">
-                  3. Preview
+                  3. Preview and timeline
                 </CardTitle>
               </CardHeader>
 
@@ -517,6 +584,10 @@ export default function CreatorStudio() {
                   isPlaying={isPlaying}
                   setIsPlaying={setIsPlaying}
                   facebookCaption={facebookCaption}
+                  sceneDurations={sceneDurations}
+                  onDeleteScene={handleDeleteScene}
+                  onDuplicateScene={handleDuplicateScene}
+                  onUpdateSceneDuration={handleUpdateSceneDuration}
                 />
               </CardContent>
             </Card>
@@ -595,6 +666,10 @@ export default function CreatorStudio() {
                     isPlaying={isPlaying}
                     setIsPlaying={setIsPlaying}
                     facebookCaption={facebookCaption}
+                    sceneDurations={sceneDurations}
+                    onDeleteScene={handleDeleteScene}
+                    onDuplicateScene={handleDuplicateScene}
+                    onUpdateSceneDuration={handleUpdateSceneDuration}
                   />
                 </CardContent>
               </Card>
