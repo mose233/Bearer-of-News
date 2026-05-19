@@ -517,95 +517,61 @@ export default function CreatorStudio() {
     }
   };
 
-  const handleGenerateCompleteVideo = async () => {
-  try {
-    if (!videoPrompt.trim()) {
-      alert("Please write a video prompt first.");
-      return;
-    }
+  const handleExportSilentMp4 = async () => {
+    try {
+      if (imagePreviews.length === 0) {
+        alert("Please upload or generate images first.");
+        return;
+      }
 
-    if (imagePreviews.length === 0) {
-      alert("Please upload or generate images first.");
-      return;
-    }
-
-    setIsRecording(true);
-    setIsExporting(true);
-
-    const generated = generateCreatorContent(contentType, videoPrompt);
-
-    setFacebookCaption(generated.caption);
-    setVoiceText(generated.voice);
-
-    const voiceResult = await tryGenerateVoice(generated.voice);
-
-    if (!voiceResult.ok || !voiceResult.blob) {
-      alert(
-        "AI voice API unavailable. Exporting video without generated AI voice."
-      );
+      setIsRecording(true);
 
       const videoBlob = await exportSilentMp4(imagePreviews);
 
-      saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
+      saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
-      return;
+      alert("Silent MP4 exported successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export silent MP4.");
+    } finally {
+      setIsRecording(false);
     }
+  };
 
-    const voiceBlob = voiceResult.blob;
+  const handleExportNarratedMp4 = async () => {
+    try {
+      if (imagePreviews.length === 0) {
+        alert("Please upload or generate images first.");
+        return;
+      }
 
-    setAiVoiceBlob(voiceBlob);
+      if (!aiVoiceBlob) {
+        alert("Please generate AI voice first.");
+        return;
+      }
 
-    const videoBlob = await exportFinalMixedMp4({
-      imagePreviews,
-      voiceBlob,
-      voiceVolume,
-      backgroundMusic,
-      musicVolume,
-    });
+      setIsRecording(true);
+      setIsExporting(true);
 
-    saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
+      const videoBlob = await exportNarratedMp4({
+        imagePreviews,
+        voiceBlob: aiVoiceBlob,
+        voiceVolume,
+      });
 
-    alert("Complete AI video generated successfully!");
-  } catch (error) {
-    console.error(error);
-    alert("Failed to generate complete AI video.");
-  } finally {
-    setIsRecording(false);
-    setIsExporting(false);
-  }
-};
-const handleExportNarratedMp4 = async () => {
-  try {
-    if (imagePreviews.length === 0) {
-      alert("Please upload or generate images first.");
-      return;
+      saveAs(videoBlob, "creator-studio-narrated-video.mp4");
+
+      alert("Narrated MP4 exported successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export narrated MP4.");
+    } finally {
+      setIsRecording(false);
+      setIsExporting(false);
     }
+  };
 
-    if (!aiVoiceBlob) {
-      alert("Please generate AI voice first.");
-      return;
-    }
-
-    setIsRecording(true);
-    setIsExporting(true);
-
-    const videoBlob = await exportNarratedMp4({
-      imagePreviews,
-      voiceBlob: aiVoiceBlob,
-      voiceVolume,
-    });
-
-    saveAs(videoBlob, "creator-studio-narrated-video.mp4");
-
-    alert("Narrated MP4 exported successfully!");
-  } catch (error) {
-    console.error(error);
-    alert("Failed to export narrated MP4.");
-  } finally {
-    setIsRecording(false);
-    setIsExporting(false);
-  }
-};
   const handleExportFinalMixedMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
@@ -635,6 +601,64 @@ const handleExportNarratedMp4 = async () => {
     } catch (error) {
       console.error(error);
       alert("Failed to export final mixed MP4.");
+    } finally {
+      setIsRecording(false);
+      setIsExporting(false);
+    }
+  };
+
+  const handleGenerateCompleteVideo = async () => {
+    try {
+      if (!videoPrompt.trim()) {
+        alert("Please write a video prompt first.");
+        return;
+      }
+
+      if (imagePreviews.length === 0) {
+        alert("Please upload or generate images first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setIsExporting(true);
+
+      const generated = generateCreatorContent(contentType, videoPrompt);
+
+      setFacebookCaption(generated.caption);
+      setVoiceText(generated.voice);
+
+      const voiceResult = await tryGenerateVoice(generated.voice);
+
+      if (!voiceResult.ok || !voiceResult.blob) {
+        alert(
+          "AI voice API unavailable. Exporting video without generated AI voice."
+        );
+
+        const videoBlob = await exportSilentMp4(imagePreviews);
+
+        saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
+
+        return;
+      }
+
+      const voiceBlob = voiceResult.blob;
+
+      setAiVoiceBlob(voiceBlob);
+
+      const videoBlob = await exportFinalMixedMp4({
+        imagePreviews,
+        voiceBlob,
+        voiceVolume,
+        backgroundMusic,
+        musicVolume,
+      });
+
+      saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
+
+      alert("Complete AI video generated successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate complete AI video.");
     } finally {
       setIsRecording(false);
       setIsExporting(false);
