@@ -1,4 +1,11 @@
-import { ImagePlus, Music, Play, ShieldCheck, Sparkles, Upload } from "lucide-react";
+import {
+  Download,
+  ImagePlus,
+  Music,
+  Play,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -6,10 +13,12 @@ type PhotoMusicVideoPanelProps = {
   photoMusicImagePreview: string;
   photoMusicAudioName: string;
   photoMusicStyle: string;
+  isExportingPhotoMusic?: boolean;
   setPhotoMusicStyle: (value: string) => void;
   onPhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAudioUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAddPhotoSceneToTimeline: () => void;
+  onExportPhotoMusicVideo: () => void;
 };
 
 const styles = [
@@ -25,11 +34,15 @@ export default function PhotoMusicVideoPanel({
   photoMusicImagePreview,
   photoMusicAudioName,
   photoMusicStyle,
+  isExportingPhotoMusic = false,
   setPhotoMusicStyle,
   onPhotoUpload,
   onAudioUpload,
   onAddPhotoSceneToTimeline,
+  onExportPhotoMusicVideo,
 }: PhotoMusicVideoPanelProps) {
+  const readyToExport = !!photoMusicImagePreview && !!photoMusicAudioName;
+
   return (
     <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
       <div>
@@ -41,8 +54,7 @@ export default function PhotoMusicVideoPanel({
         </div>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Upload a portrait photo and a song, then create a music-style video
-          scene. This is a free mock version before real AI motion/lip-sync.
+          Upload a photo and song, then export a mobile-ready MP4 music video.
         </p>
       </div>
 
@@ -133,20 +145,8 @@ export default function PhotoMusicVideoPanel({
               </div>
 
               <div className="absolute right-4 top-4 rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
-                Mock Preview
+                MP4 Ready
               </div>
-            </div>
-          )}
-
-          {!photoMusicImagePreview && photoMusicAudioName && (
-            <div className="flex min-h-[180px] flex-col items-center justify-center rounded-2xl bg-slate-900 p-6 text-center">
-              <Music className="mb-3 h-10 w-10 text-violet-300" />
-              <p className="text-sm font-extrabold text-white">
-                Song uploaded
-              </p>
-              <p className="mt-1 text-xs font-medium text-slate-300">
-                {photoMusicAudioName}
-              </p>
             </div>
           )}
         </div>
@@ -160,7 +160,17 @@ export default function PhotoMusicVideoPanel({
           className="h-12 rounded-2xl bg-pink-600 px-5 text-sm font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
         >
           <Play className="mr-2 h-4 w-4" />
-          Add Music Video Scene
+          Add Scene
+        </Button>
+
+        <Button
+          type="button"
+          onClick={onExportPhotoMusicVideo}
+          disabled={!readyToExport || isExportingPhotoMusic}
+          className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {isExportingPhotoMusic ? "Exporting MP4..." : "Export Music Video MP4"}
         </Button>
       </div>
 
@@ -169,9 +179,7 @@ export default function PhotoMusicVideoPanel({
           <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-amber-200" />
 
           <p className="text-xs font-medium leading-5 text-amber-100">
-            Use photos and songs you own or have permission to use. Avoid
-            impersonation, copyrighted music without rights, or misleading AI
-            content.
+            Use media you own or have permission to use.
           </p>
         </div>
       </div>
