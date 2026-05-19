@@ -11,10 +11,16 @@ import MusicPanel from "@/components/creator/MusicPanel";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
+import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
+
+import {
+  generateDancingVideo,
+  DanceStyle,
+} from "@/lib/ai/videoProviders";
 
 import {
   generateMultiScenePlan,
@@ -78,6 +84,12 @@ export default function CreatorStudio() {
   const [photoMusicStyle, setPhotoMusicStyle] = useState("Music Video");
   const [isExportingPhotoMusic, setIsExportingPhotoMusic] = useState(false);
 
+  const [dancingPhotoFile, setDancingPhotoFile] = useState<File | null>(null);
+  const [dancingPhotoPreview, setDancingPhotoPreview] = useState("");
+  const [danceStyle, setDanceStyle] = useState<DanceStyle>("Afrobeats");
+  const [isGeneratingDance, setIsGeneratingDance] = useState(false);
+  const [danceResultMessage, setDanceResultMessage] = useState("");
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -97,6 +109,7 @@ export default function CreatorStudio() {
       if (musicPreview) URL.revokeObjectURL(musicPreview);
       if (generatedImagePreview) URL.revokeObjectURL(generatedImagePreview);
       if (photoMusicImagePreview) URL.revokeObjectURL(photoMusicImagePreview);
+      if (dancingPhotoPreview) URL.revokeObjectURL(dancingPhotoPreview);
 
       window.speechSynthesis.cancel();
     };
@@ -105,6 +118,7 @@ export default function CreatorStudio() {
     musicPreview,
     generatedImagePreview,
     photoMusicImagePreview,
+    dancingPhotoPreview,
   ]);
 
   useEffect(() => {
@@ -232,6 +246,54 @@ export default function CreatorStudio() {
       alert("Failed to export photo music video.");
     } finally {
       setIsExportingPhotoMusic(false);
+      setExportStatus("");
+    }
+  };
+
+  const handleDancingPhotoUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (dancingPhotoPreview) {
+      URL.revokeObjectURL(dancingPhotoPreview);
+    }
+
+    const preview = URL.createObjectURL(file);
+
+    setDancingPhotoFile(file);
+    setDancingPhotoPreview(preview);
+    setDanceResultMessage("");
+  };
+
+  const handleGenerateDancingVideo = async () => {
+    try {
+      if (!dancingPhotoFile || !dancingPhotoPreview) {
+        alert("Please upload a dancing photo first.");
+        return;
+      }
+
+      setIsGeneratingDance(true);
+      setExportStatus("Generating mock dancing video...");
+
+      const result = await generateDancingVideo({
+        imageFile: dancingPhotoFile,
+        imagePreview: dancingPhotoPreview,
+        danceStyle,
+      });
+
+      setDanceResultMessage(result.message);
+
+      addSceneToTimeline(dancingPhotoFile, dancingPhotoPreview, 5);
+
+      alert("Mock dancing video added to timeline.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate dancing video.");
+    } finally {
+      setIsGeneratingDance(false);
       setExportStatus("");
     }
   };
@@ -798,6 +860,16 @@ export default function CreatorStudio() {
                   onAudioUpload={handlePhotoMusicAudioUpload}
                   onAddPhotoSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
                   onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
+                />
+
+                <DancingPhotoPanel
+                  dancingPhotoPreview={dancingPhotoPreview}
+                  danceStyle={danceStyle}
+                  isGeneratingDance={isGeneratingDance}
+                  danceResultMessage={danceResultMessage}
+                  setDanceStyle={setDanceStyle}
+                  onPhotoUpload={handleDancingPhotoUpload}
+                  onGenerateDance={handleGenerateDancingVideo}
                 />
               </CardContent>
             </Card>
