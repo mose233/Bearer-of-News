@@ -29,6 +29,7 @@ import {
 import {
   exportFinalMixedMp4,
   exportNarratedMp4,
+  exportPhotoMusicVideoMp4,
   exportSilentMp4,
   ImagePreviewItem,
 } from "@/lib/creator/videoExport";
@@ -70,8 +71,11 @@ export default function CreatorStudio() {
   const [photoMusicImageFile, setPhotoMusicImageFile] =
     useState<File | null>(null);
   const [photoMusicImagePreview, setPhotoMusicImagePreview] = useState("");
+  const [photoMusicAudioFile, setPhotoMusicAudioFile] =
+    useState<File | null>(null);
   const [photoMusicAudioName, setPhotoMusicAudioName] = useState("");
   const [photoMusicStyle, setPhotoMusicStyle] = useState("Music Video");
+  const [isExportingPhotoMusic, setIsExportingPhotoMusic] = useState(false);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -89,17 +93,9 @@ export default function CreatorStudio() {
     return () => {
       mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
 
-      if (musicPreview) {
-        URL.revokeObjectURL(musicPreview);
-      }
-
-      if (generatedImagePreview) {
-        URL.revokeObjectURL(generatedImagePreview);
-      }
-
-      if (photoMusicImagePreview) {
-        URL.revokeObjectURL(photoMusicImagePreview);
-      }
+      if (musicPreview) URL.revokeObjectURL(musicPreview);
+      if (generatedImagePreview) URL.revokeObjectURL(generatedImagePreview);
+      if (photoMusicImagePreview) URL.revokeObjectURL(photoMusicImagePreview);
 
       window.speechSynthesis.cancel();
     };
@@ -179,6 +175,7 @@ export default function CreatorStudio() {
 
     if (!file) return;
 
+    setPhotoMusicAudioFile(file);
     setPhotoMusicAudioName(file.name);
     setBackgroundMusic(file);
 
@@ -201,6 +198,39 @@ export default function CreatorStudio() {
     addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, 5);
 
     alert("Photo music video scene added to timeline.");
+  };
+
+  const handleExportPhotoMusicVideo = async () => {
+    try {
+      if (!photoMusicImageFile || !photoMusicImagePreview) {
+        alert("Please upload a photo first.");
+        return;
+      }
+
+      if (!photoMusicAudioFile) {
+        alert("Please upload a song first.");
+        return;
+      }
+
+      setIsExportingPhotoMusic(true);
+
+      const videoBlob = await exportPhotoMusicVideoMp4({
+        imageFile: photoMusicImageFile,
+        imagePreview: photoMusicImagePreview,
+        audioFile: photoMusicAudioFile,
+        durationSeconds: 15,
+        musicVolume: 0.9,
+      });
+
+      saveAs(videoBlob, "photo-music-video.mp4");
+
+      alert("Photo music video exported successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export photo music video.");
+    } finally {
+      setIsExportingPhotoMusic(false);
+    }
   };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -737,10 +767,12 @@ export default function CreatorStudio() {
                   photoMusicImagePreview={photoMusicImagePreview}
                   photoMusicAudioName={photoMusicAudioName}
                   photoMusicStyle={photoMusicStyle}
+                  isExportingPhotoMusic={isExportingPhotoMusic}
                   setPhotoMusicStyle={setPhotoMusicStyle}
                   onPhotoUpload={handlePhotoMusicPhotoUpload}
                   onAudioUpload={handlePhotoMusicAudioUpload}
                   onAddPhotoSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+                  onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
                 />
               </CardContent>
             </Card>
