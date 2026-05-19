@@ -1,3 +1,4 @@
+import { Mic, Play, Square, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type VoicePanelProps = {
@@ -26,11 +27,25 @@ export default function VoicePanel({
   onGenerateRealVoice,
 }: VoicePanelProps) {
   return (
-    <div className="space-y-3">
-      <label className="font-semibold text-sm">Voice Controls</label>
+    <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
+      <div>
+        <div className="flex items-center gap-2">
+          <Mic className="h-5 w-5 text-cyan-300" />
+          <label className="text-base font-extrabold text-white">
+            Voice Controls
+          </label>
+        </div>
+
+        <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
+          Preview narration, adjust speed and volume, then generate export-ready
+          AI voice.
+        </p>
+      </div>
 
       <div className="space-y-2">
-        <label className="text-sm">Speech Speed</label>
+        <label className="text-sm font-bold text-white">
+          Speech Speed: {speechRate.toFixed(1)}x
+        </label>
 
         <input
           type="range"
@@ -39,12 +54,12 @@ export default function VoicePanel({
           step="0.1"
           value={speechRate}
           onChange={(e) => setSpeechRate(Number(e.target.value))}
-          className="w-full"
+          className="w-full accent-cyan-400"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm">
+        <label className="text-sm font-bold text-white">
           AI Voice Volume: {Math.round(voiceVolume * 100)}%
         </label>
 
@@ -55,42 +70,51 @@ export default function VoicePanel({
           step="0.05"
           value={voiceVolume}
           onChange={(e) => setVoiceVolume(Number(e.target.value))}
-          className="w-full"
+          className="w-full accent-violet-400"
         />
       </div>
 
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex flex-wrap gap-3">
         <Button
           onClick={onPlayVoiceover}
-          className="bg-green-600 hover:bg-green-700"
+          className="h-12 rounded-2xl bg-emerald-600 px-5 text-sm font-extrabold text-white hover:bg-emerald-700"
         >
-          ▶ Play Voiceover
+          <Play className="mr-2 h-4 w-4" />
+          Play Voiceover
         </Button>
 
         <Button
           onClick={onStopVoiceover}
-          className="bg-red-600 hover:bg-red-700"
+          className="h-12 rounded-2xl bg-red-600 px-5 text-sm font-extrabold text-white hover:bg-red-700"
         >
-          ■ Stop Voice
+          <Square className="mr-2 h-4 w-4" />
+          Stop Voice
         </Button>
 
         <Button
           onClick={onGenerateRealVoice}
           disabled={isExporting}
-          className="bg-blue-600 hover:bg-blue-700"
+          className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
         >
+          <Sparkles className="mr-2 h-4 w-4" />
           {isExporting ? "Generating..." : "Generate Real AI Voice"}
         </Button>
       </div>
 
       {isSpeaking && (
-        <p className="text-green-600 text-sm">AI narration speaking...</p>
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3">
+          <p className="text-sm font-bold text-emerald-200">
+            AI narration is currently speaking...
+          </p>
+        </div>
       )}
 
       {aiVoiceBlob && (
-        <p className="text-blue-600 text-sm">
-          Real AI voice is ready for MP4 export.
-        </p>
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
+          <p className="text-sm font-bold text-cyan-200">
+            Real AI voice is ready for MP4 export.
+          </p>
+        </div>
       )}
     </div>
   );
