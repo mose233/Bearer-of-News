@@ -188,10 +188,7 @@ export default function CreatorStudio() {
   };
 
   const handleDeleteScene = (index: number) => {
-    const fileToDelete = mediaFiles[index];
     const previewToDelete = mediaPreviews[index];
-
-    if (!fileToDelete) return;
 
     if (previewToDelete) {
       URL.revokeObjectURL(previewToDelete);
@@ -501,35 +498,33 @@ export default function CreatorStudio() {
   };
 
   return (
-    <main className="creator-shell">
-      <div className="mx-auto max-w-7xl px-4 py-4 pb-28 sm:px-6 lg:px-8 lg:py-8">
-        <header className="mb-5 space-y-3 sm:mb-8">
-          <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-creator-muted">
+    <main className="min-h-screen bg-[#0B1020] text-slate-100">
+      <div className="mx-auto max-w-7xl px-4 py-5 pb-28 sm:px-6 lg:px-8 lg:py-7">
+        <header className="mb-5 rounded-[1.5rem] border border-white/10 bg-[#111827] px-4 py-5 shadow-creator sm:px-6 lg:mb-6">
+          <div className="mb-3 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-xs font-bold text-violet-100">
             Creator Studio AI
           </div>
 
-          <div className="space-y-2">
-            <h1 className="text-2xl font-extrabold tracking-tight text-creator-text sm:text-4xl">
-              Create social videos from your phone
-            </h1>
+          <h1 className="max-w-4xl text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
+            Create Facebook-ready videos faster
+          </h1>
 
-            <p className="max-w-2xl text-sm leading-6 text-creator-muted sm:text-base">
-              Build Facebook-ready videos with prompts, AI scenes, narration,
-              music, captions, uploads, and MP4 export.
-            </p>
-          </div>
+          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-300 sm:text-base">
+            Generate scenes, arrange your timeline, add narration and music,
+            then export videos for Facebook, Reels, Shorts, and TikTok.
+          </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_430px] lg:gap-6">
-          <section className="space-y-4">
-            <Card className="creator-card overflow-hidden">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
-                <CardTitle className="text-lg font-bold text-creator-text">
-                  1. Write your video idea
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
+          <section className="space-y-5">
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  1. Write your idea
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-5 px-4 py-5 sm:px-6">
+              <CardContent className="px-4 py-5 sm:px-5">
                 <PromptPanel
                   videoPrompt={videoPrompt}
                   setVideoPrompt={setVideoPrompt}
@@ -547,14 +542,14 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-            <Card className="creator-card overflow-hidden">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
-                <CardTitle className="text-lg font-bold text-creator-text">
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   2. Generate or upload scenes
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-5 px-4 py-5 sm:px-6">
+              <CardContent className="space-y-5 px-4 py-5 sm:px-5">
                 <AiImagesPanel
                   aiImagePrompt={aiImagePrompt}
                   setAiImagePrompt={setAiImagePrompt}
@@ -568,14 +563,14 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-            <Card className="creator-card overflow-hidden lg:hidden">
-              <CardHeader className="border-b border-white/10 px-4 py-4">
-                <CardTitle className="text-lg font-bold text-creator-text">
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator xl:hidden">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   3. Preview and timeline
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-4 py-5">
+              <CardContent className="px-4 py-5 sm:px-5">
                 <PreviewPanel
                   mediaFiles={mediaFiles}
                   imagePreviews={imagePreviews}
@@ -592,14 +587,14 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-            <Card className="creator-card overflow-hidden">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
-                <CardTitle className="text-lg font-bold text-creator-text">
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   4. Voice and music
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-6 px-4 py-5 sm:px-6">
+              <CardContent className="space-y-6 px-4 py-5 sm:px-5">
                 <VoicePanel
                   speechRate={speechRate}
                   setSpeechRate={setSpeechRate}
@@ -625,15 +620,41 @@ export default function CreatorStudio() {
                 />
               </CardContent>
             </Card>
+          </section>
 
-            <Card className="creator-card overflow-hidden">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-6">
-                <CardTitle className="text-lg font-bold text-creator-text">
+          <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  Live preview and timeline
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-4 py-5 sm:px-5">
+                <PreviewPanel
+                  mediaFiles={mediaFiles}
+                  imagePreviews={imagePreviews}
+                  currentIndex={currentIndex}
+                  setCurrentIndex={setCurrentIndex}
+                  isPlaying={isPlaying}
+                  setIsPlaying={setIsPlaying}
+                  facebookCaption={facebookCaption}
+                  sceneDurations={sceneDurations}
+                  onDeleteScene={handleDeleteScene}
+                  onDuplicateScene={handleDuplicateScene}
+                  onUpdateSceneDuration={handleUpdateSceneDuration}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   5. Export and share
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-4 py-5 sm:px-6">
+              <CardContent className="px-4 py-5 sm:px-5">
                 <ExportPanel
                   isRecording={isRecording}
                   isExporting={isExporting}
@@ -646,49 +667,21 @@ export default function CreatorStudio() {
                 />
               </CardContent>
             </Card>
-          </section>
 
-          <aside className="hidden lg:block">
-            <div className="sticky top-6 space-y-4">
-              <Card className="creator-card overflow-hidden">
-                <CardHeader className="border-b border-white/10 px-5 py-4">
-                  <CardTitle className="text-lg font-bold text-creator-text">
-                    Live Preview
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent className="px-5 py-5">
-                  <PreviewPanel
-                    mediaFiles={mediaFiles}
-                    imagePreviews={imagePreviews}
-                    currentIndex={currentIndex}
-                    setCurrentIndex={setCurrentIndex}
-                    isPlaying={isPlaying}
-                    setIsPlaying={setIsPlaying}
-                    facebookCaption={facebookCaption}
-                    sceneDurations={sceneDurations}
-                    onDeleteScene={handleDeleteScene}
-                    onDuplicateScene={handleDuplicateScene}
-                    onUpdateSceneDuration={handleUpdateSceneDuration}
-                  />
-                </CardContent>
-              </Card>
-
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-xs leading-5 text-creator-muted">
-                Facebook-safe reminder: review generated videos before posting,
-                avoid misleading claims, copyrighted media, impersonation, spam,
-                or unsafe content.
-              </div>
+            <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-400/10 p-4 text-xs font-medium leading-5 text-amber-100">
+              Facebook-safe reminder: review generated videos before posting.
+              Avoid copyrighted media, misleading claims, impersonation, spam,
+              or unsafe content.
             </div>
           </aside>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-creator-bg/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0B1020]/95 px-4 py-3 backdrop-blur xl:hidden">
           <button
             type="button"
             onClick={handleGenerateCompleteVideo}
             disabled={isRecording || isExporting}
-            className="h-12 w-full rounded-2xl bg-creator-purple text-sm font-bold text-white shadow-creator disabled:opacity-60"
+            className="h-12 w-full rounded-2xl bg-violet-600 text-sm font-bold text-white shadow-creator disabled:opacity-60"
           >
             {isRecording || isExporting
               ? "Generating video..."
