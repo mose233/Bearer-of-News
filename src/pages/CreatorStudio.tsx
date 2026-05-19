@@ -574,7 +574,38 @@ export default function CreatorStudio() {
     setIsExporting(false);
   }
 };
+const handleExportNarratedMp4 = async () => {
+  try {
+    if (imagePreviews.length === 0) {
+      alert("Please upload or generate images first.");
+      return;
+    }
 
+    if (!aiVoiceBlob) {
+      alert("Please generate AI voice first.");
+      return;
+    }
+
+    setIsRecording(true);
+    setIsExporting(true);
+
+    const videoBlob = await exportNarratedMp4({
+      imagePreviews,
+      voiceBlob: aiVoiceBlob,
+      voiceVolume,
+    });
+
+    saveAs(videoBlob, "creator-studio-narrated-video.mp4");
+
+    alert("Narrated MP4 exported successfully!");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to export narrated MP4.");
+  } finally {
+    setIsRecording(false);
+    setIsExporting(false);
+  }
+};
   const handleExportFinalMixedMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
@@ -604,50 +635,6 @@ export default function CreatorStudio() {
     } catch (error) {
       console.error(error);
       alert("Failed to export final mixed MP4.");
-    } finally {
-      setIsRecording(false);
-      setIsExporting(false);
-    }
-  };
-
-  const handleGenerateCompleteVideo = async () => {
-    try {
-      if (!videoPrompt.trim()) {
-        alert("Please write a video prompt first.");
-        return;
-      }
-
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
-        return;
-      }
-
-      setIsRecording(true);
-      setIsExporting(true);
-
-      const generated = generateCreatorContent(contentType, videoPrompt);
-
-      setFacebookCaption(generated.caption);
-      setVoiceText(generated.voice);
-
-      const voiceBlob = await generateVoice(generated.voice);
-
-      setAiVoiceBlob(voiceBlob);
-
-      const videoBlob = await exportFinalMixedMp4({
-        imagePreviews,
-        voiceBlob,
-        voiceVolume,
-        backgroundMusic,
-        musicVolume,
-      });
-
-      saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
-
-      alert("Complete AI video generated successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate complete AI video.");
     } finally {
       setIsRecording(false);
       setIsExporting(false);
