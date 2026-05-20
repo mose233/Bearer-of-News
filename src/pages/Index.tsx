@@ -54,10 +54,9 @@ const Index: React.FC = () => {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
-                Connect your Facebook Page, generate content with AI, review
-                with your team, and publish faster with Bearer of News /
-                XNewsApp.
-              </p>
+  Create content, review and approve it, connect your Facebook
+  Page, then post, share, or publish it.
+</p> 
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
