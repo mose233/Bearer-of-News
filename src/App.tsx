@@ -19,8 +19,8 @@ import ContentStudio from "./pages/ContentStudio";
 import CreatorStudio from "./pages/CreatorStudio";
 import Analytics from "./pages/Analytics";
 import About from "./pages/About";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import Join from "./pages/Join";
 
@@ -37,20 +37,14 @@ const App = () => {
           <BrowserRouter>
             <AuthProvider>
               <Routes>
-                {/* ✅ PUBLIC LANDING PAGE */}
                 <Route path="/" element={<Index />} />
 
-                {/* ✅ AUTH ROUTES */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* ✅ PUBLIC JOIN PAGE */}
                 <Route path="/join" element={<Join />} />
 
-                {/* ✅ PROTECTED ROUTES */}
-
-                {/* Dashboard */}
                 <Route
                   path="/dashboard"
                   element={
@@ -60,7 +54,6 @@ const App = () => {
                   }
                 />
 
-                {/* Profile */}
                 <Route
                   path="/profile"
                   element={
@@ -70,7 +63,6 @@ const App = () => {
                   }
                 />
 
-                {/* Team */}
                 <Route
                   path="/team"
                   element={
@@ -80,7 +72,6 @@ const App = () => {
                   }
                 />
 
-                {/* Content Approval */}
                 <Route
                   path="/content"
                   element={
@@ -90,7 +81,6 @@ const App = () => {
                   }
                 />
 
-                {/* ✅ CONTENT REVIEW PAGE */}
                 <Route
                   path="/content-review/:id"
                   element={
@@ -100,7 +90,6 @@ const App = () => {
                   }
                 />
 
-                {/* ✅ NEW CREATOR STUDIO AI */}
                 <Route
                   path="/creator-studio"
                   element={
@@ -110,7 +99,6 @@ const App = () => {
                   }
                 />
 
-                {/* ✅ KEEP OLD CONTENT STUDIO AS BACKUP */}
                 <Route
                   path="/content-studio"
                   element={
@@ -120,7 +108,6 @@ const App = () => {
                   }
                 />
 
-                {/* Analytics */}
                 <Route
                   path="/analytics"
                   element={
@@ -130,12 +117,14 @@ const App = () => {
                   }
                 />
 
-                {/* ✅ PUBLIC INFO PAGES */}
                 <Route path="/about" element={<About />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
 
-                {/* ✅ 404 */}
+                {/* Public legal pages */}
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>
