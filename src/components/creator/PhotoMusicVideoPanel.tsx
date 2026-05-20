@@ -65,19 +65,16 @@ export default function PhotoMusicVideoPanel({
         </div>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Upload your own photo and audio, then export a mobile-ready MP4 music
-          video.
+          Turn your photo and music into a mobile-ready MP4 creative.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
+      <div className="rounded-2xl border border-pink-400/20 bg-pink-500/10 px-4 py-3">
         <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-amber-200" />
+          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-pink-200" />
 
-          <p className="text-xs font-medium leading-5 text-amber-100">
-            Only upload media you own or have permission to use. Do not use
-            copyrighted music, images of other people without permission, or
-            media that could mislead, impersonate, or violate platform rules.
+          <p className="text-xs font-medium leading-5 text-pink-100">
+            Protect your content: use media you own or have permission to use.
           </p>
         </div>
       </div>
@@ -93,7 +90,7 @@ export default function PhotoMusicVideoPanel({
           </span>
 
           <span className="mt-1 text-xs font-medium text-slate-300">
-            Use your own image or licensed image
+            Portrait, product, or creative image
           </span>
 
           <Input
@@ -114,7 +111,7 @@ export default function PhotoMusicVideoPanel({
           </span>
 
           <span className="mt-1 text-xs font-medium text-slate-300">
-            Music, audio, or licensed soundtrack
+            Music or soundtrack
           </span>
 
           <Input
@@ -128,7 +125,7 @@ export default function PhotoMusicVideoPanel({
 
       <div className="space-y-2">
         <label className="text-sm font-extrabold text-white">
-          Music Video Style
+          Video Style
         </label>
 
         <select
@@ -154,14 +151,14 @@ export default function PhotoMusicVideoPanel({
             <div className="relative overflow-hidden rounded-2xl bg-black">
               <img
                 src={photoMusicImagePreview}
-                alt="Photo music video preview"
+                alt="Photo music preview"
                 className="h-[360px] w-full object-cover animate-kenburns"
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
               <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-extrabold text-white backdrop-blur">
-                AI Generated Creative Preview
+                AI Creative Preview
               </div>
 
               <div className="absolute right-4 top-4 rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
@@ -176,7 +173,7 @@ export default function PhotoMusicVideoPanel({
 
                   <p className="mt-1 text-sm font-medium text-slate-200">
                     {photoMusicAudioName ||
-                      "Add audio to complete your music video"}
+                      "Add music to complete your creative"}
                   </p>
                 </div>
               </div>
@@ -194,9 +191,7 @@ export default function PhotoMusicVideoPanel({
         />
 
         <span className="text-xs font-medium leading-5 text-slate-200">
-          I confirm I own this media or have permission to use it. I will not
-          upload copyrighted or unauthorized content. I understand generated
-          content must be reviewed before sharing.
+          I own this media or have permission to use it.
         </span>
       </label>
 
@@ -223,13 +218,6 @@ export default function PhotoMusicVideoPanel({
             : "Export Music Video MP4"}
         </Button>
       </div>
-
-      {!hasConfirmedRights &&
-        (photoMusicImagePreview || photoMusicAudioName) && (
-          <p className="text-xs font-medium leading-5 text-amber-100">
-            Please confirm ownership or permission before continuing.
-          </p>
-        )}
     </div>
   );
 }
