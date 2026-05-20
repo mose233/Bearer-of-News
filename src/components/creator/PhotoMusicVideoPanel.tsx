@@ -6,6 +6,8 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -41,7 +43,16 @@ export default function PhotoMusicVideoPanel({
   onAddPhotoSceneToTimeline,
   onExportPhotoMusicVideo,
 }: PhotoMusicVideoPanelProps) {
-  const readyToExport = !!photoMusicImagePreview && !!photoMusicAudioName;
+  const [hasConfirmedRights, setHasConfirmedRights] = useState(false);
+
+  const readyToExport =
+    !!photoMusicImagePreview &&
+    !!photoMusicAudioName &&
+    hasConfirmedRights;
+
+  const readyToAddScene =
+    !!photoMusicImagePreview &&
+    hasConfirmedRights;
 
   return (
     <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
@@ -54,8 +65,21 @@ export default function PhotoMusicVideoPanel({
         </div>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Upload a photo and song, then export a mobile-ready MP4 music video.
+          Upload your own photo and audio, then export a mobile-ready MP4 music
+          video.
         </p>
+      </div>
+
+      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
+        <div className="flex gap-2">
+          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-amber-200" />
+
+          <p className="text-xs font-medium leading-5 text-amber-100">
+            Only upload media you own or have permission to use. Do not use
+            copyrighted music, images of other people without permission, or
+            media that could mislead, impersonate, or violate platform rules.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -69,7 +93,7 @@ export default function PhotoMusicVideoPanel({
           </span>
 
           <span className="mt-1 text-xs font-medium text-slate-300">
-            Portrait or character image
+            Use your own image or licensed image
           </span>
 
           <Input
@@ -86,11 +110,11 @@ export default function PhotoMusicVideoPanel({
           </div>
 
           <span className="text-sm font-extrabold text-white">
-            Upload Song
+            Upload Audio
           </span>
 
           <span className="mt-1 text-xs font-medium text-slate-300">
-            Audio, song, or beat
+            Music, audio, or licensed soundtrack
           </span>
 
           <Input
@@ -113,7 +137,11 @@ export default function PhotoMusicVideoPanel({
           className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-400/30"
         >
           {styles.map((style) => (
-            <option key={style} value={style} className="bg-slate-950 text-white">
+            <option
+              key={style}
+              value={style}
+              className="bg-slate-950 text-white"
+            >
               {style}
             </option>
           ))}
@@ -132,6 +160,14 @@ export default function PhotoMusicVideoPanel({
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
+              <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-extrabold text-white backdrop-blur">
+                AI Generated Creative Preview
+              </div>
+
+              <div className="absolute right-4 top-4 rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
+                MP4 Ready
+              </div>
+
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="rounded-2xl bg-black/45 px-4 py-3 backdrop-blur">
                   <p className="text-base font-extrabold text-white">
@@ -139,24 +175,36 @@ export default function PhotoMusicVideoPanel({
                   </p>
 
                   <p className="mt-1 text-sm font-medium text-slate-200">
-                    {photoMusicAudioName || "Add a song to complete this music video"}
+                    {photoMusicAudioName ||
+                      "Add audio to complete your music video"}
                   </p>
                 </div>
-              </div>
-
-              <div className="absolute right-4 top-4 rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
-                MP4 Ready
               </div>
             </div>
           )}
         </div>
       )}
 
+      <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+        <input
+          type="checkbox"
+          checked={hasConfirmedRights}
+          onChange={(e) => setHasConfirmedRights(e.target.checked)}
+          className="mt-1 h-5 w-5 rounded border-white/20"
+        />
+
+        <span className="text-xs font-medium leading-5 text-slate-200">
+          I confirm I own this media or have permission to use it. I will not
+          upload copyrighted or unauthorized content. I understand generated
+          content must be reviewed before sharing.
+        </span>
+      </label>
+
       <div className="flex flex-wrap gap-3">
         <Button
           type="button"
           onClick={onAddPhotoSceneToTimeline}
-          disabled={!photoMusicImagePreview}
+          disabled={!readyToAddScene}
           className="h-12 rounded-2xl bg-pink-600 px-5 text-sm font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
         >
           <Play className="mr-2 h-4 w-4" />
@@ -170,19 +218,18 @@ export default function PhotoMusicVideoPanel({
           className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
         >
           <Download className="mr-2 h-4 w-4" />
-          {isExportingPhotoMusic ? "Exporting MP4..." : "Export Music Video MP4"}
+          {isExportingPhotoMusic
+            ? "Exporting MP4..."
+            : "Export Music Video MP4"}
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
-        <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-amber-200" />
-
+      {!hasConfirmedRights &&
+        (photoMusicImagePreview || photoMusicAudioName) && (
           <p className="text-xs font-medium leading-5 text-amber-100">
-            Use media you own or have permission to use.
+            Please confirm ownership or permission before continuing.
           </p>
-        </div>
-      </div>
+        )}
     </div>
   );
 }
