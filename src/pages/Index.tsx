@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Facebook,
   Film,
-  LogIn,
   MessageCircle,
   ShieldCheck,
   Sparkles,
@@ -50,21 +49,13 @@ const Index: React.FC = () => {
                 of News, then post, share, or publish it.
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8">
                 <Link
                   to="/signup?redirect=/creator-studio"
-                  className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 text-base font-extrabold text-white shadow-2xl transition hover:scale-[1.02]"
+                  className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-7 text-base font-extrabold text-white shadow-2xl transition hover:scale-[1.02]"
                 >
                   Start Creating
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-
-                <Link
-                  to="/login?redirect=/creator-studio"
-                  className="inline-flex h-14 items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 text-base font-extrabold text-white transition hover:bg-white/15"
-                >
-                  <LogIn className="mr-2 h-5 w-5" />
-                  Sign In
                 </Link>
               </div>
 
