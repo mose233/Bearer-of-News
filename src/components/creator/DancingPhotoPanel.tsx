@@ -1,4 +1,6 @@
-import { ImagePlus, Music2, Sparkles, Wand2 } from "lucide-react";
+import { ImagePlus, Music2, ShieldCheck, Sparkles, Wand2 } from "lucide-react";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -23,6 +25,11 @@ export default function DancingPhotoPanel({
   onPhotoUpload,
   onGenerateDance,
 }: DancingPhotoPanelProps) {
+  const [hasConfirmedRights, setHasConfirmedRights] = useState(false);
+
+  const canGenerate =
+    !!dancingPhotoPreview && hasConfirmedRights && !isGeneratingDance;
+
   return (
     <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
       <div>
@@ -34,9 +41,21 @@ export default function DancingPhotoPanel({
         </div>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Upload a photo, choose a dance style, and preview a mock dancing video
-          workflow before real AI animation is connected.
+          Upload your own photo or a photo you have permission to use, choose a
+          dance style, and create AI-assisted creative content.
         </p>
+      </div>
+
+      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
+        <div className="flex gap-2">
+          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-amber-200" />
+
+          <p className="text-xs font-medium leading-5 text-amber-100">
+            Do not upload images of other people without permission. Do not use
+            this tool to impersonate celebrities, politicians, brands, public
+            figures, or to deceive, harass, or mislead others.
+          </p>
+        </div>
       </div>
 
       <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-900/50 px-5 py-8 text-center transition hover:border-cyan-400/50 hover:bg-slate-900/80">
@@ -49,7 +68,7 @@ export default function DancingPhotoPanel({
         </span>
 
         <span className="mt-1 text-xs font-medium text-slate-300">
-          Use a clear portrait or full-body image
+          Use your own image or one you have permission to use
         </span>
 
         <Input
@@ -89,6 +108,14 @@ export default function DancingPhotoPanel({
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
+            <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-extrabold text-white backdrop-blur">
+              AI Generated Preview
+            </div>
+
+            <div className="absolute right-4 top-4 rounded-full bg-cyan-600 px-3 py-1 text-xs font-extrabold text-white">
+              Mock Dance
+            </div>
+
             <div className="absolute bottom-4 left-4 right-4">
               <div className="rounded-2xl bg-black/45 px-4 py-3 backdrop-blur">
                 <p className="text-base font-extrabold text-white">
@@ -96,22 +123,33 @@ export default function DancingPhotoPanel({
                 </p>
 
                 <p className="mt-1 text-sm font-medium text-slate-200">
-                  Mock dancing preview. Real AI motion will be connected later.
+                  Creative AI-assisted dancing preview. Review before sharing.
                 </p>
               </div>
-            </div>
-
-            <div className="absolute right-4 top-4 rounded-full bg-cyan-600 px-3 py-1 text-xs font-extrabold text-white">
-              Mock Dance
             </div>
           </div>
         </div>
       )}
 
+      <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+        <input
+          type="checkbox"
+          checked={hasConfirmedRights}
+          onChange={(e) => setHasConfirmedRights(e.target.checked)}
+          className="mt-1 h-5 w-5 rounded border-white/20"
+        />
+
+        <span className="text-xs font-medium leading-5 text-slate-200">
+          I confirm that I own this image or have permission to use it. I will
+          not use this tool to impersonate, deceive, harass, or mislead others.
+          I understand AI-generated content must be reviewed before sharing.
+        </span>
+      </label>
+
       <Button
         type="button"
         onClick={onGenerateDance}
-        disabled={!dancingPhotoPreview || isGeneratingDance}
+        disabled={!canGenerate}
         className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
       >
         {isGeneratingDance ? (
@@ -126,6 +164,13 @@ export default function DancingPhotoPanel({
           </>
         )}
       </Button>
+
+      {!hasConfirmedRights && dancingPhotoPreview && (
+        <p className="text-xs font-medium leading-5 text-amber-100">
+          Please confirm you own or have permission to use this image before
+          generating.
+        </p>
+      )}
 
       {danceResultMessage && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
