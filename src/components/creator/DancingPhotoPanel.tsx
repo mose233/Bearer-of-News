@@ -41,19 +41,16 @@ export default function DancingPhotoPanel({
         </div>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Upload your own photo or a photo you have permission to use, choose a
-          dance style, and create AI-assisted creative content.
+          Turn your photo into a fun AI dancing creative.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
+      <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
         <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-amber-200" />
+          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-cyan-200" />
 
-          <p className="text-xs font-medium leading-5 text-amber-100">
-            Do not upload images of other people without permission. Do not use
-            this tool to impersonate celebrities, politicians, brands, public
-            figures, or to deceive, harass, or mislead others.
+          <p className="text-xs font-medium leading-5 text-cyan-100">
+            Protect your content: use photos you own or have permission to use.
           </p>
         </div>
       </div>
@@ -64,11 +61,11 @@ export default function DancingPhotoPanel({
         </div>
 
         <span className="text-sm font-extrabold text-white">
-          Upload Dancing Photo
+          Upload Photo
         </span>
 
         <span className="mt-1 text-xs font-medium text-slate-300">
-          Use your own image or one you have permission to use
+          Portrait or full-body image
         </span>
 
         <Input
@@ -90,7 +87,11 @@ export default function DancingPhotoPanel({
           className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
         >
           {danceStyles.map((style) => (
-            <option key={style} value={style} className="bg-slate-950 text-white">
+            <option
+              key={style}
+              value={style}
+              className="bg-slate-950 text-white"
+            >
               {style}
             </option>
           ))}
@@ -109,7 +110,7 @@ export default function DancingPhotoPanel({
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
             <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-extrabold text-white backdrop-blur">
-              AI Generated Preview
+              AI Creative Preview
             </div>
 
             <div className="absolute right-4 top-4 rounded-full bg-cyan-600 px-3 py-1 text-xs font-extrabold text-white">
@@ -123,7 +124,7 @@ export default function DancingPhotoPanel({
                 </p>
 
                 <p className="mt-1 text-sm font-medium text-slate-200">
-                  Creative AI-assisted dancing preview. Review before sharing.
+                  Review before sharing.
                 </p>
               </div>
             </div>
@@ -140,9 +141,7 @@ export default function DancingPhotoPanel({
         />
 
         <span className="text-xs font-medium leading-5 text-slate-200">
-          I confirm that I own this image or have permission to use it. I will
-          not use this tool to impersonate, deceive, harass, or mislead others.
-          I understand AI-generated content must be reviewed before sharing.
+          I own this photo or have permission to use it.
         </span>
       </label>
 
@@ -164,13 +163,6 @@ export default function DancingPhotoPanel({
           </>
         )}
       </Button>
-
-      {!hasConfirmedRights && dancingPhotoPreview && (
-        <p className="text-xs font-medium leading-5 text-amber-100">
-          Please confirm you own or have permission to use this image before
-          generating.
-        </p>
-      )}
 
       {danceResultMessage && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
