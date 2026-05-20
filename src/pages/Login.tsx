@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,20 +51,6 @@ export default function Login() {
     navigate(redirectTo, { replace: true });
   };
 
-  const handleFacebookLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'facebook',
-      options: {
-        redirectTo: `${window.location.origin}${redirectTo}`,
-      },
-    });
-
-    if (error) {
-      console.error('Facebook login error:', error);
-      alert('Facebook login failed');
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md">
@@ -75,16 +60,6 @@ export default function Login() {
             Sign in to continue to Creator Studio AI.
           </CardDescription>
         </CardHeader>
-
-        <div className="px-6 pb-4">
-          <Button
-            type="button"
-            onClick={handleFacebookLogin}
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          >
-            Continue with Facebook
-          </Button>
-        </div>
 
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
