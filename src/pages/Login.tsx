@@ -1,11 +1,18 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function Login() {
@@ -16,10 +23,12 @@ export default function Login() {
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // =========================
-  // EMAIL LOGIN
-  // =========================
+  const redirectParam = searchParams.get('redirect');
+  const redirectTo =
+    redirectParam && redirectParam.startsWith('/') ? redirectParam : '/creator-studio';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -28,28 +37,27 @@ export default function Login() {
     const { error } = await signIn(email, password);
 
     if (error) {
-      // ✅ SAFE: improved Supabase error handling (no breaking changes)
       if (error.message.includes('Email not confirmed')) {
-        setError('Please verify your email before signing in. Check your inbox (and spam folder).');
+        setError(
+          'Please verify your email before signing in. Check your inbox and spam folder.'
+        );
       } else {
         setError(error.message);
       }
 
       setLoading(false);
-    } else {
-      navigate('/');
+      return;
     }
+
+    navigate(redirectTo, { replace: true });
   };
 
-  // =========================
-  // FACEBOOK LOGIN (🔥 NEW)
-  // =========================
   const handleFacebookLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: window.location.origin
-      }
+        redirectTo: `${window.location.origin}${redirectTo}`,
+      },
     });
 
     if (error) {
@@ -64,11 +72,10 @@ export default function Login() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
           <CardDescription>
-            Enter your credentials or continue with Facebook
+            Sign in to continue to Creator Studio AI.
           </CardDescription>
         </CardHeader>
 
-        {/* FACEBOOK BUTTON */}
         <div className="px-6 pb-4">
           <Button
             type="button"
@@ -123,8 +130,11 @@ export default function Login() {
             </Button>
 
             <p className="text-sm text-center text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-blue-600 hover:underline">
+              Don&apos;t have an account?{' '}
+              <Link
+                to={`/signup?redirect=${encodeURIComponent(redirectTo)}`}
+                className="text-blue-600 hover:underline"
+              >
                 Sign up
               </Link>
             </p>
