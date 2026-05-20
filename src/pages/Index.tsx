@@ -5,6 +5,9 @@ import {
   CheckCircle2,
   Facebook,
   Film,
+  LogIn,
+  MessageCircle,
+  Send,
   ShieldCheck,
   Sparkles,
   Users,
@@ -28,15 +31,16 @@ const DevTools: React.FC = () => {
 };
 
 const Index: React.FC = () => {
-  const isDev = import.meta.env.MODE === "development";
+  const shareToFacebook = () => {
+    const shareUrl = encodeURIComponent("https://xnewsapp.com");
+    const quote = encodeURIComponent(
+      "Create Facebook-ready AI videos, posts, and campaigns with Bearer of News."
+    );
 
-  const redirectUrl = isDev
-    ? "http://localhost:5173"
-    : "https://xnewsapp.com/dashboard";
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
 
-  const facebookOAuthUrl = `https://bjclqqynzsljskfeqfdj.supabase.co/auth/v1/authorize?provider=facebook&scopes=email,public_profile,pages_show_list,pages_read_engagement&redirect_to=${encodeURIComponent(
-    redirectUrl
-  )}`;
+    window.open(fbUrl, "_blank", "width=700,height=500");
+  };
 
   return (
     <AppProvider>
@@ -67,19 +71,21 @@ const Index: React.FC = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
 
-                <a
-                  href={facebookOAuthUrl}
+                <button
+                  type="button"
+                  onClick={shareToFacebook}
                   className="inline-flex h-14 items-center justify-center rounded-2xl bg-[#1877F2] px-6 text-base font-extrabold text-white shadow-2xl transition hover:scale-[1.02]"
                 >
-                  <Facebook className="mr-2 h-5 w-5" />
-                  Connect Facebook
-                </a>
+                  <Send className="mr-2 h-5 w-5" />
+                  Share to Facebook
+                </button>
 
                 <Link
-                  to="/creator-studio"
+                  to="/login"
                   className="inline-flex h-14 items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 text-base font-extrabold text-white transition hover:bg-white/15"
                 >
-                  Open Video Creator
+                  <LogIn className="mr-2 h-5 w-5" />
+                  Sign In
                 </Link>
               </div>
 
@@ -161,15 +167,15 @@ const Index: React.FC = () => {
               <h4 className="text-sm font-extrabold text-white">Legal</h4>
 
               <div className="mt-3 flex flex-col gap-3">
-                <Link to="/privacy" className="hover:text-white transition">
+                <Link to="/privacy" className="transition hover:text-white">
                   Privacy Policy
                 </Link>
 
-                <Link to="/terms" className="hover:text-white transition">
+                <Link to="/terms" className="transition hover:text-white">
                   Terms of Service
                 </Link>
 
-                <Link to="/about" className="hover:text-white transition">
+                <Link to="/about" className="transition hover:text-white">
                   About
                 </Link>
               </div>
@@ -178,39 +184,42 @@ const Index: React.FC = () => {
             <div>
               <h4 className="text-sm font-extrabold text-white">Connect</h4>
 
-              <div className="mt-3 flex flex-col gap-3">
-                <a
-                  href="mailto:support@xnewsapp.com"
-                  className="hover:text-white transition"
-                >
-                  support@xnewsapp.com
-                </a>
+              <a
+                href="mailto:support@xnewsapp.com"
+                className="mt-3 block transition hover:text-white"
+              >
+                support@xnewsapp.com
+              </a>
 
+              <div className="mt-4 flex items-center gap-4">
                 <a
                   href="https://facebook.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-white transition"
+                  aria-label="Facebook"
+                  className="rounded-full bg-white/10 p-3 transition hover:bg-white/20"
                 >
-                  Facebook
+                  <Facebook className="h-5 w-5 text-white" />
                 </a>
 
                 <a
-                  href="https://x.com"
+                  href="https://x.com/en_mose"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-white transition"
+                  aria-label="X"
+                  className="rounded-full bg-white/10 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-white/20"
                 >
-                  X / Twitter
+                  X
                 </a>
 
                 <a
                   href="https://wa.me/"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-white transition"
+                  aria-label="WhatsApp"
+                  className="rounded-full bg-white/10 p-3 transition hover:bg-white/20"
                 >
-                  WhatsApp
+                  <MessageCircle className="h-5 w-5 text-white" />
                 </a>
               </div>
             </div>
