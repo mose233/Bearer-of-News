@@ -1,5 +1,4 @@
-import { ImagePlus, Music2, ShieldCheck, Sparkles, Wand2 } from "lucide-react";
-import { useState } from "react";
+import { ImagePlus, Music2, Sparkles, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,10 +24,7 @@ export default function DancingPhotoPanel({
   onPhotoUpload,
   onGenerateDance,
 }: DancingPhotoPanelProps) {
-  const [hasConfirmedRights, setHasConfirmedRights] = useState(false);
-
-  const canGenerate =
-    !!dancingPhotoPreview && hasConfirmedRights && !isGeneratingDance;
+  const canGenerate = !!dancingPhotoPreview && !isGeneratingDance;
 
   return (
     <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
@@ -45,24 +41,12 @@ export default function DancingPhotoPanel({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
-        <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-cyan-200" />
-
-          <p className="text-xs font-medium leading-5 text-cyan-100">
-            Protect your content: use photos you own or have permission to use.
-          </p>
-        </div>
-      </div>
-
       <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-900/50 px-5 py-8 text-center transition hover:border-cyan-400/50 hover:bg-slate-900/80">
         <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/15">
           <ImagePlus className="h-7 w-7 text-cyan-300" />
         </div>
 
-        <span className="text-sm font-extrabold text-white">
-          Upload Photo
-        </span>
+        <span className="text-sm font-extrabold text-white">Upload Photo</span>
 
         <span className="mt-1 text-xs font-medium text-slate-300">
           Portrait or full-body image
@@ -131,19 +115,6 @@ export default function DancingPhotoPanel({
           </div>
         </div>
       )}
-
-      <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-        <input
-          type="checkbox"
-          checked={hasConfirmedRights}
-          onChange={(e) => setHasConfirmedRights(e.target.checked)}
-          className="mt-1 h-5 w-5 rounded border-white/20"
-        />
-
-        <span className="text-xs font-medium leading-5 text-slate-200">
-          I own this photo or have permission to use it.
-        </span>
-      </label>
 
       <Button
         type="button"
