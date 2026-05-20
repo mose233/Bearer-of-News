@@ -7,7 +7,6 @@ import {
   Film,
   LogIn,
   MessageCircle,
-  Send,
   ShieldCheck,
   Sparkles,
   Users,
@@ -31,17 +30,6 @@ const DevTools: React.FC = () => {
 };
 
 const Index: React.FC = () => {
-  const shareToFacebook = () => {
-    const shareUrl = encodeURIComponent("https://xnewsapp.com");
-    const quote = encodeURIComponent(
-      "Create Facebook-ready AI videos, posts, and campaigns with Bearer of News."
-    );
-
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
-
-    window.open(fbUrl, "_blank", "width=700,height=500");
-  };
-
   return (
     <AppProvider>
       <main className="min-h-screen bg-[#0B1020] text-white">
@@ -64,24 +52,15 @@ const Index: React.FC = () => {
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/creator-studio"
+                  to="/signup?redirect=/creator-studio"
                   className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 text-base font-extrabold text-white shadow-2xl transition hover:scale-[1.02]"
                 >
                   Start Creating
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
 
-                <button
-                  type="button"
-                  onClick={shareToFacebook}
-                  className="inline-flex h-14 items-center justify-center rounded-2xl bg-[#1877F2] px-6 text-base font-extrabold text-white shadow-2xl transition hover:scale-[1.02]"
-                >
-                  <Send className="mr-2 h-5 w-5" />
-                  Share to Facebook
-                </button>
-
                 <Link
-                  to="/login"
+                  to="/login?redirect=/creator-studio"
                   className="inline-flex h-14 items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 text-base font-extrabold text-white transition hover:bg-white/15"
                 >
                   <LogIn className="mr-2 h-5 w-5" />
