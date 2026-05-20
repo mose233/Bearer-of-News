@@ -54,9 +54,9 @@ const Index: React.FC = () => {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
-  Create content, review it, connect your Facebook
-  Page on Bearer of News, then post, share, or publish it.
-</p> 
+                Create content, review it, connect your Facebook Page on Bearer
+                of News, then post, share, or publish it.
+              </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -88,14 +88,17 @@ const Index: React.FC = () => {
                   <CheckCircle2 className="h-5 w-5 text-emerald-300" />
                   AI video creation
                 </div>
+
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-300" />
                   Facebook Page publishing
                 </div>
+
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-300" />
                   Team review and approval
                 </div>
+
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-300" />
                   Mobile-first MP4 export
@@ -140,6 +143,26 @@ const Index: React.FC = () => {
             </div>
           </div>
         </section>
+
+        <footer className="border-t border-white/10 px-5 py-8 sm:px-8 lg:px-10">
+          <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+            <p>© 2024 Bearer of News. All rights reserved.</p>
+
+            <div className="flex flex-wrap gap-5">
+              <Link to="/privacy" className="hover:text-white">
+                Privacy Policy
+              </Link>
+
+              <Link to="/terms" className="hover:text-white">
+                Terms of Service
+              </Link>
+
+              <Link to="/about" className="hover:text-white">
+                About
+              </Link>
+            </div>
+          </div>
+        </footer>
 
         <DevTools />
       </main>
