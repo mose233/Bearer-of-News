@@ -45,14 +45,14 @@ const Index: React.FC = () => {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
-                Create content, review it, connect your Facebook Page on Bearer
-                of News, then post, share, or publish it.
+                Craft compelling AI videos and posts, then publish directly to
+                your Facebook Page — all from one place.
               </p>
 
               <div className="mt-8">
                 <Link
                   to="/signup?redirect=/creator-studio"
-                  className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-7 text-base font-extrabold text-white shadow-2xl transition hover:scale-[1.02]"
+                  className="inline-flex h-16 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 text-lg font-extrabold text-white shadow-[0_20px_60px_rgba(139,92,246,0.45)] transition hover:scale-105"
                 >
                   Start Creating
                   <ArrowRight className="ml-2 h-5 w-5" />
