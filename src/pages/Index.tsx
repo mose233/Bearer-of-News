@@ -78,3 +78,10 @@
     © 2024 Bearer of News. All rights reserved.
   </div>
 </footer>
+        <DevTools />
+      </main>
+    </AppProvider>
+  );
+};
+
+export default Index;
