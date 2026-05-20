@@ -1,4 +1,4 @@
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import { CreatorContentType, creatorTemplates } from "@/lib/creator/templates";
 import { Button } from "@/components/ui/button";
@@ -47,16 +47,6 @@ export default function PromptPanel({
             </option>
           ))}
         </select>
-      </div>
-
-      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3">
-        <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-emerald-200" />
-
-          <p className="text-xs font-medium leading-5 text-emerald-100">
-            Creator tip: review facts, captions, and media before sharing.
-          </p>
-        </div>
       </div>
 
       <div className="space-y-2">
