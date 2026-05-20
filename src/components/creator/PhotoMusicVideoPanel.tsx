@@ -3,10 +3,8 @@ import {
   ImagePlus,
   Music,
   Play,
-  ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,16 +41,8 @@ export default function PhotoMusicVideoPanel({
   onAddPhotoSceneToTimeline,
   onExportPhotoMusicVideo,
 }: PhotoMusicVideoPanelProps) {
-  const [hasConfirmedRights, setHasConfirmedRights] = useState(false);
-
-  const readyToExport =
-    !!photoMusicImagePreview &&
-    !!photoMusicAudioName &&
-    hasConfirmedRights;
-
-  const readyToAddScene =
-    !!photoMusicImagePreview &&
-    hasConfirmedRights;
+  const readyToExport = !!photoMusicImagePreview && !!photoMusicAudioName;
+  const readyToAddScene = !!photoMusicImagePreview;
 
   return (
     <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
@@ -67,16 +57,6 @@ export default function PhotoMusicVideoPanel({
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
           Turn your photo and music into a mobile-ready MP4 creative.
         </p>
-      </div>
-
-      <div className="rounded-2xl border border-pink-400/20 bg-pink-500/10 px-4 py-3">
-        <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-pink-200" />
-
-          <p className="text-xs font-medium leading-5 text-pink-100">
-            Protect your content: use media you own or have permission to use.
-          </p>
-        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -181,19 +161,6 @@ export default function PhotoMusicVideoPanel({
           )}
         </div>
       )}
-
-      <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-        <input
-          type="checkbox"
-          checked={hasConfirmedRights}
-          onChange={(e) => setHasConfirmedRights(e.target.checked)}
-          className="mt-1 h-5 w-5 rounded border-white/20"
-        />
-
-        <span className="text-xs font-medium leading-5 text-slate-200">
-          I own this media or have permission to use it.
-        </span>
-      </label>
 
       <div className="flex flex-wrap gap-3">
         <Button
