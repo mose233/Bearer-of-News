@@ -1,6 +1,6 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,21 +8,26 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
-  // ✅ Show loading while checking session
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Checking session...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#0B1020] text-white">
+        <p className="text-sm text-slate-300">Checking session...</p>
       </div>
     );
   }
 
-  // ❌ Not logged in → go to login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    const redirectTo = `${location.pathname}${location.search}`;
+
+    return (
+      <Navigate
+        to={`/login?redirect=${encodeURIComponent(redirectTo)}`}
+        replace
+      />
+    );
   }
 
-  // ✅ Logged in → show page
   return <>{children}</>;
 }
