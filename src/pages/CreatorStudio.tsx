@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import PromptPanel from "@/components/creator/PromptPanel";
 import AiImagesPanel from "@/components/creator/AiImagesPanel";
+import AiToolLauncher from "@/components/creator/AiToolLauncher";
 import MediaUploader from "@/components/creator/MediaUploader";
 import VoicePanel from "@/components/creator/VoicePanel";
 import MusicPanel from "@/components/creator/MusicPanel";
@@ -799,6 +800,9 @@ export default function CreatorStudio() {
             then export videos for Facebook, Reels, Shorts, and TikTok.
           </p>
         </header>
+                <div className="mb-5">
+          <AiToolLauncher />
+        </div>
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
           <section className="space-y-5">
