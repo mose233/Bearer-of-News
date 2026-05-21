@@ -8,18 +8,14 @@ import AiImagesPanel from "@/components/creator/AiImagesPanel";
 import AiToolLauncher, {
   AiToolSelection,
 } from "@/components/creator/AiToolLauncher";
+import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import MediaUploader from "@/components/creator/MediaUploader";
-import VoicePanel from "@/components/creator/VoicePanel";
-import MusicPanel from "@/components/creator/MusicPanel";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
-import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
-import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
-
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 
 import {
@@ -97,36 +93,15 @@ export default function CreatorStudio() {
     useState<AiToolSelection | null>(null);
 
   const selectedToolName = selectedTool?.tool;
-  const showAllTools = !selectedToolName;
-
-  const showAiImages =
-    showAllTools ||
-    selectedTool?.category === "Picture AI" ||
+  const showDefaultSceneBuilder =
+    !selectedToolName ||
     selectedToolName === "Text to Video" ||
-    selectedToolName === "AI News Video";
-
-  const showMediaUploader =
-    showAllTools ||
-    selectedTool?.category === "Picture AI" ||
-    selectedTool?.category === "Video AI";
-
-  const showPhotoMusic =
-    showAllTools || selectedToolName === "Photo Music Video";
-
-  const showDancingPhoto =
-    showAllTools || selectedToolName === "Dancing Photo";
-
-  const showVoicePanel =
-    showAllTools ||
-    selectedToolName === "AI Voiceover" ||
-    selectedToolName === "Text to Speech" ||
-    selectedToolName === "Narration Studio";
-
-  const showMusicPanel =
-    showAllTools ||
-    selectedToolName === "Background Music" ||
-    selectedToolName === "Jingle Creator" ||
-    selectedToolName === "Lyric Video";
+    selectedToolName === "AI News Video" ||
+    selectedToolName === "Business Promo" ||
+    selectedToolName === "WhatsApp Status" ||
+    selectedToolName === "Birthday Video" ||
+    selectedToolName === "Romantic Reel" ||
+    selectedToolName === "Motivational Video";
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
     return mediaFiles
@@ -869,15 +844,56 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  2. Generate or upload scenes
-                </CardTitle>
-              </CardHeader>
+            <DynamicToolWorkspace
+              selectedTool={selectedTool}
+              facebookCaption={facebookCaption}
+              setFacebookCaption={setFacebookCaption}
+              onShareToFacebook={shareToFacebook}
+              speechRate={speechRate}
+              setSpeechRate={setSpeechRate}
+              voiceVolume={voiceVolume}
+              setVoiceVolume={setVoiceVolume}
+              isSpeaking={isSpeaking}
+              aiVoiceBlob={aiVoiceBlob}
+              isExporting={isExporting}
+              onPlayVoiceover={startVoiceover}
+              onStopVoiceover={stopVoiceover}
+              onGenerateRealVoice={generateRealVoice}
+              backgroundMusic={backgroundMusic}
+              musicPreview={musicPreview}
+              musicVolume={musicVolume}
+              setMusicVolume={setMusicVolume}
+              isMusicPlaying={isMusicPlaying}
+              audioRef={audioRef}
+              onMusicUpload={handleMusicUpload}
+              onToggleMusic={toggleMusic}
+              photoMusicImagePreview={photoMusicImagePreview}
+              photoMusicAudioName={photoMusicAudioName}
+              photoMusicStyle={photoMusicStyle}
+              isExportingPhotoMusic={isExportingPhotoMusic}
+              setPhotoMusicStyle={setPhotoMusicStyle}
+              onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
+              onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
+              onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+              onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
+              dancingPhotoPreview={dancingPhotoPreview}
+              danceStyle={danceStyle}
+              isGeneratingDance={isGeneratingDance}
+              danceResultMessage={danceResultMessage}
+              setDanceStyle={setDanceStyle}
+              onDancingPhotoUpload={handleDancingPhotoUpload}
+              onGenerateDance={handleGenerateDancingVideo}
+            />
 
-              <CardContent className="space-y-5 px-4 py-5 sm:px-5">
-                {showAiImages && (
+            {showDefaultSceneBuilder && (
+              <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+                <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                  <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                    2. Generate or upload scenes
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className="space-y-5 px-4 py-5 sm:px-5">
                   <AiImagesPanel
                     aiImagePrompt={aiImagePrompt}
                     setAiImagePrompt={setAiImagePrompt}
@@ -890,46 +906,16 @@ export default function CreatorStudio() {
                     onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
                     onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
                   />
-                )}
 
-                {showMediaUploader && (
                   <MediaUploader onMediaUpload={handleMediaUpload} />
-                )}
-
-                {showPhotoMusic && (
-                  <PhotoMusicVideoPanel
-                    photoMusicImagePreview={photoMusicImagePreview}
-                    photoMusicAudioName={photoMusicAudioName}
-                    photoMusicStyle={photoMusicStyle}
-                    isExportingPhotoMusic={isExportingPhotoMusic}
-                    setPhotoMusicStyle={setPhotoMusicStyle}
-                    onPhotoUpload={handlePhotoMusicPhotoUpload}
-                    onAudioUpload={handlePhotoMusicAudioUpload}
-                    onAddPhotoSceneToTimeline={
-                      handleAddPhotoMusicSceneToTimeline
-                    }
-                    onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
-                  />
-                )}
-
-                {showDancingPhoto && (
-                  <DancingPhotoPanel
-                    dancingPhotoPreview={dancingPhotoPreview}
-                    danceStyle={danceStyle}
-                    isGeneratingDance={isGeneratingDance}
-                    danceResultMessage={danceResultMessage}
-                    setDanceStyle={setDanceStyle}
-                    onPhotoUpload={handleDancingPhotoUpload}
-                    onGenerateDance={handleGenerateDancingVideo}
-                  />
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator xl:hidden">
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  3. Preview and timeline
+                  Preview and timeline
                 </CardTitle>
               </CardHeader>
 
@@ -947,44 +933,6 @@ export default function CreatorStudio() {
                   onDuplicateScene={handleDuplicateScene}
                   onUpdateSceneDuration={handleUpdateSceneDuration}
                 />
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  4. Voice and music
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-6 px-4 py-5 sm:px-5">
-                {showVoicePanel && (
-                  <VoicePanel
-                    speechRate={speechRate}
-                    setSpeechRate={setSpeechRate}
-                    voiceVolume={voiceVolume}
-                    setVoiceVolume={setVoiceVolume}
-                    isSpeaking={isSpeaking}
-                    aiVoiceBlob={aiVoiceBlob}
-                    isExporting={isExporting}
-                    onPlayVoiceover={startVoiceover}
-                    onStopVoiceover={stopVoiceover}
-                    onGenerateRealVoice={generateRealVoice}
-                  />
-                )}
-
-                {showMusicPanel && (
-                  <MusicPanel
-                    backgroundMusic={backgroundMusic}
-                    musicPreview={musicPreview}
-                    musicVolume={musicVolume}
-                    setMusicVolume={setMusicVolume}
-                    isMusicPlaying={isMusicPlaying}
-                    audioRef={audioRef}
-                    onMusicUpload={handleMusicUpload}
-                    onToggleMusic={toggleMusic}
-                  />
-                )}
               </CardContent>
             </Card>
           </section>
@@ -1017,7 +965,7 @@ export default function CreatorStudio() {
             <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  5. Export and share
+                  Export and share
                 </CardTitle>
               </CardHeader>
 
