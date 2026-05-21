@@ -1,17 +1,27 @@
-import {
-  Image,
-  Music,
-  Share2,
-  Sparkles,
-  Video,
-} from "lucide-react";
+import { Image, Music, Share2, Sparkles, Video } from "lucide-react";
+
+export type AiToolCategoryTitle =
+  | "Picture AI"
+  | "Video AI"
+  | "Audio / Music AI"
+  | "Social / Publishing";
+
+export type AiToolSelection = {
+  category: AiToolCategoryTitle;
+  tool: string;
+};
 
 type AiToolCategory = {
-  title: string;
+  title: AiToolCategoryTitle;
   description: string;
   icon: React.ElementType;
   accent: string;
   tools: string[];
+};
+
+type AiToolLauncherProps = {
+  selectedTool: AiToolSelection | null;
+  onSelectTool: (selection: AiToolSelection) => void;
 };
 
 const categories: AiToolCategory[] = [
@@ -82,7 +92,10 @@ const categories: AiToolCategory[] = [
   },
 ];
 
-export default function AiToolLauncher() {
+export default function AiToolLauncher({
+  selectedTool,
+  onSelectTool,
+}: AiToolLauncherProps) {
   return (
     <div className="rounded-[1.5rem] border border-white/10 bg-[#111827] p-4 text-white shadow-creator sm:p-5">
       <div className="mb-5">
@@ -99,6 +112,12 @@ export default function AiToolLauncher() {
           Choose a tool for pictures, videos, audio, or Facebook-ready
           publishing.
         </p>
+
+        {selectedTool && (
+          <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-extrabold text-white">
+            Selected: {selectedTool.category} → {selectedTool.tool}
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -133,15 +152,31 @@ export default function AiToolLauncher() {
               </summary>
 
               <div className="mt-4 space-y-2">
-                {category.tools.map((tool) => (
-                  <button
-                    key={tool}
-                    type="button"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left text-xs font-bold text-slate-200 transition hover:bg-white/10 hover:text-white"
-                  >
-                    {tool}
-                  </button>
-                ))}
+                {category.tools.map((tool) => {
+                  const active =
+                    selectedTool?.category === category.title &&
+                    selectedTool?.tool === tool;
+
+                  return (
+                    <button
+                      key={tool}
+                      type="button"
+                      onClick={() =>
+                        onSelectTool({
+                          category: category.title,
+                          tool,
+                        })
+                      }
+                      className={`w-full rounded-2xl border px-3 py-2 text-left text-xs font-bold transition ${
+                        active
+                          ? "border-violet-300 bg-violet-500/25 text-white"
+                          : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      {tool}
+                    </button>
+                  );
+                })}
               </div>
             </details>
           );
