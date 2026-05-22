@@ -3,7 +3,6 @@ import {
   Download,
   ImagePlus,
   Music,
-  Share2,
   Sparkles,
   Upload,
   Wand2,
@@ -22,10 +21,6 @@ import { DanceStyle } from "@/lib/ai/videoProviders";
 
 type DynamicToolWorkspaceProps = {
   selectedTool: AiToolSelection | null;
-
-  facebookCaption: string;
-  setFacebookCaption: (value: string) => void;
-  onShareToFacebook: () => void;
 
   speechRate: number;
   setSpeechRate: (value: number) => void;
@@ -77,15 +72,13 @@ const enhancementFilters: Record<string, string> = {
   "Beauty Glow": "brightness(1.16) contrast(1.04) saturate(1.2) blur(0.2px)",
   "Premium Studio": "brightness(1.1) contrast(1.2) saturate(1.08)",
   "HD Sharp": "brightness(1.05) contrast(1.28) saturate(1.15)",
-  "Younger Look": "brightness(1.18) contrast(1.03) saturate(1.12) blur(0.35px)",
+  "Younger Look":
+    "brightness(1.18) contrast(1.03) saturate(1.12) blur(0.35px)",
   "Background Upgrade": "brightness(1.04) contrast(1.22) saturate(1.18)",
 };
 
 export default function DynamicToolWorkspace({
   selectedTool,
-  facebookCaption,
-  setFacebookCaption,
-  onShareToFacebook,
   speechRate,
   setSpeechRate,
   voiceVolume,
@@ -174,8 +167,8 @@ export default function DynamicToolWorkspace({
         </div>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
-          Select Picture AI, Video AI, Audio / Music AI, or Social / Publishing
-          above to open the right workspace.
+          Select Picture AI, Video AI, or Audio / Music AI above to open the
+          right workspace.
         </p>
       </div>
     );
@@ -411,49 +404,6 @@ export default function DynamicToolWorkspace({
           onMusicUpload={onMusicUpload}
           onToggleMusic={onToggleMusic}
         />
-      </div>
-    );
-  }
-
-  if (category === "Social / Publishing") {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Share2 className="h-5 w-5 text-emerald-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          Prepare captions, post ideas, hashtags, and Facebook-ready publishing
-          content.
-        </p>
-
-        <div className="mt-5 space-y-3">
-          <textarea
-            value={facebookCaption}
-            onChange={(e) => setFacebookCaption(e.target.value)}
-            placeholder="Write or edit your Facebook caption..."
-            className={`${inputClass} min-h-[130px] resize-y`}
-          />
-
-          <select className={inputClass}>
-            <option>Professional</option>
-            <option>Funny</option>
-            <option>Emotional</option>
-            <option>Business</option>
-            <option>Breaking News</option>
-            <option>Motivational</option>
-          </select>
-        </div>
-
-        <Button
-          type="button"
-          onClick={onShareToFacebook}
-          className="mt-5 h-12 rounded-2xl bg-emerald-600 px-5 font-extrabold text-white hover:bg-emerald-700"
-        >
-          <Share2 className="mr-2 h-4 w-4" />
-          Share to Facebook
-        </Button>
       </div>
     );
   }
