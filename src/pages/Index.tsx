@@ -46,14 +46,13 @@ const HomeContent: React.FC = () => {
               AI Creator Studio for Facebook Pages
             </div>
 
-            <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Create Facebook-ready AI videos, posts, and campaigns in minutes.
-            </h1>
+          <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+  Create Viral-Ready AI Videos, Images, and Audio, Then Publish Directly to Your Facebook Page
+</h1>
 
-            <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
-              Craft compelling AI videos and posts, then publish directly to
-              your Facebook Page — all from one place.
-            </p>
+<p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
+  Generate Stunning AI Videos, Images, Voiceovers, Music, and Campaign them in Minutes
+</p>
 
             <div className="mt-8">
               <Link
