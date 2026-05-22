@@ -1,10 +1,9 @@
-import { Image, Music, Share2, Sparkles, Video } from "lucide-react";
+import { Image, Music, Sparkles, Video } from "lucide-react";
 
 export type AiToolCategoryTitle =
   | "Picture AI"
   | "Video AI"
-  | "Audio / Music AI"
-  | "Social / Publishing";
+  | "Audio / Music AI";
 
 export type AiToolSelection = {
   category: AiToolCategoryTitle;
@@ -74,22 +73,6 @@ const categories: AiToolCategory[] = [
       "Lyric Video",
     ],
   },
-  {
-    title: "Social / Publishing",
-    description: "Prepare Facebook-ready captions and posts.",
-    icon: Share2,
-    accent: "from-emerald-500 to-teal-600",
-    tools: [
-      "Facebook Caption",
-      "Post Creator",
-      "Campaign Creator",
-      "Ad Copy",
-      "Headline Generator",
-      "Hashtags",
-      "Share to Facebook",
-      "Publishing Workflow",
-    ],
-  },
 ];
 
 export default function AiToolLauncher({
@@ -109,8 +92,7 @@ export default function AiToolLauncher({
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-300">
-          Choose a tool for pictures, videos, audio, or Facebook-ready
-          publishing.
+          Choose a tool for pictures, videos, or audio creation.
         </p>
 
         {selectedTool && (
@@ -120,7 +102,7 @@ export default function AiToolLauncher({
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {categories.map((category) => {
           const Icon = category.icon;
 
