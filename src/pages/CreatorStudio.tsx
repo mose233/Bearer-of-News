@@ -817,6 +817,46 @@ export default function CreatorStudio() {
           />
         </div>
 
+        <div className="mb-5">
+          <DynamicToolWorkspace
+            selectedTool={selectedTool}
+            speechRate={speechRate}
+            setSpeechRate={setSpeechRate}
+            voiceVolume={voiceVolume}
+            setVoiceVolume={setVoiceVolume}
+            isSpeaking={isSpeaking}
+            aiVoiceBlob={aiVoiceBlob}
+            isExporting={isExporting}
+            onPlayVoiceover={startVoiceover}
+            onStopVoiceover={stopVoiceover}
+            onGenerateRealVoice={generateRealVoice}
+            backgroundMusic={backgroundMusic}
+            musicPreview={musicPreview}
+            musicVolume={musicVolume}
+            setMusicVolume={setMusicVolume}
+            isMusicPlaying={isMusicPlaying}
+            audioRef={audioRef}
+            onMusicUpload={handleMusicUpload}
+            onToggleMusic={toggleMusic}
+            photoMusicImagePreview={photoMusicImagePreview}
+            photoMusicAudioName={photoMusicAudioName}
+            photoMusicStyle={photoMusicStyle}
+            isExportingPhotoMusic={isExportingPhotoMusic}
+            setPhotoMusicStyle={setPhotoMusicStyle}
+            onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
+            onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
+            onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+            onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
+            dancingPhotoPreview={dancingPhotoPreview}
+            danceStyle={danceStyle}
+            isGeneratingDance={isGeneratingDance}
+            danceResultMessage={danceResultMessage}
+            setDanceStyle={setDanceStyle}
+            onDancingPhotoUpload={handleDancingPhotoUpload}
+            onGenerateDance={handleGenerateDancingVideo}
+          />
+        </div>
+
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
           <section className="space-y-5">
             <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
@@ -843,44 +883,6 @@ export default function CreatorStudio() {
                 />
               </CardContent>
             </Card>
-
-            <DynamicToolWorkspace
-              selectedTool={selectedTool}
-              speechRate={speechRate}
-              setSpeechRate={setSpeechRate}
-              voiceVolume={voiceVolume}
-              setVoiceVolume={setVoiceVolume}
-              isSpeaking={isSpeaking}
-              aiVoiceBlob={aiVoiceBlob}
-              isExporting={isExporting}
-              onPlayVoiceover={startVoiceover}
-              onStopVoiceover={stopVoiceover}
-              onGenerateRealVoice={generateRealVoice}
-              backgroundMusic={backgroundMusic}
-              musicPreview={musicPreview}
-              musicVolume={musicVolume}
-              setMusicVolume={setMusicVolume}
-              isMusicPlaying={isMusicPlaying}
-              audioRef={audioRef}
-              onMusicUpload={handleMusicUpload}
-              onToggleMusic={toggleMusic}
-              photoMusicImagePreview={photoMusicImagePreview}
-              photoMusicAudioName={photoMusicAudioName}
-              photoMusicStyle={photoMusicStyle}
-              isExportingPhotoMusic={isExportingPhotoMusic}
-              setPhotoMusicStyle={setPhotoMusicStyle}
-              onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
-              onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
-              onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
-              onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
-              dancingPhotoPreview={dancingPhotoPreview}
-              danceStyle={danceStyle}
-              isGeneratingDance={isGeneratingDance}
-              danceResultMessage={danceResultMessage}
-              setDanceStyle={setDanceStyle}
-              onDancingPhotoUpload={handleDancingPhotoUpload}
-              onGenerateDance={handleGenerateDancingVideo}
-            />
 
             {showDefaultSceneBuilder && (
               <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
