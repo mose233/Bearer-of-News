@@ -47,7 +47,7 @@ const HomeContent: React.FC = () => {
             </div>
 
           <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-  Create Viral-Ready AI Videos, Images, and Audio, Then Publish Directly to Your Facebook Page
+  Create Viral AI Videos, Images, and Audio, Then Publish Directly on Your Facebook Page
 </h1>
 
 <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
