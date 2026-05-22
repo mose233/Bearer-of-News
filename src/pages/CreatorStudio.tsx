@@ -846,9 +846,6 @@ export default function CreatorStudio() {
 
             <DynamicToolWorkspace
               selectedTool={selectedTool}
-              facebookCaption={facebookCaption}
-              setFacebookCaption={setFacebookCaption}
-              onShareToFacebook={shareToFacebook}
               speechRate={speechRate}
               setSpeechRate={setSpeechRate}
               voiceVolume={voiceVolume}
