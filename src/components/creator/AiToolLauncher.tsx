@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Image, Music, Sparkles, Video } from "lucide-react";
 
 export type AiToolCategoryTitle =
@@ -79,6 +80,9 @@ export default function AiToolLauncher({
   selectedTool,
   onSelectTool,
 }: AiToolLauncherProps) {
+  const [openCategory, setOpenCategory] =
+    useState<AiToolCategoryTitle | null>(null);
+
   return (
     <div className="rounded-[1.5rem] border border-white/10 bg-[#111827] p-4 text-white shadow-creator sm:p-5">
       <div className="mb-5">
@@ -94,24 +98,27 @@ export default function AiToolLauncher({
         <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-300">
           Choose a tool for pictures, videos, or audio creation.
         </p>
-
-        {selectedTool && (
-          <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-extrabold text-white">
-            Selected: {selectedTool.category} → {selectedTool.tool}
-          </div>
-        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {categories.map((category) => {
           const Icon = category.icon;
+          const isOpen = openCategory === category.title;
+          const selectedInCategory =
+            selectedTool?.category === category.title ? selectedTool.tool : "";
 
           return (
-            <details
+            <div
               key={category.title}
-              className="group rounded-3xl border border-white/10 bg-slate-950/50 p-4 transition hover:border-white/20 hover:bg-slate-950/80"
+              className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 transition hover:border-white/20 hover:bg-slate-950/80"
             >
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenCategory(isOpen ? null : category.title)
+                }
+                className="flex w-full items-start justify-between gap-3 text-left"
+              >
                 <div>
                   <div
                     className={`mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-r ${category.accent}`}
@@ -124,43 +131,51 @@ export default function AiToolLauncher({
                   </h3>
 
                   <p className="mt-1 text-xs font-medium leading-5 text-slate-300">
-                    {category.description}
+                    {selectedInCategory || category.description}
                   </p>
                 </div>
 
-                <span className="mt-1 rounded-full bg-white/10 px-2 py-1 text-xs font-bold text-white transition group-open:rotate-180">
+                <span
+                  className={`mt-1 rounded-full bg-white/10 px-2 py-1 text-xs font-bold text-white transition ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                >
                   ▼
                 </span>
-              </summary>
+              </button>
 
-              <div className="mt-4 space-y-2">
-                {category.tools.map((tool) => {
-                  const active =
-                    selectedTool?.category === category.title &&
-                    selectedTool?.tool === tool;
+              {isOpen && (
+                <div className="mt-4 space-y-2">
+                  {category.tools.map((tool) => {
+                    const active =
+                      selectedTool?.category === category.title &&
+                      selectedTool?.tool === tool;
 
-                  return (
-                    <button
-                      key={tool}
-                      type="button"
-                      onClick={() =>
-                        onSelectTool({
-                          category: category.title,
-                          tool,
-                        })
-                      }
-                      className={`w-full rounded-2xl border px-3 py-2 text-left text-xs font-bold transition ${
-                        active
-                          ? "border-violet-300 bg-violet-500/25 text-white"
-                          : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
-                      }`}
-                    >
-                      {tool}
-                    </button>
-                  );
-                })}
-              </div>
-            </details>
+                    return (
+                      <button
+                        key={tool}
+                        type="button"
+                        onClick={() => {
+                          onSelectTool({
+                            category: category.title,
+                            tool,
+                          });
+
+                          setOpenCategory(null);
+                        }}
+                        className={`w-full rounded-2xl border px-3 py-2 text-left text-xs font-bold transition ${
+                          active
+                            ? "border-violet-300 bg-violet-500/25 text-white"
+                            : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        {tool}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
