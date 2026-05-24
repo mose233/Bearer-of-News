@@ -1,0 +1,19 @@
+{
+  "name": "xnewsapp.com Creator Studio",
+  "short_name": "xnewsapp.com",
+  "description": "Create viral-ready AI videos, images, audio, and publish directly to your Facebook Page.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0B1020",
+  "theme_color": "#7C3AED",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
