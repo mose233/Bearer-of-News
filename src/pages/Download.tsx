@@ -18,7 +18,9 @@ const Download = () => {
 
   const handleInstall = async () => {
     if (!installPrompt) {
-      alert("Installation is not available on this device yet.");
+      alert(
+  "If the install button is not available, open Chrome menu (⋮) and choose 'Install app' or 'Add to Home screen'."
+);
       return;
     }
 
