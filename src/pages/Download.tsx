@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-export default function Download() {
+const Download = () => {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -28,20 +28,31 @@ export default function Download() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-6">
-      <div className="max-w-xl text-center rounded-3xl border border-white/10 bg-slate-900 p-10 shadow-2xl">
-        <img src="/favicon.png" alt="xnewsapp.com" className="mx-auto mb-6 h-24 w-24 rounded-full" />
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-6 text-white">
+      <div className="max-w-xl rounded-3xl border border-white/10 bg-slate-900 p-10 text-center shadow-2xl">
+        <img
+          src="/favicon.png"
+          alt="xnewsapp.com"
+          className="mx-auto mb-6 h-24 w-24 rounded-full"
+        />
 
-        <h1 className="text-4xl font-extrabold mb-4">Install xnewsapp.com</h1>
+        <h1 className="mb-4 text-4xl font-extrabold">
+          Install xnewsapp.com
+        </h1>
 
-        <p className="text-slate-300 mb-8 leading-7">
+        <p className="mb-8 leading-7 text-slate-300">
           Download xnewsapp.com to your device and use the AI Creator Studio like a real app.
         </p>
 
-        <button onClick={handleInstall} className="rounded-2xl bg-violet-600 px-8 py-4 text-lg font-bold hover:bg-violet-500 transition">
+        <button
+          onClick={handleInstall}
+          className="rounded-2xl bg-violet-600 px-8 py-4 text-lg font-bold transition hover:bg-violet-500"
+        >
           Download / Install App
         </button>
       </div>
     </div>
   );
-}
+};
+
+export default Download;
