@@ -23,6 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import Join from "./pages/Join";
+import Download from "./pages/Download";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +119,7 @@ const App = () => {
                 />
 
                 <Route path="/about" element={<About />} />
+                <Route path="/download" element={<Download />} />
 
                 {/* Public legal pages */}
                 <Route path="/privacy" element={<PrivacyPolicy />} />
