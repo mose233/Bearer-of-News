@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 
 const Download = () => {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setInstalled(true);
+    }
+
     const handler = (e: any) => {
       e.preventDefault();
       setInstallPrompt(e);
@@ -17,10 +22,15 @@ const Download = () => {
   }, []);
 
   const handleInstall = async () => {
+    if (installed) {
+      window.location.href = "/";
+      return;
+    }
+
     if (!installPrompt) {
       alert(
-  "If the install button is not available, open Chrome menu (⋮) and choose 'Install app' or 'Add to Home screen'."
-);
+        "Open Chrome menu (⋮) and choose 'Install xnewsapp.com' or 'Add to Home screen'."
+      );
       return;
     }
 
@@ -50,7 +60,7 @@ const Download = () => {
           onClick={handleInstall}
           className="rounded-2xl bg-violet-600 px-8 py-4 text-lg font-bold transition hover:bg-violet-500"
         >
-          Download / Install App
+          {installed ? "Open App" : "Download / Install App"}
         </button>
       </div>
     </div>
