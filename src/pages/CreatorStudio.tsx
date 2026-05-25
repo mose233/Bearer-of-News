@@ -1018,13 +1018,14 @@ export default function CreatorStudio() {
 
               <CardContent className="px-4 py-5 sm:px-5">
                 <SmartCanvasPanel
-                  canvasText={canvasText}
-                  setCanvasText={setCanvasText}
-                  canvasRef={canvasRef}
-                  onCanvasImageUpload={handleCanvasImageUpload}
-                  onDownloadCanvasImage={handleDownloadCanvasImage}
-                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
-                />
+  canvasText={canvasText}
+  setCanvasText={setCanvasText}
+  canvasRef={canvasRef}
+  onCanvasImageUpload={handleCanvasImageUpload}
+  onPublishEditedDesignToFacebook={shareToFacebook}
+  onDownloadCanvasImage={handleDownloadCanvasImage}
+  onAddCanvasToTimeline={handleAddCanvasToTimeline}
+/> 
               </CardContent>
             </Card>
 
