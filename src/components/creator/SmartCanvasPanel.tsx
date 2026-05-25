@@ -3,6 +3,7 @@ type SmartCanvasPanelProps = {
   setCanvasText: (value: string) => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onCanvasImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPublishEditedDesignToFacebook: () => void;
   onDownloadCanvasImage: () => void;
   onAddCanvasToTimeline: () => void;
 };
@@ -30,6 +31,7 @@ export default function SmartCanvasPanel({
   setCanvasText,
   canvasRef,
   onCanvasImageUpload,
+  onPublishEditedDesignToFacebook,
   onDownloadCanvasImage,
   onAddCanvasToTimeline,
 }: SmartCanvasPanelProps) {
@@ -100,13 +102,13 @@ export default function SmartCanvasPanel({
         <canvas ref={canvasRef} className="h-auto w-full" />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <button
           type="button"
-          onClick={onDownloadCanvasImage}
-          className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white hover:bg-slate-600"
+          onClick={onPublishEditedDesignToFacebook}
+          className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-500"
         >
-          Download Canvas Image
+          Publish Edited Design to Facebook
         </button>
 
         <button
@@ -114,7 +116,15 @@ export default function SmartCanvasPanel({
           onClick={onAddCanvasToTimeline}
           className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white hover:bg-violet-500"
         >
-          Add Canvas to Timeline
+          Use Design in Video
+        </button>
+
+        <button
+          type="button"
+          onClick={onDownloadCanvasImage}
+          className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white hover:bg-slate-600"
+        >
+          Download Design
         </button>
       </div>
     </div>
