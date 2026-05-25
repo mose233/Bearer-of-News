@@ -92,6 +92,11 @@ export default function CreatorStudio() {
   const [selectedTool, setSelectedTool] =
     useState<AiToolSelection | null>(null);
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [canvasText, setCanvasText] = useState("xnewsapp.com");
+  const [canvasImageFile, setCanvasImageFile] = useState<File | null>(null);
+  const [canvasImagePreview, setCanvasImagePreview] = useState("");
+
   const selectedToolName = selectedTool?.tool;
   const showDefaultSceneBuilder =
     !selectedToolName ||
@@ -112,6 +117,61 @@ export default function CreatorStudio() {
       .filter((item) => item.file.type.startsWith("image/"));
   }, [mediaFiles, mediaPreviews]);
 
+  const drawCanvas = (imageUrl?: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = 1080;
+    canvas.height = 1080;
+
+    ctx.fillStyle = "#111827";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const drawText = () => {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+      ctx.fillRect(0, 800, canvas.width, 180);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 64px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(canvasText || "xnewsapp.com", canvas.width / 2, 900);
+
+      ctx.fillStyle = "#a78bfa";
+      ctx.font = "bold 34px Arial";
+      ctx.fillText("Created with xnewsapp.com", canvas.width / 2, 955);
+    };
+
+    if (imageUrl) {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+        const width = img.width * scale;
+        const height = img.height * scale;
+        const x = (canvas.width - width) / 2;
+        const y = (canvas.height - height) / 2;
+
+        ctx.drawImage(img, x, y, width, height);
+        drawText();
+      };
+      img.src = imageUrl;
+      return;
+    }
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 70px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Canvas Editor", canvas.width / 2, 450);
+
+    drawText();
+  };
+
+  useEffect(() => {
+    drawCanvas(canvasImagePreview);
+  }, [canvasText, canvasImagePreview]);
+
   useEffect(() => {
     return () => {
       mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -120,6 +180,7 @@ export default function CreatorStudio() {
       if (generatedImagePreview) URL.revokeObjectURL(generatedImagePreview);
       if (photoMusicImagePreview) URL.revokeObjectURL(photoMusicImagePreview);
       if (dancingPhotoPreview) URL.revokeObjectURL(dancingPhotoPreview);
+      if (canvasImagePreview) URL.revokeObjectURL(canvasImagePreview);
 
       window.speechSynthesis.cancel();
     };
@@ -129,6 +190,7 @@ export default function CreatorStudio() {
     generatedImagePreview,
     photoMusicImagePreview,
     dancingPhotoPreview,
+    canvasImagePreview,
   ]);
 
   useEffect(() => {
@@ -155,6 +217,50 @@ export default function CreatorStudio() {
     setMediaPreviews((prev) => [...prev, preview]);
     setSceneDurations((prev) => [...prev, duration]);
     setCurrentIndex(mediaFiles.length);
+  };
+
+  const handleCanvasImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (canvasImagePreview) {
+      URL.revokeObjectURL(canvasImagePreview);
+    }
+
+    const preview = URL.createObjectURL(file);
+
+    setCanvasImageFile(file);
+    setCanvasImagePreview(preview);
+  };
+
+  const handleDownloadCanvasImage = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      saveAs(blob, "xnewsapp-canvas-image.png");
+    }, "image/png");
+  };
+
+  const handleAddCanvasToTimeline = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+
+      const file = new File([blob], "xnewsapp-canvas-scene.png", {
+        type: "image/png",
+      });
+
+      const preview = URL.createObjectURL(blob);
+
+      addSceneToTimeline(file, preview, 5);
+
+      alert("Canvas design added to timeline.");
+    }, "image/png");
   };
 
   const handleGenerateScript = () => {
@@ -881,6 +987,64 @@ export default function CreatorStudio() {
                   }}
                   onGenerateScript={handleGenerateScript}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  Canvas editor
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-4 px-4 py-5 sm:px-5">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-bold text-slate-300">
+                      Upload image
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCanvasImageUpload}
+                      className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-bold text-slate-300">
+                      Text overlay
+                    </span>
+                    <input
+                      value={canvasText}
+                      onChange={(e) => setCanvasText(e.target.value)}
+                      placeholder="Write text..."
+                      className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-white outline-none focus:border-violet-400"
+                    />
+                  </label>
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                  <canvas ref={canvasRef} className="h-auto w-full" />
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={handleDownloadCanvasImage}
+                    className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white hover:bg-slate-600"
+                  >
+                    Download Canvas Image
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleAddCanvasToTimeline}
+                    className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white hover:bg-violet-500"
+                  >
+                    Add Canvas to Timeline
+                  </button>
+                </div>
               </CardContent>
             </Card>
 
