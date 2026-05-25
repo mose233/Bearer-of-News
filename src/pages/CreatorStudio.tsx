@@ -12,6 +12,7 @@ import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import MediaUploader from "@/components/creator/MediaUploader";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
+import SmartCanvasPanel from "@/components/creator/SmartCanvasPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
@@ -992,9 +993,24 @@ export default function CreatorStudio() {
 
             <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Canvas editor
-                </CardTitle>
+                <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+  <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+    <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+      Smart Canvas
+    </CardTitle>
+  </CardHeader>
+
+  <CardContent className="px-4 py-5 sm:px-5">
+    <SmartCanvasPanel
+      canvasText={canvasText}
+      setCanvasText={setCanvasText}
+      canvasRef={canvasRef}
+      onCanvasImageUpload={handleCanvasImageUpload}
+      onDownloadCanvasImage={handleDownloadCanvasImage}
+      onAddCanvasToTimeline={handleAddCanvasToTimeline}
+    />
+  </CardContent>
+</Card>
               </CardHeader>
 
               <CardContent className="space-y-4 px-4 py-5 sm:px-5">
