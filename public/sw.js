@@ -1,29 +1,56 @@
+const CACHE_NAME = "xnewsapp-cache-v2";
+
 self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .map((cacheName) => caches.delete(cacheName))
+        )
+      )
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  const requestUrl = new URL(event.request.url);
+
+  if (requestUrl.origin !== self.location.origin) return;
+
+  if (
+    requestUrl.pathname.endsWith(".js") ||
+    requestUrl.pathname.endsWith(".css") ||
+    requestUrl.pathname.endsWith(".html") ||
+    requestUrl.pathname === "/" ||
+    requestUrl.pathname.startsWith("/creator-studio")
+  ) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
-    caches.open("xnewsapp-cache-v1").then(async (cache) => {
-      const cached = await cache.match(event.request);
+    fetch(event.request)
+      .then((response) => {
+        const responseClone = response.clone();
 
-      if (cached) {
-        return cached;
-      }
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
 
-      try {
-        const response = await fetch(event.request);
-        cache.put(event.request, response.clone());
         return response;
-      } catch (error) {
-        return cached;
-      }
-    })
+      })
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        return cached || Response.error();
+      })
   );
 });
