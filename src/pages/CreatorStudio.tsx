@@ -993,74 +993,20 @@ export default function CreatorStudio() {
 
             <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-  <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-    <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-      Smart Canvas
-    </CardTitle>
-  </CardHeader>
-
-  <CardContent className="px-4 py-5 sm:px-5">
-    <SmartCanvasPanel
-      canvasText={canvasText}
-      setCanvasText={setCanvasText}
-      canvasRef={canvasRef}
-      onCanvasImageUpload={handleCanvasImageUpload}
-      onDownloadCanvasImage={handleDownloadCanvasImage}
-      onAddCanvasToTimeline={handleAddCanvasToTimeline}
-    />
-  </CardContent>
-</Card>
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  Smart Canvas
+                </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-4 px-4 py-5 sm:px-5">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-xs font-bold text-slate-300">
-                      Upload image
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleCanvasImageUpload}
-                      className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-xs font-bold text-slate-300">
-                      Text overlay
-                    </span>
-                    <input
-                      value={canvasText}
-                      onChange={(e) => setCanvasText(e.target.value)}
-                      placeholder="Write text..."
-                      className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-white outline-none focus:border-violet-400"
-                    />
-                  </label>
-                </div>
-
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                  <canvas ref={canvasRef} className="h-auto w-full" />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={handleDownloadCanvasImage}
-                    className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white hover:bg-slate-600"
-                  >
-                    Download Canvas Image
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleAddCanvasToTimeline}
-                    className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white hover:bg-violet-500"
-                  >
-                    Add Canvas to Timeline
-                  </button>
-                </div>
+              <CardContent className="px-4 py-5 sm:px-5">
+                <SmartCanvasPanel
+                  canvasText={canvasText}
+                  setCanvasText={setCanvasText}
+                  canvasRef={canvasRef}
+                  onCanvasImageUpload={handleCanvasImageUpload}
+                  onDownloadCanvasImage={handleDownloadCanvasImage}
+                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
+                />
               </CardContent>
             </Card>
 
