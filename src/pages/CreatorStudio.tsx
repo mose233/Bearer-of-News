@@ -1024,34 +1024,11 @@ export default function CreatorStudio() {
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
           <section className="space-y-5">
-            <Card
-              ref={smartCanvasSectionRef}
-              className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator"
-            >
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Smart Canvas
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="px-4 py-5 sm:px-5">
-                <SmartCanvasPanel
-                  canvasText={canvasText}
-                  setCanvasText={setCanvasText}
-                  canvasRef={canvasRef}
-                  onCanvasImageUpload={handleCanvasImageUpload}
-                  onPublishEditedDesignToFacebook={shareToFacebook}
-                  onDownloadCanvasImage={handleDownloadCanvasImage}
-                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
-                />
-              </CardContent>
-            </Card>
-
             {showDefaultSceneBuilder && (
               <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
                 <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
                   <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                    2. Generate or upload scenes
+                    Video Scene Generator
                   </CardTitle>
                 </CardHeader>
 
@@ -1083,6 +1060,31 @@ export default function CreatorStudio() {
                 </CardContent>
               </Card>
             )}
+
+            <Card
+              ref={smartCanvasSectionRef}
+              className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator"
+            >
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  Smart Canvas
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-4 py-5 sm:px-5">
+                <SmartCanvasPanel
+                  canvasText={canvasText}
+                  setCanvasText={setCanvasText}
+                  canvasRef={canvasRef}
+                  onCanvasImageUpload={handleCanvasImageUpload}
+                  onPublishEditedDesignToFacebook={shareToFacebook}
+                  onDownloadCanvasImage={handleDownloadCanvasImage}
+                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
+                />
+              </CardContent>
+            </Card>
+
+
 
             <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator xl:hidden">
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
