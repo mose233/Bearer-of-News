@@ -408,17 +408,30 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  return (
-    <div className={boxClass}>
-      <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-violet-300" />
-        <h3 className="text-lg font-extrabold">{tool}</h3>
-      </div>
-
-      <p className="mt-2 text-sm leading-6 text-slate-300">
-        This tool is ready in the launcher. Its full workflow will be connected
-        in the next phase.
-      </p>
-    </div>
-  );
+ if (
+  category === "Video AI" &&
+  (
+    tool === "Text to Video" ||
+    tool === "AI News Video" ||
+    tool === "Business Promo" ||
+    tool === "WhatsApp Status" ||
+    tool === "Birthday Video" ||
+    tool === "Romantic Reel" ||
+    tool === "Motivational Video"
+  )
+) {
+  return null;
 }
+
+return (
+  <div className={boxClass}>
+    <div className="flex items-center gap-2">
+      <Sparkles className="h-5 w-5 text-violet-300" />
+      <h3 className="text-lg font-extrabold">{tool}</h3>
+    </div>
+
+    <p className="mt-2 text-sm leading-6 text-slate-300">
+      This tool is coming soon.
+    </p>
+  </div>
+);
