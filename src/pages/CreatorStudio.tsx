@@ -13,6 +13,7 @@ import MediaUploader from "@/components/creator/MediaUploader";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 import SmartCanvasPanel from "@/components/creator/SmartCanvasPanel";
+import GeneratedProductActions from "@/components/creator/GeneratedProductActions";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
@@ -94,6 +95,7 @@ export default function CreatorStudio() {
     useState<AiToolSelection | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const smartCanvasSectionRef = useRef<HTMLDivElement | null>(null);
   const [canvasText, setCanvasText] = useState("xnewsapp.com");
   const [canvasImageFile, setCanvasImageFile] = useState<File | null>(null);
   const [canvasImagePreview, setCanvasImagePreview] = useState("");
@@ -899,6 +901,45 @@ export default function CreatorStudio() {
     }
   };
 
+  const handleDownloadGeneratedImage = async () => {
+    if (generatedImageFile) {
+      saveAs(generatedImageFile, "xnewsapp-ai-image.png");
+      return;
+    }
+
+    if (!generatedImagePreview) {
+      alert("Please generate an image first.");
+      return;
+    }
+
+    const response = await fetch(generatedImagePreview);
+    const blob = await response.blob();
+    saveAs(blob, "xnewsapp-ai-image.png");
+  };
+
+  const handleEditGeneratedImageInCanvas = () => {
+    if (!generatedImageFile || !generatedImagePreview) {
+      alert("Please generate an image first.");
+      return;
+    }
+
+    if (canvasImagePreview) {
+      URL.revokeObjectURL(canvasImagePreview);
+    }
+
+    const preview = URL.createObjectURL(generatedImageFile);
+
+    setCanvasImageFile(generatedImageFile);
+    setCanvasImagePreview(preview);
+
+    setTimeout(() => {
+      smartCanvasSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+  };
+
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-5 pb-28 sm:px-6 lg:px-8 lg:py-7">
@@ -991,7 +1032,10 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+            <Card
+              ref={smartCanvasSectionRef}
+              className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator"
+            >
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   Smart Canvas
@@ -1031,6 +1075,16 @@ export default function CreatorStudio() {
                     onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
                     onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
                   />
+
+                  {generatedImagePreview && (
+                    <GeneratedProductActions
+                      productType="image"
+                      onPublishToFacebook={shareToFacebook}
+                      onDownload={handleDownloadGeneratedImage}
+                      onEditInCanvas={handleEditGeneratedImageInCanvas}
+                      onUseInVideo={handleAddGeneratedImage}
+                    />
+                  )}
 
                   <MediaUploader onMediaUpload={handleMediaUpload} />
                 </CardContent>
