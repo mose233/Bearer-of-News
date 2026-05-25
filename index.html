@@ -45,16 +45,6 @@
   <body>
     <div id="root"></div>
 
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js").catch((error) => {
-            console.error("Service worker registration failed:", error);
-          });
-        });
-      }
-    </script>
-
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
