@@ -95,7 +95,7 @@ export default function CreatorStudio() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const smartCanvasSectionRef = useRef<HTMLDivElement | null>(null);
-  const [canvasText, setCanvasText] = useState("xnewsapp.com");
+  const [canvasText, setCanvasText] = useState("");
   const [canvasImageFile, setCanvasImageFile] = useState<File | null>(null);
   const [canvasImagePreview, setCanvasImagePreview] = useState("");
 
@@ -132,42 +132,60 @@ export default function CreatorStudio() {
     ctx.fillStyle = "#111827";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const drawText = () => {
+    const drawUserText = () => {
+      const text = canvasText.trim();
+
+      if (!text) return;
+
       ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
       ctx.fillRect(0, 800, canvas.width, 180);
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 64px Arial";
       ctx.textAlign = "center";
-      ctx.fillText(canvasText || "xnewsapp.com", canvas.width / 2, 900);
+      ctx.fillText(text, canvas.width / 2, 900);
+    };
 
-      ctx.fillStyle = "#a78bfa";
+    const drawEmptyPlaceholder = () => {
+      ctx.fillStyle = "#94a3b8";
       ctx.font = "bold 34px Arial";
-      ctx.fillText("Created with xnewsapp.com", canvas.width / 2, 955);
+      ctx.textAlign = "center";
+      ctx.fillText(
+        "Your design preview appears here",
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "24px Arial";
+      ctx.fillText(
+        "Upload an image, choose a template, or send an AI result to Smart Canvas.",
+        canvas.width / 2,
+        canvas.height / 2 + 48
+      );
     };
 
     if (imageUrl) {
       const img = new Image();
       img.onload = () => {
-        const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+        const scale = Math.max(
+          canvas.width / img.width,
+          canvas.height / img.height
+        );
         const width = img.width * scale;
         const height = img.height * scale;
         const x = (canvas.width - width) / 2;
         const y = (canvas.height - height) / 2;
 
         ctx.drawImage(img, x, y, width, height);
-        drawText();
+        drawUserText();
       };
       img.src = imageUrl;
       return;
     }
 
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 70px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Canvas Editor", canvas.width / 2, 450);
-
-    drawText();
+    drawEmptyPlaceholder();
+    drawUserText();
   };
 
   useEffect(() => {
@@ -1018,14 +1036,14 @@ export default function CreatorStudio() {
 
               <CardContent className="px-4 py-5 sm:px-5">
                 <SmartCanvasPanel
-  canvasText={canvasText}
-  setCanvasText={setCanvasText}
-  canvasRef={canvasRef}
-  onCanvasImageUpload={handleCanvasImageUpload}
-  onPublishEditedDesignToFacebook={shareToFacebook}
-  onDownloadCanvasImage={handleDownloadCanvasImage}
-  onAddCanvasToTimeline={handleAddCanvasToTimeline}
-/> 
+                  canvasText={canvasText}
+                  setCanvasText={setCanvasText}
+                  canvasRef={canvasRef}
+                  onCanvasImageUpload={handleCanvasImageUpload}
+                  onPublishEditedDesignToFacebook={shareToFacebook}
+                  onDownloadCanvasImage={handleDownloadCanvasImage}
+                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
+                />
               </CardContent>
             </Card>
 
