@@ -92,6 +92,8 @@ export default function CreatorStudio() {
 
   const [selectedTool, setSelectedTool] =
     useState<AiToolSelection | null>(null);
+  const [videoCreativeType, setVideoCreativeType] = useState("General");
+  const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const smartCanvasSectionRef = useRef<HTMLDivElement | null>(null);
@@ -100,15 +102,7 @@ export default function CreatorStudio() {
   const [canvasImagePreview, setCanvasImagePreview] = useState("");
 
   const selectedToolName = selectedTool?.tool;
-  const showDefaultSceneBuilder =
-    !selectedToolName ||
-    selectedToolName === "Text to Video" ||
-    selectedToolName === "AI News Video" ||
-    selectedToolName === "Business Promo" ||
-    selectedToolName === "WhatsApp Status" ||
-    selectedToolName === "Birthday Video" ||
-    selectedToolName === "Romantic Reel" ||
-    selectedToolName === "Motivational Video";
+  const showDefaultSceneBuilder = selectedToolName === "Text to Video Studio";
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
     return mediaFiles
@@ -300,6 +294,30 @@ export default function CreatorStudio() {
     }
 
     alert("Script generated successfully.");
+  };
+
+  const handlePrepareTextToVideoPrompt = () => {
+    const prompt = videoPrompt.trim();
+
+    if (!prompt) {
+      alert("Please write a video prompt first.");
+      return;
+    }
+
+    const enrichedPrompt = [
+      `Creative type: ${videoCreativeType}`,
+      `Output format: ${videoOutputFormat}`,
+      prompt,
+    ].join("\n");
+
+    setAiImagePrompt(enrichedPrompt);
+
+    const generated = generateCreatorContent(contentType, prompt);
+    setFacebookCaption(generated.caption);
+    setVoiceText(generated.voice);
+    setAiVoiceBlob(null);
+
+    alert("Text to Video prompt prepared. You can now generate scenes below.");
   };
 
   const handlePhotoMusicPhotoUpload = (
@@ -1019,6 +1037,13 @@ export default function CreatorStudio() {
             setDanceStyle={setDanceStyle}
             onDancingPhotoUpload={handleDancingPhotoUpload}
             onGenerateDance={handleGenerateDancingVideo}
+            videoPrompt={videoPrompt}
+            setVideoPrompt={setVideoPrompt}
+            videoCreativeType={videoCreativeType}
+            setVideoCreativeType={setVideoCreativeType}
+            videoOutputFormat={videoOutputFormat}
+            setVideoOutputFormat={setVideoOutputFormat}
+            onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
           />
         </div>
 
