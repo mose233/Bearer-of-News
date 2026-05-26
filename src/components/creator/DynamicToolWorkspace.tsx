@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
-import VoicePanel from "@/components/creator/VoicePanel";
-import MusicPanel from "@/components/creator/MusicPanel";
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 
@@ -77,26 +75,120 @@ const enhancementFilters: Record<string, string> = {
   "Background Upgrade": "brightness(1.04) contrast(1.22) saturate(1.18)",
 };
 
+const songStyleGroups = [
+  {
+    label: "Kenya",
+    styles: [
+      "Gengetone",
+      "Kapuka",
+      "Genge Classics",
+      "Afro Pop Kenya",
+      "Kenyan Gospel Praise",
+      "Mugithi Acoustic",
+      "Gen Z Viral Beat",
+      "Street Hype",
+      "Club Banger",
+      "Love Ballad",
+    ],
+  },
+  {
+    label: "Tanzania",
+    styles: [
+      "Bongo Flava",
+      "Bongo Gospel",
+      "Taarab Pop",
+      "Amapiano Bongo Mix",
+      "Swahili Love Song",
+      "Street Bongo Vibes",
+    ],
+  },
+  {
+    label: "Uganda",
+    styles: [
+      "Afro Dancehall Uganda",
+      "Ugandan Gospel",
+      "Luganda Love Vibes",
+      "Party Anthem",
+    ],
+  },
+  {
+    label: "Wider Africa",
+    styles: [
+      "Afrobeats",
+      "Amapiano",
+      "Afro Fusion",
+      "Afro R&B",
+      "Dancehall",
+      "Trap Afro",
+    ],
+  },
+  {
+    label: "Faith Market",
+    styles: [
+      "SDA Worship",
+      "Catholic Hymn",
+      "AIC Praise",
+      "Afro Gospel Choir",
+      "Contemporary Worship",
+      "Praise & Worship",
+      "Traditional Catholic Hymn",
+      "Choir Anthem",
+      "Revival Worship",
+      "Swahili Gospel Choir",
+      "Youth Church Praise",
+    ],
+  },
+  {
+    label: "Creator Market",
+    styles: [
+      "Radio Jingle",
+      "TikTok Viral Sound",
+      "Promo Beat",
+      "Brand Theme Song",
+      "Intro Theme",
+      "Podcast Intro",
+      "YouTube Intro Beat",
+    ],
+  },
+];
+
+const songLanguages = [
+  "English",
+  "Swahili",
+  "Sheng",
+  "Luganda",
+  "Kikuyu",
+  "Luo",
+  "Kamba",
+  "Dholuo",
+  "French",
+  "Arabic",
+  "Pidgin",
+  "Mixed",
+];
+
+const songDurations = ["30 sec", "60 sec", "120 sec"];
+
 export default function DynamicToolWorkspace({
   selectedTool,
-  speechRate,
-  setSpeechRate,
-  voiceVolume,
-  setVoiceVolume,
-  isSpeaking,
-  aiVoiceBlob,
-  isExporting,
-  onPlayVoiceover,
-  onStopVoiceover,
-  onGenerateRealVoice,
-  backgroundMusic,
-  musicPreview,
-  musicVolume,
-  setMusicVolume,
-  isMusicPlaying,
-  audioRef,
-  onMusicUpload,
-  onToggleMusic,
+  speechRate: _speechRate,
+  setSpeechRate: _setSpeechRate,
+  voiceVolume: _voiceVolume,
+  setVoiceVolume: _setVoiceVolume,
+  isSpeaking: _isSpeaking,
+  aiVoiceBlob: _aiVoiceBlob,
+  isExporting: _isExporting,
+  onPlayVoiceover: _onPlayVoiceover,
+  onStopVoiceover: _onStopVoiceover,
+  onGenerateRealVoice: _onGenerateRealVoice,
+  backgroundMusic: _backgroundMusic,
+  musicPreview: _musicPreview,
+  musicVolume: _musicVolume,
+  setMusicVolume: _setMusicVolume,
+  isMusicPlaying: _isMusicPlaying,
+  audioRef: _audioRef,
+  onMusicUpload: _onMusicUpload,
+  onToggleMusic: _onToggleMusic,
   photoMusicImagePreview,
   photoMusicAudioName,
   photoMusicStyle,
@@ -119,6 +211,13 @@ export default function DynamicToolWorkspace({
   const [enhancementStyle, setEnhancementStyle] =
     useState("Natural Enhancement");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
+
+  const [songLyrics, setSongLyrics] = useState("");
+  const [songStyle, setSongStyle] = useState("Gengetone");
+  const [songLanguage, setSongLanguage] = useState("Swahili");
+  const [songDuration, setSongDuration] = useState("30 sec");
+  const [songPreviewReady, setSongPreviewReady] = useState(false);
+  const [songStatus, setSongStatus] = useState("");
 
   const downloadEnhancedImage = async () => {
     if (!picturePreview) return;
@@ -158,6 +257,60 @@ export default function DynamicToolWorkspace({
     };
   };
 
+  const buildSongPrompt = () => {
+    return [
+      `Style: ${songStyle}`,
+      `Language: ${songLanguage}`,
+      `Duration: ${songDuration}`,
+      `Lyrics: ${songLyrics.trim()}`,
+    ].join("\n");
+  };
+
+  const handleGenerateSong = () => {
+    if (!songLyrics.trim()) {
+      alert("Please write lyrics first.");
+      return;
+    }
+
+    setSongPreviewReady(true);
+    setSongStatus(
+      "Song request prepared. The real MusicGen backend will connect here next."
+    );
+  };
+
+  const handleDownloadSongRequest = () => {
+    if (!songPreviewReady) {
+      alert("Please generate the song request first.");
+      return;
+    }
+
+    const blob = new Blob([buildSongPrompt()], {
+      type: "text/plain;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "xnewsapp-ai-song-request.txt";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShareSongToFacebook = () => {
+    const quote = encodeURIComponent(
+      `I created a ${songStyle} song idea in ${songLanguage} with xnewsapp.com.`
+    );
+    const shareUrl = encodeURIComponent(window.location.href);
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
+
+    window.open(fbUrl, "_blank", "width=700,height=500");
+  };
+
   if (!selectedTool) {
     return (
       <div className={boxClass}>
@@ -175,6 +328,215 @@ export default function DynamicToolWorkspace({
   }
 
   const { category, tool } = selectedTool;
+
+  if (category === "Audio / Music AI" && tool === "AI Song Studio") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Music className="h-5 w-5 text-cyan-300" />
+          <h3 className="text-lg font-extrabold">AI Song Studio</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Write lyrics, choose an East African or African style, select language
+          and duration, then generate a song. This panel is ready for the
+          MusicGen backend connection.
+        </p>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+          <div className="space-y-5">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                1. Write lyrics
+              </span>
+              <textarea
+                value={songLyrics}
+                onChange={(e) => {
+                  setSongLyrics(e.target.value);
+                  setSongPreviewReady(false);
+                  setSongStatus("");
+                }}
+                placeholder="Example: Nimeamka leo na ndoto kubwa, Nairobi inaningoja..."
+                className="min-h-[180px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
+              />
+            </label>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  2. Choose style
+                </span>
+                <select
+                  value={songStyle}
+                  onChange={(e) => {
+                    setSongStyle(e.target.value);
+                    setSongPreviewReady(false);
+                    setSongStatus("");
+                  }}
+                  className={inputClass}
+                >
+                  {songStyleGroups.map((group) => (
+                    <optgroup key={group.label} label={group.label}>
+                      {group.styles.map((style) => (
+                        <option key={style}>{style}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  3. Choose language
+                </span>
+                <select
+                  value={songLanguage}
+                  onChange={(e) => {
+                    setSongLanguage(e.target.value);
+                    setSongPreviewReady(false);
+                    setSongStatus("");
+                  }}
+                  className={inputClass}
+                >
+                  {songLanguages.map((language) => (
+                    <option key={language}>{language}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  4. Choose duration
+                </span>
+                <select
+                  value={songDuration}
+                  onChange={(e) => {
+                    setSongDuration(e.target.value);
+                    setSongPreviewReady(false);
+                    setSongStatus("");
+                  }}
+                  className={inputClass}
+                >
+                  {songDurations.map((duration) => (
+                    <option key={duration}>{duration}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGenerateSong}
+              className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
+            >
+              Generate Song
+            </button>
+          </div>
+
+          <div className="rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-4">
+            <p className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
+              Final selection
+            </p>
+
+            <div className="mt-4 space-y-3 text-sm text-slate-200">
+              <div className="rounded-2xl bg-white/5 p-3">
+                <span className="block text-xs font-bold text-slate-400">
+                  Style
+                </span>
+                <span className="font-extrabold text-white">{songStyle}</span>
+              </div>
+
+              <div className="rounded-2xl bg-white/5 p-3">
+                <span className="block text-xs font-bold text-slate-400">
+                  Language
+                </span>
+                <span className="font-extrabold text-white">
+                  {songLanguage}
+                </span>
+              </div>
+
+              <div className="rounded-2xl bg-white/5 p-3">
+                <span className="block text-xs font-bold text-slate-400">
+                  Duration
+                </span>
+                <span className="font-extrabold text-white">
+                  {songDuration}
+                </span>
+              </div>
+
+              <div className="rounded-2xl bg-white/5 p-3">
+                <span className="block text-xs font-bold text-slate-400">
+                  Lyrics status
+                </span>
+                <span className="font-extrabold text-white">
+                  {songLyrics.trim() ? "Lyrics ready" : "Waiting for lyrics"}
+                </span>
+              </div>
+            </div>
+
+            {songStatus && (
+              <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+                {songStatus}
+              </div>
+            )}
+
+            {songPreviewReady && (
+              <div className="mt-4 space-y-3">
+                <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-center">
+                  <p className="text-sm font-extrabold text-white">
+                    Song preview area
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-300">
+                    The generated audio player will appear here after MusicGen
+                    or another provider is connected.
+                  </p>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={handleShareSongToFacebook}
+                    className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
+                  >
+                    Share to Facebook
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      alert("Generated song audio will be added to video after the music backend is connected.")
+                    }
+                    className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
+                  >
+                    Use in Video
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadSongRequest}
+                    className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
+                  >
+                    Download Song Request
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSongPreviewReady(false);
+                      setSongStatus("");
+                    }}
+                    className="rounded-2xl bg-white/10 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-white/15"
+                  >
+                    Generate Another
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (category === "Picture AI") {
     const filterClass = enhancementFilters[enhancementStyle];
@@ -348,63 +710,6 @@ export default function DynamicToolWorkspace({
         onPhotoUpload={onDancingPhotoUpload}
         onGenerateDance={onGenerateDance}
       />
-    );
-  }
-
-  if (
-    category === "Audio / Music AI" &&
-    (tool === "AI Voiceover" ||
-      tool === "Text to Speech" ||
-      tool === "Narration Studio" ||
-      tool === "Radio Ad Voice")
-  ) {
-    return (
-      <div className={boxClass}>
-        <div className="mb-5 flex items-center gap-2">
-          <Music className="h-5 w-5 text-cyan-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <VoicePanel
-          speechRate={speechRate}
-          setSpeechRate={setSpeechRate}
-          voiceVolume={voiceVolume}
-          setVoiceVolume={setVoiceVolume}
-          isSpeaking={isSpeaking}
-          aiVoiceBlob={aiVoiceBlob}
-          isExporting={isExporting}
-          onPlayVoiceover={onPlayVoiceover}
-          onStopVoiceover={onStopVoiceover}
-          onGenerateRealVoice={onGenerateRealVoice}
-        />
-      </div>
-    );
-  }
-
-  if (
-    category === "Audio / Music AI" &&
-    (tool === "Background Music" ||
-      tool === "Jingle Creator" ||
-      tool === "Lyric Video")
-  ) {
-    return (
-      <div className={boxClass}>
-        <div className="mb-5 flex items-center gap-2">
-          <Music className="h-5 w-5 text-cyan-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <MusicPanel
-          backgroundMusic={backgroundMusic}
-          musicPreview={musicPreview}
-          musicVolume={musicVolume}
-          setMusicVolume={setMusicVolume}
-          isMusicPlaying={isMusicPlaying}
-          audioRef={audioRef}
-          onMusicUpload={onMusicUpload}
-          onToggleMusic={onToggleMusic}
-        />
-      </div>
     );
   }
 
