@@ -120,6 +120,9 @@ const songStyleGroups = [
       "Afro R&B",
       "Dancehall",
       "Trap Afro",
+      "Reggae",
+      "Dancehall Reggae",
+      "Gospel Reggae",
     ],
   },
   {
@@ -136,6 +139,17 @@ const songStyleGroups = [
       "Revival Worship",
       "Swahili Gospel Choir",
       "Youth Church Praise",
+    ],
+  },
+  {
+    label: "South Asia / Philippines",
+    styles: [
+      "Bollywood Pop",
+      "Punjabi Beat",
+      "Desi Love Song",
+      "Qawwali Fusion",
+      "OPM Pop",
+      "Pinoy Acoustic Pop",
     ],
   },
   {
@@ -161,10 +175,15 @@ const songLanguages = [
   "Luo",
   "Kamba",
   "Dholuo",
+  "Kisii",
+  "Lingala",
   "French",
   "Arabic",
   "Pidgin",
   "Mixed",
+  "Hindi",
+  "Urdu",
+  "Tagalog",
 ];
 
 const songDurations = ["30 sec", "60 sec", "120 sec"];
@@ -338,201 +357,158 @@ export default function DynamicToolWorkspace({
         </div>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Write lyrics, choose an East African or African style, select language
-          and duration, then generate a song. This panel is ready for the
-          MusicGen backend connection.
+          Write lyrics, choose a style, select language and duration, then
+          generate your song.
         </p>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-          <div className="space-y-5">
+        <div className="mt-5 space-y-5">
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              1. Write lyrics
+            </span>
+            <textarea
+              value={songLyrics}
+              onChange={(e) => {
+                setSongLyrics(e.target.value);
+                setSongPreviewReady(false);
+                setSongStatus("");
+              }}
+              placeholder="Example: Nimeamka leo na ndoto kubwa, Nairobi inaningoja..."
+              className="min-h-[180px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
+            />
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-3">
             <label className="block">
               <span className="mb-2 block text-sm font-extrabold">
-                1. Write lyrics
+                2. Choose style
               </span>
-              <textarea
-                value={songLyrics}
+              <select
+                value={songStyle}
                 onChange={(e) => {
-                  setSongLyrics(e.target.value);
+                  setSongStyle(e.target.value);
                   setSongPreviewReady(false);
                   setSongStatus("");
                 }}
-                placeholder="Example: Nimeamka leo na ndoto kubwa, Nairobi inaningoja..."
-                className="min-h-[180px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
-              />
+                className={inputClass}
+              >
+                {songStyleGroups.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.styles.map((style) => (
+                      <option key={style}>{style}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             </label>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="block">
-                <span className="mb-2 block text-sm font-extrabold">
-                  2. Choose style
-                </span>
-                <select
-                  value={songStyle}
-                  onChange={(e) => {
-                    setSongStyle(e.target.value);
-                    setSongPreviewReady(false);
-                    setSongStatus("");
-                  }}
-                  className={inputClass}
-                >
-                  {songStyleGroups.map((group) => (
-                    <optgroup key={group.label} label={group.label}>
-                      {group.styles.map((style) => (
-                        <option key={style}>{style}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Choose language
+              </span>
+              <select
+                value={songLanguage}
+                onChange={(e) => {
+                  setSongLanguage(e.target.value);
+                  setSongPreviewReady(false);
+                  setSongStatus("");
+                }}
+                className={inputClass}
+              >
+                {songLanguages.map((language) => (
+                  <option key={language}>{language}</option>
+                ))}
+              </select>
+            </label>
 
-              <label className="block">
-                <span className="mb-2 block text-sm font-extrabold">
-                  3. Choose language
-                </span>
-                <select
-                  value={songLanguage}
-                  onChange={(e) => {
-                    setSongLanguage(e.target.value);
-                    setSongPreviewReady(false);
-                    setSongStatus("");
-                  }}
-                  className={inputClass}
-                >
-                  {songLanguages.map((language) => (
-                    <option key={language}>{language}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-extrabold">
-                  4. Choose duration
-                </span>
-                <select
-                  value={songDuration}
-                  onChange={(e) => {
-                    setSongDuration(e.target.value);
-                    setSongPreviewReady(false);
-                    setSongStatus("");
-                  }}
-                  className={inputClass}
-                >
-                  {songDurations.map((duration) => (
-                    <option key={duration}>{duration}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleGenerateSong}
-              className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
-            >
-              Generate Song
-            </button>
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Choose duration
+              </span>
+              <select
+                value={songDuration}
+                onChange={(e) => {
+                  setSongDuration(e.target.value);
+                  setSongPreviewReady(false);
+                  setSongStatus("");
+                }}
+                className={inputClass}
+              >
+                {songDurations.map((duration) => (
+                  <option key={duration}>{duration}</option>
+                ))}
+              </select>
+            </label>
           </div>
 
-          <div className="rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-4">
-            <p className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
-              Final selection
-            </p>
+          <button
+            type="button"
+            onClick={handleGenerateSong}
+            className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
+          >
+            Generate Song
+          </button>
 
-            <div className="mt-4 space-y-3 text-sm text-slate-200">
-              <div className="rounded-2xl bg-white/5 p-3">
-                <span className="block text-xs font-bold text-slate-400">
-                  Style
-                </span>
-                <span className="font-extrabold text-white">{songStyle}</span>
+          {songStatus && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+              {songStatus}
+            </div>
+          )}
+
+          {songPreviewReady && (
+            <div className="space-y-3 rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-4">
+              <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-center">
+                <p className="text-sm font-extrabold text-white">
+                  Song preview area
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-300">
+                  The generated audio player will appear here after MusicGen or
+                  another provider is connected.
+                </p>
               </div>
 
-              <div className="rounded-2xl bg-white/5 p-3">
-                <span className="block text-xs font-bold text-slate-400">
-                  Language
-                </span>
-                <span className="font-extrabold text-white">
-                  {songLanguage}
-                </span>
-              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={handleShareSongToFacebook}
+                  className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
+                >
+                  Share to Facebook
+                </button>
 
-              <div className="rounded-2xl bg-white/5 p-3">
-                <span className="block text-xs font-bold text-slate-400">
-                  Duration
-                </span>
-                <span className="font-extrabold text-white">
-                  {songDuration}
-                </span>
-              </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    alert(
+                      "Generated song audio will be added to video after the music backend is connected."
+                    )
+                  }
+                  className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
+                >
+                  Use in Video
+                </button>
 
-              <div className="rounded-2xl bg-white/5 p-3">
-                <span className="block text-xs font-bold text-slate-400">
-                  Lyrics status
-                </span>
-                <span className="font-extrabold text-white">
-                  {songLyrics.trim() ? "Lyrics ready" : "Waiting for lyrics"}
-                </span>
+                <button
+                  type="button"
+                  onClick={handleDownloadSongRequest}
+                  className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
+                >
+                  Download Preview
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSongPreviewReady(false);
+                    setSongStatus("");
+                  }}
+                  className="rounded-2xl bg-white/10 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-white/15"
+                >
+                  Generate Another
+                </button>
               </div>
             </div>
-
-            {songStatus && (
-              <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
-                {songStatus}
-              </div>
-            )}
-
-            {songPreviewReady && (
-              <div className="mt-4 space-y-3">
-                <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-center">
-                  <p className="text-sm font-extrabold text-white">
-                    Song preview area
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-300">
-                    The generated audio player will appear here after MusicGen
-                    or another provider is connected.
-                  </p>
-                </div>
-
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={handleShareSongToFacebook}
-                    className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
-                  >
-                    Share to Facebook
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alert("Generated song audio will be added to video after the music backend is connected.")
-                    }
-                    className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
-                  >
-                    Use in Video
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDownloadSongRequest}
-                    className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
-                  >
-                    Download Song Request
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSongPreviewReady(false);
-                      setSongStatus("");
-                    }}
-                    className="rounded-2xl bg-white/10 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-white/15"
-                  >
-                    Generate Another
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     );
