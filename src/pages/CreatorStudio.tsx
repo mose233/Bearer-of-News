@@ -3,16 +3,13 @@ import { saveAs } from "file-saver";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import AiImagesPanel from "@/components/creator/AiImagesPanel";
 import AiToolLauncher, {
   AiToolSelection,
 } from "@/components/creator/AiToolLauncher";
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
-import MediaUploader from "@/components/creator/MediaUploader";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 import SmartCanvasPanel from "@/components/creator/SmartCanvasPanel";
-import GeneratedProductActions from "@/components/creator/GeneratedProductActions";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
@@ -100,9 +97,6 @@ export default function CreatorStudio() {
   const [canvasText, setCanvasText] = useState("");
   const [canvasImageFile, setCanvasImageFile] = useState<File | null>(null);
   const [canvasImagePreview, setCanvasImagePreview] = useState("");
-
-  const selectedToolName = selectedTool?.tool;
-  const showDefaultSceneBuilder = selectedToolName === "Text to Video Studio";
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
     return mediaFiles
@@ -317,7 +311,7 @@ export default function CreatorStudio() {
     setVoiceText(generated.voice);
     setAiVoiceBlob(null);
 
-    alert("Text to Video prompt prepared. You can now generate scenes below.");
+    alert("Video prompt prepared. You can now generate scenes.");
   };
 
   const handlePhotoMusicPhotoUpload = (
@@ -1044,49 +1038,27 @@ export default function CreatorStudio() {
             videoOutputFormat={videoOutputFormat}
             setVideoOutputFormat={setVideoOutputFormat}
             onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
+            aiImagePrompt={aiImagePrompt}
+            setAiImagePrompt={setAiImagePrompt}
+            isGeneratingImage={isGeneratingImage}
+            generatedImagePreview={generatedImagePreview}
+            multiScenePlan={multiScenePlan}
+            onGenerateImage={handleGenerateImage}
+            onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
+            onAddGeneratedImage={handleAddGeneratedImage}
+            onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
+            onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
+            onMediaUpload={handleMediaUpload}
+            onPublishToFacebook={shareToFacebook}
+            onDownloadGeneratedImage={handleDownloadGeneratedImage}
+            onEditGeneratedImageInCanvas={handleEditGeneratedImageInCanvas}
+            onGenerateCompleteVideo={handleGenerateCompleteVideo}
           />
         </div>
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
           <section className="space-y-5">
-            {showDefaultSceneBuilder && (
-              <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-                <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                  <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                    Video Scene Generator
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent className="space-y-5 px-4 py-5 sm:px-5">
-                  <AiImagesPanel
-                    aiImagePrompt={aiImagePrompt}
-                    setAiImagePrompt={setAiImagePrompt}
-                    isGeneratingImage={isGeneratingImage}
-                    generatedImagePreview={generatedImagePreview}
-                    multiScenePlan={multiScenePlan}
-                    onGenerateImage={handleGenerateImage}
-                    onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
-                    onAddGeneratedImage={handleAddGeneratedImage}
-                    onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
-                    onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
-                  />
-
-                  {generatedImagePreview && (
-                    <GeneratedProductActions
-                      productType="image"
-                      onPublishToFacebook={shareToFacebook}
-                      onDownload={handleDownloadGeneratedImage}
-                      onEditInCanvas={handleEditGeneratedImageInCanvas}
-                      onUseInVideo={handleAddGeneratedImage}
-                    />
-                  )}
-
-                  <MediaUploader onMediaUpload={handleMediaUpload} />
-                </CardContent>
-              </Card>
-            )}
-
-            <Card
+<Card
               ref={smartCanvasSectionRef}
               className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator"
             >
