@@ -60,19 +60,10 @@ const categories: AiToolCategory[] = [
   },
   {
     title: "Audio / Music AI",
-    description: "Generate voice, narration, and music assets.",
+    description: "Write lyrics, choose an African style, select language, and generate a song.",
     icon: Music,
     accent: "from-cyan-500 to-blue-600",
-    tools: [
-      "AI Voiceover",
-      "Text to Speech",
-      "Background Music",
-      "Voice Changer",
-      "Radio Ad Voice",
-      "Narration Studio",
-      "Jingle Creator",
-      "Lyric Video",
-    ],
+    tools: ["AI Song Studio"],
   },
 ];
 
