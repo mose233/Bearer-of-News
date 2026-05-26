@@ -14,8 +14,12 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
+import AiImagesPanel from "@/components/creator/AiImagesPanel";
+import MediaUploader from "@/components/creator/MediaUploader";
+import GeneratedProductActions from "@/components/creator/GeneratedProductActions";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
+import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 
 type DynamicToolWorkspaceProps = {
   selectedTool: AiToolSelection | null;
@@ -65,6 +69,22 @@ type DynamicToolWorkspaceProps = {
   videoOutputFormat?: string;
   setVideoOutputFormat?: (value: string) => void;
   onPrepareTextToVideoPrompt?: () => void;
+
+  aiImagePrompt?: string;
+  setAiImagePrompt?: (value: string) => void;
+  isGeneratingImage?: boolean;
+  generatedImagePreview?: string;
+  multiScenePlan?: MultiScenePlan[];
+  onGenerateImage?: () => void;
+  onGenerateMultiScenePlan?: () => void;
+  onAddGeneratedImage?: () => void;
+  onGenerateSceneFromPlan?: (index: number) => void;
+  onGenerateAllScenesFromPlan?: () => void;
+  onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPublishToFacebook?: () => void;
+  onDownloadGeneratedImage?: () => void;
+  onEditGeneratedImageInCanvas?: () => void;
+  onGenerateCompleteVideo?: () => void;
 };
 
 const boxClass =
@@ -256,6 +276,21 @@ export default function DynamicToolWorkspace({
   videoOutputFormat = "Facebook Reel",
   setVideoOutputFormat,
   onPrepareTextToVideoPrompt,
+  aiImagePrompt = "",
+  setAiImagePrompt,
+  isGeneratingImage = false,
+  generatedImagePreview = "",
+  multiScenePlan = [],
+  onGenerateImage,
+  onGenerateMultiScenePlan,
+  onAddGeneratedImage,
+  onGenerateSceneFromPlan,
+  onGenerateAllScenesFromPlan,
+  onMediaUpload,
+  onPublishToFacebook,
+  onDownloadGeneratedImage,
+  onEditGeneratedImageInCanvas,
+  onGenerateCompleteVideo,
 }: DynamicToolWorkspaceProps) {
   const [picturePreview, setPicturePreview] = useState("");
   const [pictureFileName, setPictureFileName] = useState("");
@@ -398,8 +433,9 @@ export default function DynamicToolWorkspace({
         </div>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Choose a creative type, choose the output format, write your prompt,
-          then generate scenes below.
+          Write your prompt, generate a video, preview it, then share to
+          Facebook. Upload media, edit in Smart Canvas, and download MP4 are
+          advanced options.
         </p>
 
         <div className="mt-5 space-y-5">
@@ -437,7 +473,7 @@ export default function DynamicToolWorkspace({
 
           <label className="block">
             <span className="mb-2 block text-sm font-extrabold">
-              3. Write your prompt
+              3. Write prompt
             </span>
             <textarea
               value={videoPrompt}
@@ -447,17 +483,96 @@ export default function DynamicToolWorkspace({
             />
           </label>
 
-          <button
-            type="button"
-            onClick={handlePrepareTextToVideoPrompt}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Prepare Scene Prompt
-          </button>
+          <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-4">
+            <div className="mb-4">
+              <h4 className="text-sm font-extrabold text-white">
+                4. Generate video scenes
+              </h4>
+              <p className="mt-1 text-xs leading-5 text-violet-100">
+                Prepare your prompt, then generate one scene or a 4-scene story.
+              </p>
+            </div>
 
-          <div className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-4 text-xs font-medium leading-5 text-violet-100">
-            After preparing your prompt, use the Video Scene Generator below to
-            generate 1 scene, create a 4-scene story, or upload your own media.
+            <button
+              type="button"
+              onClick={handlePrepareTextToVideoPrompt}
+              className="mb-4 h-11 rounded-2xl bg-violet-600 px-5 text-xs font-extrabold text-white transition hover:bg-violet-500"
+            >
+              Prepare Video Prompt
+            </button>
+
+            <AiImagesPanel
+              aiImagePrompt={aiImagePrompt}
+              setAiImagePrompt={setAiImagePrompt || (() => {})}
+              isGeneratingImage={isGeneratingImage}
+              generatedImagePreview={generatedImagePreview}
+              multiScenePlan={multiScenePlan}
+              onGenerateImage={onGenerateImage || (() => {})}
+              onGenerateMultiScenePlan={onGenerateMultiScenePlan || (() => {})}
+              onAddGeneratedImage={onAddGeneratedImage || (() => {})}
+              onGenerateSceneFromPlan={onGenerateSceneFromPlan || (() => {})}
+              onGenerateAllScenesFromPlan={onGenerateAllScenesFromPlan || (() => {})}
+            />
+
+            {generatedImagePreview && (
+              <div className="mt-4">
+                <GeneratedProductActions
+                  productType="image"
+                  onPublishToFacebook={onPublishToFacebook || (() => {})}
+                  onDownload={onDownloadGeneratedImage || (() => {})}
+                  onEditInCanvas={onEditGeneratedImageInCanvas}
+                  onUseInVideo={onAddGeneratedImage}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              Advanced: upload your own media
+            </h4>
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Add your own images or videos if you want to combine them with AI
+              scenes.
+            </p>
+
+            <div className="mt-4">
+              <MediaUploader onMediaUpload={onMediaUpload || (() => {})} />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <button
+              type="button"
+              onClick={onPublishToFacebook}
+              className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
+            >
+              Share to Facebook
+            </button>
+
+            <button
+              type="button"
+              onClick={onEditGeneratedImageInCanvas}
+              className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
+            >
+              Edit in Smart Canvas
+            </button>
+
+            <button
+              type="button"
+              onClick={onGenerateCompleteVideo}
+              className="rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-emerald-500"
+            >
+              Generate MP4
+            </button>
+
+            <button
+              type="button"
+              onClick={onDownloadGeneratedImage}
+              className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
+            >
+              Download
+            </button>
           </div>
         </div>
       </div>
@@ -791,7 +906,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (tool === "Dancing Photo") {
+  if (tool === "Dance Animation") {
     return (
       <DancingPhotoPanel
         dancingPhotoPreview={dancingPhotoPreview}
@@ -811,7 +926,6 @@ export default function DynamicToolWorkspace({
       tool === "Talking Avatars" ||
       tool === "AI News Presenter" ||
       tool === "Product Ad Generator" ||
-      tool === "Dance Animation" ||
       tool === "AI Music Video Studio" ||
       tool === "Story Generator" ||
       tool === "Birthday Video")
@@ -824,8 +938,8 @@ export default function DynamicToolWorkspace({
         </div>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
-          This dedicated video workflow is ready in the launcher. Its full
-          generation engine will be connected next.
+          This workflow will use fal.ai generation. Its full input panel will be
+          connected next.
         </p>
       </div>
     );
