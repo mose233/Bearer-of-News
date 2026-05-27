@@ -212,11 +212,25 @@ const songLanguages = [
 ];
 
 const textToVideoCreativeTypes = [
-  "General",
+  "Trending Reel",
+  "TikTok Viral",
+  "Funny Skit",
+  "Relationship Story",
+  "Glow Up / Beauty",
+  "Celebrity Gossip",
+  "Breaking News Style",
+  "Social Commentary",
+  "Motivational Hustle",
+  "Dance Promo",
+  "Birthday Shoutout",
+  "Faith / Gospel Message",
+  "Product Promo",
+  "Fashion / Drip Showcase",
+  "Food Promo",
   "Business Promo",
-  "AI News",
-  "Birthday",
-  "Romantic",
+  "Event Hype",
+  "Travel Vlog Style",
+  "Church Announcement",
 ];
 
 const textToVideoOutputFormats = [
@@ -430,7 +444,7 @@ export default function DynamicToolWorkspace({
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-sm font-extrabold">
-                1. Creative type
+                1. Video Type
               </span>
               <select
                 value={videoCreativeType}
@@ -469,7 +483,7 @@ export default function DynamicToolWorkspace({
                 setVideoPrompt?.(e.target.value);
                 setAiImagePrompt?.(
                   [
-                    `Creative type: ${videoCreativeType}`,
+                    `Video type: ${videoCreativeType}`,
                     `Output format: ${videoOutputFormat}`,
                     e.target.value,
                   ].join("\n")
