@@ -897,10 +897,161 @@ export default function DynamicToolWorkspace({
     );
   }
 
+  if (category === "Video AI" && tool === "Photo to Video") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">Photo to Video</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Turn your own photos or videos into Facebook-ready videos.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              1. Upload Your Media
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload your own photos or videos to create your video.
+            </p>
+
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <Upload className="mb-3 h-7 w-7 text-violet-300" />
+
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload
+              </span>
+
+              <span className="mt-1 text-xs font-medium text-slate-300">
+                Upload multiple images or videos to build your Facebook-ready story.
+              </span>
+
+              <Input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={onMediaUpload}
+              />
+            </label>
+          </div>
+
+          <div>
+            <h4 className="mb-2 text-sm font-extrabold text-white">
+              2. Choose Video Style
+            </h4>
+
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                "Slideshow",
+                "Cinematic",
+                "Birthday",
+                "Romantic",
+                "Business Promo",
+                "Church Tribute",
+                "Memorial",
+                "Product Showcase",
+                "News Style",
+              ].map((style) => (
+                <button
+                  key={style}
+                  type="button"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 hover:text-white"
+                >
+                  {style}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              3. Choose Output Format
+            </span>
+
+            <select className={inputClass} defaultValue="Facebook Reel">
+              {[
+                "Facebook Feed",
+                "Facebook Reel",
+                "WhatsApp Status",
+                "Instagram Reel",
+                "TikTok",
+                "YouTube Shorts",
+              ].map((format) => (
+                <option key={format}>{format}</option>
+              ))}
+            </select>
+          </label>
+
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              4. Add Music (Optional)
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload music if you want background audio in your video.
+            </p>
+
+            <Input
+              type="file"
+              accept="audio/*"
+              className="mt-4 rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+              onChange={onMusicUpload}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={onGenerateCompleteVideo}
+            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+          >
+            Create Video
+          </button>
+
+          <div className="rounded-3xl border border-white/10 bg-black/40 p-5 text-center">
+            <p className="text-sm font-extrabold text-white">Video Preview</p>
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Your generated video preview will appear in the live preview panel.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <button
+              type="button"
+              onClick={onPublishToFacebook}
+              className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
+            >
+              Share to Facebook
+            </button>
+
+            <button
+              type="button"
+              onClick={onGenerateCompleteVideo}
+              className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-500"
+            >
+              Generate MP4
+            </button>
+
+            <button
+              type="button"
+              onClick={onDownloadGeneratedImage}
+              className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-600"
+            >
+              Download
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (
     category === "Video AI" &&
-    (tool === "Photo to Video" ||
-      tool === "Talking Avatars" ||
+    (tool === "Talking Avatars" ||
       tool === "AI News Presenter" ||
       tool === "Product Ad Generator" ||
       tool === "AI Music Video Studio" ||
