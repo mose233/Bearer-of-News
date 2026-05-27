@@ -1,19 +1,13 @@
-import {
-  Download,
-  ImagePlus,
-  Music,
-  Play,
-  Sparkles,
-} from "lucide-react";
+import React from "react";
+import { ImagePlus, Music } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type PhotoMusicVideoPanelProps = {
   photoMusicImagePreview: string;
   photoMusicAudioName: string;
   photoMusicStyle: string;
-  isExportingPhotoMusic?: boolean;
+  isExportingPhotoMusic: boolean;
   setPhotoMusicStyle: (value: string) => void;
   onPhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAudioUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -21,169 +15,168 @@ type PhotoMusicVideoPanelProps = {
   onExportPhotoMusicVideo: () => void;
 };
 
-const styles = [
-  "Music Video",
-  "Romantic Reel",
-  "Birthday Video",
-  "Gospel / Worship",
-  "Dance Effect",
-  "Promo Video",
+const videoTypes = [
+  "Trending Reel",
+  "TikTok Viral Edit",
+  "Music Slideshow",
+  "Lyric Visualizer",
+  "Romantic Music Story",
+  "Birthday Music Tribute",
+  "Wedding Music Story",
+  "Memorial Music Tribute",
+  "Faith / Gospel Music Tribute",
+  "Choir Tribute",
+  "Travel Music Memories",
+  "Family Music Memories",
+  "Glow Up Music Edit",
+  "Fashion Music Showcase",
+  "Dance Photo Music Edit",
+  "Afrobeats Music Video",
+  "Amapiano Music Video",
+  "Gengetone Music Video",
+  "Product Music Promo",
+  "Event Highlights Music Video",
+  "WhatsApp Music Status",
+];
+
+const outputFormats = [
+  "Facebook Feed",
+  "Facebook Reel",
+  "WhatsApp Status",
+  "Instagram Reel",
+  "TikTok",
+  "YouTube Shorts",
 ];
 
 export default function PhotoMusicVideoPanel({
   photoMusicImagePreview,
   photoMusicAudioName,
   photoMusicStyle,
-  isExportingPhotoMusic = false,
+  isExportingPhotoMusic,
   setPhotoMusicStyle,
   onPhotoUpload,
   onAudioUpload,
-  onAddPhotoSceneToTimeline,
   onExportPhotoMusicVideo,
 }: PhotoMusicVideoPanelProps) {
-  const readyToExport = !!photoMusicImagePreview && !!photoMusicAudioName;
-  const readyToAddScene = !!photoMusicImagePreview;
-
   return (
-    <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5 text-white">
-      <div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-pink-300" />
-          <h3 className="text-base font-extrabold text-white">
-            Photo Music Video Maker
-          </h3>
-        </div>
-
-        <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Turn your photo and music into a mobile-ready MP4 creative.
-        </p>
+    <div className="rounded-3xl border border-white/10 bg-[#111827] p-6 text-white">
+      <div className="flex items-center gap-2">
+        <Music className="h-5 w-5 text-violet-300" />
+        <h3 className="text-lg font-extrabold">Photo Music Video Maker</h3>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-900/50 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-900/80">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-pink-500/15">
-            <ImagePlus className="h-7 w-7 text-pink-300" />
-          </div>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+        Create Facebook-ready music videos from your photos and audio.
+      </p>
 
-          <span className="text-sm font-extrabold text-white">
-            Upload Photo
-          </span>
+      <div className="mt-5 space-y-5">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              Upload Photos
+            </h4>
 
-          <span className="mt-1 text-xs font-medium text-slate-300">
-            Portrait, product, or creative image
-          </span>
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload the main photo or image for your music video.
+            </p>
 
-          <Input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={onPhotoUpload}
-          />
-        </label>
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <ImagePlus className="mb-3 h-7 w-7 text-violet-300" />
 
-        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-900/50 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-900/80">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/15">
-            <Music className="h-7 w-7 text-violet-300" />
-          </div>
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload Photo
+              </span>
 
-          <span className="text-sm font-extrabold text-white">
-            Upload Audio
-          </span>
+              <Input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onPhotoUpload}
+              />
+            </label>
 
-          <span className="mt-1 text-xs font-medium text-slate-300">
-            Music or soundtrack
-          </span>
-
-          <Input
-            type="file"
-            accept="audio/*"
-            className="hidden"
-            onChange={onAudioUpload}
-          />
-        </label>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-extrabold text-white">
-          Video Style
-        </label>
-
-        <select
-          value={photoMusicStyle}
-          onChange={(e) => setPhotoMusicStyle(e.target.value)}
-          className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-400/30"
-        >
-          {styles.map((style) => (
-            <option
-              key={style}
-              value={style}
-              className="bg-slate-950 text-white"
-            >
-              {style}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {(photoMusicImagePreview || photoMusicAudioName) && (
-        <div className="rounded-3xl border border-white/10 bg-black p-3">
-          {photoMusicImagePreview && (
-            <div className="relative overflow-hidden rounded-2xl bg-black">
+            {photoMusicImagePreview && (
               <img
                 src={photoMusicImagePreview}
-                alt="Photo music preview"
-                className="h-[360px] w-full object-cover animate-kenburns"
+                alt="Photo music video preview"
+                className="mt-4 max-h-[320px] w-full rounded-2xl object-contain"
               />
+            )}
+          </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              Upload Music
+            </h4>
 
-              <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-extrabold text-white backdrop-blur">
-                AI Creative Preview
-              </div>
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload MP3, WAV, or another audio file for the video.
+            </p>
 
-              <div className="absolute right-4 top-4 rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
-                MP4 Ready
-              </div>
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <Music className="mb-3 h-7 w-7 text-violet-300" />
 
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="rounded-2xl bg-black/45 px-4 py-3 backdrop-blur">
-                  <p className="text-base font-extrabold text-white">
-                    {photoMusicStyle}
-                  </p>
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload Music
+              </span>
 
-                  <p className="mt-1 text-sm font-medium text-slate-200">
-                    {photoMusicAudioName ||
-                      "Add music to complete your creative"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+              <span className="mt-1 text-xs font-medium text-slate-300">
+                {photoMusicAudioName || "No music selected yet."}
+              </span>
+
+              <Input
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={onAudioUpload}
+              />
+            </label>
+          </div>
         </div>
-      )}
 
-      <div className="flex flex-wrap gap-3">
-        <Button
-          type="button"
-          onClick={onAddPhotoSceneToTimeline}
-          disabled={!readyToAddScene}
-          className="h-12 rounded-2xl bg-pink-600 px-5 text-sm font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
-        >
-          <Play className="mr-2 h-4 w-4" />
-          Add Scene
-        </Button>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              1. Video Type
+            </span>
 
-        <Button
+            <select
+              value={photoMusicStyle}
+              onChange={(e) => setPhotoMusicStyle(e.target.value)}
+              className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            >
+              {videoTypes.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              2. Output Format
+            </span>
+
+            <select
+              className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+              defaultValue="Facebook Reel"
+            >
+              {outputFormats.map((format) => (
+                <option key={format}>{format}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <button
           type="button"
           onClick={onExportPhotoMusicVideo}
-          disabled={!readyToExport || isExportingPhotoMusic}
-          className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
+          disabled={isExportingPhotoMusic}
+          className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 disabled:opacity-60 md:w-auto"
         >
-          <Download className="mr-2 h-4 w-4" />
           {isExportingPhotoMusic
-            ? "Exporting MP4..."
-            : "Export Music Video MP4"}
-        </Button>
+            ? "Generating Complete AI Video..."
+            : "Generate Complete AI Video"}
+        </button>
       </div>
     </div>
   );
