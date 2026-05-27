@@ -1807,6 +1807,159 @@ export default function DynamicToolWorkspace({
     );
   }
 
+  if (category === "Video AI" && tool === "Birthday Video") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">Birthday Video</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Create Facebook-ready birthday celebration videos.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              Upload Birthday Photos
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload birthday or celebration photos for your video.
+            </p>
+
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <Upload className="mb-3 h-7 w-7 text-violet-300" />
+
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload
+              </span>
+
+              <span className="mt-1 text-xs font-medium text-slate-300">
+                Upload one or more birthday photos.
+              </span>
+
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={onMediaUpload || (() => {})}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                1. Celebration Type
+              </span>
+              <select className={inputClass} defaultValue="Birthday Wishes">
+                {[
+                  "Birthday Wishes",
+                  "Kids Birthday",
+                  "Adult Birthday",
+                  "Surprise Birthday",
+                  "Romantic Birthday",
+                  "Family Celebration",
+                  "Friend Celebration",
+                  "Church Birthday Tribute",
+                  "Memorial Birthday Tribute",
+                  "Luxury Birthday Party",
+                  "Simple Birthday Greeting",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Video Style
+              </span>
+              <select className={inputClass} defaultValue="Colorful Celebration">
+                {[
+                  "Slideshow",
+                  "Cinematic",
+                  "Animated Celebration",
+                  "Luxury Celebration",
+                  "Emotional Tribute",
+                  "Fun Party Style",
+                  "TikTok Birthday Style",
+                  "Elegant Greeting",
+                  "Colorful Celebration",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Music Style
+              </span>
+              <select className={inputClass} defaultValue="Happy Birthday Song">
+                {[
+                  "Happy Birthday Song",
+                  "Instrumental Celebration",
+                  "Romantic Music",
+                  "Kids Party Music",
+                  "Gospel Celebration",
+                  "Choir Tribute",
+                  "Emotional Piano",
+                  "Afrobeats Party",
+                  "Amapiano Party",
+                  "Upload My Music",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Output Format
+              </span>
+              <select className={inputClass} defaultValue="Facebook Reel">
+                {[
+                  "Facebook Feed",
+                  "Facebook Reel",
+                  "WhatsApp Status",
+                  "Instagram Reel",
+                  "TikTok",
+                  "YouTube Shorts",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              5. Write Birthday Message
+            </span>
+            <textarea
+              placeholder="Example: Happy birthday Sarah! May your new year bring joy, success, and blessings."
+              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={onGenerateCompleteVideo || (() => {})}
+            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+          >
+            Generate Complete AI Video
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (
     category === "Video AI" &&
     (tool === "Birthday Video")
