@@ -927,15 +927,30 @@ export default function DynamicToolWorkspace({
 
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {[
+                "Trending Reel",
+                "TikTok Viral Edit",
                 "Slideshow",
                 "Cinematic",
+                "Glow Up / Beauty",
+                "Relationship Story",
                 "Birthday",
+                "Birthday Tribute",
+                "Wedding Memory",
+                "Memorial Tribute",
                 "Romantic",
-                "Business Promo",
-                "Church Tribute",
-                "Memorial",
+                "Faith / Gospel Tribute",
+                "Church Event",
+                "Family Memories",
+                "Travel Memories",
+                "Funny Photo Edit",
+                "Dance Photo Edit",
+                "Motivational Hustle",
                 "Product Showcase",
-                "News Style",
+                "Fashion Showcase",
+                "Food Promo",
+                "Business Promo",
+                "Event Highlights",
+                "WhatsApp Status",
               ].map((style) => (
                 <button
                   key={style}
@@ -969,12 +984,29 @@ export default function DynamicToolWorkspace({
 
           <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
             <h4 className="text-sm font-extrabold text-white">
-              4. Add Music (Optional)
+              4. Music Style
             </h4>
 
             <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload music if you want background audio in your video.
+              Choose a music style or upload your own music.
             </p>
+
+            <select className={`${inputClass} mt-4`} defaultValue="Trending Audio">
+              {[
+                "Trending Audio",
+                "Afrobeats",
+                "Amapiano",
+                "Gengetone",
+                "Bongo Flava",
+                "Gospel",
+                "Emotional Piano",
+                "Romantic Music",
+                "Party Music",
+                "Upload My Music",
+              ].map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
 
             <Input
               type="file"
