@@ -1,3 +1,5 @@
+import React from "react";
+
 type SmartCanvasPanelProps = {
   canvasText: string;
   setCanvasText: (value: string) => void;
@@ -37,6 +39,10 @@ export default function SmartCanvasPanel({
 }: SmartCanvasPanelProps) {
   return (
     <div className="space-y-5">
+      <p className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-3 text-sm font-bold leading-5 text-violet-100">
+        Polish Your Generated AI Video or Photo for Free.
+      </p>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
           <span className="mb-2 block text-xs font-bold text-slate-300">
