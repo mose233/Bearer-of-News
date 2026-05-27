@@ -39,9 +39,12 @@ export default function SmartCanvasPanel({
 }: SmartCanvasPanelProps) {
   return (
     <div className="space-y-5">
-      <p className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-3 text-sm font-bold leading-5 text-violet-100">
-        Polish Your Generated AI Video or Photo for Free.
-      </p>
+      <div>
+        <h3 className="text-xl font-extrabold text-white">Smart Canvas</h3>
+        <p className="mt-2 text-sm font-semibold text-slate-300">
+          Polish Your Generated AI Video or Photo for Free.
+        </p>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
@@ -108,11 +111,11 @@ export default function SmartCanvasPanel({
         <canvas ref={canvasRef} className="h-auto w-full" />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <button
           type="button"
           onClick={onPublishEditedDesignToFacebook}
-          className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-500"
+          className="h-12 w-full rounded-2xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-500"
         >
           Publish Edited Design to Facebook
         </button>
@@ -120,7 +123,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onAddCanvasToTimeline}
-          className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white hover:bg-violet-500"
+          className="h-12 w-full rounded-2xl bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-500"
         >
           Use Design in Video
         </button>
@@ -128,7 +131,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onDownloadCanvasImage}
-          className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white hover:bg-slate-600"
+          className="h-12 w-full rounded-2xl bg-slate-700 px-4 text-sm font-bold text-white hover:bg-slate-600"
         >
           Download Design
         </button>
