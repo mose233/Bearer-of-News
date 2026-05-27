@@ -1533,10 +1533,155 @@ export default function DynamicToolWorkspace({
     );
   }
 
+  if (category === "Video AI" && tool === "AI Music Video Studio") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Music className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">AI Music Video Studio</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Create Facebook-ready AI music videos from your song or audio.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              1. Audio Source
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Use a song from AI Song Studio or upload your own audio.
+            </p>
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {[
+                "Use AI Song Studio Song",
+                "Upload MP3",
+                "Upload WAV",
+                "Upload Audio File",
+              ].map((source) => (
+                <button
+                  key={source}
+                  type="button"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 hover:text-white"
+                >
+                  {source}
+                </button>
+              ))}
+            </div>
+
+            <Input
+              type="file"
+              accept="audio/*"
+              className="mt-4 rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+              onChange={_onMusicUpload}
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Video Style
+              </span>
+              <select className={inputClass} defaultValue="Performance">
+                {[
+                  "Performance",
+                  "Live Concert",
+                  "Stage Performance",
+                  "Dance Crew",
+                  "Street Performance",
+                  "Club Performance",
+                  "Choir Performance",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Video Theme
+              </span>
+              <select className={inputClass} defaultValue="TikTok Viral">
+                {[
+                  "Love Story",
+                  "Breakup Story",
+                  "Birthday Celebration",
+                  "Wedding Story",
+                  "Friendship Story",
+                  "Motivational Journey",
+                  "Anime Music Video",
+                  "TikTok Viral",
+                  "Dance Challenge",
+                  "Product Anthem",
+                  "Brand Intro",
+                  "Creator Intro",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Visual Mood
+              </span>
+              <select className={inputClass} defaultValue="Energetic">
+                {[
+                  "Cinematic",
+                  "Colorful",
+                  "Dark Mood",
+                  "Luxury",
+                  "Romantic",
+                  "Emotional",
+                  "Energetic",
+                  "Minimal",
+                  "Street",
+                  "Vintage",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                5. Output Format
+              </span>
+              <select className={inputClass} defaultValue="Facebook Reel">
+                {[
+                  "Facebook Feed",
+                  "Facebook Reel",
+                  "WhatsApp Status",
+                  "Instagram Reel",
+                  "TikTok",
+                  "YouTube Shorts",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <button
+            type="button"
+            onClick={onGenerateCompleteVideo || (() => {})}
+            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+          >
+            Generate Complete AI Video
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (
     category === "Video AI" &&
-    (tool === "AI Music Video Studio" ||
-      tool === "Story Generator" ||
+    (tool === "Story Generator" ||
       tool === "Birthday Video")
   ) {
     return (
