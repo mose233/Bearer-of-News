@@ -499,11 +499,11 @@ export default function DynamicToolWorkspace({
 
               <button
                 type="button"
-                onClick={onGenerateImage}
+                onClick={onGenerateCompleteVideo || (() => {})}
                 disabled={isGeneratingImage}
                 className="mt-4 h-11 rounded-2xl bg-violet-600 px-5 text-xs font-extrabold text-white transition hover:bg-violet-500 disabled:opacity-60"
               >
-                {isGeneratingImage ? "Generating Scene..." : "Generate Scene"}
+                Generate Complete AI Video
               </button>
 
               {generatedImagePreview && (
@@ -515,40 +515,6 @@ export default function DynamicToolWorkspace({
                   />
                 </div>
               )}
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <button
-                type="button"
-                onClick={onPublishToFacebook || (() => {})}
-                className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
-              >
-                Share to Facebook
-              </button>
-
-              <button
-                type="button"
-                onClick={onEditGeneratedImageInCanvas}
-                className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
-              >
-                Edit in Smart Canvas
-              </button>
-
-              <button
-                type="button"
-                onClick={onGenerateCompleteVideo || (() => {})}
-                className="rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-emerald-500"
-              >
-                Generate MP4
-              </button>
-
-              <button
-                type="button"
-                onClick={onDownloadGeneratedImage || (() => {})}
-                className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
-              >
-                Download
-              </button>
             </div>
           </div>
         </div>
