@@ -982,10 +982,137 @@ export default function DynamicToolWorkspace({
     );
   }
 
+  if (category === "Video AI" && tool === "Talking Avatars") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">Talking Avatars</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Upload a face photo, write a short script, choose voice and language,
+          then generate a Facebook-ready talking avatar video.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              1. Upload Avatar Photo
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload a clear face photo for the avatar.
+            </p>
+
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <Upload className="mb-3 h-7 w-7 text-violet-300" />
+
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload
+              </span>
+
+              <span className="mt-1 text-xs font-medium text-slate-300">
+                Upload one portrait photo with a clear face.
+              </span>
+
+              <Input
+                type="file"
+                accept="image/*"
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Choose Voice
+              </span>
+
+              <select className={inputClass} defaultValue="Natural Presenter">
+                {[
+                  "Natural Presenter",
+                  "News Anchor",
+                  "Business Voice",
+                  "Warm Friendly",
+                  "Youth Creator",
+                  "Church Announcement",
+                ].map((voice) => (
+                  <option key={voice}>{voice}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Choose Language
+              </span>
+
+              <select className={inputClass} defaultValue="English">
+                {[
+                  "English",
+                  "Swahili",
+                  "Sheng",
+                  "Luganda",
+                  "French",
+                  "Arabic",
+                  "Pidgin",
+                  "Hindi",
+                  "Urdu",
+                  "Tagalog",
+                ].map((language) => (
+                  <option key={language}>{language}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Output Format
+              </span>
+
+              <select className={inputClass} defaultValue="Facebook Reel">
+                {[
+                  "Facebook Feed",
+                  "Facebook Reel",
+                  "WhatsApp Status",
+                  "Instagram Reel",
+                  "TikTok",
+                  "YouTube Shorts",
+                ].map((format) => (
+                  <option key={format}>{format}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              5. Write Script
+            </span>
+
+            <textarea
+              placeholder="Example: Hello everyone, welcome to xnewsapp. Today I want to share something important..."
+              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={onGenerateCompleteVideo || (() => {})}
+            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+          >
+            Generate Complete AI Video
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (
     category === "Video AI" &&
-    (tool === "Talking Avatars" ||
-      tool === "AI News Presenter" ||
+    (tool === "AI News Presenter" ||
       tool === "Product Ad Generator" ||
       tool === "AI Music Video Studio" ||
       tool === "Story Generator" ||
