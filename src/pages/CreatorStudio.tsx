@@ -1058,29 +1058,58 @@ export default function CreatorStudio() {
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
           <section className="space-y-5">
-<Card
-              ref={smartCanvasSectionRef}
-              className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator"
-            >
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Smart Canvas
+                  Live preview and timeline
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="px-4 py-5 sm:px-5">
-                <SmartCanvasPanel
-                  canvasText={canvasText}
-                  setCanvasText={setCanvasText}
-                  canvasRef={canvasRef}
-                  onCanvasImageUpload={handleCanvasImageUpload}
-                  onPublishEditedDesignToFacebook={shareToFacebook}
-                  onDownloadCanvasImage={handleDownloadCanvasImage}
-                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
+                <PreviewPanel
+                  mediaFiles={mediaFiles}
+                  imagePreviews={imagePreviews}
+                  currentIndex={currentIndex}
+                  setCurrentIndex={setCurrentIndex}
+                  isPlaying={isPlaying}
+                  setIsPlaying={setIsPlaying}
+                  facebookCaption={facebookCaption}
+                  sceneDurations={sceneDurations}
+                  onDeleteScene={handleDeleteScene}
+                  onDuplicateScene={handleDuplicateScene}
+                  onUpdateSceneDuration={handleUpdateSceneDuration}
                 />
               </CardContent>
             </Card>
-</section>
+
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  Export and share
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-4 py-5 sm:px-5">
+                <ExportPanel
+                  isRecording={isRecording}
+                  isExporting={isExporting}
+                  exportStatus={exportStatus}
+                  onGenerateCompleteVideo={handleGenerateCompleteVideo}
+                  onShareToFacebook={shareToFacebook}
+                  onInitializeFFmpeg={initializeFFmpeg}
+                  onExportSilentMp4={handleExportSilentMp4}
+                  onExportNarratedMp4={handleExportNarratedMp4}
+                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+                />
+              </CardContent>
+            </Card>
+
+            <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-400/10 p-4 text-xs font-medium leading-5 text-amber-100">
+              Facebook-safe reminder: review generated videos before posting.
+              Avoid copyrighted media, misleading claims, impersonation, spam,
+              or unsafe content.
+            </div>
+          </section>
 
           <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
             <Card
