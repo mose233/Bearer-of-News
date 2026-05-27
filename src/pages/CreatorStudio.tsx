@@ -8,7 +8,6 @@ import AiToolLauncher, {
 } from "@/components/creator/AiToolLauncher";
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
-import ExportPanel from "@/components/creator/ExportPanel";
 import SmartCanvasPanel from "@/components/creator/SmartCanvasPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
@@ -1089,18 +1088,68 @@ export default function CreatorStudio() {
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-4 py-5 sm:px-5">
-                <ExportPanel
-                  isRecording={isRecording}
-                  isExporting={isExporting}
-                  exportStatus={exportStatus}
-                  onGenerateCompleteVideo={handleGenerateCompleteVideo}
-                  onShareToFacebook={shareToFacebook}
-                  onInitializeFFmpeg={initializeFFmpeg}
-                  onExportSilentMp4={handleExportSilentMp4}
-                  onExportNarratedMp4={handleExportNarratedMp4}
-                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
-                />
+              <CardContent className="space-y-4 px-4 py-5 sm:px-5">
+                <div>
+                  <p className="text-sm font-extrabold text-white">
+                    Export & Publishing
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-300">
+                    Render your final video, export MP4 versions, and share to
+                    Facebook.
+                  </p>
+                </div>
+
+                {exportStatus && (
+                  <div className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-3 text-xs font-bold leading-5 text-violet-100">
+                    {exportStatus}
+                  </div>
+                )}
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={shareToFacebook}
+                    className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
+                  >
+                    Share to Facebook
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={initializeFFmpeg}
+                    disabled={isRecording || isExporting}
+                    className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-600 disabled:opacity-60"
+                  >
+                    Initialize FFmpeg
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleExportSilentMp4}
+                    disabled={isRecording || isExporting}
+                    className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-600 disabled:opacity-60"
+                  >
+                    Silent MP4
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleExportNarratedMp4}
+                    disabled={isRecording || isExporting}
+                    className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-600 disabled:opacity-60"
+                  >
+                    Narrated MP4
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleExportFinalMixedMp4}
+                    disabled={isRecording || isExporting}
+                    className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-violet-500 disabled:opacity-60 sm:col-span-2"
+                  >
+                    Final Mixed MP4
+                  </button>
+                </div>
               </CardContent>
             </Card>
 
