@@ -14,9 +14,6 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
-import AiImagesPanel from "@/components/creator/AiImagesPanel";
-import MediaUploader from "@/components/creator/MediaUploader";
-import GeneratedProductActions from "@/components/creator/GeneratedProductActions";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -397,14 +394,6 @@ export default function DynamicToolWorkspace({
     window.open(fbUrl, "_blank", "width=700,height=500");
   };
 
-  const handlePrepareTextToVideoPrompt = () => {
-    if (!videoPrompt.trim()) {
-      alert("Please write a video prompt first.");
-      return;
-    }
-
-    onPrepareTextToVideoPrompt?.();
-  };
 
   if (!selectedTool) {
     return (
@@ -433,9 +422,8 @@ export default function DynamicToolWorkspace({
         </div>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Write your prompt, generate a video, preview it, then share to
-          Facebook. Upload media, edit in Smart Canvas, and download MP4 are
-          advanced options.
+          Write your prompt, generate a video scene, preview it, then share to
+          Facebook.
         </p>
 
         <div className="mt-5 space-y-5">
@@ -477,102 +465,91 @@ export default function DynamicToolWorkspace({
             </span>
             <textarea
               value={videoPrompt}
-              onChange={(e) => setVideoPrompt?.(e.target.value)}
-              placeholder="Example: Create a breaking news video about Nairobi city traffic updates..."
+              onChange={(e) => {
+                setVideoPrompt?.(e.target.value);
+                setAiImagePrompt?.(
+                  [
+                    `Creative type: ${videoCreativeType}`,
+                    `Output format: ${videoOutputFormat}`,
+                    e.target.value,
+                  ].join("\n")
+                );
+              }}
+              placeholder="Example: Create a breaking news video about Nairobi traffic updates..."
               className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
             />
           </label>
 
           <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-4">
-            <div className="mb-4">
-              <h4 className="text-sm font-extrabold text-white">
-                4. Generate video scenes
-              </h4>
-              <p className="mt-1 text-xs leading-5 text-violet-100">
-                Prepare your prompt, then generate one scene or a 4-scene story.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handlePrepareTextToVideoPrompt}
-              className="mb-4 h-11 rounded-2xl bg-violet-600 px-5 text-xs font-extrabold text-white transition hover:bg-violet-500"
-            >
-              Prepare Video Prompt
-            </button>
-
-            <AiImagesPanel
-              aiImagePrompt={aiImagePrompt}
-              setAiImagePrompt={setAiImagePrompt || (() => {})}
-              isGeneratingImage={isGeneratingImage}
-              generatedImagePreview={generatedImagePreview}
-              multiScenePlan={multiScenePlan}
-              onGenerateImage={onGenerateImage || (() => {})}
-              onGenerateMultiScenePlan={onGenerateMultiScenePlan || (() => {})}
-              onAddGeneratedImage={onAddGeneratedImage || (() => {})}
-              onGenerateSceneFromPlan={onGenerateSceneFromPlan || (() => {})}
-              onGenerateAllScenesFromPlan={onGenerateAllScenesFromPlan || (() => {})}
-            />
-
-            {generatedImagePreview && (
-              <div className="mt-4">
-                <GeneratedProductActions
-                  productType="image"
-                  onPublishToFacebook={onPublishToFacebook || (() => {})}
-                  onDownload={onDownloadGeneratedImage || (() => {})}
-                  onEditInCanvas={onEditGeneratedImageInCanvas}
-                  onUseInVideo={onAddGeneratedImage}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
             <h4 className="text-sm font-extrabold text-white">
-              Advanced: upload your own media
+              4. Generate Video Scene
             </h4>
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Add your own images or videos if you want to combine them with AI
-              scenes.
-            </p>
 
-            <div className="mt-4">
-              <MediaUploader onMediaUpload={onMediaUpload || (() => {})} />
+            <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/70 p-4">
+              <h5 className="text-sm font-extrabold text-white">
+                AI Scene Generator
+              </h5>
+
+              <textarea
+                value={aiImagePrompt}
+                onChange={(e) => setAiImagePrompt?.(e.target.value)}
+                placeholder="Example: A cinematic scene of a young entrepreneur opening a shop in Nairobi..."
+                className="mt-3 min-h-[120px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+              />
+
+              <button
+                type="button"
+                onClick={onGenerateImage}
+                disabled={isGeneratingImage}
+                className="mt-4 h-11 rounded-2xl bg-violet-600 px-5 text-xs font-extrabold text-white transition hover:bg-violet-500 disabled:opacity-60"
+              >
+                {isGeneratingImage ? "Generating Scene..." : "Generate Scene"}
+              </button>
+
+              {generatedImagePreview && (
+                <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
+                  <img
+                    src={generatedImagePreview}
+                    alt="Generated video scene preview"
+                    className="max-h-[420px] w-full object-contain"
+                  />
+                </div>
+              )}
             </div>
-          </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <button
-              type="button"
-              onClick={onPublishToFacebook}
-              className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
-            >
-              Share to Facebook
-            </button>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <button
+                type="button"
+                onClick={onPublishToFacebook}
+                className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
+              >
+                Share to Facebook
+              </button>
 
-            <button
-              type="button"
-              onClick={onEditGeneratedImageInCanvas}
-              className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
-            >
-              Edit in Smart Canvas
-            </button>
+              <button
+                type="button"
+                onClick={onEditGeneratedImageInCanvas}
+                className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
+              >
+                Edit in Smart Canvas
+              </button>
 
-            <button
-              type="button"
-              onClick={onGenerateCompleteVideo}
-              className="rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-emerald-500"
-            >
-              Generate MP4
-            </button>
+              <button
+                type="button"
+                onClick={onGenerateCompleteVideo}
+                className="rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-emerald-500"
+              >
+                Generate MP4
+              </button>
 
-            <button
-              type="button"
-              onClick={onDownloadGeneratedImage}
-              className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
-            >
-              Download
-            </button>
+              <button
+                type="button"
+                onClick={onDownloadGeneratedImage}
+                className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
+              >
+                Download
+              </button>
+            </div>
           </div>
         </div>
       </div>
