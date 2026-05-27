@@ -1679,10 +1679,137 @@ export default function DynamicToolWorkspace({
     );
   }
 
+  if (category === "Video AI" && tool === "Story Generator") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">Story Generator</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Create Facebook-ready AI storytelling videos from your idea.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                1. Story Type
+              </span>
+              <select className={inputClass} defaultValue="Motivational Story">
+                {[
+                  "Motivational Story",
+                  "Love Story",
+                  "Breakup Story",
+                  "Friendship Story",
+                  "Success Journey",
+                  "Business Story",
+                  "Inspirational Story",
+                  "Faith Story",
+                  "Bible Story",
+                  "Testimony Story",
+                  "Funny Story",
+                  "Life Lesson Story",
+                  "African Folktale",
+                  "Children Story",
+                  "Drama Story",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Story Style
+              </span>
+              <select className={inputClass} defaultValue="Cinematic">
+                {[
+                  "Cinematic",
+                  "Animated",
+                  "Emotional",
+                  "Documentary",
+                  "Narrative Reel",
+                  "TikTok Story",
+                  "African Drama",
+                  "Luxury Storytelling",
+                  "Minimal Storytelling",
+                  "Comic Style",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Story Mood
+              </span>
+              <select className={inputClass} defaultValue="Inspirational">
+                {[
+                  "Inspirational",
+                  "Emotional",
+                  "Romantic",
+                  "Sad",
+                  "Happy",
+                  "Funny",
+                  "Suspense",
+                  "Dark",
+                  "Hopeful",
+                  "Energetic",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Output Format
+              </span>
+              <select className={inputClass} defaultValue="Facebook Reel">
+                {[
+                  "Facebook Feed",
+                  "Facebook Reel",
+                  "WhatsApp Status",
+                  "Instagram Reel",
+                  "TikTok",
+                  "YouTube Shorts",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              5. Write Story Idea
+            </span>
+            <textarea
+              placeholder="Example: A young man in Nairobi starts with nothing, works hard, and finally opens his dream business."
+              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={onGenerateCompleteVideo || (() => {})}
+            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+          >
+            Generate Complete AI Video
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (
     category === "Video AI" &&
-    (tool === "Story Generator" ||
-      tool === "Birthday Video")
+    (tool === "Birthday Video")
   ) {
     return (
       <div className={boxClass}>
