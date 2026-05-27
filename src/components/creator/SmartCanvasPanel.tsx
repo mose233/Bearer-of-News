@@ -39,12 +39,9 @@ export default function SmartCanvasPanel({
 }: SmartCanvasPanelProps) {
   return (
     <div className="space-y-5">
-      <div>
-        <h3 className="text-xl font-extrabold text-white">Smart Canvas</h3>
-        <p className="mt-2 text-sm font-semibold text-slate-300">
-          Polish Your Generated AI Video or Photo for Free.
-        </p>
-      </div>
+      <p className="text-sm font-semibold leading-5 text-slate-300">
+        Polish Your Generated AI Video or Photo for Free.
+      </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
