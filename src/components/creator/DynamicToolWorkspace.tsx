@@ -1395,6 +1395,144 @@ export default function DynamicToolWorkspace({
     );
   }
 
+  if (category === "Video AI" && tool === "Dance Animation") {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">Dance Animation</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Animate a photo into a short Facebook-ready dance video.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              Upload Photo
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Upload one clear full-body or portrait photo.
+            </p>
+
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <Upload className="mb-3 h-7 w-7 text-violet-300" />
+
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload
+              </span>
+
+              <span className="mt-1 text-xs font-medium text-slate-300">
+                Upload a clear photo for animation.
+              </span>
+
+              <Input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onDancingPhotoUpload}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                1. Dance Type
+              </span>
+              <select className={inputClass} defaultValue="TikTok Viral Dance">
+                {[
+                  "Afrobeats Dance",
+                  "Amapiano Dance",
+                  "Gengetone Dance",
+                  "TikTok Viral Dance",
+                  "Gospel Celebration Dance",
+                  "Wedding Dance",
+                  "Birthday Dance",
+                  "Funny Meme Dance",
+                  "Club Dance",
+                  "Cultural Dance",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Motion Style
+              </span>
+              <select className={inputClass} defaultValue="Energetic Dance">
+                {[
+                  "Subtle Motion",
+                  "Energetic Dance",
+                  "Fast Viral Moves",
+                  "Smooth Body Movement",
+                  "Camera Zoom Dance",
+                  "Stage Performance",
+                  "Street Dance",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Music Style
+              </span>
+              <select className={inputClass} defaultValue="Afrobeats">
+                {[
+                  "Afrobeats",
+                  "Amapiano",
+                  "Gengetone",
+                  "Bongo Flava",
+                  "Gospel",
+                  "Dancehall",
+                  "Reggae",
+                  "Hip Hop",
+                  "Upload My Music",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Output Format
+              </span>
+              <select className={inputClass} defaultValue="Facebook Reel">
+                {[
+                  "Facebook Feed",
+                  "Facebook Reel",
+                  "WhatsApp Status",
+                  "Instagram Reel",
+                  "TikTok",
+                  "YouTube Shorts",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <button
+            type="button"
+            onClick={onGenerateCompleteVideo || (() => {})}
+            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+          >
+            Generate Complete AI Video
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (
     category === "Video AI" &&
     (tool === "AI Music Video Studio" ||
