@@ -1145,9 +1145,18 @@ export default function CreatorStudio() {
                     type="button"
                     onClick={handleExportFinalMixedMp4}
                     disabled={isRecording || isExporting}
-                    className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-violet-500 disabled:opacity-60 sm:col-span-2"
+                    className="rounded-2xl bg-violet-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-violet-500 disabled:opacity-60"
                   >
                     Final Mixed MP4
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleExportFinalMixedMp4}
+                    disabled={isRecording || isExporting}
+                    className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                  >
+                    Download
                   </button>
                 </div>
               </CardContent>
