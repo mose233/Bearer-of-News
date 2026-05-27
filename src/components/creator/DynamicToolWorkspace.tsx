@@ -920,52 +920,71 @@ export default function DynamicToolWorkspace({
             </label>
           </div>
 
-          <div>
-            <h4 className="mb-2 text-sm font-extrabold text-white">
-              2. Choose Video Style
-            </h4>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Video Type
+              </span>
 
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                "Trending Reel",
-                "TikTok Viral Edit",
-                "Slideshow",
-                "Cinematic",
-                "Glow Up / Beauty",
-                "Relationship Story",
-                "Birthday",
-                "Birthday Tribute",
-                "Wedding Memory",
-                "Memorial Tribute",
-                "Romantic",
-                "Faith / Gospel Tribute",
-                "Church Event",
-                "Family Memories",
-                "Travel Memories",
-                "Funny Photo Edit",
-                "Dance Photo Edit",
-                "Motivational Hustle",
-                "Product Showcase",
-                "Fashion Showcase",
-                "Food Promo",
-                "Business Promo",
-                "Event Highlights",
-                "WhatsApp Status",
-              ].map((style) => (
-                <button
-                  key={style}
-                  type="button"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10 hover:text-white"
-                >
-                  {style}
-                </button>
-              ))}
-            </div>
+              <select className={inputClass} defaultValue="Trending Reel">
+                {[
+                  "Trending Reel",
+                  "TikTok Viral Edit",
+                  "Slideshow",
+                  "Cinematic",
+                  "Glow Up / Beauty",
+                  "Relationship Story",
+                  "Birthday",
+                  "Birthday Tribute",
+                  "Wedding Memory",
+                  "Memorial Tribute",
+                  "Romantic",
+                  "Faith / Gospel Tribute",
+                  "Church Event",
+                  "Family Memories",
+                  "Travel Memories",
+                  "Funny Photo Edit",
+                  "Dance Photo Edit",
+                  "Motivational Hustle",
+                  "Product Showcase",
+                  "Fashion Showcase",
+                  "Food Promo",
+                  "Business Promo",
+                  "Event Highlights",
+                  "WhatsApp Status",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Music Style
+              </span>
+
+              <select className={inputClass} defaultValue="Trending Audio">
+                {[
+                  "Trending Audio",
+                  "Afrobeats",
+                  "Amapiano",
+                  "Gengetone",
+                  "Bongo Flava",
+                  "Gospel",
+                  "Emotional Piano",
+                  "Romantic Music",
+                  "Party Music",
+                  "Upload My Music",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
           </div>
 
           <label className="block">
             <span className="mb-2 block text-sm font-extrabold">
-              3. Choose Output Format
+              4. Output Format
             </span>
 
             <select className={inputClass} defaultValue="Facebook Reel">
@@ -984,29 +1003,12 @@ export default function DynamicToolWorkspace({
 
           <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
             <h4 className="text-sm font-extrabold text-white">
-              4. Music Style
+              Optional: Upload Music
             </h4>
 
             <p className="mt-1 text-xs leading-5 text-slate-300">
-              Choose a music style or upload your own music.
+              Upload your own audio if you selected Upload My Music.
             </p>
-
-            <select className={`${inputClass} mt-4`} defaultValue="Trending Audio">
-              {[
-                "Trending Audio",
-                "Afrobeats",
-                "Amapiano",
-                "Gengetone",
-                "Bongo Flava",
-                "Gospel",
-                "Emotional Piano",
-                "Romantic Music",
-                "Party Music",
-                "Upload My Music",
-              ].map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
 
             <Input
               type="file"
