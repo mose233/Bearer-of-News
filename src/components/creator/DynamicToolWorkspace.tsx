@@ -1009,41 +1009,8 @@ export default function DynamicToolWorkspace({
             onClick={onGenerateCompleteVideo || (() => {})}
             className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
           >
-            Create Video
+            Generate Complete AI Video
           </button>
-
-          <div className="rounded-3xl border border-white/10 bg-black/40 p-5 text-center">
-            <p className="text-sm font-extrabold text-white">Video Preview</p>
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Your generated video preview will appear in the live preview panel.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <button
-              type="button"
-              onClick={onPublishToFacebook || (() => {})}
-              className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
-            >
-              Share to Facebook
-            </button>
-
-            <button
-              type="button"
-              onClick={onGenerateCompleteVideo || (() => {})}
-              className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-500"
-            >
-              Generate MP4
-            </button>
-
-            <button
-              type="button"
-              onClick={onDownloadGeneratedImage || (() => {})}
-              className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-600"
-            >
-              Download
-            </button>
-          </div>
         </div>
       </div>
     );
