@@ -135,21 +135,21 @@ export default function CreatorStudio() {
     };
 
     const drawEmptyPlaceholder = () => {
-      ctx.fillStyle = "#e2e8f0";
-      ctx.font = "bold 48px Arial";
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "bold 34px Arial";
       ctx.textAlign = "center";
       ctx.fillText(
         "Your design preview appears here",
         canvas.width / 2,
-        canvas.height / 2 - 12
+        canvas.height / 2
       );
 
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "30px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "24px Arial";
       ctx.fillText(
         "Upload an image, choose a template, or send an AI result to Smart Canvas.",
         canvas.width / 2,
-        canvas.height / 2 + 44
+        canvas.height / 2 + 48
       );
     };
 
