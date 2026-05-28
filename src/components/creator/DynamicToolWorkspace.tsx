@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
+import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
@@ -90,13 +91,23 @@ const inputClass =
   "w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
 
 const enhancementFilters: Record<string, string> = {
-  "Natural Enhancement": "brightness(1.08) contrast(1.08) saturate(1.12)",
-  "Beauty Glow": "brightness(1.16) contrast(1.04) saturate(1.2) blur(0.2px)",
-  "Premium Studio": "brightness(1.1) contrast(1.2) saturate(1.08)",
-  "HD Sharp": "brightness(1.05) contrast(1.28) saturate(1.15)",
-  "Younger Look":
+  "Natural Glow": "brightness(1.08) contrast(1.08) saturate(1.12)",
+  "Beauty Filter": "brightness(1.16) contrast(1.04) saturate(1.2) blur(0.2px)",
+  "Studio Portrait Pro": "brightness(1.1) contrast(1.2) saturate(1.08)",
+  "HD Sharp Focus": "brightness(1.05) contrast(1.28) saturate(1.15)",
+  "Glow Up Look": "brightness(1.16) contrast(1.08) saturate(1.2)",
+  "Younger Appearance":
     "brightness(1.18) contrast(1.03) saturate(1.12) blur(0.35px)",
-  "Background Upgrade": "brightness(1.04) contrast(1.22) saturate(1.18)",
+  "Luxury Background": "brightness(1.04) contrast(1.22) saturate(1.18)",
+  "Soft Skin Retouch": "brightness(1.15) contrast(1.04) saturate(1.1) blur(0.25px)",
+  "Fashion Model Look": "brightness(1.08) contrast(1.24) saturate(1.16)",
+  "Influencer Style": "brightness(1.12) contrast(1.15) saturate(1.22)",
+  "Corporate Headshot": "brightness(1.06) contrast(1.18) saturate(1.05)",
+  "TikTok Glow": "brightness(1.18) contrast(1.1) saturate(1.25)",
+  "Instagram Ready": "brightness(1.12) contrast(1.14) saturate(1.2)",
+  "Facebook DP Upgrade": "brightness(1.1) contrast(1.12) saturate(1.16)",
+  "Wedding Portrait": "brightness(1.14) contrast(1.08) saturate(1.14)",
+  "Professional Passport Look": "brightness(1.05) contrast(1.16) saturate(1.03)",
 };
 
 const songStyleGroups = [
@@ -305,7 +316,7 @@ export default function DynamicToolWorkspace({
   const [picturePreview, setPicturePreview] = useState("");
   const [pictureFileName, setPictureFileName] = useState("");
   const [enhancementStyle, setEnhancementStyle] =
-    useState("Natural Enhancement");
+    useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
 
   const [songLyrics, setSongLyrics] = useState("");
@@ -722,7 +733,7 @@ export default function DynamicToolWorkspace({
             <span className="text-sm font-extrabold">Upload Photo</span>
 
             <span className="mt-1 text-xs font-medium text-slate-300">
-              Portrait, product, or creative image
+              Portrait, selfie, fashion, business, or creative image
             </span>
 
             <Input
@@ -755,16 +766,26 @@ export default function DynamicToolWorkspace({
               }}
               className={inputClass}
             >
-              <option>Natural Enhancement</option>
-              <option>Beauty Glow</option>
-              <option>Premium Studio</option>
-              <option>HD Sharp</option>
-              <option>Younger Look</option>
-              <option>Background Upgrade</option>
+              <option>Natural Glow</option>
+              <option>Beauty Filter</option>
+              <option>Studio Portrait Pro</option>
+              <option>HD Sharp Focus</option>
+              <option>Glow Up Look</option>
+              <option>Younger Appearance</option>
+              <option>Luxury Background</option>
+              <option>Soft Skin Retouch</option>
+              <option>Fashion Model Look</option>
+              <option>Influencer Style</option>
+              <option>Corporate Headshot</option>
+              <option>TikTok Glow</option>
+              <option>Instagram Ready</option>
+              <option>Facebook DP Upgrade</option>
+              <option>Wedding Portrait</option>
+              <option>Professional Passport Look</option>
             </select>
 
             <p className="text-xs font-medium leading-5 text-slate-400">
-              Current mode: {enhancementStyle}
+              Current Style: {enhancementStyle}
             </p>
           </div>
         </div>
@@ -812,8 +833,7 @@ export default function DynamicToolWorkspace({
               ) : (
                 <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80 p-6 text-center">
                   <p className="text-sm font-medium leading-6 text-slate-300">
-                    Click Preview Enhancement to see the {enhancementStyle} mock
-                    result.
+                    Click Generate Enhanced Photo to see the {enhancementStyle} result.
                   </p>
                 </div>
               )}
@@ -829,18 +849,10 @@ export default function DynamicToolWorkspace({
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
-            Preview Enhancement
+            Generate Enhanced Photo
           </Button>
 
-          <Button
-            type="button"
-            disabled={!picturePreview || !hasPreviewedEnhancement}
-            onClick={downloadEnhancedImage}
-            className="h-12 rounded-2xl bg-cyan-600 px-5 font-extrabold text-white hover:bg-cyan-700 disabled:opacity-60"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download Image
-          </Button>
+
         </div>
       </div>
     );
@@ -848,149 +860,17 @@ export default function DynamicToolWorkspace({
 
   if (tool === "Photo Music Video") {
     return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Music className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Photo Music Video Maker</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create Facebook-ready music videos from your photos and audio.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-              <h4 className="text-sm font-extrabold text-white">
-                Upload Photos
-              </h4>
-
-              <p className="mt-1 text-xs leading-5 text-slate-300">
-                Upload the main photo or image for your music video.
-              </p>
-
-              <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-                <ImagePlus className="mb-3 h-7 w-7 text-violet-300" />
-
-                <span className="text-sm font-extrabold text-white">
-                  Click to Upload Photo
-                </span>
-
-                <Input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onPhotoMusicPhotoUpload}
-                />
-              </label>
-
-              {photoMusicImagePreview && (
-                <img
-                  src={photoMusicImagePreview}
-                  alt="Photo music preview"
-                  className="mt-4 max-h-[320px] w-full rounded-2xl object-contain"
-                />
-              )}
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-              <h4 className="text-sm font-extrabold text-white">
-                Upload Music
-              </h4>
-
-              <p className="mt-1 text-xs leading-5 text-slate-300">
-                Upload MP3, WAV, or another audio file for the video.
-              </p>
-
-              <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-                <Music className="mb-3 h-7 w-7 text-violet-300" />
-
-                <span className="text-sm font-extrabold text-white">
-                  Click to Upload Music
-                </span>
-
-                <span className="mt-1 text-xs font-medium text-slate-300">
-                  {photoMusicAudioName || "No music selected yet."}
-                </span>
-
-                <Input
-                  type="file"
-                  accept="audio/*"
-                  className="hidden"
-                  onChange={onPhotoMusicAudioUpload}
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. Video Type
-              </span>
-
-              <select
-                value={photoMusicStyle}
-                onChange={(e) => setPhotoMusicStyle(e.target.value)}
-                className={inputClass}
-              >
-                {[
-                  "Trending Reel",
-                  "TikTok Viral Edit",
-                  "Music Slideshow",
-                  "Lyric Visualizer",
-                  "Romantic Music Story",
-                  "Birthday Music Tribute",
-                  "Wedding Music Story",
-                  "Memorial Music Tribute",
-                  "Faith / Gospel Music Tribute",
-                  "Choir Tribute",
-                  "Travel Music Memories",
-                  "Family Music Memories",
-                  "Glow Up Music Edit",
-                  "Fashion Music Showcase",
-                  "Dance Photo Music Edit",
-                  "Afrobeats Music Video",
-                  "Amapiano Music Video",
-                  "Gengetone Music Video",
-                  "Product Music Promo",
-                  "Event Highlights Music Video",
-                  "WhatsApp Music Status",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Output Format
-              </span>
-
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((format) => (
-                  <option key={format}>{format}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
+      <PhotoMusicVideoPanel
+        photoMusicImagePreview={photoMusicImagePreview}
+        photoMusicAudioName={photoMusicAudioName}
+        photoMusicStyle={photoMusicStyle}
+        isExportingPhotoMusic={isExportingPhotoMusic}
+        setPhotoMusicStyle={setPhotoMusicStyle}
+        onPhotoUpload={onPhotoMusicPhotoUpload}
+        onAudioUpload={onPhotoMusicAudioUpload}
+        onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
+        onExportPhotoMusicVideo={onExportPhotoMusicVideo}
+      />
     );
   }
 
