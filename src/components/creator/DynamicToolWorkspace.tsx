@@ -13,6 +13,7 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
+import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -439,112 +440,7 @@ export default function DynamicToolWorkspace({
   const { category, tool } = selectedTool;
 
   if (category === "Video AI" && tool === "Text to Video Studio") {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Text to Video Studio</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Write your prompt, generate a video scene, preview it, then share to
-          Facebook.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. Video Type
-              </span>
-              <select
-                value={videoCreativeType}
-                onChange={(e) => setVideoCreativeType?.(e.target.value)}
-                className={inputClass}
-              >
-                {textToVideoCreativeTypes.map((type) => (
-                  <option key={type}>{type}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Output format
-              </span>
-              <select
-                value={videoOutputFormat}
-                onChange={(e) => setVideoOutputFormat?.(e.target.value)}
-                className={inputClass}
-              >
-                {textToVideoOutputFormats.map((format) => (
-                  <option key={format}>{format}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              3. Write prompt
-            </span>
-            <textarea
-              value={videoPrompt}
-              onChange={(e) => {
-                setVideoPrompt?.(e.target.value);
-                setAiImagePrompt?.(
-                  [
-                    `Video type: ${videoCreativeType}`,
-                    `Output format: ${videoOutputFormat}`,
-                    e.target.value,
-                  ].join("\n")
-                );
-              }}
-              placeholder="Example: Create a breaking news video about Nairobi traffic updates..."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-            />
-          </label>
-
-          <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              4. Generate Video Scene
-            </h4>
-
-            <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/70 p-4">
-              <h5 className="text-sm font-extrabold text-white">
-                AI Scene Generator
-              </h5>
-
-              <textarea
-                value={aiImagePrompt}
-                onChange={(e) => setAiImagePrompt?.(e.target.value)}
-                placeholder="Example: A cinematic scene of a young entrepreneur opening a shop in Nairobi..."
-                className="mt-3 min-h-[120px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-              />
-
-              <button
-                type="button"
-                onClick={onGenerateCompleteVideo || (() => {})}
-                disabled={isGeneratingImage}
-                className="mt-4 h-11 rounded-2xl bg-violet-600 px-5 text-xs font-extrabold text-white transition hover:bg-violet-500 disabled:opacity-60"
-              >
-                Generate Complete AI Video
-              </button>
-
-              {generatedImagePreview && (
-                <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
-                  <img
-                    src={generatedImagePreview}
-                    alt="Generated video scene preview"
-                    className="max-h-[420px] w-full object-contain"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <AIVideoStudioPanel />;
   }
 
   if (category === "Audio / Music AI" && tool === "AI Song Studio") {
