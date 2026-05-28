@@ -13,7 +13,7 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
-import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
+import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel.tsx";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
