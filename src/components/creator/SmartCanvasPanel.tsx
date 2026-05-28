@@ -108,11 +108,11 @@ export default function SmartCanvasPanel({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-black p-2">
-        <div className="h-[280px] overflow-hidden rounded-xl bg-[#050816]">
+      <div className="rounded-2xl border border-white/10 bg-black p-3">
+        <div className="flex h-[300px] items-center justify-center overflow-hidden rounded-xl bg-[#050816]">
           <canvas
             ref={canvasRef}
-            className="h-full w-full"
+            className="block aspect-square h-[260px] max-h-full max-w-full rounded-xl"
           />
         </div>
       </div>
