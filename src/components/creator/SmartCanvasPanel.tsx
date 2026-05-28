@@ -48,7 +48,6 @@ export default function SmartCanvasPanel({
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Upload image
           </span>
-
           <input
             type="file"
             accept="image/*"
@@ -61,7 +60,6 @@ export default function SmartCanvasPanel({
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Text overlay
           </span>
-
           <input
             value={canvasText}
             onChange={(e) => setCanvasText(e.target.value)}
@@ -75,7 +73,6 @@ export default function SmartCanvasPanel({
         <p className="mb-2 text-xs font-bold text-slate-300">
           Quick templates
         </p>
-
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {templates.map((template) => (
             <button
@@ -94,7 +91,6 @@ export default function SmartCanvasPanel({
         <p className="mb-2 text-xs font-bold text-slate-300">
           Aspect ratio presets
         </p>
-
         <div className="grid gap-2 sm:grid-cols-2">
           {aspectRatios.map((ratio) => (
             <button
@@ -108,39 +104,9 @@ export default function SmartCanvasPanel({
         </div>
       </div>
 
-      <div
-        className="rounded-2xl border border-white/10 bg-black p-3"
-        style={{
-          height: "330px",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            borderRadius: "0.75rem",
-            backgroundColor: "#050816",
-          }}
-        >
-          <canvas
-            ref={canvasRef}
-            style={{
-              display: "block",
-              width: "260px",
-              height: "260px",
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
-              backgroundColor: "#111827",
-              borderRadius: "0.75rem",
-            }}
-          />
+      <div className="rounded-2xl border border-white/10 bg-black p-3">
+        <div className="mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-xl bg-[#111827]">
+          <canvas ref={canvasRef} className="block h-full w-full" />
         </div>
       </div>
 
@@ -148,7 +114,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onPublishEditedDesignToFacebook}
-          className="rounded-2xl bg-blue-600 px-3 py-3 text-xs font-bold text-white hover:bg-blue-500"
+          className="min-h-11 w-full rounded-2xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
         >
           Publish Edited Design to Facebook
         </button>
@@ -156,7 +122,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onAddCanvasToTimeline}
-          className="rounded-2xl bg-violet-600 px-3 py-3 text-xs font-bold text-white hover:bg-violet-500"
+          className="min-h-11 w-full rounded-2xl bg-violet-600 px-3 py-2 text-xs font-bold text-white hover:bg-violet-500"
         >
           Use Design in Video
         </button>
@@ -164,7 +130,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onDownloadCanvasImage}
-          className="rounded-2xl bg-slate-700 px-3 py-3 text-xs font-bold text-white hover:bg-slate-600"
+          className="min-h-11 w-full rounded-2xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
         >
           Download Design
         </button>
