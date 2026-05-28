@@ -108,11 +108,38 @@ export default function SmartCanvasPanel({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-black p-3">
-        <div className="flex h-[300px] items-center justify-center overflow-hidden rounded-xl bg-[#050816]">
+      <div
+        className="rounded-2xl border border-white/10 bg-black p-3"
+        style={{
+          height: "330px",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            borderRadius: "0.75rem",
+            backgroundColor: "#050816",
+          }}
+        >
           <canvas
             ref={canvasRef}
-            className="block aspect-square h-[260px] max-h-full max-w-full rounded-xl"
+            style={{
+              display: "block",
+              width: "260px",
+              height: "260px",
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              backgroundColor: "#111827",
+              borderRadius: "0.75rem",
+            }}
           />
         </div>
       </div>
