@@ -1081,6 +1081,29 @@ export default function CreatorStudio() {
                 />
               </CardContent>
             </Card>
+
+
+            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
+                  Export and share
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-4 py-5 sm:px-5">
+                <ExportPanel
+                  isRecording={isRecording}
+                  isExporting={isExporting}
+                  exportStatus={exportStatus}
+                  onGenerateCompleteVideo={handleGenerateCompleteVideo}
+                  onShareToFacebook={shareToFacebook}
+                  onInitializeFFmpeg={initializeFFmpeg}
+                  onExportSilentMp4={handleExportSilentMp4}
+                  onExportNarratedMp4={handleExportNarratedMp4}
+                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+                />
+              </CardContent>
+            </Card>
           </section>
 
           <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
@@ -1107,27 +1130,7 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Export and share
-                </CardTitle>
-              </CardHeader>
 
-              <CardContent className="px-4 py-5 sm:px-5">
-                <ExportPanel
-                  isRecording={isRecording}
-                  isExporting={isExporting}
-                  exportStatus={exportStatus}
-                  onGenerateCompleteVideo={handleGenerateCompleteVideo}
-                  onShareToFacebook={shareToFacebook}
-                  onInitializeFFmpeg={initializeFFmpeg}
-                  onExportSilentMp4={handleExportSilentMp4}
-                  onExportNarratedMp4={handleExportNarratedMp4}
-                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
-                />
-              </CardContent>
-            </Card>
 
             <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-400/10 p-4 text-xs font-medium leading-5 text-amber-100">
               Facebook-safe reminder: review generated videos before posting.
