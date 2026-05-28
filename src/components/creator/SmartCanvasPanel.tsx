@@ -48,6 +48,7 @@ export default function SmartCanvasPanel({
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Upload image
           </span>
+
           <input
             type="file"
             accept="image/*"
@@ -60,6 +61,7 @@ export default function SmartCanvasPanel({
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Text overlay
           </span>
+
           <input
             value={canvasText}
             onChange={(e) => setCanvasText(e.target.value)}
@@ -73,13 +75,14 @@ export default function SmartCanvasPanel({
         <p className="mb-2 text-xs font-bold text-slate-300">
           Quick templates
         </p>
+
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {templates.map((template) => (
             <button
               key={template}
               type="button"
               onClick={() => setCanvasText(template)}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-violet-500/20 hover:text-white"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-violet-500/20 hover:text-white"
             >
               {template}
             </button>
@@ -91,12 +94,13 @@ export default function SmartCanvasPanel({
         <p className="mb-2 text-xs font-bold text-slate-300">
           Aspect ratio presets
         </p>
+
         <div className="grid gap-2 sm:grid-cols-2">
           {aspectRatios.map((ratio) => (
             <button
               key={ratio}
               type="button"
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-white/10"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/10"
             >
               {ratio}
             </button>
@@ -104,11 +108,11 @@ export default function SmartCanvasPanel({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-black p-3">
-        <div className="flex h-[260px] items-center justify-center overflow-hidden rounded-xl bg-[#07111f]">
+      <div className="rounded-2xl border border-white/10 bg-[#050816] p-3">
+        <div className="flex h-[280px] items-center justify-center overflow-hidden rounded-2xl bg-black">
           <canvas
             ref={canvasRef}
-            className="block max-h-full max-w-full object-contain"
+            className="block h-full w-auto max-w-full object-contain"
           />
         </div>
       </div>
@@ -117,7 +121,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onPublishEditedDesignToFacebook}
-          className="min-h-11 w-full rounded-2xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+          className="rounded-2xl bg-blue-600 px-3 py-3 text-xs font-bold text-white transition hover:bg-blue-500"
         >
           Publish Edited Design to Facebook
         </button>
@@ -125,7 +129,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onAddCanvasToTimeline}
-          className="min-h-11 w-full rounded-2xl bg-violet-600 px-3 py-2 text-xs font-bold text-white hover:bg-violet-500"
+          className="rounded-2xl bg-violet-600 px-3 py-3 text-xs font-bold text-white transition hover:bg-violet-500"
         >
           Use Design in Video
         </button>
@@ -133,7 +137,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onDownloadCanvasImage}
-          className="min-h-11 w-full rounded-2xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
+          className="rounded-2xl bg-slate-700 px-3 py-3 text-xs font-bold text-white transition hover:bg-slate-600"
         >
           Download Design
         </button>
