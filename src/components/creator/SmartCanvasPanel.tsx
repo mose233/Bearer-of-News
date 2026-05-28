@@ -8,6 +8,7 @@ type SmartCanvasPanelProps = {
   onPublishEditedDesignToFacebook: () => void;
   onDownloadCanvasImage: () => void;
   onAddCanvasToTimeline: () => void;
+  hasCanvasContent?: boolean;
 };
 
 const templates = [
@@ -36,6 +37,7 @@ export default function SmartCanvasPanel({
   onPublishEditedDesignToFacebook,
   onDownloadCanvasImage,
   onAddCanvasToTimeline,
+  hasCanvasContent = false,
 }: SmartCanvasPanelProps) {
   return (
     <div className="space-y-4">
@@ -48,6 +50,7 @@ export default function SmartCanvasPanel({
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Upload image
           </span>
+
           <input
             type="file"
             accept="image/*"
@@ -60,6 +63,7 @@ export default function SmartCanvasPanel({
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Text overlay
           </span>
+
           <input
             value={canvasText}
             onChange={(e) => setCanvasText(e.target.value)}
@@ -73,6 +77,7 @@ export default function SmartCanvasPanel({
         <p className="mb-2 text-xs font-bold text-slate-300">
           Quick templates
         </p>
+
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {templates.map((template) => (
             <button
@@ -91,6 +96,7 @@ export default function SmartCanvasPanel({
         <p className="mb-2 text-xs font-bold text-slate-300">
           Aspect ratio presets
         </p>
+
         <div className="grid gap-2 sm:grid-cols-2">
           {aspectRatios.map((ratio) => (
             <button
@@ -104,8 +110,22 @@ export default function SmartCanvasPanel({
         </div>
       </div>
 
-      <div className="max-h-[280px] overflow-hidden rounded-2xl border border-white/10 bg-black">
-        <canvas ref={canvasRef} className="h-auto w-full" />
+      <div className="rounded-2xl border border-white/10 bg-black p-3">
+        {!hasCanvasContent && (
+          <div className="mb-3 rounded-xl border border-dashed border-white/10 bg-[#0B1020] px-4 py-3 text-center">
+            <h4 className="text-sm font-extrabold text-white">
+              Your Design Preview Appears Here
+            </h4>
+
+            <p className="mt-1 text-xs text-slate-400">
+              Upload an image or send generated AI content to Smart Canvas.
+            </p>
+          </div>
+        )}
+
+        <div className="overflow-hidden rounded-xl bg-[#111827]">
+          <canvas ref={canvasRef} className="block h-auto w-full" />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
