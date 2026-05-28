@@ -1,6 +1,5 @@
 import React, { RefObject, useState } from "react";
 import {
-  Download,
   ImagePlus,
   Music,
   Sparkles,
@@ -99,7 +98,8 @@ const enhancementFilters: Record<string, string> = {
   "Younger Appearance":
     "brightness(1.18) contrast(1.03) saturate(1.12) blur(0.35px)",
   "Luxury Background": "brightness(1.04) contrast(1.22) saturate(1.18)",
-  "Soft Skin Retouch": "brightness(1.15) contrast(1.04) saturate(1.1) blur(0.25px)",
+  "Soft Skin Retouch":
+    "brightness(1.15) contrast(1.04) saturate(1.1) blur(0.25px)",
   "Fashion Model Look": "brightness(1.08) contrast(1.24) saturate(1.16)",
   "Influencer Style": "brightness(1.12) contrast(1.15) saturate(1.22)",
   "Corporate Headshot": "brightness(1.06) contrast(1.18) saturate(1.05)",
@@ -107,7 +107,8 @@ const enhancementFilters: Record<string, string> = {
   "Instagram Ready": "brightness(1.12) contrast(1.14) saturate(1.2)",
   "Facebook DP Upgrade": "brightness(1.1) contrast(1.12) saturate(1.16)",
   "Wedding Portrait": "brightness(1.14) contrast(1.08) saturate(1.14)",
-  "Professional Passport Look": "brightness(1.05) contrast(1.16) saturate(1.03)",
+  "Professional Passport Look":
+    "brightness(1.05) contrast(1.16) saturate(1.03)",
 };
 
 const songStyleGroups = [
@@ -724,7 +725,7 @@ export default function DynamicToolWorkspace({
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
           Upload a photo, choose an enhancement style, and preview a polished
-          mock result. Real AI image editing will be connected later.
+          mock result.
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -851,8 +852,6 @@ export default function DynamicToolWorkspace({
             <Wand2 className="mr-2 h-4 w-4" />
             Generate Enhanced Photo
           </Button>
-
-
         </div>
       </div>
     );
