@@ -970,17 +970,17 @@ export default function CreatorStudio() {
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 py-5 pb-28 sm:px-6 lg:px-8 lg:py-7">
-        <header className="mb-5 rounded-[1.5rem] border border-white/10 bg-[#111827] px-4 py-5 shadow-creator sm:px-6 lg:mb-6">
+      <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
+        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
           <div className="mb-3 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-xs font-bold text-violet-100">
             Creator Studio AI
           </div>
 
-          <h1 className="max-w-4xl text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
+          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
             Create Facebook-ready videos faster
           </h1>
 
-          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-300 sm:text-base">
+          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
             Generate scenes, arrange your timeline, add narration and music,
             then export videos for Facebook, Reels, Shorts, and TikTok.
           </p>
@@ -1055,16 +1055,16 @@ export default function CreatorStudio() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
-          <section className="space-y-5">
-<Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.9fr)]">
+          <section className="space-y-4">
+<Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   Live preview and timeline
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-4 py-5 sm:px-5">
+              <CardContent className="px-3 py-4 sm:px-4">
                 <PreviewPanel
                   mediaFiles={mediaFiles}
                   imagePreviews={imagePreviews}
@@ -1082,14 +1082,14 @@ export default function CreatorStudio() {
             </Card>
 
 
-            <Card className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   Export and share
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-4 py-5 sm:px-5">
+              <CardContent className="px-3 py-4 sm:px-4">
                 <ExportPanel
                   isRecording={isRecording}
                   isExporting={isExporting}
@@ -1105,18 +1105,18 @@ export default function CreatorStudio() {
             </Card>
           </section>
 
-          <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
+          <aside className="space-y-4 xl:sticky xl:top-5 xl:self-start">
             <Card
               ref={smartCanvasSectionRef}
-              className="rounded-[1.5rem] border border-white/10 bg-[#111827] text-white shadow-creator"
+              className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator"
             >
-              <CardHeader className="border-b border-white/10 px-4 py-4 sm:px-5">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
                   Smart Canvas
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-4 py-5 sm:px-5">
+              <CardContent className="px-3 py-4 sm:px-4">
                 <SmartCanvasPanel
                   canvasText={canvasText}
                   setCanvasText={setCanvasText}
@@ -1134,7 +1134,7 @@ export default function CreatorStudio() {
 
 
 
-            <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-400/10 p-4 text-xs font-medium leading-5 text-amber-100">
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
               Facebook-safe reminder: review generated videos before posting.
               Avoid copyrighted media, misleading claims, impersonation, spam,
               or unsafe content.
@@ -1147,7 +1147,7 @@ export default function CreatorStudio() {
             type="button"
             onClick={handleGenerateCompleteVideo}
             disabled={isRecording || isExporting}
-            className="h-12 w-full rounded-2xl bg-violet-600 text-sm font-bold text-white shadow-creator disabled:opacity-60"
+            className="h-11 w-full rounded-xl bg-violet-600 text-xs font-bold text-white shadow-creator disabled:opacity-60"
           >
             {isRecording || isExporting
               ? exportStatus || "Generating video..."
