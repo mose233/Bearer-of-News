@@ -38,7 +38,7 @@ export default function SmartCanvasPanel({
   onAddCanvasToTimeline,
 }: SmartCanvasPanelProps) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <p className="text-sm font-semibold leading-5 text-slate-300">
         Polish Your Generated AI Video or Photo for Free.
       </p>
@@ -52,7 +52,7 @@ export default function SmartCanvasPanel({
             type="file"
             accept="image/*"
             onChange={onCanvasImageUpload}
-            className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+            className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-2.5 text-sm text-slate-200"
           />
         </label>
 
@@ -64,7 +64,7 @@ export default function SmartCanvasPanel({
             value={canvasText}
             onChange={(e) => setCanvasText(e.target.value)}
             placeholder="Write text..."
-            className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-white outline-none focus:border-violet-400"
+            className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-2.5 text-sm text-white outline-none focus:border-violet-400"
           />
         </label>
       </div>
@@ -79,7 +79,7 @@ export default function SmartCanvasPanel({
               key={template}
               type="button"
               onClick={() => setCanvasText(template)}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-violet-500/20 hover:text-white"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-violet-500/20 hover:text-white"
             >
               {template}
             </button>
@@ -96,7 +96,7 @@ export default function SmartCanvasPanel({
             <button
               key={ratio}
               type="button"
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-white/10"
             >
               {ratio}
             </button>
@@ -104,15 +104,15 @@ export default function SmartCanvasPanel({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+      <div className="max-h-[280px] overflow-hidden rounded-2xl border border-white/10 bg-black">
         <canvas ref={canvasRef} className="h-auto w-full" />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
         <button
           type="button"
           onClick={onPublishEditedDesignToFacebook}
-          className="h-12 w-full rounded-2xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-500"
+          className="min-h-11 w-full rounded-2xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
         >
           Publish Edited Design to Facebook
         </button>
@@ -120,7 +120,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onAddCanvasToTimeline}
-          className="h-12 w-full rounded-2xl bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-500"
+          className="min-h-11 w-full rounded-2xl bg-violet-600 px-3 py-2 text-xs font-bold text-white hover:bg-violet-500"
         >
           Use Design in Video
         </button>
@@ -128,7 +128,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onDownloadCanvasImage}
-          className="h-12 w-full rounded-2xl bg-slate-700 px-4 text-sm font-bold text-white hover:bg-slate-600"
+          className="min-h-11 w-full rounded-2xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
         >
           Download Design
         </button>
