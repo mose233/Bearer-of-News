@@ -172,7 +172,6 @@ export default function CreatorStudio() {
       return;
     }
 
-    drawEmptyPlaceholder();
     drawUserText();
   };
 
@@ -1126,6 +1125,9 @@ export default function CreatorStudio() {
                   onPublishEditedDesignToFacebook={shareToFacebook}
                   onDownloadCanvasImage={handleDownloadCanvasImage}
                   onAddCanvasToTimeline={handleAddCanvasToTimeline}
+                  hasCanvasContent={Boolean(
+                    canvasImagePreview || canvasText.trim()
+                  )}
                 />
               </CardContent>
             </Card>
