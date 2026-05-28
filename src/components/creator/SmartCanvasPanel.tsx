@@ -38,86 +38,90 @@ export default function SmartCanvasPanel({
   onAddCanvasToTimeline,
 }: SmartCanvasPanelProps) {
   return (
-    <div className="w-full min-w-0 space-y-4 overflow-hidden">
+    <div className="space-y-4">
       <p className="text-sm font-semibold leading-5 text-slate-300">
         Polish Your Generated AI Video or Photo for Free.
       </p>
 
-      <div className="grid w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
-        <label className="block min-w-0">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="block">
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Upload image
           </span>
+
           <input
             type="file"
             accept="image/*"
             onChange={onCanvasImageUpload}
-            className="block w-full min-w-0 rounded-xl border border-white/10 bg-[#0B1020] p-2.5 text-sm text-slate-200"
+            className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-2.5 text-sm text-slate-200"
           />
         </label>
 
-        <label className="block min-w-0">
+        <label className="block">
           <span className="mb-2 block text-xs font-bold text-slate-300">
             Text overlay
           </span>
+
           <input
             value={canvasText}
             onChange={(e) => setCanvasText(e.target.value)}
             placeholder="Write text..."
-            className="block w-full min-w-0 rounded-xl border border-white/10 bg-[#0B1020] p-2.5 text-sm text-white outline-none focus:border-violet-400"
+            className="w-full rounded-xl border border-white/10 bg-[#0B1020] p-2.5 text-sm text-white outline-none focus:border-violet-400"
           />
         </label>
       </div>
 
-      <div className="w-full min-w-0">
+      <div>
         <p className="mb-2 text-xs font-bold text-slate-300">
           Quick templates
         </p>
-        <div className="grid w-full min-w-0 grid-cols-2 gap-2 xl:grid-cols-4">
+
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {templates.map((template) => (
             <button
               key={template}
               type="button"
               onClick={() => setCanvasText(template)}
-              className="min-w-0 rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-xs font-bold text-slate-200 transition hover:bg-violet-500/20 hover:text-white"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-violet-500/20 hover:text-white"
             >
-              <span className="block truncate">{template}</span>
+              {template}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="w-full min-w-0">
+      <div>
         <p className="mb-2 text-xs font-bold text-slate-300">
           Aspect ratio presets
         </p>
-        <div className="grid w-full min-w-0 grid-cols-1 gap-2 sm:grid-cols-2">
+
+        <div className="grid gap-2 sm:grid-cols-2">
           {aspectRatios.map((ratio) => (
             <button
               key={ratio}
               type="button"
-              className="min-w-0 rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-xs font-bold text-slate-200 transition hover:bg-white/10"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-white/10"
             >
-              <span className="block truncate">{ratio}</span>
+              {ratio}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-black p-3">
-        <div className="flex h-[260px] w-full min-w-0 items-center justify-center overflow-hidden rounded-xl bg-[#07111f]">
+      <div className="rounded-2xl border border-white/10 bg-black p-2">
+        <div className="h-[280px] overflow-hidden rounded-xl bg-[#050816]">
           <canvas
             ref={canvasRef}
-            className="mx-auto block h-auto max-h-full w-full max-w-full object-contain"
+            className="h-full w-full"
           />
         </div>
       </div>
 
-      <div className="grid w-full min-w-0 grid-cols-1 gap-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
         <button
           type="button"
           onClick={onPublishEditedDesignToFacebook}
-          className="min-h-11 min-w-0 rounded-2xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+          className="rounded-2xl bg-blue-600 px-3 py-3 text-xs font-bold text-white hover:bg-blue-500"
         >
           Publish Edited Design to Facebook
         </button>
@@ -125,7 +129,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onAddCanvasToTimeline}
-          className="min-h-11 min-w-0 rounded-2xl bg-violet-600 px-3 py-2 text-xs font-bold text-white hover:bg-violet-500"
+          className="rounded-2xl bg-violet-600 px-3 py-3 text-xs font-bold text-white hover:bg-violet-500"
         >
           Use Design in Video
         </button>
@@ -133,7 +137,7 @@ export default function SmartCanvasPanel({
         <button
           type="button"
           onClick={onDownloadCanvasImage}
-          className="min-h-11 min-w-0 rounded-2xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
+          className="rounded-2xl bg-slate-700 px-3 py-3 text-xs font-bold text-white hover:bg-slate-600"
         >
           Download Design
         </button>
