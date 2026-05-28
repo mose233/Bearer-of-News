@@ -123,9 +123,12 @@ export default function SmartCanvasPanel({
           </div>
         )}
 
-        <div className="overflow-hidden rounded-lg bg-[#111827]">
-          <canvas ref={canvasRef} className="block h-auto w-full" />
-        </div>
+        <div className="flex min-h-[340px] items-center justify-center overflow-hidden rounded-lg bg-[#111827]">
+  <canvas
+    ref={canvasRef}
+    className="max-h-[340px] w-auto max-w-full object-contain"
+  />
+</div>
       </div>
 
       <div className="grid grid-cols-1 gap-1.5 md:grid-cols-3">
