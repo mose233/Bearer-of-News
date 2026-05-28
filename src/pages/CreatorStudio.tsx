@@ -1103,6 +1103,11 @@ export default function CreatorStudio() {
                 />
               </CardContent>
             </Card>
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
+              Facebook-safe reminder: review generated videos before posting.
+              Avoid copyrighted media, misleading claims, impersonation, spam,
+              or unsafe content.
+            </div>
           </section>
 
           <aside className="space-y-4 xl:sticky xl:top-5 xl:self-start">
@@ -1134,11 +1139,7 @@ export default function CreatorStudio() {
 
 
 
-            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Facebook-safe reminder: review generated videos before posting.
-              Avoid copyrighted media, misleading claims, impersonation, spam,
-              or unsafe content.
-            </div>
+
           </aside>
         </div>
 
