@@ -85,6 +85,7 @@ export async function loginWithFacebookPages() {
         scope:
           "email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts",
         return_scopes: true,
+auth_type: "rerequest",
       }
     );
   });
