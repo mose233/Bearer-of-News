@@ -10,7 +10,7 @@ const AIFeaturesSection: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        scopes: 'pages_show_list,pages_read_engagement'
+        scopes: 'pages_show_list,pages_read_engagement,pages_manage_posts'
       }
     });
 
@@ -90,7 +90,7 @@ const AIFeaturesSection: React.FC = () => {
               ))}
             </div>
 
-            {/* ✅ CLEAN FACEBOOK BUTTON */}
+            {/* ✅ FACEBOOK LOGIN WITH PAGE PUBLISHING PERMISSION */}
             <button
               onClick={signInWithFacebook}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors w-full cursor-pointer"
