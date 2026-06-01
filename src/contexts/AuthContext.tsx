@@ -26,8 +26,27 @@ export const AuthProvider: React.FC<{
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const captureFacebookTokenFromUrl = () => {
+    const hash = window.location.hash;
+
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash.replace('#', ''));
+
+    const providerToken =
+      params.get('provider_token') ||
+      params.get('providerToken');
+
+    if (providerToken) {
+      localStorage.setItem('facebook_provider_token', providerToken);
+      console.log('Facebook provider token captured from URL');
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
+
+    captureFacebookTokenFromUrl();
 
     const loadSession = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -38,12 +57,17 @@ export const AuthProvider: React.FC<{
 
       if (!mounted) return;
 
-      console.log('FULL SESSION', data.session);
-      console.log(
-        'FULL SESSION PROVIDER TOKEN',
+      const providerToken =
         (data.session as any)?.provider_token ||
-          (data.session as any)?.providerToken
-      );
+        (data.session as any)?.providerToken ||
+        localStorage.getItem('facebook_provider_token');
+
+      if (providerToken) {
+        localStorage.setItem('facebook_provider_token', providerToken);
+      }
+
+      console.log('FULL SESSION', data.session);
+      console.log('FULL SESSION PROVIDER TOKEN', providerToken);
 
       setSession(data.session);
       setUser(data.session?.user ?? null);
@@ -57,17 +81,17 @@ export const AuthProvider: React.FC<{
     } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log('AUTH EVENT', _event);
       console.log('AUTH CHANGE SESSION', session);
-      console.log(
-        'AUTH CHANGE PROVIDER TOKEN',
-        (session as any)?.provider_token || (session as any)?.providerToken
-      );
 
       const providerToken =
-        (session as any)?.provider_token || (session as any)?.providerToken;
+        (session as any)?.provider_token ||
+        (session as any)?.providerToken ||
+        localStorage.getItem('facebook_provider_token');
 
       if (providerToken) {
         localStorage.setItem('facebook_provider_token', providerToken);
       }
+
+      console.log('AUTH CHANGE PROVIDER TOKEN', providerToken);
 
       if (!mounted) return;
 
