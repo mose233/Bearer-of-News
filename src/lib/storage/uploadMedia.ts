@@ -1,132 +1,112 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
-export type UploadMediaResult = {
-path: string;
-publicUrl: string;
+type UploadMediaArgs = {
+  file: File;
+  folder?: string;
+  bucket?: string;
 };
 
-const DEFAULT_BUCKET = "xnewsapp-media";
+type UploadBlobArgs = {
+  blob: Blob;
+  fileName: string;
+  folder?: string;
+  bucket?: string;
+};
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as
-| string
-| undefined;
+type UploadResult = {
+  path: string;
+  publicUrl: string;
+};
 
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as
-| string
-| undefined;
+const DEFAULT_BUCKET = "media";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-console.warn(
-"Supabase environment variables are missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY."
-);
+function safeFileName(name: string) {
+  const extension = name.includes(".")
+    ? name.split(".").pop()
+    : "bin";
+
+  const base = name
+    .replace(/\.[^/.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  return `${base || "xnewsapp-media"}-${Date.now()}.${extension}`;
 }
 
-const supabase = createClient(
-supabaseUrl || "",
-supabaseAnonKey || ""
-);
+async function uploadToPublicStorage({
+  body,
+  fileName,
+  folder = "uploads",
+  bucket = DEFAULT_BUCKET,
+  contentType,
+}: {
+  body: File | Blob;
+  fileName: string;
+  folder?: string;
+  bucket?: string;
+  contentType?: string;
+}): Promise<UploadResult> {
+  const cleanFolder = folder.replace(/^\/+|\/+$/g, "");
 
-function getFileExtension(file: File) {
-const fromName = file.name.split(".").pop();
+  const path = `${cleanFolder}/${safeFileName(fileName)}`;
 
-if (fromName && fromName !== file.name) {
-return fromName.toLowerCase();
-}
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(path, body, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType,
+    });
 
-if (file.type === "image/png") return "png";
-if (file.type === "image/jpeg") return "jpg";
-if (file.type === "image/webp") return "webp";
-if (file.type === "video/mp4") return "mp4";
+  if (error) {
+    throw new Error(
+      `Failed to upload media to Supabase Storage: ${error.message}`
+    );
+  }
 
-return "bin";
-}
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
 
-function createSafeFileName(
-file: File,
-folder: string
-) {
-const extension = getFileExtension(file);
-const timestamp = Date.now();
-const random = Math.random()
-.toString(36)
-.slice(2, 10);
+  if (!data.publicUrl) {
+    throw new Error(
+      "Media uploaded, but no public URL was returned."
+    );
+  }
 
-return `${folder}/${timestamp}-${random}.${extension}`;
+  return {
+    path,
+    publicUrl: data.publicUrl,
+  };
 }
 
 export async function uploadMediaToPublicStorage({
-file,
-folder = "creator-media",
-bucket = DEFAULT_BUCKET,
-}: {
-file: File;
-folder?: string;
-bucket?: string;
-}): Promise<UploadMediaResult> {
-if (!file) {
-throw new Error("No media file provided.");
-}
-
-if (!supabaseUrl || !supabaseAnonKey) {
-throw new Error(
-"Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY."
-);
-}
-
-const path = createSafeFileName(file, folder);
-
-const { error: uploadError } = await supabase.storage
-.from(bucket)
-.upload(path, file, {
-cacheControl: "3600",
-upsert: false,
-contentType:
-file.type || "application/octet-stream",
-});
-
-if (uploadError) {
-throw new Error(
-uploadError.message ||
-"Failed to upload media."
-);
-}
-
-const { data } = supabase.storage
-.from(bucket)
-.getPublicUrl(path);
-
-if (!data.publicUrl) {
-throw new Error(
-"Failed to create public media URL."
-);
-}
-
-return {
-path,
-publicUrl: data.publicUrl,
-};
+  file,
+  folder = "uploads",
+  bucket = DEFAULT_BUCKET,
+}: UploadMediaArgs): Promise<UploadResult> {
+  return uploadToPublicStorage({
+    body: file,
+    fileName: file.name,
+    folder,
+    bucket,
+    contentType: file.type,
+  });
 }
 
 export async function uploadBlobToPublicStorage({
-blob,
-fileName,
-folder = "creator-media",
-bucket = DEFAULT_BUCKET,
-}: {
-blob: Blob;
-fileName: string;
-folder?: string;
-bucket?: string;
-}): Promise<UploadMediaResult> {
-const file = new File([blob], fileName, {
-type:
-blob.type ||
-"application/octet-stream",
-});
-
-return uploadMediaToPublicStorage({
-file,
-folder,
-bucket,
-});
+  blob,
+  fileName,
+  folder = "uploads",
+  bucket = DEFAULT_BUCKET,
+}: UploadBlobArgs): Promise<UploadResult> {
+  return uploadToPublicStorage({
+    body: blob,
+    fileName,
+    folder,
+    bucket,
+    contentType:
+      blob.type || "application/octet-stream",
+  });
 }
