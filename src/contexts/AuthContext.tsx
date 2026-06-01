@@ -38,6 +38,13 @@ export const AuthProvider: React.FC<{
 
       if (!mounted) return;
 
+      console.log('FULL SESSION', data.session);
+      console.log(
+        'FULL SESSION PROVIDER TOKEN',
+        (data.session as any)?.provider_token ||
+          (data.session as any)?.providerToken
+      );
+
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
@@ -48,6 +55,20 @@ export const AuthProvider: React.FC<{
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('AUTH EVENT', _event);
+      console.log('AUTH CHANGE SESSION', session);
+      console.log(
+        'AUTH CHANGE PROVIDER TOKEN',
+        (session as any)?.provider_token || (session as any)?.providerToken
+      );
+
+      const providerToken =
+        (session as any)?.provider_token || (session as any)?.providerToken;
+
+      if (providerToken) {
+        localStorage.setItem('facebook_provider_token', providerToken);
+      }
+
       if (!mounted) return;
 
       setSession(session);
@@ -90,6 +111,7 @@ export const AuthProvider: React.FC<{
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('facebook_provider_token');
     setUser(null);
     setSession(null);
   };
