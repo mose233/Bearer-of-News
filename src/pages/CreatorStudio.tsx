@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { saveAs } from "file-saver";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +36,7 @@ import {
 } from "@/lib/creator/videoExport";
 
 export default function CreatorStudio() {
+  const { session } = useAuth();
   const [videoPrompt, setVideoPrompt] = useState("");
   const [facebookCaption, setFacebookCaption] = useState("");
   const [contentType, setContentType] =
@@ -732,17 +734,24 @@ export default function CreatorStudio() {
     }
   };
 
-  const shareToFacebook = () => {
-    const shareUrl = encodeURIComponent(window.location.href);
+  const shareToFacebook = async () => {
+  const facebookToken =
+    (session as any)?.provider_token ||
+    (session as any)?.providerToken;
 
-    const quote = encodeURIComponent(
-      facebookCaption || "Created with Creator Studio AI"
+  console.log("Facebook token:", facebookToken);
+
+  if (!facebookToken) {
+    alert(
+      "Facebook is not connected. Please connect Facebook first."
     );
+    return;
+  }
 
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
-
-    window.open(fbUrl, "_blank", "width=700,height=500");
-  };
+  alert(
+    "Facebook connected successfully. Next step: load Facebook Pages."
+  );
+};
 
   const initializeFFmpeg = async () => {
     try {
