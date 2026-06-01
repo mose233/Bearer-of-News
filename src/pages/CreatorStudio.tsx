@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { saveAs } from "file-saver";
+import { getFacebookPages, loginWithFacebookPages } from "@/lib/facebook/facebookSdk";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -36,7 +36,6 @@ import {
 } from "@/lib/creator/videoExport";
 
 export default function CreatorStudio() {
-  const { session } = useAuth();
   const [videoPrompt, setVideoPrompt] = useState("");
   const [facebookCaption, setFacebookCaption] = useState("");
   const [contentType, setContentType] =
@@ -735,23 +734,33 @@ export default function CreatorStudio() {
   };
 
   const shareToFacebook = async () => {
-  const facebookToken =
-    (session as any)?.provider_token ||
-    (session as any)?.providerToken;
+    try {
+      const login = await loginWithFacebookPages();
+      const pages = await getFacebookPages(login.accessToken);
 
-  console.log("Facebook token:", facebookToken);
+      if (pages.length === 0) {
+        alert(
+          "Facebook connected, but no Facebook Pages were found for this account."
+        );
+        return;
+      }
 
-  if (!facebookToken) {
-    alert(
-      "Facebook is not connected. Please connect Facebook first."
-    );
-    return;
-  }
+      const pageNames = pages.map((page) => page.name).join(", ");
 
-  alert(
-    "Facebook connected successfully. Next step: load Facebook Pages."
-  );
-};
+      alert(
+        `Facebook connected successfully. Pages found: ${pageNames}. Next step: add a Page selector and publish media.`
+      );
+
+      console.log("Facebook Pages:", pages);
+    } catch (error) {
+      console.error(error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to connect Facebook Pages."
+      );
+    }
+  };
 
   const initializeFFmpeg = async () => {
     try {
