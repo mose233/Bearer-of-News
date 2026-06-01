@@ -10,8 +10,9 @@ const AIFeaturesSection: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        scopes: 'pages_show_list,pages_read_engagement,pages_manage_posts'
-      }
+  scopes: 'email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts',
+  redirectTo: `${window.location.origin}/creator-studio`
+}
     });
 
     if (error) {
