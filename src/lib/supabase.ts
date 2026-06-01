@@ -1,14 +1,11 @@
-console.log("SUPABASE URL =", import.meta.env.VITE_SUPABASE_URL);
-console.log("SUPABASE KEY =", !!import.meta.env.VITE_SUPABASE_ANON_KEY);
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  "https://bjclqqynzsljskfeqfdj.supabase.co";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing Supabase environment variables. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Cloudflare build variables."
-  );
-}
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
