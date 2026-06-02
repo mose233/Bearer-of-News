@@ -15,6 +15,11 @@ import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
+import {
+  loginWithFacebookPages,
+  getFacebookPages,
+  publishPhotoFileToFacebookPage,
+} from "@/lib/facebook/facebookSdk";
 
 import {
   generateMultiScenePlan,
@@ -732,17 +737,81 @@ export default function CreatorStudio() {
     }
   };
 
-  const shareToFacebook = () => {
-    const shareUrl = encodeURIComponent(window.location.href);
+  const shareToFacebook = async () => {
+  try {
+    setIsExporting(true);
+    setExportStatus("Connecting to Facebook...");
 
-    const quote = encodeURIComponent(
-      facebookCaption || "Created with Creator Studio AI"
+    const login = await loginWithFacebookPages();
+
+    const pages = await getFacebookPages(login.accessToken);
+
+    if (!pages.length) {
+      throw new Error(
+        "No Facebook Pages found on this account."
+      );
+    }
+
+    const page = pages[0];
+
+    if (!page.access_token) {
+      throw new Error(
+        "Facebook Page access token is missing."
+      );
+    }
+
+    let imageFile: File | null = null;
+
+    if (generatedImageFile) {
+      imageFile = generatedImageFile;
+    } else if (canvasImageFile) {
+      imageFile = canvasImageFile;
+    } else if (photoMusicImageFile) {
+      imageFile = photoMusicImageFile;
+    } else if (dancingPhotoFile) {
+      imageFile = dancingPhotoFile;
+    } else {
+      imageFile =
+        mediaFiles.find((file) =>
+          file.type.startsWith("image/")
+        ) || null;
+    }
+
+    if (!imageFile) {
+      alert(
+        "Please upload or generate an image before publishing."
+      );
+      return;
+    }
+
+    setExportStatus("Publishing photo to Facebook...");
+
+    await publishPhotoFileToFacebookPage({
+      pageId: page.id,
+      pageAccessToken: page.access_token,
+      imageFile,
+      caption:
+        facebookCaption ||
+        voiceText ||
+        "Created with xnewsapp.com",
+    });
+
+    alert(
+      `Successfully published to Facebook Page: ${page.name}`
     );
+  } catch (error) {
+    console.error(error);
 
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
-
-    window.open(fbUrl, "_blank", "width=700,height=500");
-  };
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Facebook publishing failed."
+    );
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+  }
+};
 
   const initializeFFmpeg = async () => {
     try {
