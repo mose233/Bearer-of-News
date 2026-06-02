@@ -19,6 +19,7 @@ import {
   loginWithFacebookPages,
   getFacebookPages,
   publishPhotoFileToFacebookPage,
+  publishVideoFileToFacebookPage,
 } from "@/lib/facebook/facebookSdk";
 
 import {
@@ -738,80 +739,100 @@ export default function CreatorStudio() {
   };
 
   const shareToFacebook = async () => {
-  try {
-    setIsExporting(true);
-    setExportStatus("Connecting to Facebook...");
+    try {
+      setIsExporting(true);
+      setExportStatus("Connecting to Facebook...");
 
-    const login = await loginWithFacebookPages();
+      const login = await loginWithFacebookPages();
+      const pages = await getFacebookPages(login.accessToken);
 
-    const pages = await getFacebookPages(login.accessToken);
+      if (!pages.length) {
+        throw new Error("No Facebook Pages found on this account.");
+      }
 
-    if (!pages.length) {
-      throw new Error(
-        "No Facebook Pages found on this account."
-      );
-    }
+      let page = pages[0];
 
-    const page = pages[0];
+      if (pages.length > 1) {
+        const pageList = pages
+          .map((item, index) => `${index + 1}. ${item.name}`)
+          .join("\n");
 
-    if (!page.access_token) {
-      throw new Error(
-        "Facebook Page access token is missing."
-      );
-    }
+        const choice = window.prompt(
+          `Choose Facebook Page number:\n\n${pageList}`,
+          "1"
+        );
 
-    let imageFile: File | null = null;
+        const selectedIndex = Number(choice || "1") - 1;
 
-    if (generatedImageFile) {
-      imageFile = generatedImageFile;
-    } else if (canvasImageFile) {
-      imageFile = canvasImageFile;
-    } else if (photoMusicImageFile) {
-      imageFile = photoMusicImageFile;
-    } else if (dancingPhotoFile) {
-      imageFile = dancingPhotoFile;
-    } else {
-      imageFile =
-        mediaFiles.find((file) =>
-          file.type.startsWith("image/")
-        ) || null;
-    }
+        if (!Number.isNaN(selectedIndex) && pages[selectedIndex]) {
+          page = pages[selectedIndex];
+        }
+      }
 
-    if (!imageFile) {
-      alert(
-        "Please upload or generate an image before publishing."
-      );
-      return;
-    }
+      if (!page.access_token) {
+        throw new Error(
+          "Facebook Page access token is missing. Please reconnect Facebook and allow Page publishing permissions."
+        );
+      }
 
-    setExportStatus("Publishing photo to Facebook...");
-
-    await publishPhotoFileToFacebookPage({
-      pageId: page.id,
-      pageAccessToken: page.access_token,
-      imageFile,
-      caption:
+      const caption =
         facebookCaption ||
         voiceText ||
-        "Created with xnewsapp.com",
-    });
+        "Created with xnewsapp.com AI Creator Studio";
 
-    alert(
-      `Successfully published to Facebook Page: ${page.name}`
-    );
-  } catch (error) {
-    console.error(error);
+      const videoFile =
+        mediaFiles.find((file) => file.type.startsWith("video/")) || null;
 
-    alert(
-      error instanceof Error
-        ? error.message
-        : "Facebook publishing failed."
-    );
-  } finally {
-    setIsExporting(false);
-    setExportStatus("");
-  }
-};
+      const imageFile =
+        generatedImageFile ||
+        canvasImageFile ||
+        photoMusicImageFile ||
+        dancingPhotoFile ||
+        mediaFiles.find((file) => file.type.startsWith("image/")) ||
+        null;
+
+      if (videoFile) {
+        setExportStatus("Publishing video to Facebook Page...");
+
+        await publishVideoFileToFacebookPage({
+          pageId: page.id,
+          pageAccessToken: page.access_token,
+          videoFile,
+          caption,
+        });
+
+        alert(`Video published to Facebook Page: ${page.name}`);
+        return;
+      }
+
+      if (imageFile) {
+        setExportStatus("Publishing photo to Facebook Page...");
+
+        await publishPhotoFileToFacebookPage({
+          pageId: page.id,
+          pageAccessToken: page.access_token,
+          imageFile,
+          caption,
+        });
+
+        alert(`Photo published to Facebook Page: ${page.name}`);
+        return;
+      }
+
+      alert("Please upload or generate a photo/video before publishing.");
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Facebook publishing failed."
+      );
+    } finally {
+      setIsExporting(false);
+      setExportStatus("");
+    }
+  };
 
   const initializeFFmpeg = async () => {
     try {
