@@ -21,6 +21,73 @@ export type FacebookPublishResult = {
   post_id?: string;
   success?: boolean;
 };
+export async function publishPhotoFileToFacebookPage({
+  pageId,
+  pageAccessToken,
+  imageFile,
+  caption,
+}: {
+  pageId: string;
+  pageAccessToken: string;
+  imageFile: File;
+  caption?: string;
+}): Promise<FacebookPublishResult> {
+  const formData = new FormData();
+
+  formData.append("source", imageFile);
+  formData.append("message", caption || "");
+  formData.append("access_token", pageAccessToken);
+
+  const response = await fetch(
+    `https://graph.facebook.com/${FACEBOOK_VERSION}/${pageId}/photos`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.error?.message || "Failed to publish photo.");
+  }
+
+  return data;
+}
+
+export async function publishVideoFileToFacebookPage({
+  pageId,
+  pageAccessToken,
+  videoFile,
+  caption,
+}: {
+  pageId: string;
+  pageAccessToken: string;
+  videoFile: File;
+  caption?: string;
+}): Promise<FacebookPublishResult> {
+  const formData = new FormData();
+
+  formData.append("source", videoFile);
+  formData.append("description", caption || "");
+  formData.append("access_token", pageAccessToken);
+
+  const response = await fetch(
+    `https://graph.facebook.com/${FACEBOOK_VERSION}/${pageId}/videos`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.error?.message || "Failed to publish video.");
+  }
+
+  return data;
+}
 
 export async function loadFacebookSdk(): Promise<void> {
   return new Promise((resolve, reject) => {
