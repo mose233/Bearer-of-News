@@ -1,12 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { saveAs } from "file-saver";
-import {
-  getFacebookPages,
-  loginWithFacebookPages,
-  publishPhotoToFacebookPage,
-  publishVideoToFacebookPage,
-} from "@/lib/facebook/facebookSdk";
-import { uploadBlobToPublicStorage, uploadMediaToPublicStorage } from "@/lib/storage/uploadMedia";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -739,156 +732,16 @@ export default function CreatorStudio() {
     }
   };
 
-  const shareToFacebook = async () => {
-    try {
-      setIsExporting(true);
-      setExportStatus("Connecting to Facebook...");
+  const shareToFacebook = () => {
+    const shareUrl = encodeURIComponent(window.location.href);
 
-      const login = await loginWithFacebookPages();
-      const pages = await getFacebookPages(login.accessToken);
+    const quote = encodeURIComponent(
+      facebookCaption || "Created with Creator Studio AI"
+    );
 
-      if (pages.length === 0) {
-        alert(
-          "Facebook connected, but no Facebook Pages were found for this account."
-        );
-        return;
-      }
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
 
-      let selectedPage = pages[0];
-
-      if (pages.length > 1) {
-        const pageList = pages
-          .map((page, index) => `${index + 1}. ${page.name}`)
-          .join("\n");
-
-        const choice = window.prompt(
-          `Choose Facebook Page number:\n\n${pageList}`,
-          "1"
-        );
-
-        const selectedIndex = Number(choice || "1") - 1;
-
-        if (!Number.isNaN(selectedIndex) && pages[selectedIndex]) {
-          selectedPage = pages[selectedIndex];
-        }
-      }
-
-      if (!selectedPage.access_token) {
-        alert(
-          "Facebook Page was found, but no Page access token was returned. Please reconnect Facebook and allow Page publishing permissions."
-        );
-        return;
-      }
-
-      const caption =
-        facebookCaption ||
-        voiceText ||
-        "Created with xnewsapp.com AI Creator Studio";
-
-      const firstVideoFile = mediaFiles.find((file) =>
-        file.type.startsWith("video/")
-      );
-
-      const firstImageFile =
-        generatedImageFile ||
-        canvasImageFile ||
-        mediaFiles.find((file) => file.type.startsWith("image/")) ||
-        photoMusicImageFile ||
-        dancingPhotoFile;
-
-      if (firstVideoFile) {
-        setExportStatus("Uploading video to xnewsapp storage...");
-
-        const upload = await uploadMediaToPublicStorage({
-          file: firstVideoFile,
-          folder: "facebook-videos",
-        });
-
-        setExportStatus("Publishing video to Facebook Page...");
-
-        await publishVideoToFacebookPage({
-          pageId: selectedPage.id,
-          pageAccessToken: selectedPage.access_token,
-          videoUrl: upload.publicUrl,
-          caption,
-        });
-
-        alert(`Video published to ${selectedPage.name}.`);
-        return;
-      }
-
-      if (firstImageFile) {
-        setExportStatus("Uploading image to xnewsapp storage...");
-
-        const upload = await uploadMediaToPublicStorage({
-          file: firstImageFile,
-          folder: "facebook-images",
-        });
-
-        setExportStatus("Publishing image to Facebook Page...");
-
-        await publishPhotoToFacebookPage({
-          pageId: selectedPage.id,
-          pageAccessToken: selectedPage.access_token,
-          imageUrl: upload.publicUrl,
-          caption,
-        });
-
-        alert(`Photo published to ${selectedPage.name}.`);
-        return;
-      }
-
-      const canvas = canvasRef.current;
-
-      if (canvas) {
-        setExportStatus("Preparing Smart Canvas image...");
-
-        const blob = await new Promise<Blob>((resolve, reject) => {
-          canvas.toBlob((result) => {
-            if (!result) {
-              reject(new Error("Could not create image from Smart Canvas."));
-              return;
-            }
-
-            resolve(result);
-          }, "image/png");
-        });
-
-        setExportStatus("Uploading Smart Canvas image to xnewsapp storage...");
-
-        const upload = await uploadBlobToPublicStorage({
-          blob,
-          fileName: "xnewsapp-smart-canvas.png",
-          folder: "facebook-images",
-        });
-
-        setExportStatus("Publishing Smart Canvas image to Facebook Page...");
-
-        await publishPhotoToFacebookPage({
-          pageId: selectedPage.id,
-          pageAccessToken: selectedPage.access_token,
-          imageUrl: upload.publicUrl,
-          caption,
-        });
-
-        alert(`Smart Canvas image published to ${selectedPage.name}.`);
-        return;
-      }
-
-      alert(
-        "Please generate or upload an image/video first before publishing to Facebook."
-      );
-    } catch (error) {
-      console.error(error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to publish media to Facebook."
-      );
-    } finally {
-      setIsExporting(false);
-      setExportStatus("");
-    }
+    window.open(fbUrl, "_blank", "width=700,height=500");
   };
 
   const initializeFFmpeg = async () => {
