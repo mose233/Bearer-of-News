@@ -475,9 +475,6 @@ export default function CreatorStudio() {
       "Created with xnewsapp.com AI Creator Studio"
   );
 
-  const fbUrl =
-    `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
-
   window.open(
     fbUrl,
     "_blank",
