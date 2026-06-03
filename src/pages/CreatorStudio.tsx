@@ -467,6 +467,23 @@ export default function CreatorStudio() {
   };
 
   const handleGenerateImage = async () => {
+    const shareWebsiteToFacebook = () => {
+  const shareUrl = encodeURIComponent(window.location.origin);
+
+  const quote = encodeURIComponent(
+    facebookCaption ||
+      "Created with xnewsapp.com AI Creator Studio"
+  );
+
+  const fbUrl =
+    `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
+
+  window.open(
+    fbUrl,
+    "_blank",
+    "width=700,height=500"
+  );
+};
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
