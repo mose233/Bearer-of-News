@@ -159,9 +159,18 @@ export async function loginWithFacebookPages() {
     window.FB.login(
       (response: any) => {
         if (!response?.authResponse?.accessToken) {
-          reject(new Error("Facebook login cancelled or permissions denied."));
-          return;
-        }
+  console.error("Facebook login response:", response);
+
+  reject(
+    new Error(
+      response?.status === "not_authorized"
+        ? "Facebook permissions were not approved. Please approve Page permissions."
+        : "Facebook login was cancelled or failed. Please try again."
+    )
+  );
+
+  return;
+}
 
         resolve({
           accessToken: response.authResponse.accessToken,
