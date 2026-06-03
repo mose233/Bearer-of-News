@@ -738,7 +738,7 @@ export default function CreatorStudio() {
     }
   };
 
-  const shareToFacebook = async () => {
+  const publishToFacebook = async () => {
     try {
       setIsExporting(true);
       setExportStatus("Connecting to Facebook...");
@@ -1138,7 +1138,7 @@ export default function CreatorStudio() {
             onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
             onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
             onMediaUpload={handleMediaUpload}
-            onPublishToFacebook={shareToFacebook}
+            onPublishToFacebook={publishToFacebook}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
             onEditGeneratedImageInCanvas={handleEditGeneratedImageInCanvas}
             onGenerateCompleteVideo={handleGenerateCompleteVideo}
@@ -1185,7 +1185,7 @@ export default function CreatorStudio() {
                   isExporting={isExporting}
                   exportStatus={exportStatus}
                   onGenerateCompleteVideo={handleGenerateCompleteVideo}
-                  onShareToFacebook={shareToFacebook}
+                  onShareToFacebook={publishToFacebook}
                   onInitializeFFmpeg={initializeFFmpeg}
                   onExportSilentMp4={handleExportSilentMp4}
                   onExportNarratedMp4={handleExportNarratedMp4}
@@ -1217,7 +1217,7 @@ export default function CreatorStudio() {
                   setCanvasText={setCanvasText}
                   canvasRef={canvasRef}
                   onCanvasImageUpload={handleCanvasImageUpload}
-                  onPublishEditedDesignToFacebook={shareToFacebook}
+                  onPublishEditedDesignToFacebook={publishToFacebook}
                   onDownloadCanvasImage={handleDownloadCanvasImage}
                   onAddCanvasToTimeline={handleAddCanvasToTimeline}
                   hasCanvasContent={Boolean(
