@@ -42,7 +42,8 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Render your final video, export MP4 versions, and share to Facebook.
+          Render your final video, export MP4 versions, and publish photos or
+          videos directly to your Facebook Page.
         </p>
       </div>
 
@@ -80,12 +81,16 @@ export default function ExportPanel({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button
           type="button"
-          variant="outline"
           onClick={onShareToFacebook}
-          className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800"
+          disabled={busy}
+          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60 sm:col-span-2"
         >
-          <Facebook className="mr-2 h-4 w-4 text-blue-300" />
-          Share to Facebook
+          {busy ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Facebook className="mr-2 h-4 w-4" />
+          )}
+          Publish Photo/Video to Facebook
         </Button>
 
         <Button
@@ -136,7 +141,7 @@ export default function ExportPanel({
           type="button"
           onClick={onExportFinalMixedMp4}
           disabled={busy}
-          className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
+          className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
