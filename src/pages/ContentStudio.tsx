@@ -196,15 +196,13 @@ We are following this developing story closely. Stay with XNewsApp for timely up
   };
 
   const shareToFacebook = () => {
-    const shareUrl = encodeURIComponent(window.location.href);
-
-    const quote = encodeURIComponent(
-      facebookCaption || "Created with XNewsApp Content Studio"
+    console.warn(
+      "ContentStudio Facebook sharing has been retired. Use Creator Studio publishing instead."
     );
 
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
-
-    window.open(fbUrl, "_blank", "width=700,height=500");
+    alert(
+      "Facebook photo/video publishing is available in Creator Studio."
+    );
   };
 
   const initializeFFmpeg = async () => {
