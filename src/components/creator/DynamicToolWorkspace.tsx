@@ -410,15 +410,11 @@ export default function DynamicToolWorkspace({
     URL.revokeObjectURL(url);
   };
 
-  const handleShareSongToFacebook = () => {
-    const quote = encodeURIComponent(
-      `I created a ${songStyle} song idea in ${songLanguage} with xnewsapp.com.`
-    );
-    const shareUrl = encodeURIComponent(window.location.href);
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${quote}`;
-
-    window.open(fbUrl, "_blank", "width=700,height=500");
-  };
+ const handleShareSongToFacebook = () => {
+  alert(
+    "Facebook media publishing is available from Creator Studio Export & Publishing. Song sharing is not connected yet."
+  );
+};
 
 
   if (!selectedTool) {
