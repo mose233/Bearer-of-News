@@ -467,7 +467,7 @@ export default function CreatorStudio() {
   };
 
   const handleGenerateImage = async () => {
-    const shareWebsiteToFacebook = () => {
+    const shareToFacebook = async () => {
   const shareUrl = encodeURIComponent(window.location.origin);
 
   const quote = encodeURIComponent(
