@@ -410,11 +410,7 @@ export default function DynamicToolWorkspace({
     URL.revokeObjectURL(url);
   };
 
- const handleShareSongToFacebook = () => {
-  alert(
-    "Facebook media publishing is available from Creator Studio Export & Publishing. Song sharing is not connected yet."
-  );
-};
+  
 
 
   if (!selectedTool) {
@@ -561,10 +557,10 @@ export default function DynamicToolWorkspace({
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <button
                   type="button"
-                  onClick={handleShareSongToFacebook}
+                  disabled
                   className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
                 >
-                  Share to Facebook
+                  Coming Soon
                 </button>
 
                 <button
