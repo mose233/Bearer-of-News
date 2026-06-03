@@ -15,7 +15,6 @@ import Profile from "./pages/Profile";
 import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
 import ContentReview from "./pages/ContentReview";
-import ContentStudio from "./pages/ContentStudio";
 import CreatorStudio from "./pages/CreatorStudio";
 import Analytics from "./pages/Analytics";
 import About from "./pages/About";
@@ -100,13 +99,13 @@ const App = () => {
                 />
 
                 <Route
-                  path="/content-studio"
-                  element={
-                    <ProtectedRoute>
-                      <ContentStudio />
-                    </ProtectedRoute>
-                  }
-                />
+  path="/content-studio"
+  element={
+    <ProtectedRoute>
+      <CreatorStudio />
+    </ProtectedRoute>
+  }
+/> 
 
                 <Route
                   path="/analytics"
