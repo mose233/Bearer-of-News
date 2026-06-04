@@ -82,6 +82,7 @@ type DynamicToolWorkspaceProps = {
   onDownloadGeneratedImage?: () => void;
   onEditGeneratedImageInCanvas?: () => void;
   onGenerateCompleteVideo?: () => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
 };
 
 const boxClass =
@@ -314,8 +315,10 @@ export default function DynamicToolWorkspace({
   onDownloadGeneratedImage,
   onEditGeneratedImageInCanvas,
   onGenerateCompleteVideo,
+  onAddEnhancedPhotoToTimeline,
 }: DynamicToolWorkspaceProps) {
   const [picturePreview, setPicturePreview] = useState("");
+  const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [pictureFileName, setPictureFileName] = useState("");
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
@@ -364,6 +367,27 @@ export default function DynamicToolWorkspace({
         URL.revokeObjectURL(url);
       }, "image/png");
     };
+  };
+
+  const handleAddEnhancedPhotoToTimeline = () => {
+    if (!pictureFile || !picturePreview) {
+      alert("Please upload a photo first.");
+      return;
+    }
+
+    if (!hasPreviewedEnhancement) {
+      alert("Please generate the enhanced photo first.");
+      return;
+    }
+
+    if (!onAddEnhancedPhotoToTimeline) {
+      alert("Timeline connection is not ready.");
+      return;
+    }
+
+    onAddEnhancedPhotoToTimeline(pictureFile, picturePreview);
+
+    alert("Enhanced photo added to timeline. You can now publish it to Facebook.");
   };
 
   const buildSongPrompt = () => {
@@ -637,6 +661,7 @@ export default function DynamicToolWorkspace({
                   URL.revokeObjectURL(picturePreview);
                 }
 
+                setPictureFile(file);
                 setPicturePreview(URL.createObjectURL(file));
                 setPictureFileName(file.name);
                 setHasPreviewedEnhancement(false);
@@ -739,6 +764,15 @@ export default function DynamicToolWorkspace({
           >
             <Wand2 className="mr-2 h-4 w-4" />
             Generate Enhanced Photo
+          </Button>
+
+          <Button
+            type="button"
+            disabled={!picturePreview || !hasPreviewedEnhancement}
+            onClick={handleAddEnhancedPhotoToTimeline}
+            className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            Add Enhanced Photo to Timeline
           </Button>
         </div>
       </div>
