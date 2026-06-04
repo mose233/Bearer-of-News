@@ -1142,6 +1142,9 @@ export default function CreatorStudio() {
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
             onEditGeneratedImageInCanvas={handleEditGeneratedImageInCanvas}
             onGenerateCompleteVideo={handleGenerateCompleteVideo}
+            onAddEnhancedPhotoToTimeline={(file, preview) =>
+              addSceneToTimeline(file, preview, 5)
+            }
           />
         </div>
 
