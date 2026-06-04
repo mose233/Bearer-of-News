@@ -25,9 +25,17 @@ export type FacebookPublishResult = {
   success?: boolean;
 };
 
+function getFacebookError(data: any, fallback: string) {
+  return (
+    data?.error?.error_user_msg ||
+    data?.error?.message ||
+    fallback
+  );
+}
+
 export async function loadFacebookSdk(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (window.FB?.login) {
+    if (window.FB?.login && window.FB?.getLoginStatus) {
       resolve();
       return;
     }
@@ -50,7 +58,7 @@ export async function loadFacebookSdk(): Promise<void> {
 
     if (document.getElementById(FACEBOOK_SDK_ID)) {
       const timer = window.setInterval(() => {
-        if (window.FB?.login) {
+        if (window.FB?.login && window.FB?.getLoginStatus) {
           window.clearInterval(timer);
           resolve();
         }
@@ -58,7 +66,11 @@ export async function loadFacebookSdk(): Promise<void> {
 
       window.setTimeout(() => {
         window.clearInterval(timer);
-        reject(new Error("Facebook SDK did not become ready."));
+        reject(
+          new Error(
+            "Facebook SDK did not become ready. Refresh the page and try again."
+          )
+        );
       }, 10000);
 
       return;
@@ -69,17 +81,33 @@ export async function loadFacebookSdk(): Promise<void> {
     script.src = "https://connect.facebook.net/en_US/sdk.js";
     script.async = true;
     script.defer = true;
-    script.onerror = () => reject(new Error("Failed to load Facebook SDK."));
+
+    script.onerror = () => {
+      reject(
+        new Error(
+          "Failed to load Facebook SDK. Check browser blockers and try again."
+        )
+      );
+    };
+
     document.body.appendChild(script);
   });
 }
 
-export async function loginWithFacebookPages(): Promise<{
-  accessToken: string;
-  userID: string;
-}> {
-  await loadFacebookSdk();
+function getFacebookLoginStatus(): Promise<any> {
+  return new Promise((resolve) => {
+    if (!window.FB?.getLoginStatus) {
+      resolve(null);
+      return;
+    }
 
+    window.FB.getLoginStatus((response: any) => {
+      resolve(response);
+    });
+  });
+}
+
+function requestFacebookLogin(): Promise<any> {
   return new Promise((resolve, reject) => {
     if (!window.FB?.login) {
       reject(new Error("Facebook login is not available."));
@@ -88,20 +116,7 @@ export async function loginWithFacebookPages(): Promise<{
 
     window.FB.login(
       (response: any) => {
-        if (!response?.authResponse?.accessToken) {
-          console.error("Facebook login response:", response);
-          reject(
-            new Error(
-              "Facebook login failed or Page permissions were not approved."
-            )
-          );
-          return;
-        }
-
-        resolve({
-          accessToken: response.authResponse.accessToken,
-          userID: response.authResponse.userID,
-        });
+        resolve(response);
       },
       {
         scope: FACEBOOK_PAGE_SCOPES,
@@ -112,9 +127,46 @@ export async function loginWithFacebookPages(): Promise<{
   });
 }
 
+export async function loginWithFacebookPages(): Promise<{
+  accessToken: string;
+  userID: string;
+}> {
+  await loadFacebookSdk();
+
+  const status = await getFacebookLoginStatus();
+
+  if (status?.status === "connected" && status?.authResponse?.accessToken) {
+    return {
+      accessToken: status.authResponse.accessToken,
+      userID: status.authResponse.userID,
+    };
+  }
+
+  const loginResponse = await requestFacebookLogin();
+
+  if (!loginResponse?.authResponse?.accessToken) {
+    console.error("Facebook login response:", loginResponse);
+
+    throw new Error(
+      loginResponse?.status === "not_authorized"
+        ? "Facebook permissions were not approved. Please approve Page permissions."
+        : "Facebook login failed. Please allow the popup and approve Page permissions."
+    );
+  }
+
+  return {
+    accessToken: loginResponse.authResponse.accessToken,
+    userID: loginResponse.authResponse.userID,
+  };
+}
+
 export async function getFacebookPages(
   accessToken: string
 ): Promise<FacebookPage[]> {
+  if (!accessToken) {
+    throw new Error("Missing Facebook user access token.");
+  }
+
   const url = new URL(
     `https://graph.facebook.com/${FACEBOOK_VERSION}/me/accounts`
   );
@@ -126,10 +178,10 @@ export async function getFacebookPages(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.error?.message || "Unable to load Facebook Pages.");
+    throw new Error(getFacebookError(data, "Unable to load Facebook Pages."));
   }
 
-  return data.data || [];
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
 export async function publishPhotoFileToFacebookPage({
@@ -143,6 +195,10 @@ export async function publishPhotoFileToFacebookPage({
   imageFile: File;
   caption?: string;
 }): Promise<FacebookPublishResult> {
+  if (!pageId) throw new Error("Missing Facebook Page ID.");
+  if (!pageAccessToken) throw new Error("Missing Facebook Page access token.");
+  if (!imageFile) throw new Error("Missing photo file.");
+
   const formData = new FormData();
 
   formData.append("source", imageFile);
@@ -161,7 +217,7 @@ export async function publishPhotoFileToFacebookPage({
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.error?.message || "Failed to publish photo.");
+    throw new Error(getFacebookError(data, "Failed to publish photo."));
   }
 
   return data;
@@ -178,6 +234,10 @@ export async function publishVideoFileToFacebookPage({
   videoFile: File;
   caption?: string;
 }): Promise<FacebookPublishResult> {
+  if (!pageId) throw new Error("Missing Facebook Page ID.");
+  if (!pageAccessToken) throw new Error("Missing Facebook Page access token.");
+  if (!videoFile) throw new Error("Missing video file.");
+
   const formData = new FormData();
 
   formData.append("source", videoFile);
@@ -196,7 +256,7 @@ export async function publishVideoFileToFacebookPage({
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.error?.message || "Failed to publish video.");
+    throw new Error(getFacebookError(data, "Failed to publish video."));
   }
 
   return data;
