@@ -100,6 +100,7 @@ export default function CreatorStudio() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const smartCanvasSectionRef = useRef<HTMLDivElement | null>(null);
+  const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const [canvasText, setCanvasText] = useState("");
   const [canvasImageFile, setCanvasImageFile] = useState<File | null>(null);
   const [canvasImagePreview, setCanvasImagePreview] = useState("");
@@ -225,11 +226,24 @@ export default function CreatorStudio() {
     }
   }, [musicVolume]);
 
+  const scrollToLivePreview = () => {
+    setTimeout(() => {
+      livePreviewSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  };
+
   const addSceneToTimeline = (file: File, preview: string, duration = 5) => {
+    const nextIndex = mediaFiles.length;
+
     setMediaFiles((prev) => [...prev, file]);
     setMediaPreviews((prev) => [...prev, preview]);
     setSceneDurations((prev) => [...prev, duration]);
-    setCurrentIndex(mediaFiles.length);
+    setCurrentIndex(nextIndex);
+
+    scrollToLivePreview();
   };
 
   const handleCanvasImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1149,7 +1163,7 @@ export default function CreatorStudio() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.9fr)]">
-          <section className="space-y-4">
+          <section ref={livePreviewSectionRef} className="space-y-4">
 <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
