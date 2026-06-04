@@ -9,9 +9,6 @@ const FACEBOOK_APP_ID = "3796273373998643";
 const FACEBOOK_SDK_ID = "facebook-jssdk";
 const FACEBOOK_VERSION = "v20.0";
 
-const FACEBOOK_PAGE_SCOPES =
-  "email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts";
-
 export type FacebookPage = {
   id: string;
   name: string;
@@ -25,17 +22,16 @@ export type FacebookPublishResult = {
   success?: boolean;
 };
 
+const FACEBOOK_SCOPES =
+  "email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts";
+
 function getFacebookError(data: any, fallback: string) {
-  return (
-    data?.error?.error_user_msg ||
-    data?.error?.message ||
-    fallback
-  );
+  return data?.error?.error_user_msg || data?.error?.message || fallback;
 }
 
 export async function loadFacebookSdk(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (window.FB?.login && window.FB?.getLoginStatus) {
+    if (window.FB && typeof window.FB.login === "function") {
       resolve();
       return;
     }
@@ -58,7 +54,7 @@ export async function loadFacebookSdk(): Promise<void> {
 
     if (document.getElementById(FACEBOOK_SDK_ID)) {
       const timer = window.setInterval(() => {
-        if (window.FB?.login && window.FB?.getLoginStatus) {
+        if (window.FB && typeof window.FB.login === "function") {
           window.clearInterval(timer);
           resolve();
         }
@@ -66,11 +62,7 @@ export async function loadFacebookSdk(): Promise<void> {
 
       window.setTimeout(() => {
         window.clearInterval(timer);
-        reject(
-          new Error(
-            "Facebook SDK did not become ready. Refresh the page and try again."
-          )
-        );
+        reject(new Error("Facebook SDK did not become ready."));
       }, 10000);
 
       return;
@@ -81,49 +73,9 @@ export async function loadFacebookSdk(): Promise<void> {
     script.src = "https://connect.facebook.net/en_US/sdk.js";
     script.async = true;
     script.defer = true;
-
-    script.onerror = () => {
-      reject(
-        new Error(
-          "Failed to load Facebook SDK. Check browser blockers and try again."
-        )
-      );
-    };
+    script.onerror = () => reject(new Error("Failed to load Facebook SDK."));
 
     document.body.appendChild(script);
-  });
-}
-
-function getFacebookLoginStatus(): Promise<any> {
-  return new Promise((resolve) => {
-    if (!window.FB?.getLoginStatus) {
-      resolve(null);
-      return;
-    }
-
-    window.FB.getLoginStatus((response: any) => {
-      resolve(response);
-    });
-  });
-}
-
-function requestFacebookLogin(): Promise<any> {
-  return new Promise((resolve, reject) => {
-    if (!window.FB?.login) {
-      reject(new Error("Facebook login is not available."));
-      return;
-    }
-
-    window.FB.login(
-      (response: any) => {
-        resolve(response);
-      },
-      {
-        scope: FACEBOOK_PAGE_SCOPES,
-        return_scopes: true,
-        auth_type: "rerequest",
-      }
-    );
   });
 }
 
@@ -133,40 +85,42 @@ export async function loginWithFacebookPages(): Promise<{
 }> {
   await loadFacebookSdk();
 
-  const status = await getFacebookLoginStatus();
+  return new Promise((resolve, reject) => {
+    if (!window.FB || typeof window.FB.login !== "function") {
+      reject(new Error("Facebook login is not available. Please refresh and try again."));
+      return;
+    }
 
-  if (status?.status === "connected" && status?.authResponse?.accessToken) {
-    return {
-      accessToken: status.authResponse.accessToken,
-      userID: status.authResponse.userID,
-    };
-  }
+    window.FB.login(
+      (response: any) => {
+        console.log("Facebook login response:", response);
 
-  const loginResponse = await requestFacebookLogin();
+        if (!response?.authResponse?.accessToken) {
+          reject(
+            new Error(
+              "Facebook login failed or permissions were not approved. Please allow Page permissions and try again."
+            )
+          );
+          return;
+        }
 
-  if (!loginResponse?.authResponse?.accessToken) {
-    console.error("Facebook login response:", loginResponse);
-
-    throw new Error(
-      loginResponse?.status === "not_authorized"
-        ? "Facebook permissions were not approved. Please approve Page permissions."
-        : "Facebook login failed. Please allow the popup and approve Page permissions."
+        resolve({
+          accessToken: response.authResponse.accessToken,
+          userID: response.authResponse.userID,
+        });
+      },
+      {
+        scope: FACEBOOK_SCOPES,
+        return_scopes: true,
+        auth_type: "rerequest",
+      }
     );
-  }
-
-  return {
-    accessToken: loginResponse.authResponse.accessToken,
-    userID: loginResponse.authResponse.userID,
-  };
+  });
 }
 
 export async function getFacebookPages(
   accessToken: string
 ): Promise<FacebookPage[]> {
-  if (!accessToken) {
-    throw new Error("Missing Facebook user access token.");
-  }
-
   const url = new URL(
     `https://graph.facebook.com/${FACEBOOK_VERSION}/me/accounts`
   );
@@ -195,10 +149,6 @@ export async function publishPhotoFileToFacebookPage({
   imageFile: File;
   caption?: string;
 }): Promise<FacebookPublishResult> {
-  if (!pageId) throw new Error("Missing Facebook Page ID.");
-  if (!pageAccessToken) throw new Error("Missing Facebook Page access token.");
-  if (!imageFile) throw new Error("Missing photo file.");
-
   const formData = new FormData();
 
   formData.append("source", imageFile);
@@ -234,10 +184,6 @@ export async function publishVideoFileToFacebookPage({
   videoFile: File;
   caption?: string;
 }): Promise<FacebookPublishResult> {
-  if (!pageId) throw new Error("Missing Facebook Page ID.");
-  if (!pageAccessToken) throw new Error("Missing Facebook Page access token.");
-  if (!videoFile) throw new Error("Missing video file.");
-
   const formData = new FormData();
 
   formData.append("source", videoFile);
