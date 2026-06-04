@@ -112,7 +112,7 @@ export async function loginWithFacebookPages(): Promise<{
       {
         scope: FACEBOOK_SCOPES,
         return_scopes: true,
-        auth_type: "rerequest",
+        auth_type: "reauthorize",
       }
     );
   });
