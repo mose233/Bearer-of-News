@@ -87,7 +87,9 @@ export async function loginWithFacebookPages(): Promise<{
 
   return new Promise((resolve, reject) => {
     if (!window.FB || typeof window.FB.login !== "function") {
-      reject(new Error("Facebook login is not available. Please refresh and try again."));
+      reject(
+        new Error("Facebook login is not available. Please refresh and try again.")
+      );
       return;
     }
 
@@ -130,6 +132,13 @@ export async function getFacebookPages(
 
   const response = await fetch(url.toString());
   const data = await response.json();
+
+  console.log("Facebook Pages Response:", data);
+
+  alert(
+    "Facebook Pages Response:\n\n" +
+      JSON.stringify(data, null, 2)
+  );
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Unable to load Facebook Pages."));
