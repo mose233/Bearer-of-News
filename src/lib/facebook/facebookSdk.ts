@@ -9,11 +9,15 @@ const FACEBOOK_APP_ID = "3796273373998643";
 const FACEBOOK_SDK_ID = "facebook-jssdk";
 const FACEBOOK_VERSION = "v20.0";
 
+const FACEBOOK_SCOPES =
+  "email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts";
+
 export type FacebookPage = {
   id: string;
   name: string;
   access_token?: string;
   category?: string;
+  tasks?: string[];
 };
 
 export type FacebookPublishResult = {
@@ -22,16 +26,13 @@ export type FacebookPublishResult = {
   success?: boolean;
 };
 
-const FACEBOOK_SCOPES =
-  "email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts";
-
 function getFacebookError(data: any, fallback: string) {
   return data?.error?.error_user_msg || data?.error?.message || fallback;
 }
 
 export async function loadFacebookSdk(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (window.FB && typeof window.FB.login === "function") {
+    if (window.FB?.login && window.FB?.getLoginStatus) {
       resolve();
       return;
     }
@@ -54,7 +55,7 @@ export async function loadFacebookSdk(): Promise<void> {
 
     if (document.getElementById(FACEBOOK_SDK_ID)) {
       const timer = window.setInterval(() => {
-        if (window.FB && typeof window.FB.login === "function") {
+        if (window.FB?.login && window.FB?.getLoginStatus) {
           window.clearInterval(timer);
           resolve();
         }
@@ -79,45 +80,50 @@ export async function loadFacebookSdk(): Promise<void> {
   });
 }
 
+function getLoginStatus(): Promise<any> {
+  return new Promise((resolve) => {
+    window.FB.getLoginStatus((response: any) => resolve(response), true);
+  });
+}
+
+function loginWithPopup(): Promise<any> {
+  return new Promise((resolve) => {
+    window.FB.login((response: any) => resolve(response), {
+      scope: FACEBOOK_SCOPES,
+      return_scopes: true,
+    });
+  });
+}
+
 export async function loginWithFacebookPages(): Promise<{
   accessToken: string;
   userID: string;
 }> {
   await loadFacebookSdk();
 
-  return new Promise((resolve, reject) => {
-    if (!window.FB || typeof window.FB.login !== "function") {
-      reject(
-        new Error("Facebook login is not available. Please refresh and try again.")
-      );
-      return;
-    }
+  const status = await getLoginStatus();
 
-    window.FB.login(
-      (response: any) => {
-        console.log("Facebook login response:", response);
+  if (status?.status === "connected" && status?.authResponse?.accessToken) {
+    return {
+      accessToken: status.authResponse.accessToken,
+      userID: status.authResponse.userID,
+    };
+  }
 
-        if (!response?.authResponse?.accessToken) {
-          reject(
-            new Error(
-              "Facebook login failed or permissions were not approved. Please allow Page permissions and try again."
-            )
-          );
-          return;
-        }
+  const loginResponse = await loginWithPopup();
 
-        resolve({
-          accessToken: response.authResponse.accessToken,
-          userID: response.authResponse.userID,
-        });
-      },
-      {
-        scope: FACEBOOK_SCOPES,
-        return_scopes: true,
-        auth_type: "reauthorize",
-      }
+  console.log("Facebook login response:", loginResponse);
+
+  if (!loginResponse?.authResponse?.accessToken) {
+    throw new Error(
+      "Facebook login failed. Please open xnewsapp.com in Chrome, allow popups, and approve Page permissions."
     );
-  });
+  }
+
+  return {
+    accessToken: loginResponse.authResponse.accessToken,
+    userID: loginResponse.authResponse.userID,
+  };
 }
 
 export async function getFacebookPages(
@@ -127,7 +133,7 @@ export async function getFacebookPages(
     `https://graph.facebook.com/${FACEBOOK_VERSION}/me/accounts`
   );
 
-  url.searchParams.set("fields", "id,name,category,access_token");
+  url.searchParams.set("fields", "id,name,category,access_token,tasks");
   url.searchParams.set("access_token", accessToken);
 
   const response = await fetch(url.toString());
@@ -135,16 +141,19 @@ export async function getFacebookPages(
 
   console.log("Facebook Pages Response:", data);
 
-  alert(
-    "Facebook Pages Response:\n\n" +
-      JSON.stringify(data, null, 2)
-  );
-
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Unable to load Facebook Pages."));
   }
 
-  return Array.isArray(data?.data) ? data.data : [];
+  const pages = Array.isArray(data?.data) ? data.data : [];
+
+  if (pages.length === 0) {
+    throw new Error(
+      "No Facebook Pages found. Make sure this Facebook account manages a Page and Bearer of News has access to that Page in Business Integrations."
+    );
+  }
+
+  return pages;
 }
 
 export async function publishPhotoFileToFacebookPage({
@@ -174,6 +183,8 @@ export async function publishPhotoFileToFacebookPage({
   );
 
   const data = await response.json();
+
+  console.log("Facebook photo publish response:", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Failed to publish photo."));
@@ -209,6 +220,8 @@ export async function publishVideoFileToFacebookPage({
   );
 
   const data = await response.json();
+
+  console.log("Facebook video publish response:", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Failed to publish video."));
