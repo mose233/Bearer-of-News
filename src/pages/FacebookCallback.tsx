@@ -5,39 +5,48 @@ export default function FacebookCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleFacebookRedirect = async () => {
+    const run = async () => {
       try {
-        // 1. Get "code" from URL
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
 
         if (!code) {
-          alert("Facebook login failed (no code)");
-          navigate("/login");
+          alert("Facebook login failed: no code returned.");
+          navigate("/creator-studio");
           return;
         }
 
-        console.log("Facebook code:", code);
+        const response = await fetch("/api/facebook/exchange-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
 
-        // 2. (Temporary) Just confirm success
-        alert("Facebook connected successfully!");
+        const data = await response.json();
 
-        // 3. Redirect user to dashboard/home
-        navigate("/");
+        if (!response.ok) {
+          alert(data?.error || "Facebook connection failed.");
+          navigate("/creator-studio");
+          return;
+        }
 
-      } catch (err) {
-        console.error(err);
-        alert("Something went wrong");
-        navigate("/login");
+        localStorage.setItem("facebook_pages", JSON.stringify(data.pages || []));
+
+        alert(`Facebook connected. Pages found: ${data.pages?.length || 0}`);
+        navigate("/creator-studio");
+      } catch (error) {
+        console.error(error);
+        alert("Facebook callback failed.");
+        navigate("/creator-studio");
       }
     };
 
-    handleFacebookRedirect();
+    run();
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex min-h-screen items-center justify-center">
       <p className="text-lg">Connecting to Facebook...</p>
     </div>
   );
-}                                  
+}
