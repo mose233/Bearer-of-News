@@ -9,8 +9,7 @@ const FACEBOOK_APP_ID = "3796273373998643";
 const FACEBOOK_SDK_ID = "facebook-jssdk";
 const FACEBOOK_VERSION = "v20.0";
 
-const FACEBOOK_SCOPES =
-  "public_profile,email,pages_show_list";
+const FACEBOOK_SCOPES = "public_profile,email,pages_show_list";
 
 export type FacebookPage = {
   id: string;
@@ -103,6 +102,8 @@ export async function loginWithFacebookPages(): Promise<{
 
   const status = await getLoginStatus();
 
+  console.log("Facebook login status:", status);
+
   if (status?.status === "connected" && status?.authResponse?.accessToken) {
     return {
       accessToken: status.authResponse.accessToken,
@@ -141,17 +142,18 @@ export async function getFacebookPages(
 
   console.log("Facebook Pages Response:", data);
 
+  alert("FACEBOOK RESPONSE\n\n" + JSON.stringify(data, null, 2));
+
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Unable to load Facebook Pages."));
   }
 
   const pages = Array.isArray(data?.data) ? data.data : [];
 
-  if (pages.length === 0) {
-    throw new Error(
-      "No Facebook Pages found. Make sure this Facebook account manages a Page and Bearer of News has access to that Page in Business Integrations."
-    );
-  }
+  alert(
+    `Pages Found: ${pages.length}\n\n` +
+      pages.map((p: FacebookPage) => `${p.name} (${p.id})`).join("\n")
+  );
 
   return pages;
 }
