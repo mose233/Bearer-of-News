@@ -29,6 +29,11 @@ function getFacebookError(data: any, fallback: string) {
   return data?.error?.error_user_msg || data?.error?.message || fallback;
 }
 
+function showDebug(title: string, data: unknown) {
+  console.log(title, data);
+  alert(`${title}\n\n${JSON.stringify(data, null, 2)}`);
+}
+
 export async function loadFacebookSdk(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (window.FB?.login && window.FB?.getLoginStatus) {
@@ -94,6 +99,12 @@ function loginWithPopup(): Promise<any> {
   });
 }
 
+function getPermissions(): Promise<any> {
+  return new Promise((resolve) => {
+    window.FB.api("/me/permissions", (response: any) => resolve(response));
+  });
+}
+
 export async function loginWithFacebookPages(): Promise<{
   accessToken: string;
   userID: string;
@@ -101,10 +112,12 @@ export async function loginWithFacebookPages(): Promise<{
   await loadFacebookSdk();
 
   const status = await getLoginStatus();
-
-  console.log("Facebook login status:", status);
+  showDebug("LOGIN STATUS", status);
 
   if (status?.status === "connected" && status?.authResponse?.accessToken) {
+    const permissions = await getPermissions();
+    showDebug("PERMISSIONS", permissions);
+
     return {
       accessToken: status.authResponse.accessToken,
       userID: status.authResponse.userID,
@@ -112,14 +125,16 @@ export async function loginWithFacebookPages(): Promise<{
   }
 
   const loginResponse = await loginWithPopup();
-
-  console.log("Facebook login response:", loginResponse);
+  showDebug("LOGIN RESPONSE", loginResponse);
 
   if (!loginResponse?.authResponse?.accessToken) {
     throw new Error(
       "Facebook login failed. Please open xnewsapp.com in Chrome, allow popups, and approve Page permissions."
     );
   }
+
+  const permissions = await getPermissions();
+  showDebug("PERMISSIONS", permissions);
 
   return {
     accessToken: loginResponse.authResponse.accessToken,
@@ -140,9 +155,7 @@ export async function getFacebookPages(
   const response = await fetch(url.toString());
   const data = await response.json();
 
-  console.log("Facebook Pages Response:", data);
-
-  alert("FACEBOOK RESPONSE\n\n" + JSON.stringify(data, null, 2));
+  showDebug("FACEBOOK RESPONSE", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Unable to load Facebook Pages."));
@@ -186,7 +199,7 @@ export async function publishPhotoFileToFacebookPage({
 
   const data = await response.json();
 
-  console.log("Facebook photo publish response:", data);
+  showDebug("FACEBOOK PHOTO PUBLISH RESPONSE", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Failed to publish photo."));
@@ -223,7 +236,7 @@ export async function publishVideoFileToFacebookPage({
 
   const data = await response.json();
 
-  console.log("Facebook video publish response:", data);
+  showDebug("FACEBOOK VIDEO PUBLISH RESPONSE", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Failed to publish video."));
