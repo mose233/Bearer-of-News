@@ -10,7 +10,7 @@ const FACEBOOK_SDK_ID = "facebook-jssdk";
 const FACEBOOK_VERSION = "v20.0";
 
 const FACEBOOK_SCOPES =
-  "email,public_profile,pages_show_list,pages_read_engagement,pages_manage_posts";
+  "public_profile,email,pages_show_list";
 
 export type FacebookPage = {
   id: string;
