@@ -1,15 +1,9 @@
-declare global {
-  interface Window {
-    FB?: any;
-    fbAsyncInit?: () => void;
-  }
-}
-
 const FACEBOOK_APP_ID = "3796273373998643";
-const FACEBOOK_SDK_ID = "facebook-jssdk";
 const FACEBOOK_VERSION = "v20.0";
+const FACEBOOK_REDIRECT_URI = "https://xnewsapp.com/facebook-callback";
 
-const FACEBOOK_SCOPES = "public_profile,email,pages_show_list";
+const FACEBOOK_SCOPES =
+  "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts";
 
 export type FacebookPage = {
   id: string;
@@ -29,122 +23,59 @@ function getFacebookError(data: any, fallback: string) {
   return data?.error?.error_user_msg || data?.error?.message || fallback;
 }
 
-function showDebug(title: string, data: unknown) {
-  console.log(title, data);
-  alert(`${title}\n\n${JSON.stringify(data, null, 2)}`);
-}
+export function startFacebookOAuthLogin() {
+  const state = crypto.randomUUID();
 
-export async function loadFacebookSdk(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (window.FB?.login && window.FB?.getLoginStatus) {
-      resolve();
-      return;
-    }
+  sessionStorage.setItem("facebook_oauth_state", state);
 
-    window.fbAsyncInit = () => {
-      if (!window.FB) {
-        reject(new Error("Facebook SDK loaded but FB object is missing."));
-        return;
-      }
+  const url = new URL(
+    `https://www.facebook.com/${FACEBOOK_VERSION}/dialog/oauth`
+  );
 
-      window.FB.init({
-        appId: FACEBOOK_APP_ID,
-        cookie: true,
-        xfbml: false,
-        version: FACEBOOK_VERSION,
-      });
+  url.searchParams.set("client_id", FACEBOOK_APP_ID);
+  url.searchParams.set("redirect_uri", FACEBOOK_REDIRECT_URI);
+  url.searchParams.set("state", state);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", FACEBOOK_SCOPES);
 
-      resolve();
-    };
-
-    if (document.getElementById(FACEBOOK_SDK_ID)) {
-      const timer = window.setInterval(() => {
-        if (window.FB?.login && window.FB?.getLoginStatus) {
-          window.clearInterval(timer);
-          resolve();
-        }
-      }, 100);
-
-      window.setTimeout(() => {
-        window.clearInterval(timer);
-        reject(new Error("Facebook SDK did not become ready."));
-      }, 10000);
-
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.id = FACEBOOK_SDK_ID;
-    script.src = "https://connect.facebook.net/en_US/sdk.js";
-    script.async = true;
-    script.defer = true;
-    script.onerror = () => reject(new Error("Failed to load Facebook SDK."));
-
-    document.body.appendChild(script);
-  });
-}
-
-function getLoginStatus(): Promise<any> {
-  return new Promise((resolve) => {
-    window.FB.getLoginStatus((response: any) => resolve(response), true);
-  });
-}
-
-function loginWithPopup(): Promise<any> {
-  return new Promise((resolve) => {
-    window.FB.login((response: any) => resolve(response), {
-      scope: FACEBOOK_SCOPES,
-      return_scopes: true,
-    });
-  });
-}
-
-function getPermissions(): Promise<any> {
-  return new Promise((resolve) => {
-    window.FB.api("/me/permissions", (response: any) => resolve(response));
-  });
+  window.location.href = url.toString();
 }
 
 export async function loginWithFacebookPages(): Promise<{
   accessToken: string;
   userID: string;
 }> {
-  await loadFacebookSdk();
+  const savedToken = localStorage.getItem("facebook_user_access_token");
 
-  const status = await getLoginStatus();
-  showDebug("LOGIN STATUS", status);
-
-  if (status?.status === "connected" && status?.authResponse?.accessToken) {
-    const permissions = await getPermissions();
-    showDebug("PERMISSIONS", permissions);
-
+  if (savedToken) {
     return {
-      accessToken: status.authResponse.accessToken,
-      userID: status.authResponse.userID,
+      accessToken: savedToken,
+      userID: "facebook-user",
     };
   }
 
-  const loginResponse = await loginWithPopup();
-  showDebug("LOGIN RESPONSE", loginResponse);
+  startFacebookOAuthLogin();
 
-  if (!loginResponse?.authResponse?.accessToken) {
-    throw new Error(
-      "Facebook login failed. Please open xnewsapp.com in Chrome, allow popups, and approve Page permissions."
-    );
-  }
-
-  const permissions = await getPermissions();
-  showDebug("PERMISSIONS", permissions);
-
-  return {
-    accessToken: loginResponse.authResponse.accessToken,
-    userID: loginResponse.authResponse.userID,
-  };
+  throw new Error("Redirecting to Facebook. Please approve permissions.");
 }
 
 export async function getFacebookPages(
   accessToken: string
 ): Promise<FacebookPage[]> {
+  const savedPages = localStorage.getItem("facebook_pages");
+
+  if (savedPages) {
+    try {
+      const pages = JSON.parse(savedPages);
+
+      if (Array.isArray(pages)) {
+        return pages;
+      }
+    } catch {
+      localStorage.removeItem("facebook_pages");
+    }
+  }
+
   const url = new URL(
     `https://graph.facebook.com/${FACEBOOK_VERSION}/me/accounts`
   );
@@ -155,18 +86,13 @@ export async function getFacebookPages(
   const response = await fetch(url.toString());
   const data = await response.json();
 
-  showDebug("FACEBOOK RESPONSE", data);
-
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Unable to load Facebook Pages."));
   }
 
   const pages = Array.isArray(data?.data) ? data.data : [];
 
-  alert(
-    `Pages Found: ${pages.length}\n\n` +
-      pages.map((p: FacebookPage) => `${p.name} (${p.id})`).join("\n")
-  );
+  localStorage.setItem("facebook_pages", JSON.stringify(pages));
 
   return pages;
 }
@@ -198,8 +124,6 @@ export async function publishPhotoFileToFacebookPage({
   );
 
   const data = await response.json();
-
-  showDebug("FACEBOOK PHOTO PUBLISH RESPONSE", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Failed to publish photo."));
@@ -235,8 +159,6 @@ export async function publishVideoFileToFacebookPage({
   );
 
   const data = await response.json();
-
-  showDebug("FACEBOOK VIDEO PUBLISH RESPONSE", data);
 
   if (!response.ok) {
     throw new Error(getFacebookError(data, "Failed to publish video."));
