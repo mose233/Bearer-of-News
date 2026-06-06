@@ -13,6 +13,11 @@ export type FacebookPage = {
   tasks?: string[];
 };
 
+export type FacebookConnection = {
+  accessToken: string;
+  pages: FacebookPage[];
+};
+
 export type FacebookPublishResult = {
   id?: string;
   post_id?: string;
@@ -41,39 +46,62 @@ export function startFacebookOAuthLogin() {
   window.location.href = url.toString();
 }
 
+export function getSavedFacebookConnection(): FacebookConnection | null {
+  const accessToken = localStorage.getItem("facebook_user_access_token");
+  const savedPages = localStorage.getItem("facebook_pages");
+
+  if (!accessToken || !savedPages) {
+    return null;
+  }
+
+  try {
+    const pages = JSON.parse(savedPages);
+
+    if (!Array.isArray(pages)) {
+      return null;
+    }
+
+    return {
+      accessToken,
+      pages,
+    };
+  } catch {
+    clearFacebookConnection();
+    return null;
+  }
+}
+
+export function clearFacebookConnection() {
+  localStorage.removeItem("facebook_user_access_token");
+  localStorage.removeItem("facebook_pages");
+  sessionStorage.removeItem("facebook_oauth_state");
+}
+
 export async function loginWithFacebookPages(): Promise<{
   accessToken: string;
   userID: string;
 }> {
-  const savedToken = localStorage.getItem("facebook_user_access_token");
+  const connection = getSavedFacebookConnection();
 
-  if (savedToken) {
+  if (connection?.accessToken) {
     return {
-      accessToken: savedToken,
+      accessToken: connection.accessToken,
       userID: "facebook-user",
     };
   }
 
-  startFacebookOAuthLogin();
-
-  throw new Error("Redirecting to Facebook. Please approve permissions.");
+  throw new Error(
+    "Please connect your Facebook Page first before publishing."
+  );
 }
 
 export async function getFacebookPages(
   accessToken: string
 ): Promise<FacebookPage[]> {
-  const savedPages = localStorage.getItem("facebook_pages");
+  const connection = getSavedFacebookConnection();
 
-  if (savedPages) {
-    try {
-      const pages = JSON.parse(savedPages);
-
-      if (Array.isArray(pages)) {
-        return pages;
-      }
-    } catch {
-      localStorage.removeItem("facebook_pages");
-    }
+  if (connection?.pages?.length) {
+    return connection.pages;
   }
 
   const url = new URL(
