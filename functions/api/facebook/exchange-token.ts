@@ -1,9 +1,3 @@
-
-They were copied into the `.ts` file. TypeScript cannot compile them.
-
-Replace the **whole** `functions/api/facebook/exchange-token.ts` with this clean version — no backticks except inside the URL template strings:
-
-```ts
 const FACEBOOK_VERSION = "v20.0";
 const FALLBACK_REDIRECT_URI = "https://xnewsapp.com/facebook-callback";
 
