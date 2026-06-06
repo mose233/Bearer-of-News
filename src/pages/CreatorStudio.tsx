@@ -16,6 +16,7 @@ import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 import {
+  startFacebookOAuthLogin,
   loginWithFacebookPages,
   getFacebookPages,
   publishPhotoFileToFacebookPage,
@@ -752,6 +753,21 @@ export default function CreatorStudio() {
     }
   };
 
+  const connectFacebookPage = () => {
+    try {
+      setExportStatus("Opening Facebook connection...");
+      startFacebookOAuthLogin();
+    } catch (error) {
+      console.error(error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to start Facebook connection."
+      );
+      setExportStatus("");
+    }
+  };
+
   const publishToFacebook = async () => {
     try {
       setIsExporting(true);
@@ -1202,7 +1218,8 @@ export default function CreatorStudio() {
                   isExporting={isExporting}
                   exportStatus={exportStatus}
                   onGenerateCompleteVideo={handleGenerateCompleteVideo}
-                  onShareToFacebook={publishToFacebook}
+                  onConnectFacebookPage={connectFacebookPage}
+                  onPublishToFacebook={publishToFacebook}
                   onInitializeFFmpeg={initializeFFmpeg}
                   onExportSilentMp4={handleExportSilentMp4}
                   onExportNarratedMp4={handleExportNarratedMp4}
