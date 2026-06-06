@@ -6,6 +6,7 @@ import {
   Settings2,
   Volume2,
   Sparkles,
+  Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -14,7 +15,8 @@ type ExportPanelProps = {
   isExporting: boolean;
   exportStatus?: string;
   onGenerateCompleteVideo: () => void;
-  onShareToFacebook: () => void;
+  onConnectFacebookPage: () => void;
+  onPublishToFacebook: () => void;
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
   onExportNarratedMp4: () => void;
@@ -26,7 +28,8 @@ export default function ExportPanel({
   isExporting,
   exportStatus = "",
   onGenerateCompleteVideo,
-  onShareToFacebook,
+  onConnectFacebookPage,
+  onPublishToFacebook,
   onInitializeFFmpeg,
   onExportSilentMp4,
   onExportNarratedMp4,
@@ -42,8 +45,8 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Render your final video, export MP4 versions, and publish photos or
-          videos directly to your Facebook Page.
+          First connect your Facebook Page once. Then publish photos or videos
+          directly to that Page without reopening Facebook every time.
         </p>
       </div>
 
@@ -81,16 +84,26 @@ export default function ExportPanel({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button
           type="button"
-          onClick={onShareToFacebook}
+          onClick={onConnectFacebookPage}
           disabled={busy}
-          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60 sm:col-span-2"
+          className="h-12 rounded-2xl bg-slate-700 font-bold text-white hover:bg-slate-600 disabled:opacity-60"
+        >
+          <Link2 className="mr-2 h-4 w-4" />
+          Connect Facebook Page
+        </Button>
+
+        <Button
+          type="button"
+          onClick={onPublishToFacebook}
+          disabled={busy}
+          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Facebook className="mr-2 h-4 w-4" />
           )}
-          Publish Photo/Video to Facebook
+          Publish Photo/Video
         </Button>
 
         <Button
