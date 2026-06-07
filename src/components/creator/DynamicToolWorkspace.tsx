@@ -80,7 +80,6 @@ type DynamicToolWorkspaceProps = {
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
-  onEditGeneratedImageInCanvas?: () => void;
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
 };
@@ -313,7 +312,6 @@ export default function DynamicToolWorkspace({
   onMediaUpload,
   onPublishToFacebook,
   onDownloadGeneratedImage,
-  onEditGeneratedImageInCanvas,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
 }: DynamicToolWorkspaceProps) {
