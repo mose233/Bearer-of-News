@@ -9,7 +9,6 @@ import AiToolLauncher, {
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
-import SmartCanvasPanel from "@/components/creator/SmartCanvasPanel";
 
 import { loadFFmpeg } from "@/lib/ffmpeg";
 import { generateVoice, tryGenerateVoice } from "@/lib/voice";
@@ -91,12 +90,7 @@ export default function CreatorStudio() {
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const smartCanvasSectionRef = useRef<HTMLDivElement | null>(null);
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
-  const [canvasText, setCanvasText] = useState("");
-  const [canvasImageFile, setCanvasImageFile] = useState<File | null>(null);
-  const [canvasImagePreview, setCanvasImagePreview] = useState("");
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
     return mediaFiles
@@ -107,78 +101,6 @@ export default function CreatorStudio() {
       .filter((item) => item.file.type.startsWith("image/"));
   }, [mediaFiles, mediaPreviews]);
 
-  const drawCanvas = (imageUrl?: string) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = 1080;
-    canvas.height = 1080;
-
-    ctx.fillStyle = "#111827";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const drawUserText = () => {
-      const text = canvasText.trim();
-
-      if (!text) return;
-
-      ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
-      ctx.fillRect(0, 800, canvas.width, 180);
-
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 64px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(text, canvas.width / 2, 900);
-    };
-
-    const drawEmptyPlaceholder = () => {
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "bold 34px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(
-        "Your design preview appears here",
-        canvas.width / 2,
-        canvas.height / 2
-      );
-
-      ctx.fillStyle = "#64748b";
-      ctx.font = "24px Arial";
-      ctx.fillText(
-        "Upload an image, choose a template, or send an AI result to Smart Canvas.",
-        canvas.width / 2,
-        canvas.height / 2 + 48
-      );
-    };
-
-    if (imageUrl) {
-      const img = new Image();
-      img.onload = () => {
-        const scale = Math.max(
-          canvas.width / img.width,
-          canvas.height / img.height
-        );
-        const width = img.width * scale;
-        const height = img.height * scale;
-        const x = (canvas.width - width) / 2;
-        const y = (canvas.height - height) / 2;
-
-        ctx.drawImage(img, x, y, width, height);
-        drawUserText();
-      };
-      img.src = imageUrl;
-      return;
-    }
-
-    drawUserText();
-  };
-
-  useEffect(() => {
-    drawCanvas(canvasImagePreview);
-  }, [canvasText, canvasImagePreview]);
-
   useEffect(() => {
     return () => {
       mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -187,7 +109,6 @@ export default function CreatorStudio() {
       if (generatedImagePreview) URL.revokeObjectURL(generatedImagePreview);
       if (photoMusicImagePreview) URL.revokeObjectURL(photoMusicImagePreview);
       if (dancingPhotoPreview) URL.revokeObjectURL(dancingPhotoPreview);
-      if (canvasImagePreview) URL.revokeObjectURL(canvasImagePreview);
 
       window.speechSynthesis.cancel();
     };
@@ -197,7 +118,6 @@ export default function CreatorStudio() {
     generatedImagePreview,
     photoMusicImagePreview,
     dancingPhotoPreview,
-    canvasImagePreview,
   ]);
 
   useEffect(() => {
@@ -237,50 +157,6 @@ export default function CreatorStudio() {
     setCurrentIndex(nextIndex);
 
     scrollToLivePreview();
-  };
-
-  const handleCanvasImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    if (canvasImagePreview) {
-      URL.revokeObjectURL(canvasImagePreview);
-    }
-
-    const preview = URL.createObjectURL(file);
-
-    setCanvasImageFile(file);
-    setCanvasImagePreview(preview);
-  };
-
-  const handleDownloadCanvasImage = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      saveAs(blob, "xnewsapp-canvas-image.png");
-    }, "image/png");
-  };
-
-  const handleAddCanvasToTimeline = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-
-      const file = new File([blob], "xnewsapp-canvas-scene.png", {
-        type: "image/png",
-      });
-
-      const preview = URL.createObjectURL(blob);
-
-      addSceneToTimeline(file, preview, 5);
-
-      alert("Canvas design added to timeline.");
-    }, "image/png");
   };
 
   const handleGenerateScript = () => {
@@ -965,29 +841,6 @@ export default function CreatorStudio() {
     saveAs(blob, "xnewsapp-ai-image.png");
   };
 
-  const handleEditGeneratedImageInCanvas = () => {
-    if (!generatedImageFile || !generatedImagePreview) {
-      alert("Please generate an image first.");
-      return;
-    }
-
-    if (canvasImagePreview) {
-      URL.revokeObjectURL(canvasImagePreview);
-    }
-
-    const preview = URL.createObjectURL(generatedImageFile);
-
-    setCanvasImageFile(generatedImageFile);
-    setCanvasImagePreview(preview);
-
-    setTimeout(() => {
-      smartCanvasSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 100);
-  };
-
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
@@ -1070,7 +923,6 @@ export default function CreatorStudio() {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onEditGeneratedImageInCanvas={handleEditGeneratedImageInCanvas}
             onGenerateCompleteVideo={handleGenerateCompleteVideo}
             onAddEnhancedPhotoToTimeline={(file, preview) =>
               addSceneToTimeline(file, preview, 5)
@@ -1078,7 +930,7 @@ export default function CreatorStudio() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.9fr)]">
+        <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
 <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
@@ -1133,37 +985,7 @@ export default function CreatorStudio() {
             </div>
           </section>
 
-          <aside className="space-y-4 xl:sticky xl:top-5 xl:self-start">
-            <Card
-              ref={smartCanvasSectionRef}
-              className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator"
-            >
-              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Smart Canvas
-                </CardTitle>
-              </CardHeader>
 
-              <CardContent className="px-3 py-4 sm:px-4">
-                <SmartCanvasPanel
-                  canvasText={canvasText}
-                  setCanvasText={setCanvasText}
-                  canvasRef={canvasRef}
-                  onCanvasImageUpload={handleCanvasImageUpload}
-                  onPublishEditedDesignToFacebook={openFacebookAfterExport}
-                  onDownloadCanvasImage={handleDownloadCanvasImage}
-                  onAddCanvasToTimeline={handleAddCanvasToTimeline}
-                  hasCanvasContent={Boolean(
-                    canvasImagePreview || canvasText.trim()
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-
-
-
-          </aside>
         </div>
 
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0B1020]/95 px-4 py-3 backdrop-blur xl:hidden">
