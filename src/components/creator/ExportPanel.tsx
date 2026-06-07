@@ -42,20 +42,18 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Export or download your MP4 first. Then open Facebook, tap Create
-          Post/Reel, and choose the exported file from Downloads or Gallery.
+          Download your MP4 and share it on social media.
         </p>
       </div>
 
       <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
-        <p className="font-extrabold">How to post to Facebook</p>
+        <p className="font-extrabold">How to Share</p>
         <ol className="mt-2 list-decimal space-y-1 pl-4">
-          <li>Export MP4 from xnewsapp.com.</li>
-          <li>Save it to your phone or laptop.</li>
-          <li>Tap Open Facebook.</li>
-          <li>Tap Create Post or Reel in Facebook.</li>
-          <li>Choose the exported video from Downloads/Gallery.</li>
-          <li>Add your caption and post.</li>
+          <li>Download MP4</li>
+          <li>Open Facebook</li>
+          <li>Create Post or Reel</li>
+          <li>Select your video</li>
+          <li>Publish</li>
         </ol>
       </div>
 
@@ -85,7 +83,7 @@ export default function ExportPanel({
         ) : (
           <span className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
-            Generate Complete AI Video
+            Generate Video
           </span>
         )}
       </Button>
@@ -102,7 +100,7 @@ export default function ExportPanel({
           ) : (
             <Facebook className="mr-2 h-4 w-4" />
           )}
-          Open Facebook After Export
+          Open Facebook
         </Button>
 
         <Button
@@ -132,7 +130,7 @@ export default function ExportPanel({
           ) : (
             <Film className="mr-2 h-4 w-4 text-cyan-300" />
           )}
-          {isRecording ? "Rendering..." : "Download Silent MP4"}
+          {isRecording ? "Rendering..." : "Silent MP4"}
         </Button>
 
         <Button
@@ -146,7 +144,7 @@ export default function ExportPanel({
           ) : (
             <Volume2 className="mr-2 h-4 w-4" />
           )}
-          Download Narrated MP4
+          Narrated MP4
         </Button>
 
         <Button
@@ -160,7 +158,7 @@ export default function ExportPanel({
           ) : (
             <Download className="mr-2 h-4 w-4" />
           )}
-          Download Final Mixed MP4
+          Final MP4
         </Button>
       </div>
     </div>
