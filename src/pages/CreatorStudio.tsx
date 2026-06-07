@@ -276,7 +276,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "photo-music-video.mp4");
 
-      alert("Photo music video exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
+      alert("Photo music video exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
       alert("Failed to export photo music video.");
@@ -623,15 +623,13 @@ export default function CreatorStudio() {
 
   const openFacebookAfterExport = () => {
     const message = [
-      "Your MP4/photo must be selected inside Facebook after export.",
+      "How to Share",
       "",
-      "Steps:",
-      "1. Export or download your MP4/photo from xnewsapp.com.",
-      "2. Make sure it is saved in Downloads or Gallery.",
-      "3. Facebook will open now.",
-      "4. Tap Create Post or Reel in Facebook.",
-      "5. Choose the exported file from Downloads/Gallery.",
-      "6. Add your caption and post.",
+      "1. Download MP4",
+      "2. Open Facebook",
+      "3. Create Post or Reel",
+      "4. Select your video",
+      "5. Publish",
     ].join("\n");
 
     alert(message);
@@ -677,7 +675,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
-      alert("Silent MP4 exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
+      alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
       alert("Failed to export silent MP4.");
@@ -711,7 +709,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-narrated-video.mp4");
 
-      alert("Narrated MP4 exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
+      alert("Narrated MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
       alert("Failed to export narrated MP4.");
@@ -748,7 +746,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-final-video.mp4");
 
-      alert("Final mixed MP4 exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
+      alert("Final MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
       alert("Failed to export final mixed MP4.");
@@ -814,7 +812,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
 
-      alert("Complete AI video generated successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
+      alert("Video generated successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
       alert("Failed to generate complete AI video.");
@@ -846,16 +844,15 @@ export default function CreatorStudio() {
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
         <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
           <div className="mb-3 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-xs font-bold text-violet-100">
-            Creator Studio AI
+            Creator Studio
           </div>
 
           <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Create Facebook-ready videos faster
+            Create AI Videos, Images & Music
           </h1>
 
           <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-            Generate scenes, arrange your timeline, add narration and music,
-            then export videos for Facebook, Reels, Shorts, and TikTok.
+            Build content for Facebook, TikTok, YouTube Shorts and WhatsApp.
           </p>
         </header>
 
@@ -935,7 +932,7 @@ export default function CreatorStudio() {
 <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Live preview and timeline
+                  Preview & Timeline
                 </CardTitle>
               </CardHeader>
 
@@ -960,7 +957,7 @@ export default function CreatorStudio() {
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Export and share
+                  Export & Share
                 </CardTitle>
               </CardHeader>
 
@@ -979,9 +976,7 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
             <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Facebook-safe reminder: review generated videos before posting.
-              Avoid copyrighted media, misleading claims, impersonation, spam,
-              or unsafe content.
+              Review content before publishing.
             </div>
           </section>
 
@@ -997,7 +992,7 @@ export default function CreatorStudio() {
           >
             {isRecording || isExporting
               ? exportStatus || "Generating video..."
-              : "Generate Complete AI Video"}
+              : "Generate Video"}
           </button>
         </div>
       </div>
