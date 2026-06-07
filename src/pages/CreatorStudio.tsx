@@ -16,14 +16,6 @@ import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 import {
-  startFacebookOAuthLogin,
-  loginWithFacebookPages,
-  getFacebookPages,
-  publishPhotoFileToFacebookPage,
-  publishVideoFileToFacebookPage,
-} from "@/lib/facebook/facebookSdk";
-
-import {
   generateMultiScenePlan,
   MultiScenePlan,
 } from "@/lib/creator/multiSceneGenerator";
@@ -408,7 +400,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "photo-music-video.mp4");
 
-      alert("Photo music video exported successfully!");
+      alert("Photo music video exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
     } catch (error) {
       console.error(error);
       alert("Failed to export photo music video.");
@@ -753,115 +745,23 @@ export default function CreatorStudio() {
     }
   };
 
-  const connectFacebookPage = () => {
-    try {
-      setExportStatus("Opening Facebook connection...");
-      startFacebookOAuthLogin();
-    } catch (error) {
-      console.error(error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to start Facebook connection."
-      );
-      setExportStatus("");
-    }
-  };
+  const openFacebookAfterExport = () => {
+    const message = [
+      "Your MP4/photo must be selected inside Facebook after export.",
+      "",
+      "Steps:",
+      "1. Export or download your MP4/photo from xnewsapp.com.",
+      "2. Make sure it is saved in Downloads or Gallery.",
+      "3. Facebook will open now.",
+      "4. Tap Create Post or Reel in Facebook.",
+      "5. Choose the exported file from Downloads/Gallery.",
+      "6. Add your caption and post.",
+    ].join("\n");
 
-  const publishToFacebook = async () => {
-    try {
-      setIsExporting(true);
-      setExportStatus("Connecting to Facebook...");
+    alert(message);
 
-      const login = await loginWithFacebookPages();
-      const pages = await getFacebookPages(login.accessToken);
-
-      if (!pages.length) {
-        throw new Error("No Facebook Pages found on this account.");
-      }
-
-      let page = pages[0];
-
-      if (pages.length > 1) {
-        const pageList = pages
-          .map((item, index) => `${index + 1}. ${item.name}`)
-          .join("\n");
-
-        const choice = window.prompt(
-          `Choose Facebook Page number:\n\n${pageList}`,
-          "1"
-        );
-
-        const selectedIndex = Number(choice || "1") - 1;
-
-        if (!Number.isNaN(selectedIndex) && pages[selectedIndex]) {
-          page = pages[selectedIndex];
-        }
-      }
-
-      if (!page.access_token) {
-        throw new Error(
-          "Facebook Page access token is missing. Please reconnect Facebook and allow Page publishing permissions."
-        );
-      }
-
-      const caption =
-        facebookCaption ||
-        voiceText ||
-        "Created with xnewsapp.com AI Creator Studio";
-
-      const videoFile =
-        mediaFiles.find((file) => file.type.startsWith("video/")) || null;
-
-      const imageFile =
-        generatedImageFile ||
-        canvasImageFile ||
-        photoMusicImageFile ||
-        dancingPhotoFile ||
-        mediaFiles.find((file) => file.type.startsWith("image/")) ||
-        null;
-
-      if (videoFile) {
-        setExportStatus("Publishing video to Facebook Page...");
-
-        await publishVideoFileToFacebookPage({
-          pageId: page.id,
-          pageAccessToken: page.access_token,
-          videoFile,
-          caption,
-        });
-
-        alert(`Video published to Facebook Page: ${page.name}`);
-        return;
-      }
-
-      if (imageFile) {
-        setExportStatus("Publishing photo to Facebook Page...");
-
-        await publishPhotoFileToFacebookPage({
-          pageId: page.id,
-          pageAccessToken: page.access_token,
-          imageFile,
-          caption,
-        });
-
-        alert(`Photo published to Facebook Page: ${page.name}`);
-        return;
-      }
-
-      alert("Please upload or generate a photo/video before publishing.");
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Facebook publishing failed."
-      );
-    } finally {
-      setIsExporting(false);
-      setExportStatus("");
-    }
+    const facebookUrl = "https://www.facebook.com/";
+    window.open(facebookUrl, "_blank", "noopener,noreferrer");
   };
 
   const initializeFFmpeg = async () => {
@@ -901,7 +801,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
-      alert("Silent MP4 exported successfully!");
+      alert("Silent MP4 exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
     } catch (error) {
       console.error(error);
       alert("Failed to export silent MP4.");
@@ -935,7 +835,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-narrated-video.mp4");
 
-      alert("Narrated MP4 exported successfully!");
+      alert("Narrated MP4 exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
     } catch (error) {
       console.error(error);
       alert("Failed to export narrated MP4.");
@@ -972,7 +872,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-final-video.mp4");
 
-      alert("Final mixed MP4 exported successfully!");
+      alert("Final mixed MP4 exported successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
     } catch (error) {
       console.error(error);
       alert("Failed to export final mixed MP4.");
@@ -1038,7 +938,7 @@ export default function CreatorStudio() {
 
       saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
 
-      alert("Complete AI video generated successfully!");
+      alert("Complete AI video generated successfully. Next: tap Open Facebook, then choose this exported video from Downloads/Gallery.");
     } catch (error) {
       console.error(error);
       alert("Failed to generate complete AI video.");
@@ -1168,7 +1068,7 @@ export default function CreatorStudio() {
             onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
             onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
             onMediaUpload={handleMediaUpload}
-            onPublishToFacebook={publishToFacebook}
+            onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
             onEditGeneratedImageInCanvas={handleEditGeneratedImageInCanvas}
             onGenerateCompleteVideo={handleGenerateCompleteVideo}
@@ -1218,8 +1118,7 @@ export default function CreatorStudio() {
                   isExporting={isExporting}
                   exportStatus={exportStatus}
                   onGenerateCompleteVideo={handleGenerateCompleteVideo}
-                  onConnectFacebookPage={connectFacebookPage}
-                  onPublishToFacebook={publishToFacebook}
+                  onOpenFacebook={openFacebookAfterExport}
                   onInitializeFFmpeg={initializeFFmpeg}
                   onExportSilentMp4={handleExportSilentMp4}
                   onExportNarratedMp4={handleExportNarratedMp4}
@@ -1251,7 +1150,7 @@ export default function CreatorStudio() {
                   setCanvasText={setCanvasText}
                   canvasRef={canvasRef}
                   onCanvasImageUpload={handleCanvasImageUpload}
-                  onPublishEditedDesignToFacebook={publishToFacebook}
+                  onPublishEditedDesignToFacebook={openFacebookAfterExport}
                   onDownloadCanvasImage={handleDownloadCanvasImage}
                   onAddCanvasToTimeline={handleAddCanvasToTimeline}
                   hasCanvasContent={Boolean(
