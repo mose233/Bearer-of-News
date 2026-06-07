@@ -6,9 +6,6 @@ import {
   Settings2,
   Volume2,
   Sparkles,
-  Share2,
-  MessageCircle,
-  Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -37,30 +34,6 @@ export default function ExportPanel({
 }: ExportPanelProps) {
   const busy = isRecording || isExporting;
 
-  const openExternal = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  const handleShareVideoPhoto = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "xnewsapp.com",
-          text:
-            "I created content with xnewsapp.com. Choose Facebook, TikTok, WhatsApp, Instagram, or Messenger, then select your exported video/photo.",
-          url: window.location.href,
-        });
-        return;
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    alert(
-      "After exporting, open Facebook, TikTok, WhatsApp, Instagram, or Messenger and select the saved video/photo from your phone."
-    );
-  };
-
   return (
     <div className="space-y-5 text-white">
       <div>
@@ -69,26 +42,18 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Export your finished video/photo first, then share it to your favorite
-          social app.
+          Download your MP4 and share it on social media.
         </p>
       </div>
 
       <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
         <p className="font-extrabold">How to Share</p>
-
-        <ol className="mt-2 list-decimal space-y-2 pl-4">
-          <li>
-            <span className="font-extrabold">Export Video/Photo</span>
-            <br />
-            Save your finished media to your phone.
-          </li>
-
-          <li>
-            <span className="font-extrabold">Share Video/Photo</span>
-            <br />
-            Choose Facebook, TikTok, WhatsApp, Instagram, or Messenger.
-          </li>
+        <ol className="mt-2 list-decimal space-y-1 pl-4">
+          <li>Download MP4</li>
+          <li>Open Facebook</li>
+          <li>Create Post or Reel</li>
+          <li>Select your video</li>
+          <li>Publish</li>
         </ol>
       </div>
 
@@ -118,7 +83,7 @@ export default function ExportPanel({
         ) : (
           <span className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
-            Generate Content
+            Generate Video
           </span>
         )}
       </Button>
@@ -126,129 +91,75 @@ export default function ExportPanel({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button
           type="button"
+          onClick={onOpenFacebook}
+          disabled={busy}
+          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60 sm:col-span-2"
+        >
+          {busy ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Facebook className="mr-2 h-4 w-4" />
+          )}
+          Open Facebook
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onInitializeFFmpeg}
+          disabled={isExporting}
+          className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
+        >
+          {isExporting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
+          )}
+          {isExporting ? "Loading..." : "Initialize FFmpeg"}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onExportSilentMp4}
+          disabled={isRecording}
+          className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
+        >
+          {isRecording ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Film className="mr-2 h-4 w-4 text-cyan-300" />
+          )}
+          {isRecording ? "Rendering..." : "Silent MP4"}
+        </Button>
+
+        <Button
+          type="button"
+          onClick={onExportNarratedMp4}
+          disabled={busy}
+          className="h-12 rounded-2xl bg-amber-500 font-bold text-white hover:bg-amber-600 disabled:opacity-60"
+        >
+          {busy ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Volume2 className="mr-2 h-4 w-4" />
+          )}
+          Narrated MP4
+        </Button>
+
+        <Button
+          type="button"
           onClick={onExportFinalMixedMp4}
           disabled={busy}
-          className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
+          className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Download className="mr-2 h-4 w-4" />
           )}
-          Export Video/Photo
+          Final MP4
         </Button>
-
-        <Button
-          type="button"
-          onClick={handleShareVideoPhoto}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-emerald-600 font-bold text-white hover:bg-emerald-700 disabled:opacity-60 sm:col-span-2"
-        >
-          <Share2 className="mr-2 h-4 w-4" />
-          Share Video/Photo
-        </Button>
-
-        <Button
-          type="button"
-          onClick={onOpenFacebook}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
-        >
-          <Facebook className="mr-2 h-4 w-4" />
-          Facebook
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => openExternal("https://www.tiktok.com/upload")}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-black font-bold text-white hover:bg-zinc-900 disabled:opacity-60"
-        >
-          <Film className="mr-2 h-4 w-4" />
-          TikTok
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => openExternal("https://web.whatsapp.com/")}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-green-600 font-bold text-white hover:bg-green-700 disabled:opacity-60"
-        >
-          <MessageCircle className="mr-2 h-4 w-4" />
-          WhatsApp
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => openExternal("https://www.instagram.com/")}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-pink-600 font-bold text-white hover:bg-pink-700 disabled:opacity-60"
-        >
-          <Instagram className="mr-2 h-4 w-4" />
-          Instagram
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => openExternal("https://www.messenger.com/")}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-sky-600 font-bold text-white hover:bg-sky-700 disabled:opacity-60 sm:col-span-2"
-        >
-          <MessageCircle className="mr-2 h-4 w-4" />
-          Messenger
-        </Button>
-
-        <details className="sm:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-3">
-          <summary className="cursor-pointer text-sm font-bold text-slate-200">
-            Advanced export options
-          </summary>
-
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onInitializeFFmpeg}
-              disabled={isExporting}
-              className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {isExporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
-              )}
-              {isExporting ? "Loading..." : "Initialize FFmpeg"}
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onExportSilentMp4}
-              disabled={isRecording}
-              className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {isRecording ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Film className="mr-2 h-4 w-4 text-cyan-300" />
-              )}
-              {isRecording ? "Rendering..." : "Silent MP4"}
-            </Button>
-
-            <Button
-              type="button"
-              onClick={onExportNarratedMp4}
-              disabled={busy}
-              className="h-12 rounded-2xl bg-amber-500 font-bold text-white hover:bg-amber-600 disabled:opacity-60 sm:col-span-2"
-            >
-              {busy ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Volume2 className="mr-2 h-4 w-4" />
-              )}
-              Narrated MP4
-            </Button>
-          </div>
-        </details>
       </div>
     </div>
   );
