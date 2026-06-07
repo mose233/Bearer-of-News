@@ -6,7 +6,6 @@ import {
   Settings2,
   Volume2,
   Sparkles,
-  Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -15,8 +14,7 @@ type ExportPanelProps = {
   isExporting: boolean;
   exportStatus?: string;
   onGenerateCompleteVideo: () => void;
-  onConnectFacebookPage: () => void;
-  onPublishToFacebook: () => void;
+  onOpenFacebook: () => void;
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
   onExportNarratedMp4: () => void;
@@ -28,8 +26,7 @@ export default function ExportPanel({
   isExporting,
   exportStatus = "",
   onGenerateCompleteVideo,
-  onConnectFacebookPage,
-  onPublishToFacebook,
+  onOpenFacebook,
   onInitializeFFmpeg,
   onExportSilentMp4,
   onExportNarratedMp4,
@@ -41,13 +38,25 @@ export default function ExportPanel({
     <div className="space-y-5 text-white">
       <div>
         <h3 className="text-base font-extrabold text-white">
-          Export & Publishing
+          Export & Share
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          First connect your Facebook Page once. Then publish photos or videos
-          directly to that Page without reopening Facebook every time.
+          Export or download your MP4 first. Then open Facebook, tap Create
+          Post/Reel, and choose the exported file from Downloads or Gallery.
         </p>
+      </div>
+
+      <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
+        <p className="font-extrabold">How to post to Facebook</p>
+        <ol className="mt-2 list-decimal space-y-1 pl-4">
+          <li>Export MP4 from xnewsapp.com.</li>
+          <li>Save it to your phone or laptop.</li>
+          <li>Tap Open Facebook.</li>
+          <li>Tap Create Post or Reel in Facebook.</li>
+          <li>Choose the exported video from Downloads/Gallery.</li>
+          <li>Add your caption and post.</li>
+        </ol>
       </div>
 
       {exportStatus && (
@@ -84,26 +93,16 @@ export default function ExportPanel({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button
           type="button"
-          onClick={onConnectFacebookPage}
+          onClick={onOpenFacebook}
           disabled={busy}
-          className="h-12 rounded-2xl bg-slate-700 font-bold text-white hover:bg-slate-600 disabled:opacity-60"
-        >
-          <Link2 className="mr-2 h-4 w-4" />
-          Connect Facebook Page
-        </Button>
-
-        <Button
-          type="button"
-          onClick={onPublishToFacebook}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60 sm:col-span-2"
         >
           {busy ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Facebook className="mr-2 h-4 w-4" />
           )}
-          Publish Photo/Video
+          Open Facebook After Export
         </Button>
 
         <Button
@@ -133,7 +132,7 @@ export default function ExportPanel({
           ) : (
             <Film className="mr-2 h-4 w-4 text-cyan-300" />
           )}
-          {isRecording ? "Rendering..." : "Silent MP4"}
+          {isRecording ? "Rendering..." : "Download Silent MP4"}
         </Button>
 
         <Button
@@ -147,7 +146,7 @@ export default function ExportPanel({
           ) : (
             <Volume2 className="mr-2 h-4 w-4" />
           )}
-          Narrated MP4
+          Download Narrated MP4
         </Button>
 
         <Button
@@ -161,7 +160,7 @@ export default function ExportPanel({
           ) : (
             <Download className="mr-2 h-4 w-4" />
           )}
-          Final Mixed MP4
+          Download Final Mixed MP4
         </Button>
       </div>
     </div>
