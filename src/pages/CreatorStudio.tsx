@@ -931,9 +931,9 @@ export default function CreatorStudio() {
           <section ref={livePreviewSectionRef} className="space-y-4">
 <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Preview & Timeline
-                </CardTitle>
+                <CardTitle className="text-sm font-semibold text-slate-200">
+  Preview
+</CardTitle>
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
@@ -956,9 +956,9 @@ export default function CreatorStudio() {
 
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-base font-extrabold text-white sm:text-lg">
-                  Export & Share
-                </CardTitle>
+                <CardTitle className="text-sm font-semibold text-slate-200">
+  Export & Share
+</CardTitle>
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
