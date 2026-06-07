@@ -61,12 +61,11 @@ export default function PreviewPanel({
         </div>
 
         <p className="text-base font-semibold text-creator-text">
-          Your video preview will appear here
+          Video Preview
         </p>
 
         <p className="mt-2 max-w-xs text-sm leading-6 text-creator-muted">
-          Generate AI scenes or upload images to start building a Facebook-ready
-          vertical video.
+          Generate scenes or upload media to start.
         </p>
       </div>
     );
