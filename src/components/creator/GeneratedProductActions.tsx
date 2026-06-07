@@ -2,7 +2,6 @@ type GeneratedProductActionsProps = {
   productType?: "image" | "video" | "audio" | "design";
   onPublishToFacebook: () => void;
   onDownload: () => void;
-  onEditInCanvas?: () => void;
   onUseInVideo?: () => void;
 };
 
@@ -10,7 +9,6 @@ export default function GeneratedProductActions({
   productType = "image",
   onPublishToFacebook,
   onDownload,
-  onEditInCanvas,
   onUseInVideo,
 }: GeneratedProductActionsProps) {
   const downloadLabel =
@@ -23,7 +21,7 @@ export default function GeneratedProductActions({
       : "Download Image";
 
   return (
-    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
       <button
         type="button"
         onClick={onPublishToFacebook}
@@ -39,16 +37,6 @@ export default function GeneratedProductActions({
       >
         {downloadLabel}
       </button>
-
-      {onEditInCanvas && (
-        <button
-          type="button"
-          onClick={onEditInCanvas}
-          className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
-        >
-          Edit in Smart Canvas
-        </button>
-      )}
 
       {onUseInVideo && (
         <button
