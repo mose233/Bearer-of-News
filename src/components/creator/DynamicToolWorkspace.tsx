@@ -492,9 +492,12 @@ export default function DynamicToolWorkspace({
 
   const { category, tool } = selectedTool;
 
-  if (category === "Video AI" && tool === "Text to Video Studio") {
-    return <AIVideoStudioPanel />;
-  }
+ if (
+  (category === "Video AI" && tool === "Text to Video Studio") ||
+  (category === "Cinematic AI" && tool === "Text to Video")
+) {
+  return <AIVideoStudioPanel />;
+}
 
   if (
   (category === "Music AI" || category === "Audio / Music AI") &&
