@@ -405,7 +405,7 @@ export default function DynamicToolWorkspace({
 
     setSongPreviewReady(true);
     setSongStatus(
-      "Song request prepared. The real MusicGen backend will connect here next."
+      `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}. You can download the lyrics/request or use the idea in your video.`
     );
   };
 
@@ -423,7 +423,7 @@ export default function DynamicToolWorkspace({
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "xnewsapp-ai-song-request.txt";
+    link.download = "xnewsapp-ai-song-lyrics.txt";
 
     document.body.appendChild(link);
     link.click();
@@ -470,7 +470,7 @@ export default function DynamicToolWorkspace({
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
           Write lyrics, choose a style, select language and duration, then
-          generate your song.
+          prepare a song preview for your video.
         </p>
 
         <div className="mt-5 space-y-5">
@@ -569,30 +569,40 @@ export default function DynamicToolWorkspace({
 
           {songPreviewReady && (
             <div className="space-y-3 rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-4">
-              <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-center">
+              <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
                 <p className="text-sm font-extrabold text-white">
-                  Song preview area
+                  AI Song Preview
                 </p>
-                <p className="mt-1 text-xs leading-5 text-slate-300">
-                  The generated audio player will appear here after MusicGen or
-                  another provider is connected.
-                </p>
+
+                <div className="mt-3 grid gap-2 text-xs font-semibold leading-5 text-slate-300 sm:grid-cols-3">
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <span className="block text-cyan-200">Style</span>
+                    {songStyle}
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <span className="block text-cyan-200">Language</span>
+                    {songLanguage}
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <span className="block text-cyan-200">Duration</span>
+                    {songDuration}
+                  </div>
+                </div>
+
+                <div className="mt-3 rounded-xl bg-cyan-500/10 p-3 text-xs font-semibold leading-5 text-cyan-100">
+                  Lyrics prepared successfully. You can download the song request
+                  or use this song idea while building your video.
+                </div>
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                <button
-                  type="button"
-                  disabled
-                  className="rounded-2xl bg-blue-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-blue-500"
-                >
-                  Coming Soon
-                </button>
-
+              <div className="grid gap-2 sm:grid-cols-3">
                 <button
                   type="button"
                   onClick={() =>
                     alert(
-                      "Generated song audio will be added to video after the music backend is connected."
+                      "Song idea ready. Upload or connect an audio file in AI Music Video Studio, then use it with your video."
                     )
                   }
                   className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
@@ -605,7 +615,7 @@ export default function DynamicToolWorkspace({
                   onClick={handleDownloadSongRequest}
                   className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
                 >
-                  Download Preview
+                  Download Lyrics
                 </button>
 
                 <button
