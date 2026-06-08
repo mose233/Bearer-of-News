@@ -434,6 +434,223 @@ export default function DynamicToolWorkspace({
 
   
 
+  const renderAffordableVideoTool = () => {
+    const isBusinessTool = [
+      "Product Ad Generator",
+      "Business Promo Video",
+      "Restaurant Promo Video",
+      "Real Estate Promo Video",
+      "Church Announcement Video",
+      "Event Promotion Video",
+      "Job Vacancy Video",
+    ].includes(tool);
+
+    const isSocialTool = [
+      "Facebook Reel Maker",
+      "TikTok Video Maker",
+      "WhatsApp Status Maker",
+      "Instagram Reel Maker",
+      "YouTube Shorts Maker",
+    ].includes(tool);
+
+    const isNewsTool = [
+      "News Slideshow Video",
+      "News Summary Video",
+      "Educational Explainer Video",
+    ].includes(tool);
+
+    const titleLabel = isBusinessTool
+      ? "Business Details"
+      : isNewsTool
+        ? "Story / Lesson Details"
+        : isSocialTool
+          ? "Post Idea / Caption"
+          : "Video Idea";
+
+    const placeholder = isBusinessTool
+      ? "Example: Business name, product/service, price, location, phone number, offer, and call to action."
+      : isNewsTool
+        ? "Example: Headline, key points, photos to use, and the message you want viewers to understand."
+        : "Example: Create a short viral video about my new shop opening in Nairobi with music and captions.";
+
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-violet-300" />
+          <h3 className="text-lg font-extrabold">{tool}</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Create an affordable social video using uploaded photos/videos, text,
+          music, captions, transitions and MP4 export. This does not require
+          expensive cinematic AI video generation.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              1. Upload Photos or Videos
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Add the media you want XNewsApp to turn into a polished social video.
+            </p>
+
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+              <Upload className="mb-3 h-7 w-7 text-violet-300" />
+
+              <span className="text-sm font-extrabold text-white">
+                Click to Upload Media
+              </span>
+
+              <span className="mt-1 text-xs font-medium text-slate-300">
+                Upload images or short clips. They will be added to the timeline.
+              </span>
+
+              <Input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={onMediaUpload || (() => {})}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Output Format
+              </span>
+
+              <select className={inputClass} defaultValue={isSocialTool ? tool.replace(" Maker", "") : "Facebook Reel"}>
+                {[
+                  "Facebook Reel",
+                  "TikTok",
+                  "WhatsApp Status",
+                  "Instagram Reel",
+                  "YouTube Shorts",
+                  "Facebook Feed",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Video Style
+              </span>
+
+              <select className={inputClass} defaultValue="Modern Social Video">
+                {[
+                  "Modern Social Video",
+                  "Fast Viral Edit",
+                  "Business Promo",
+                  "Clean News Style",
+                  "Motivational",
+                  "Birthday / Celebration",
+                  "Church Announcement",
+                  "Product Showcase",
+                  "Slideshow with Motion",
+                ].map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              4. {titleLabel}
+            </span>
+
+            <textarea
+              value={videoPrompt}
+              onChange={(e) => setVideoPrompt?.(e.target.value)}
+              placeholder={placeholder}
+              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            />
+          </label>
+
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+            <h4 className="text-sm font-extrabold text-white">
+              Optional: Upload Music
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-slate-300">
+              Add your own background song or audio. You can also export without music.
+            </p>
+
+            <Input
+              type="file"
+              accept="audio/*"
+              className="mt-4 rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+              onChange={_onMusicUpload}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={onPrepareTextToVideoPrompt || onGenerateCompleteVideo || (() => {})}
+              className="h-12 rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500"
+            >
+              Generate Video Draft
+            </button>
+
+            <button
+              type="button"
+              onClick={onGenerateCompleteVideo || (() => {})}
+              className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500"
+            >
+              Export Complete Video
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderCinematicComingSoon = () => {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-amber-300" />
+          <h3 className="text-lg font-extrabold">{tool}</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          This is a Cinematic AI feature. It will use premium AI motion/video
+          models later, so it should stay separate from the affordable Video AI
+          tools.
+        </p>
+
+        <div className="mt-5 rounded-3xl border border-amber-400/20 bg-amber-500/10 p-4 text-sm font-semibold leading-6 text-amber-100">
+          Coming soon: true AI motion generation, avatars, lip sync, dancing,
+          cinematic scenes and premium video models.
+        </div>
+      </div>
+    );
+  };
+
+  const renderMusicComingSoon = () => {
+    return (
+      <div className={boxClass}>
+        <div className="flex items-center gap-2">
+          <Music className="h-5 w-5 text-cyan-300" />
+          <h3 className="text-lg font-extrabold">{tool}</h3>
+        </div>
+
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          This Music AI tool will help creators prepare lyrics, beats, jingles
+          and background music for videos. The full generator will be connected later.
+        </p>
+      </div>
+    );
+  };
+
+
 
   if (!selectedTool) {
     return (
@@ -444,8 +661,8 @@ export default function DynamicToolWorkspace({
         </div>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
-          Select Picture AI, Video AI, or Audio / Music AI above to open the
-          right workspace.
+          Select Picture AI, Video AI, Music AI, or Cinematic AI above to open
+          the right workspace.
         </p>
       </div>
     );
@@ -453,14 +670,11 @@ export default function DynamicToolWorkspace({
 
   const { category, tool } = selectedTool;
 
-  if (category === "Video AI" && tool === "Text to Video Studio") {
+  if (category === "Cinematic AI" && tool === "Text to Video") {
     return <AIVideoStudioPanel />;
   }
 
-  if (
-  (category === "Music AI" || category === "Audio / Music AI") &&
-  tool === "AI Song Studio"
-) {
+  if (category === "Music AI" && tool === "AI Song Studio") {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
@@ -636,6 +850,44 @@ export default function DynamicToolWorkspace({
     );
   }
 
+
+  if (
+    category === "Video AI" &&
+    [
+      "Business Promo Video",
+      "Facebook Reel Maker",
+      "TikTok Video Maker",
+      "WhatsApp Status Maker",
+      "Instagram Reel Maker",
+      "YouTube Shorts Maker",
+      "Motivational Video",
+      "News Slideshow Video",
+      "News Summary Video",
+      "Quote Video",
+      "Educational Explainer Video",
+      "Church Announcement Video",
+      "Event Promotion Video",
+      "Job Vacancy Video",
+      "Restaurant Promo Video",
+      "Real Estate Promo Video",
+    ].includes(tool)
+  ) {
+    return renderAffordableVideoTool();
+  }
+
+  if (
+    category === "Music AI" &&
+    [
+      "Lyrics Generator",
+      "Song Writer",
+      "Beat Generator",
+      "Background Music Generator",
+      "Jingle Creator",
+    ].includes(tool)
+  ) {
+    return renderMusicComingSoon();
+  }
+
   if (category === "Picture AI") {
     const filterClass = enhancementFilters[enhancementStyle];
 
@@ -806,7 +1058,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (tool === "Dance Animation") {
+  if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
       <DancingPhotoPanel
         dancingPhotoPreview={dancingPhotoPreview}
@@ -820,7 +1072,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (category === "Video AI" && tool === "Photo to Video") {
+  if (category === "Cinematic AI" && tool === "Photo to Video") {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
@@ -973,12 +1225,12 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (category === "Video AI" && tool === "Talking Avatars") {
+  if (category === "Cinematic AI" && tool === "Talking Avatar") {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Talking Avatars</h3>
+          <h3 className="text-lg font-extrabold">Talking Avatar</h3>
         </div>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
@@ -1101,7 +1353,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (category === "Video AI" && tool === "AI News Presenter") {
+  if (category === "Cinematic AI" && tool === "AI News Presenter") {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
@@ -1386,7 +1638,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (category === "Video AI" && tool === "Dance Animation") {
+  if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
@@ -1524,7 +1776,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (category === "Video AI" && tool === "AI Music Video Studio") {
+  if (category === "Cinematic AI" && tool === "AI Music Video Studio") {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
@@ -1968,6 +2220,11 @@ export default function DynamicToolWorkspace({
         </p>
       </div>
     );
+  }
+
+
+  if (category === "Cinematic AI") {
+    return renderCinematicComingSoon();
   }
 
   return (
