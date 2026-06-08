@@ -457,7 +457,10 @@ export default function DynamicToolWorkspace({
     return <AIVideoStudioPanel />;
   }
 
-  if (category === "Audio / Music AI" && tool === "AI Song Studio") {
+  if (
+  (category === "Music AI" || category === "Audio / Music AI") &&
+  tool === "AI Song Studio"
+) {
     return (
       <div className={boxClass}>
         <div className="flex items-center gap-2">
