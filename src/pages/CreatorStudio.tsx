@@ -101,6 +101,21 @@ export default function CreatorStudio() {
       .filter((item) => item.file.type.startsWith("image/"));
   }, [mediaFiles, mediaPreviews]);
 
+  const hasVideoFile = useMemo(() => {
+    return mediaFiles.some((file) => file.type.startsWith("video/"));
+  }, [mediaFiles]);
+
+  const isPhotoProject = useMemo(() => {
+    return (
+      imagePreviews.length === 1 &&
+      !hasVideoFile &&
+      !aiVoiceBlob &&
+      !backgroundMusic
+    );
+  }, [imagePreviews.length, hasVideoFile, aiVoiceBlob, backgroundMusic]);
+
+  const primaryExportLabel = isPhotoProject ? "Download PNG/JPG" : "Export Final MP4";
+
   useEffect(() => {
     return () => {
       mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -720,6 +735,46 @@ export default function CreatorStudio() {
     }
   };
 
+  const handleDownloadPhoto = async () => {
+    try {
+      const selectedPhoto =
+        imagePreviews[currentIndex]?.file ||
+        generatedImageFile ||
+        photoMusicImageFile ||
+        dancingPhotoFile ||
+        mediaFiles.find((file) => file.type.startsWith("image/")) ||
+        null;
+
+      const selectedPreview =
+        imagePreviews[currentIndex]?.preview ||
+        generatedImagePreview ||
+        photoMusicImagePreview ||
+        dancingPhotoPreview ||
+        "";
+
+      if (selectedPhoto) {
+        const extension = selectedPhoto.type.includes("jpeg") ? "jpg" : "png";
+        saveAs(selectedPhoto, `xnewsapp-photo.${extension}`);
+        alert("Photo downloaded successfully. Open Facebook, TikTok, WhatsApp, Instagram, or Messenger and select the saved photo.");
+        return;
+      }
+
+      if (selectedPreview) {
+        const response = await fetch(selectedPreview);
+        const blob = await response.blob();
+        const extension = blob.type.includes("jpeg") ? "jpg" : "png";
+        saveAs(blob, `xnewsapp-photo.${extension}`);
+        alert("Photo downloaded successfully. Open Facebook, TikTok, WhatsApp, Instagram, or Messenger and select the saved photo.");
+        return;
+      }
+
+      alert("Please generate or upload a photo first.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to download photo.");
+    }
+  };
+
   const handleExportFinalMixedMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
@@ -727,13 +782,20 @@ export default function CreatorStudio() {
         return;
       }
 
+      setIsRecording(true);
+      setIsExporting(true);
+
       if (!aiVoiceBlob) {
-        alert("Please generate AI voice first.");
+        setExportStatus("Exporting MP4 without AI voice...");
+
+        const videoBlob = await exportSilentMp4(imagePreviews);
+
+        saveAs(videoBlob, "xnewsapp-final-video.mp4");
+
+        alert("Final MP4 exported successfully without AI voice. Open Facebook, TikTok, WhatsApp, Instagram, or Messenger and select the saved video.");
         return;
       }
 
-      setIsRecording(true);
-      setIsExporting(true);
       setExportStatus("Mixing voice + background music...");
 
       const videoBlob = await exportFinalMixedMp4({
@@ -744,17 +806,26 @@ export default function CreatorStudio() {
         musicVolume,
       });
 
-      saveAs(videoBlob, "creator-studio-final-video.mp4");
+      saveAs(videoBlob, "xnewsapp-final-video.mp4");
 
-      alert("Final MP4 exported successfully. Download your MP4 and share it on social media.");
+      alert("Final MP4 exported successfully. Open Facebook, TikTok, WhatsApp, Instagram, or Messenger and select the saved video.");
     } catch (error) {
       console.error(error);
-      alert("Failed to export final mixed MP4.");
+      alert("Failed to export final MP4.");
     } finally {
       setIsRecording(false);
       setIsExporting(false);
       setExportStatus("");
     }
+  };
+
+  const handlePrimaryExport = async () => {
+    if (isPhotoProject) {
+      await handleDownloadPhoto();
+      return;
+    }
+
+    await handleExportFinalMixedMp4();
   };
 
   const handleGenerateCompleteVideo = async () => {
@@ -967,6 +1038,8 @@ export default function CreatorStudio() {
                   isExporting={isExporting}
                   exportStatus={exportStatus}
                   onGenerateCompleteVideo={handleGenerateCompleteVideo}
+                  exportPrimaryLabel={primaryExportLabel}
+                  onExportPrimary={handlePrimaryExport}
                   onOpenFacebook={openFacebookAfterExport}
                   onInitializeFFmpeg={initializeFFmpeg}
                   onExportSilentMp4={handleExportSilentMp4}
@@ -975,9 +1048,6 @@ export default function CreatorStudio() {
                 />
               </CardContent>
             </Card>
-            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Review content before publishing.
-            </div>
           </section>
 
 
