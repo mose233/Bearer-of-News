@@ -6,7 +6,6 @@ import {
   Settings2,
   Volume2,
   Sparkles,
-  Share2,
   MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,26 +39,6 @@ export default function ExportPanel({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const handleShareVideoPhoto = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "xnewsapp.com",
-          text:
-            "I created this video/photo with xnewsapp.com. Choose Facebook, TikTok, WhatsApp, Instagram, or Messenger, then select your exported file.",
-          url: window.location.href,
-        });
-        return;
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    alert(
-      "After exporting, open Facebook, TikTok, WhatsApp, Instagram, or Messenger and select the saved video/photo from your phone."
-    );
-  };
-
   return (
     <div className="space-y-5 text-white">
       <div>
@@ -68,13 +47,13 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Export your finished video/photo first, then share it to your favorite
-          social app.
+          Export your finished video/photo, then open your preferred social app
+          and select the saved file.
         </p>
       </div>
 
       <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
-        <p className="font-extrabold">How to Share</p>
+        <p className="font-extrabold">How to Post</p>
 
         <ol className="mt-2 list-decimal space-y-2 pl-4">
           <li>
@@ -84,9 +63,11 @@ export default function ExportPanel({
           </li>
 
           <li>
-            <span className="font-extrabold">Share Video/Photo</span>
+            <span className="font-extrabold">
+              Open Facebook, TikTok, WhatsApp, Instagram, or Messenger
+            </span>
             <br />
-            Choose Facebook, TikTok, WhatsApp, Instagram, or Messenger.
+            Select the exported video/photo and publish it.
           </li>
         </ol>
       </div>
@@ -139,16 +120,6 @@ export default function ExportPanel({
 
         <Button
           type="button"
-          onClick={handleShareVideoPhoto}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-emerald-600 font-bold text-white hover:bg-emerald-700 disabled:opacity-60 sm:col-span-2"
-        >
-          <Share2 className="mr-2 h-4 w-4" />
-          Share Video/Photo
-        </Button>
-
-        <Button
-          type="button"
           onClick={onOpenFacebook}
           disabled={busy}
           className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
@@ -183,7 +154,7 @@ export default function ExportPanel({
           disabled={busy}
           className="h-12 rounded-2xl bg-pink-600 font-bold text-white hover:bg-pink-700 disabled:opacity-60"
         >
-          <Share2 className="mr-2 h-4 w-4" />
+          <Film className="mr-2 h-4 w-4" />
           Instagram
         </Button>
 
