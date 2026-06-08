@@ -26,7 +26,6 @@ import {
   ImagePlus,
   Captions,
   Music,
-  Share2,
   Download,
   Loader2,
 } from "lucide-react";
@@ -497,20 +496,12 @@ export default function AIVideoStudioPanel() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <Button className="rounded-2xl bg-slate-100 font-bold text-black hover:bg-white">
-                      <Download className="mr-2 h-4 w-4" />
-                      Export MP4
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl border-white/10 bg-transparent text-white hover:bg-[#1a2234]"
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share to Facebook
-                    </Button>
-                  </div>
+                 <div className="flex flex-col gap-3 sm:flex-row">
+  <Button className="rounded-2xl bg-slate-100 font-bold text-black hover:bg-white">
+    <Download className="mr-2 h-4 w-4" />
+    Export MP4
+  </Button>
+</div>
                 </CardContent>
               </Card>
             </TabsContent>
