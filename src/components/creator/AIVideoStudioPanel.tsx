@@ -28,6 +28,7 @@ import {
   Music,
   Download,
   Loader2,
+  Share2,
 } from "lucide-react";
 
 const providers = [
