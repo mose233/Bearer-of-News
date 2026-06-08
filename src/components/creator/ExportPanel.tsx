@@ -15,6 +15,8 @@ type ExportPanelProps = {
   isExporting: boolean;
   exportStatus?: string;
   onGenerateCompleteVideo: () => void;
+  exportPrimaryLabel: string;
+  onExportPrimary: () => void;
   onOpenFacebook: () => void;
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
@@ -27,11 +29,12 @@ export default function ExportPanel({
   isExporting,
   exportStatus = "",
   onGenerateCompleteVideo,
+  exportPrimaryLabel,
+  onExportPrimary,
   onOpenFacebook,
   onInitializeFFmpeg,
   onExportSilentMp4,
   onExportNarratedMp4,
-  onExportFinalMixedMp4,
 }: ExportPanelProps) {
   const busy = isRecording || isExporting;
 
@@ -47,8 +50,8 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Export your finished video/photo, then open your preferred social app
-          and select the saved file.
+          Download your finished photo/video, then open your preferred social
+          app and select the saved file.
         </p>
       </div>
 
@@ -57,17 +60,15 @@ export default function ExportPanel({
 
         <ol className="mt-2 list-decimal space-y-2 pl-4">
           <li>
-            <span className="font-extrabold">Export Video/Photo</span>
+            <span className="font-extrabold">Photo project</span>
             <br />
-            Save your finished media to your phone.
+            Tap Download PNG/JPG, then post the saved photo.
           </li>
 
           <li>
-            <span className="font-extrabold">
-              Open Facebook, TikTok, WhatsApp, Instagram, or Messenger
-            </span>
+            <span className="font-extrabold">Video project</span>
             <br />
-            Select the exported video/photo and publish it.
+            Tap Export Final MP4, then post the saved video.
           </li>
         </ol>
       </div>
@@ -106,7 +107,7 @@ export default function ExportPanel({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button
           type="button"
-          onClick={onExportFinalMixedMp4}
+          onClick={onExportPrimary}
           disabled={busy}
           className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
         >
@@ -115,7 +116,7 @@ export default function ExportPanel({
           ) : (
             <Download className="mr-2 h-4 w-4" />
           )}
-          Export Video/Photo
+          {exportPrimaryLabel}
         </Button>
 
         <Button
