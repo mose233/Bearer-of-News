@@ -668,21 +668,12 @@ export default function CreatorStudio() {
   };
 
   const openFacebookAfterExport = () => {
-    const message = [
-      "How to Share",
-      "",
-      "1. Download MP4",
-      "2. Open Facebook",
-      "3. Create Post or Reel",
-      "4. Select your video",
-      "5. Publish",
-    ].join("\n");
-
-    alert(message);
-
-    const facebookUrl = "https://www.facebook.com/";
-    window.open(facebookUrl, "_blank", "noopener,noreferrer");
-  };
+  window.open(
+    "https://www.facebook.com/",
+    "_blank",
+    "noopener,noreferrer"
+  );
+};
 
   const initializeFFmpeg = async () => {
     try {
