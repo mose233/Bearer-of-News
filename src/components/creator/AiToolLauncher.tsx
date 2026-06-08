@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { Image, Music, Sparkles, Video } from "lucide-react";
+import type { ElementType } from "react";
+import { Image, Music, Sparkles, Video, Clapperboard } from "lucide-react";
 
-export type AiToolCategoryTitle = "Picture AI" | "Video AI" | "Music AI";
+export type AiToolCategoryTitle =
+  | "Picture AI"
+  | "Video AI"
+  | "Music AI"
+  | "Cinematic AI";
 
 export type AiToolSelection = {
   category: AiToolCategoryTitle;
@@ -11,7 +16,7 @@ export type AiToolSelection = {
 type AiToolCategory = {
   title: AiToolCategoryTitle;
   description: string;
-  icon: React.ElementType;
+  icon: ElementType;
   accent: string;
   tools: string[];
 };
@@ -24,7 +29,7 @@ type AiToolLauncherProps = {
 const categories: AiToolCategory[] = [
   {
     title: "Picture AI",
-    description: "Generate & enhance images",
+    description: "Images, photos & designs",
     icon: Image,
     accent: "from-pink-500 to-fuchsia-600",
     tools: [
@@ -35,25 +40,41 @@ const categories: AiToolCategory[] = [
       "Background Changer",
       "Product Ad Image",
       "Facebook Post Image",
+      "Instagram Post Image",
+      "WhatsApp Status Image",
       "Poster / Flyer",
+      "Event Poster",
+      "Business Banner",
+      "Text to Image",
+      "AI Art Generator",
+      "Thumbnail Creator",
+      "Meme Generator",
+      "Quote Image Creator",
     ],
   },
   {
     title: "Video AI",
-    description: "Create social videos",
+    description: "Affordable social videos",
     icon: Video,
     accent: "from-violet-500 to-purple-600",
     tools: [
-      "Text to Video Studio",
-      "Photo to Video",
       "Photo Music Video",
-      "Talking Avatars",
-      "AI News Presenter",
-      "Product Ad Generator",
-      "Dance Animation",
-      "AI Music Video Studio",
-      "Story Generator",
       "Birthday Video",
+      "Product Ad Generator",
+      "Business Promo Video",
+      "Facebook Reel Maker",
+      "TikTok Video Maker",
+      "WhatsApp Status Maker",
+      "Instagram Reel Maker",
+      "YouTube Shorts Maker",
+      "Motivational Video",
+      "Story Generator",
+      "News Slideshow Video",
+      "News Summary Video",
+      "Quote Video",
+      "Educational Explainer Video",
+      "Church Announcement Video",
+      "Event Promotion Video",
     ],
   },
   {
@@ -61,7 +82,36 @@ const categories: AiToolCategory[] = [
     description: "Generate songs & audio",
     icon: Music,
     accent: "from-cyan-500 to-blue-600",
-    tools: ["AI Song Studio"],
+    tools: [
+      "AI Song Studio",
+      "Lyrics Generator",
+      "Song Writer",
+      "Beat Generator",
+      "Background Music Generator",
+      "Jingle Creator",
+    ],
+  },
+  {
+    title: "Cinematic AI",
+    description: "Premium AI motion videos",
+    icon: Clapperboard,
+    accent: "from-amber-500 to-orange-600",
+    tools: [
+      "Text to Video",
+      "Image to Video",
+      "Photo to Video",
+      "Talking Avatar",
+      "AI News Presenter",
+      "AI Spokesperson",
+      "Dance Animation",
+      "Singing Animation",
+      "Lip Sync Video",
+      "AI Music Video Studio",
+      "Movie Scene Generator",
+      "Short Film Generator",
+      "Trailer Generator",
+      "Story-to-Video Generator",
+    ],
   },
 ];
 
@@ -85,7 +135,7 @@ export default function AiToolLauncher({
         </h2>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {categories.map((category) => {
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
@@ -99,9 +149,7 @@ export default function AiToolLauncher({
             >
               <button
                 type="button"
-                onClick={() =>
-                  setOpenCategory(isOpen ? null : category.title)
-                }
+                onClick={() => setOpenCategory(isOpen ? null : category.title)}
                 className="flex w-full items-start justify-between gap-3 text-left"
               >
                 <div>
@@ -130,7 +178,7 @@ export default function AiToolLauncher({
               </button>
 
               {isOpen && (
-                <div className="mt-3 space-y-1.5">
+                <div className="mt-3 max-h-[320px] space-y-1.5 overflow-y-auto pr-1">
                   {category.tools.map((tool) => {
                     const active =
                       selectedTool?.category === category.title &&
