@@ -5,7 +5,6 @@ import {
   Loader2,
   Settings2,
   Volume2,
-  Sparkles,
   MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,21 +13,18 @@ type ExportPanelProps = {
   isRecording: boolean;
   isExporting: boolean;
   exportStatus?: string;
-  onGenerateCompleteVideo: () => void;
   exportPrimaryLabel: string;
   onExportPrimary: () => void;
   onOpenFacebook: () => void;
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
   onExportNarratedMp4: () => void;
-  onExportFinalMixedMp4: () => void;
 };
 
 export default function ExportPanel({
   isRecording,
   isExporting,
   exportStatus = "",
-  onGenerateCompleteVideo,
   exportPrimaryLabel,
   onExportPrimary,
   onOpenFacebook,
@@ -50,8 +46,9 @@ export default function ExportPanel({
         </h3>
 
         <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Download your finished photo/video, then open your preferred social
-          app and select the saved file.
+          First export/download your finished photo or video. Then open your
+          preferred social app and select the saved file from Downloads or
+          Gallery.
         </p>
       </div>
 
@@ -59,17 +56,11 @@ export default function ExportPanel({
         <p className="font-extrabold">How to Post</p>
 
         <ol className="mt-2 list-decimal space-y-2 pl-4">
-          <li>
-            <span className="font-extrabold">Photo project</span>
-            <br />
-            Tap Download PNG/JPG, then post the saved photo.
-          </li>
-
-          <li>
-            <span className="font-extrabold">Video project</span>
-            <br />
-            Tap Export Final MP4, then post the saved video.
-          </li>
+          <li>Tap Export / Download Media.</li>
+          <li>Wait for the file to save on your phone or laptop.</li>
+          <li>Open Facebook, TikTok, WhatsApp, Instagram, or Messenger.</li>
+          <li>Create a post, reel, status, or story.</li>
+          <li>Select the saved photo/video and publish.</li>
         </ol>
       </div>
 
@@ -87,38 +78,19 @@ export default function ExportPanel({
 
       <Button
         type="button"
-        onClick={onGenerateCompleteVideo}
+        onClick={onExportPrimary}
         disabled={busy}
-        className="h-14 w-full rounded-3xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-base font-extrabold text-white shadow-2xl hover:opacity-95 disabled:opacity-60"
+        className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
       >
         {busy ? (
-          <span className="flex items-center gap-2">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Working...
-          </span>
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         ) : (
-          <span className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            Generate Content
-          </span>
+          <Download className="mr-2 h-5 w-5" />
         )}
+        {exportPrimaryLabel || "Export / Download Media"}
       </Button>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Button
-          type="button"
-          onClick={onExportPrimary}
-          disabled={busy}
-          className="h-12 rounded-2xl bg-cyan-600 font-bold text-white hover:bg-cyan-700 disabled:opacity-60 sm:col-span-2"
-        >
-          {busy ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="mr-2 h-4 w-4" />
-          )}
-          {exportPrimaryLabel}
-        </Button>
-
         <Button
           type="button"
           onClick={onOpenFacebook}
