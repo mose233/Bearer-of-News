@@ -1868,30 +1868,110 @@ export default function DynamicToolWorkspace({
     );
   }
   if (category === "Music AI") {
+    const isLyrics = tool === "Lyrics Generator";
+    const isSongWriter = tool === "Song Writer" || tool === "AI Song Studio";
+    const isBeat = tool === "Beat Generator";
+    const isBackground = tool === "Background Music Generator";
+    const isJingle = tool === "Jingle Creator";
+
+    const musicDescription = isLyrics
+      ? "Generate lyrics for songs, reels, worship, ads, and social media."
+      : isSongWriter
+        ? "Create a complete song idea with verses, chorus, bridge, style, language, and duration."
+        : isBeat
+          ? "Create beat ideas and production instructions for producers or AI music tools."
+          : isBackground
+            ? "Create background music ideas for videos, adverts, news, reels, and presentations."
+            : isJingle
+              ? "Create short brand jingles for businesses, radio, TikTok, and product ads."
+              : "Create music, lyrics, beats, jingles, and audio ideas.";
+
+    const mainLabel = isLyrics
+      ? "1. Lyrics Topic / Message"
+      : isSongWriter
+        ? "1. Song Idea / Lyrics"
+        : isBeat
+          ? "1. Beat Description"
+          : isBackground
+            ? "1. Background Music Purpose"
+            : isJingle
+              ? "1. Brand / Business Message"
+              : "1. Write Music Idea";
+
+    const mainPlaceholder = isLyrics
+      ? "Example: Write motivational lyrics about working hard in Nairobi and never giving up."
+      : isSongWriter
+        ? "Example: Nimeamka leo na ndoto kubwa, Nairobi inaningoja..."
+        : isBeat
+          ? "Example: Create an energetic Gengetone beat with heavy drums, club bass, and viral TikTok feel."
+          : isBackground
+            ? "Example: Create soft corporate background music for a business promo video."
+            : isJingle
+              ? "Example: Create a short catchy jingle for Mose Salon. Mention beauty, nails, hair, and Nairobi."
+              : "Write your music idea here.";
+
+    const styleLabel = isBeat
+      ? "2. Beat Style"
+      : isBackground
+        ? "2. Music Mood"
+        : isJingle
+          ? "2. Jingle Style"
+          : "2. Choose Style";
+
+    const secondSelectLabel = isBeat || isBackground
+      ? "3. Usage"
+      : isJingle
+        ? "3. Market / Language"
+        : "3. Choose Language";
+
+    const secondSelectOptions = isBeat || isBackground
+      ? ["Reels", "YouTube", "Advert", "News", "Podcast", "Presentation", "Background"]
+      : isJingle
+        ? ["English", "Swahili", "Sheng", "Mixed", "Radio", "TikTok", "Business Ad"]
+        : songLanguages;
+
+    const durationOptions = isJingle
+      ? ["10 sec", "15 sec", "30 sec"]
+      : isBeat || isBackground
+        ? ["15 sec", "30 sec", "60 sec", "120 sec"]
+        : songDurations;
+
+    const buttonLabel = isLyrics
+      ? "Generate Lyrics"
+      : isSongWriter
+        ? "Generate Song"
+        : isBeat
+          ? "Generate Beat Idea"
+          : isBackground
+            ? "Generate Background Music Idea"
+            : isJingle
+              ? "Generate Jingle"
+              : "Generate Music Idea";
+
+    const resultLabel = isLyrics
+      ? "Lyrics prepared"
+      : isSongWriter
+        ? "Song idea prepared"
+        : isBeat
+          ? "Beat idea prepared"
+          : isBackground
+            ? "Background music idea prepared"
+            : isJingle
+              ? "Jingle prepared"
+              : "Music idea prepared";
+
     return (
       <div className={boxClass}>
         <ToolHeader
           title={tool}
           icon={<Music className="h-5 w-5 text-cyan-300" />}
-          description={
-  tool === "Lyrics Generator"
-    ? "Generate lyrics for songs, reels, ads, worship, and social media."
-    : tool === "Song Writer"
-    ? "Create complete song concepts with verses, chorus, bridge and structure."
-    : tool === "Beat Generator"
-    ? "Create beat ideas and production instructions."
-    : tool === "Background Music Generator"
-    ? "Generate royalty-free background music concepts."
-    : tool === "Jingle Creator"
-    ? "Create short brand, business and radio jingles."
-    : "Write lyrics, choose a style, language and duration."
-}
+          description={musicDescription}
         />
 
         <div className="mt-5 space-y-5">
           <label className="block">
             <span className="mb-2 block text-sm font-extrabold">
-              1. Write lyrics
+              {mainLabel}
             </span>
             <textarea
               value={songLyrics}
@@ -1900,7 +1980,7 @@ export default function DynamicToolWorkspace({
                 setSongPreviewReady(false);
                 setSongStatus("");
               }}
-              placeholder="Example: Nimeamka leo na ndoto kubwa, Nairobi inaningoja..."
+              placeholder={mainPlaceholder}
               className="min-h-[180px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
             />
           </label>
@@ -1908,7 +1988,7 @@ export default function DynamicToolWorkspace({
           <div className="grid gap-4 md:grid-cols-3">
             <label className="block">
               <span className="mb-2 block text-sm font-extrabold">
-                2. Choose style
+                {styleLabel}
               </span>
               <select
                 value={songStyle}
@@ -1930,9 +2010,9 @@ export default function DynamicToolWorkspace({
             </label>
 
             <SelectField
-              label="3. Choose language"
+              label={secondSelectLabel}
               value={songLanguage}
-              options={songLanguages}
+              options={secondSelectOptions}
               onChange={(value) => {
                 setSongLanguage(value);
                 setSongPreviewReady(false);
@@ -1941,9 +2021,9 @@ export default function DynamicToolWorkspace({
             />
 
             <SelectField
-              label="4. Choose duration"
+              label="4. Duration"
               value={songDuration}
-              options={songDurations}
+              options={durationOptions}
               onChange={(value) => {
                 setSongDuration(value);
                 setSongPreviewReady(false);
@@ -1952,11 +2032,32 @@ export default function DynamicToolWorkspace({
             />
           </div>
 
-          <PrimaryGenerateButton label="Generate Song" onClick={handleGenerateSong} />
+          {isBeat && (
+            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
+              Beat Generator creates a production brief now. Later it can connect to a real audio/music API.
+            </div>
+          )}
+
+          {isBackground && (
+            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
+              Background Music Generator prepares music direction for videos, ads, news, and reels.
+            </div>
+          )}
+
+          {isJingle && (
+            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
+              Jingle Creator is best for short business slogans, radio ads, TikTok promos, and product mentions.
+            </div>
+          )}
+
+          <PrimaryGenerateButton
+            label={buttonLabel}
+            onClick={handleGenerateSong}
+          />
 
           {songStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
-              {songStatus}
+              {resultLabel}: {songStatus}
             </div>
           )}
 
@@ -1965,7 +2066,7 @@ export default function DynamicToolWorkspace({
               <button
                 type="button"
                 onClick={() =>
-                  alert("Song idea ready. Upload real audio in AI Music Video Studio when available.")
+                  alert("Music idea ready. Use it in AI Music Video Studio or upload real audio when available.")
                 }
                 className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
               >
@@ -1976,7 +2077,7 @@ export default function DynamicToolWorkspace({
                 onClick={handleDownloadSongRequest}
                 className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
               >
-                Download Lyrics
+                Download Text
               </button>
               <button
                 type="button"
@@ -1994,7 +2095,6 @@ export default function DynamicToolWorkspace({
       </div>
     );
   }
-
   if (tool === "Photo Music Video") {
     return (
       <PhotoMusicVideoPanel
