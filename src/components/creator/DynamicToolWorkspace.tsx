@@ -2,7 +2,6 @@ import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
   Clapperboard,
-  Download,
   ImagePlus,
   Megaphone,
   Music,
@@ -612,42 +611,6 @@ export default function DynamicToolWorkspace({
 
   const { category, tool } = selectedTool;
 
-  const downloadEnhancedImage = async () => {
-    if (!picturePreview) return;
-
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.src = picturePreview;
-
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      ctx.filter = enhancementFilters[enhancementStyle] || "none";
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = `xnewsapp-${enhancementStyle
-          .toLowerCase()
-          .replace(/\s+/g, "-")}.png`;
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, "image/png");
-    };
-  };
 
   const handleAddEnhancedPhotoToTimeline = () => {
     if (!pictureFile || !picturePreview) {
@@ -748,7 +711,7 @@ export default function DynamicToolWorkspace({
         <ToolHeader
           title={tool}
           icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
-          description="Upload a photo, choose a style, preview the result, then download or add it to the timeline."
+          description="Upload a photo, choose a style, preview the result, then add it to the timeline. Export/download later from the main Export section."
         />
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -842,16 +805,6 @@ export default function DynamicToolWorkspace({
           >
             <Wand2 className="mr-2 h-4 w-4" />
             Generate Enhanced Photo
-          </Button>
-
-          <Button
-            type="button"
-            disabled={!picturePreview || !hasPreviewedEnhancement}
-            onClick={downloadEnhancedImage}
-            className="h-12 rounded-2xl bg-slate-700 px-5 font-extrabold text-white hover:bg-slate-600 disabled:opacity-60"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download Image
           </Button>
 
           <Button
