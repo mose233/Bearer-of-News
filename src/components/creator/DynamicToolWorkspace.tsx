@@ -769,6 +769,24 @@ export default function DynamicToolWorkspace({
   const [musicVideoAudioSource, setMusicVideoAudioSource] = useState("");
   const [musicVideoAudioAccept, setMusicVideoAudioAccept] = useState("audio/*");
 
+  const [pictureStrength, setPictureStrength] = useState("Medium");
+  const [pictureUpscale, setPictureUpscale] = useState("Yes");
+  const [portraitRole, setPortraitRole] = useState("Corporate");
+  const [portraitBackground, setPortraitBackground] = useState("Studio");
+  const [beautyLevel, setBeautyLevel] = useState("Natural");
+  const [youngerAge, setYoungerAge] = useState("10 years");
+  const [backgroundChoice, setBackgroundChoice] = useState("Office");
+  const [productName, setProductName] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [productOffer, setProductOffer] = useState("");
+  const [productPhone, setProductPhone] = useState("");
+  const [postHeadline, setPostHeadline] = useState("");
+  const [postDescription, setPostDescription] = useState("");
+  const [eventName, setEventName] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventVenue, setEventVenue] = useState("");
+  const [eventPhone, setEventPhone] = useState("");
+
   if (!selectedTool) {
     return (
       <div className={boxClass}>
@@ -842,48 +860,58 @@ export default function DynamicToolWorkspace({
     link.download = "xnewsapp-ai-song-lyrics.txt";
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const openMusicVideoAudioPicker = (source: string, accept: string) => {
-    setMusicVideoAudioSource(source);
-    setMusicVideoAudioAccept(accept);
-    window.setTimeout(() => musicVideoAudioInputRef.current?.click(), 0);
-  };
-
-  const handleUseSongStudioSong = () => {
-    if (!songPreviewReady || !songLyrics.trim()) {
-      alert(
-        "Please create a song idea in AI Song Studio first. For real audio, upload MP3 or WAV."
-      );
-      return;
-    }
-
-    setMusicVideoAudioSource("AI Song Studio Song");
-    setMusicVideoAudioName(`${songStyle} song idea (${songLanguage})`);
-    alert("AI Song Studio song idea selected.");
-  };
-
-  const handleMusicVideoAudioUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setMusicVideoAudioName(file.name);
-    setMusicVideoAudioSource((current) => current || "Uploaded Audio");
-    onMusicUpload(e);
-  };
-
-  if (category === "Picture AI") {
+   if (category === "Picture AI") {
     const filterClass = enhancementFilters[enhancementStyle];
+
+    const isPhotoEnhancer = tool === "Photo Enhancer";
+    const isStudioPortrait = tool === "Studio Portrait";
+    const isBeautyGlow = tool === "Beauty Glow";
+    const isYoungerLook = tool === "Younger Look";
+    const isBackgroundChanger = tool === "Background Changer";
+    const isProductAdImage = tool === "Product Ad Image";
+    const isFacebookPostImage = tool === "Facebook Post Image";
+    const isPosterFlyer = tool === "Poster / Flyer";
+
+    const pictureDescription = isPhotoEnhancer
+      ? "Improve photo quality, sharpness, lighting and color before adding it to the timeline."
+      : isStudioPortrait
+        ? "Create a professional portrait look for business, profile, ID, or public-facing content."
+        : isBeautyGlow
+          ? "Apply a social-media beauty glow with smoother lighting and a clean polished look."
+          : isYoungerLook
+            ? "Create a youthful mock transformation effect before adding the photo to the timeline."
+            : isBackgroundChanger
+              ? "Prepare a background-change mock preview for office, studio, beach, Nairobi, or transparent-style content."
+              : isProductAdImage
+                ? "Turn a product photo into a simple marketing image with product details and offer text."
+                : isFacebookPostImage
+                  ? "Create a Facebook-ready post image with a headline and short description."
+                  : isPosterFlyer
+                    ? "Create a poster or flyer mockup with event details, venue, date, and contact."
+                    : "Upload a photo, choose a style, preview the result, then add it to the timeline.";
+
+    const generateLabel = isProductAdImage
+      ? "Generate Product Ad Image"
+      : isFacebookPostImage
+        ? "Generate Facebook Post Image"
+        : isPosterFlyer
+          ? "Generate Poster / Flyer"
+          : isBackgroundChanger
+            ? "Generate Background Preview"
+            : isStudioPortrait
+              ? "Generate Studio Portrait"
+              : isBeautyGlow
+                ? "Generate Beauty Glow"
+                : isYoungerLook
+                  ? "Generate Younger Look"
+                  : "Generate Enhanced Photo";
 
     return (
       <div className={boxClass}>
         <ToolHeader
           title={tool}
           icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
-          description="Upload a photo, choose a style, preview the result, then add it to the timeline. Export/download later from the main Export section."
+          description={`${pictureDescription} Export/download later from the main Export section.`}
         />
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -920,6 +948,249 @@ export default function DynamicToolWorkspace({
           />
         </div>
 
+        <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/50 p-4">
+          <h4 className="mb-4 text-sm font-extrabold text-white">
+            Tool Settings
+          </h4>
+
+          {isPhotoEnhancer && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Enhancement Strength"
+                value={pictureStrength}
+                options={["Low", "Medium", "High"]}
+                onChange={setPictureStrength}
+              />
+              <SelectField
+                label="HD Upscale"
+                value={pictureUpscale}
+                options={["Yes", "No"]}
+                onChange={setPictureUpscale}
+              />
+            </div>
+          )}
+
+          {isStudioPortrait && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Portrait Style"
+                value={portraitRole}
+                options={[
+                  "Corporate",
+                  "CEO",
+                  "Lawyer",
+                  "Doctor",
+                  "Teacher",
+                  "Politician",
+                  "Passport",
+                  "LinkedIn",
+                ]}
+                onChange={setPortraitRole}
+              />
+              <SelectField
+                label="Background"
+                value={portraitBackground}
+                options={["Office", "Studio", "White", "Blue", "Luxury", "Newsroom"]}
+                onChange={setPortraitBackground}
+              />
+            </div>
+          )}
+
+          {isBeautyGlow && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Beauty Level"
+                value={beautyLevel}
+                options={["Natural", "Medium", "High"]}
+                onChange={setBeautyLevel}
+              />
+              <SelectField
+                label="Beauty Focus"
+                value={enhancementStyle}
+                options={["Natural Glow", "Beauty Filter", "Glow Up Look", "TikTok Glow", "Instagram Ready"]}
+                onChange={(value) => {
+                  setEnhancementStyle(value);
+                  setHasPreviewedEnhancement(false);
+                }}
+              />
+            </div>
+          )}
+
+          {isYoungerLook && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Age Reduction"
+                value={youngerAge}
+                options={["5 years", "10 years", "15 years", "20 years"]}
+                onChange={setYoungerAge}
+              />
+              <SelectField
+                label="Look Style"
+                value={enhancementStyle}
+                options={["Younger Appearance", "Natural Glow", "Glow Up Look", "Instagram Ready"]}
+                onChange={(value) => {
+                  setEnhancementStyle(value);
+                  setHasPreviewedEnhancement(false);
+                }}
+              />
+            </div>
+          )}
+
+          {isBackgroundChanger && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="New Background"
+                value={backgroundChoice}
+                options={[
+                  "Office",
+                  "Beach",
+                  "Dubai",
+                  "Nairobi CBD",
+                  "Luxury House",
+                  "Nature",
+                  "News Studio",
+                  "Transparent",
+                ]}
+                onChange={setBackgroundChoice}
+              />
+              <SelectField
+                label="Blend Style"
+                value={enhancementStyle}
+                options={["Luxury Background", "Corporate Headshot", "Natural Glow", "Poster Design Look"]}
+                onChange={(value) => {
+                  setEnhancementStyle(value);
+                  setHasPreviewedEnhancement(false);
+                }}
+              />
+            </div>
+          )}
+
+          {isProductAdImage && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Product Name
+                </span>
+                <Input
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  placeholder="Example: Samsung A55"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Price
+                </span>
+                <Input
+                  value={productPrice}
+                  onChange={(e) => setProductPrice(e.target.value)}
+                  placeholder="Example: KSh 45,000"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Offer Text
+                </span>
+                <Input
+                  value={productOffer}
+                  onChange={(e) => setProductOffer(e.target.value)}
+                  placeholder="Example: 20% OFF this week"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Phone / WhatsApp
+                </span>
+                <Input
+                  value={productPhone}
+                  onChange={(e) => setProductPhone(e.target.value)}
+                  placeholder="Example: 0712 345 678"
+                  className={inputClass}
+                />
+              </label>
+            </div>
+          )}
+
+          {isFacebookPostImage && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Headline
+                </span>
+                <Input
+                  value={postHeadline}
+                  onChange={(e) => setPostHeadline(e.target.value)}
+                  placeholder="Example: New Offer This Weekend"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block md:col-span-2">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Description
+                </span>
+                <textarea
+                  value={postDescription}
+                  onChange={(e) => setPostDescription(e.target.value)}
+                  placeholder="Example: Visit us today for quality service and affordable prices."
+                  className={textareaClass}
+                />
+              </label>
+            </div>
+          )}
+
+          {isPosterFlyer && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Event Name
+                </span>
+                <Input
+                  value={eventName}
+                  onChange={(e) => setEventName(e.target.value)}
+                  placeholder="Example: Youth Conference"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Date / Time
+                </span>
+                <Input
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  placeholder="Example: 12 July, 2 PM"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Venue
+                </span>
+                <Input
+                  value={eventVenue}
+                  onChange={(e) => setEventVenue(e.target.value)}
+                  placeholder="Example: Nairobi CBD"
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-extrabold">
+                  Phone / Contact
+                </span>
+                <Input
+                  value={eventPhone}
+                  onChange={(e) => setEventPhone(e.target.value)}
+                  placeholder="Example: 0712 345 678"
+                  className={inputClass}
+                />
+              </label>
+            </div>
+          )}
+        </div>
+
         {picturePreview && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
@@ -951,16 +1222,129 @@ export default function DynamicToolWorkspace({
               </div>
 
               {hasPreviewedEnhancement ? (
-                <img
-                  src={picturePreview}
-                  alt="Enhanced preview"
-                  className="max-h-[380px] w-full rounded-2xl object-cover"
-                  style={{ filter: filterClass }}
-                />
+                <div className="relative overflow-hidden rounded-2xl">
+                  <img
+                    src={picturePreview}
+                    alt="Enhanced preview"
+                    className="max-h-[380px] w-full rounded-2xl object-cover"
+                    style={{ filter: filterClass }}
+                  />
+
+                  {(isProductAdImage ||
+                    isFacebookPostImage ||
+                    isPosterFlyer) && (
+                    <div className="absolute inset-x-3 bottom-3 rounded-2xl bg-black/70 p-3 text-white backdrop-blur">
+                      {isProductAdImage && (
+                        <>
+                          <p className="text-base font-extrabold">
+                            {productName || "Product Name"}
+                          </p>
+                          <p className="text-sm font-bold text-amber-200">
+                            {productPrice || "Price"}
+                          </p>
+                          <p className="text-xs font-semibold">
+                            {productOffer || "Special offer"}
+                          </p>
+                          <p className="text-xs font-semibold text-cyan-200">
+                            {productPhone || "Phone / WhatsApp"}
+                          </p>
+                        </>
+                      )}
+
+                      {isFacebookPostImage && (
+                        <>
+                          <p className="text-base font-extrabold">
+                            {postHeadline || "Facebook Post Headline"}
+                          </p>
+                          <p className="text-xs font-semibold">
+                            {postDescription || "Short Facebook post description"}
+                          </p>
+                        </>
+                      )}
+
+                      {isPosterFlyer && (
+                        <>
+                          <p className="text-base font-extrabold">
+                            {eventName || "Event Name"}
+                          </p>
+                          <p className="text-xs font-semibold text-amber-200">
+                            {eventDate || "Date / Time"}
+                          </p>
+                          <p className="text-xs font-semibold">
+                            {eventVenue || "Venue"}
+                          </p>
+                          <p className="text-xs font-semibold text-cyan-200">
+                            {eventPhone || "Contact"}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {isBackgroundChanger && (
+                    <div className="absolute right-3 top-3 rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white shadow-lg">
+                      {backgroundChoice}
+                    </div>
+                  )}
+
+                  {isStudioPortrait && (
+                    <div className="absolute right-3 top-3 rounded-full bg-blue-600 px-3 py-1 text-xs font-extrabold text-white shadow-lg">
+                      {portraitRole} • {portraitBackground}
+                    </div>
+                  )}
+
+                  {isBeautyGlow && (
+                    <div className="absolute right-3 top-3 rounded-full bg-fuchsia-600 px-3 py-1 text-xs font-extrabold text-white shadow-lg">
+                      Beauty: {beautyLevel}
+                    </div>
+                  )}
+
+                  {isYoungerLook && (
+                    <div className="absolute right-3 top-3 rounded-full bg-emerald-600 px-3 py-1 text-xs font-extrabold text-white shadow-lg">
+                      Younger: {youngerAge}
+                    </div>
+                  )}
+
+                  {isPhotoEnhancer && (
+                    <div className="absolute right-3 top-3 rounded-full bg-slate-800/90 px-3 py-1 text-xs font-extrabold text-white shadow-lg">
+                      {pictureStrength} • HD {pictureUpscale}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80 p-6 text-center">
                   <p className="text-sm font-medium leading-6 text-slate-300">
-                    Click Generate Enhanced Photo to see the {enhancementStyle} result.
+                    Click {generateLabel} to see the {tool} result.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button
+            type="button"
+            disabled={!picturePreview}
+            onClick={() => setHasPreviewedEnhancement(true)}
+            className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
+          >
+            <Wand2 className="mr-2 h-4 w-4" />
+            {generateLabel}
+          </Button>
+
+          <Button
+            type="button"
+            disabled={!picturePreview || !hasPreviewedEnhancement}
+            onClick={handleAddEnhancedPhotoToTimeline}
+            className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            Add to Timeline
+          </Button>
+        </div>
+      </div>
+    );
+  }     Click Generate Enhanced Photo to see the {enhancementStyle} result.
                   </p>
                 </div>
               )}
