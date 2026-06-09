@@ -1003,6 +1003,11 @@ export default function CreatorStudio() {
   isExporting={isExporting}
   exportStatus={exportStatus}
   exportPrimaryLabel="Export / Download Media"
+  onExportPrimary={
+    aiVoiceBlob
+      ? handleExportFinalMixedMp4
+      : handleExportSilentMp4
+  }
   onOpenFacebook={openFacebookAfterExport}
   onInitializeFFmpeg={initializeFFmpeg}
   onExportSilentMp4={handleExportSilentMp4}
