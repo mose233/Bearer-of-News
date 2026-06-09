@@ -1867,13 +1867,25 @@ export default function DynamicToolWorkspace({
       </div>
     );
   }
-  if (category === "Music AI" && tool === "AI Song Studio") {
+  if (category === "Music AI") {
     return (
       <div className={boxClass}>
         <ToolHeader
-          title="AI Song Studio"
+          title={tool}
           icon={<Music className="h-5 w-5 text-cyan-300" />}
-          description="Write lyrics, choose a style, select language and duration, then prepare a song request for your video."
+          description={
+  tool === "Lyrics Generator"
+    ? "Generate lyrics for songs, reels, ads, worship, and social media."
+    : tool === "Song Writer"
+    ? "Create complete song concepts with verses, chorus, bridge and structure."
+    : tool === "Beat Generator"
+    ? "Create beat ideas and production instructions."
+    : tool === "Background Music Generator"
+    ? "Generate royalty-free background music concepts."
+    : tool === "Jingle Creator"
+    ? "Create short brand, business and radio jingles."
+    : "Write lyrics, choose a style, language and duration."
+}
         />
 
         <div className="mt-5 space-y-5">
