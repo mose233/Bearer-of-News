@@ -957,7 +957,6 @@ export default function CreatorStudio() {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onGenerateCompleteVideo={handleGenerateCompleteVideo}
             onAddEnhancedPhotoToTimeline={(file, preview) =>
               addSceneToTimeline(file, preview, 5)
             }
@@ -1004,7 +1003,6 @@ export default function CreatorStudio() {
   isExporting={isExporting}
   exportStatus={exportStatus}
   exportPrimaryLabel="Export / Download Media"
-  onExportPrimary={handleExportFinalMixedMp4}
   onOpenFacebook={openFacebookAfterExport}
   onInitializeFFmpeg={initializeFFmpeg}
   onExportSilentMp4={handleExportSilentMp4}
