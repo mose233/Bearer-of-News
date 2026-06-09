@@ -599,44 +599,218 @@ function VideoTemplatePanel({
 function CinematicPlaceholderPanel({
   tool,
   onMediaUpload,
-  onGenerateCompleteVideo,
+  setVideoPrompt,
+  setVideoCreativeType,
+  setVideoOutputFormat,
+  onAddEnhancedPhotoToTimeline,
 }: {
   tool: string;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onGenerateCompleteVideo?: () => void;
+  setVideoPrompt?: (value: string) => void;
+  setVideoCreativeType?: (value: string) => void;
+  setVideoOutputFormat?: (value: string) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
 }) {
-  const needsScript = [
-    "Talking Avatar",
-    "AI News Presenter",
-    "AI Spokesperson",
-    "AI Teacher",
-    "AI Influencer",
-    "AI Customer Support Avatar",
-    "Lip Sync Video",
-  ].includes(tool);
+  const [cinematicMotionStyle, setCinematicMotionStyle] = useState(
+    tool === "Photo to Video"
+      ? "Cinematic Camera Move"
+      : tool === "Talking Avatar"
+        ? "Talking Head"
+        : tool === "AI News Presenter"
+          ? "News Presenter"
+          : "Subtle Motion"
+  );
+  const [cinematicMood, setCinematicMood] = useState(
+    tool === "AI News Presenter" ? "Newsroom" : "Cinematic"
+  );
+  const [cinematicLanguage, setCinematicLanguage] = useState("English");
+  const [cinematicOutputFormat, setCinematicOutputFormat] =
+    useState("Facebook Reel");
+  const [cinematicScript, setCinematicScript] = useState("");
+  const [cinematicStatus, setCinematicStatus] = useState("");
+  const [cinematicPreview, setCinematicPreview] = useState("");
 
-  const needsAudio = [
-    "Singing Animation",
-    "Lip Sync Video",
-    "Music Performance Video",
-  ].includes(tool);
+  const isPhotoToVideo = tool === "Photo to Video";
+  const isTalkingAvatar = tool === "Talking Avatar";
+  const isNewsPresenter = tool === "AI News Presenter";
+  const isDanceLike = ["Dance Animation", "Singing Animation"].includes(tool);
+
+  const uploadTitle = isPhotoToVideo
+    ? "1. Upload Photo to Animate"
+    : isTalkingAvatar
+      ? "1. Upload Avatar / Presenter Photo"
+      : isNewsPresenter
+        ? "1. Upload Presenter or News Image"
+        : "1. Upload Source Media";
+
+  const uploadDescription = isPhotoToVideo
+    ? "Upload one photo. Mock mode will prepare a motion-video draft from it."
+    : isTalkingAvatar
+      ? "Upload a face or avatar image for the talking video draft."
+      : isNewsPresenter
+        ? "Upload presenter image, news image, or newsroom visual."
+        : "Upload a photo, image, or short video for this cinematic AI tool.";
+
+  const instructionLabel = isTalkingAvatar
+    ? "6. Avatar Script"
+    : isNewsPresenter
+      ? "6. News Script"
+      : isPhotoToVideo
+        ? "6. Motion Instructions"
+        : "6. Extra Instructions";
+
+  const instructionPlaceholder = isTalkingAvatar
+    ? "Example: Hello everyone, welcome to XNewsApp. Today I want to introduce our new product..."
+    : isNewsPresenter
+      ? "Example: Good evening. Here are today's top stories from Nairobi..."
+      : isPhotoToVideo
+        ? "Example: Slowly zoom in, add cinematic camera movement, make the background feel alive."
+        : "Optional: describe movement, background, camera direction, or visual style.";
+
+  const buildCinematicPrompt = () => {
+    return [
+      `Tool: ${tool}`,
+      `Motion style: ${cinematicMotionStyle}`,
+      `Mood: ${cinematicMood}`,
+      `Language: ${cinematicLanguage}`,
+      `Output format: ${cinematicOutputFormat}`,
+      "",
+      "User instructions:",
+      cinematicScript.trim() || instructionPlaceholder,
+      "",
+      "Mock mode: create a timeline-ready cinematic draft cover now. Later fal.ai will replace this with real AI video generation.",
+    ].join("\n");
+  };
+
+  const handleGenerateCinematicDraft = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1920;
+
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      alert("Could not create cinematic draft.");
+      return;
+    }
+
+    const gradient = context.createLinearGradient(0, 0, 1080, 1920);
+
+    if (cinematicMood === "Newsroom") {
+      gradient.addColorStop(0, "#0f172a");
+      gradient.addColorStop(1, "#2563eb");
+    } else if (cinematicMood === "Luxury") {
+      gradient.addColorStop(0, "#111827");
+      gradient.addColorStop(1, "#f59e0b");
+    } else if (cinematicMood === "Emotional") {
+      gradient.addColorStop(0, "#312e81");
+      gradient.addColorStop(1, "#ec4899");
+    } else if (cinematicMood === "Energetic") {
+      gradient.addColorStop(0, "#7c2d12");
+      gradient.addColorStop(1, "#22c55e");
+    } else {
+      gradient.addColorStop(0, "#020617");
+      gradient.addColorStop(1, "#7c3aed");
+    }
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 1080, 1920);
+
+    context.fillStyle = "rgba(255,255,255,0.10)";
+    context.beginPath();
+    context.arc(920, 260, 260, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(255,255,255,0.06)";
+    context.beginPath();
+    context.arc(120, 1550, 360, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(0,0,0,0.42)";
+    context.fillRect(80, 300, 920, 1040);
+
+    context.textAlign = "center";
+    context.fillStyle = "#ffffff";
+    context.font = "900 72px Inter, Arial, sans-serif";
+    context.fillText(tool.toUpperCase(), 540, 450);
+
+    context.font = "800 46px Inter, Arial, sans-serif";
+    context.fillStyle = "#fde68a";
+    context.fillText(cinematicMotionStyle, 540, 560);
+
+    context.font = "700 36px Inter, Arial, sans-serif";
+    context.fillStyle = "#cffafe";
+    context.fillText(cinematicMood, 540, 650);
+
+    context.fillStyle = "rgba(255,255,255,0.88)";
+    context.font = "700 30px Inter, Arial, sans-serif";
+    context.fillText(cinematicOutputFormat, 540, 750);
+
+    context.strokeStyle = "rgba(255,255,255,0.75)";
+    context.lineWidth = 7;
+    context.beginPath();
+    context.moveTo(250, 980);
+    context.bezierCurveTo(390, 850, 660, 1110, 830, 950);
+    context.stroke();
+
+    context.fillStyle = "#ffffff";
+    context.font = "800 34px Inter, Arial, sans-serif";
+    context.fillText("MOCK CINEMATIC DRAFT", 540, 1160);
+
+    context.fillStyle = "rgba(255,255,255,0.8)";
+    context.font = "700 26px Inter, Arial, sans-serif";
+    context.fillText("fal.ai will power real motion later", 540, 1230);
+
+    context.fillStyle = "rgba(255,255,255,0.88)";
+    context.font = "700 28px Inter, Arial, sans-serif";
+    context.fillText("xnewsapp.com", 540, 1770);
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        alert("Could not generate cinematic draft image.");
+        return;
+      }
+
+      if (cinematicPreview) {
+        URL.revokeObjectURL(cinematicPreview);
+      }
+
+      const file = new File([blob], `xnewsapp-${tool.toLowerCase().replace(/\s+/g, "-")}-mock-draft.png`, {
+        type: "image/png",
+      });
+      const preview = URL.createObjectURL(blob);
+
+      setCinematicPreview(preview);
+      setVideoPrompt?.(buildCinematicPrompt());
+      setVideoCreativeType?.(cinematicMotionStyle);
+      setVideoOutputFormat?.(cinematicOutputFormat);
+
+      if (onAddEnhancedPhotoToTimeline) {
+        onAddEnhancedPhotoToTimeline(file, preview);
+      }
+
+      setCinematicStatus(
+        `${tool} mock draft created and added to the timeline. Preview it, then use Export / Download Media.`
+      );
+    }, "image/png");
+  };
 
   return (
     <div className={boxClass}>
       <ToolHeader
         title={tool}
         icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
-        description="Cinematic AI is the premium motion-video workspace. For now this screen prepares a complete mock workflow; later fal.ai will replace the mock generator."
+        description="Cinematic AI is the premium AI motion-video workspace. Mock mode collects the right inputs today and creates a timeline-ready draft while fal.ai is not connected yet."
       />
 
       <div className="mt-5 space-y-5">
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
-          fal.ai key not connected yet. This workflow can collect inputs now and will connect to real AI video generation later.
+          Mock mode active: this prepares the video workflow and timeline draft now. Real AI motion will be connected later through fal.ai.
         </div>
 
         <UploadMediaBox
-          title="1. Upload Source Media"
-          description="Upload a photo, image, or short video for this cinematic AI tool."
+          title={uploadTitle}
+          description={uploadDescription}
           accept="image/*,video/*"
           multiple={false}
           onChange={onMediaUpload}
@@ -645,20 +819,31 @@ function CinematicPlaceholderPanel({
         <div className="grid gap-4 md:grid-cols-2">
           <SelectField
             label="2. Motion Style"
-            options={[
-              "Subtle Motion",
-              "Cinematic Camera Move",
-              "Talking Head",
-              "Dance Motion",
-              "News Presenter",
-              "Performance",
-              "Movie Scene",
-              "Trailer Style",
-            ]}
+            value={cinematicMotionStyle}
+            options={
+              isTalkingAvatar
+                ? ["Talking Head", "Presenter Close-Up", "Podcast Avatar", "Business Spokesperson", "Teacher Style"]
+                : isNewsPresenter
+                  ? ["News Presenter", "Breaking News", "Studio Report", "Field Report", "Public Update"]
+                  : isPhotoToVideo
+                    ? ["Subtle Motion", "Cinematic Camera Move", "Slow Zoom", "Parallax Motion", "Trailer Style"]
+                    : isDanceLike
+                      ? ["Dance Motion", "Afrobeats Dance", "Amapiano Dance", "TikTok Dance", "Performance"]
+                      : ["Subtle Motion", "Cinematic Camera Move", "Talking Head", "Dance Motion", "Movie Scene", "Trailer Style"]
+            }
+            onChange={setCinematicMotionStyle}
           />
-          <SelectField label="3. Output Format" options={outputFormats} />
+
+          <SelectField
+            label="3. Output Format"
+            value={cinematicOutputFormat}
+            options={outputFormats}
+            onChange={setCinematicOutputFormat}
+          />
+
           <SelectField
             label="4. Mood"
+            value={cinematicMood}
             options={[
               "Professional",
               "Energetic",
@@ -669,36 +854,69 @@ function CinematicPlaceholderPanel({
               "Funny",
               "Dramatic",
             ]}
+            onChange={setCinematicMood}
           />
-          <SelectField label="5. Language" options={languages} />
-        </div>
 
-        {needsAudio && (
-          <Input
-            type="file"
-            accept="audio/*"
-            className="rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+          <SelectField
+            label="5. Language"
+            value={cinematicLanguage}
+            options={languages}
+            onChange={setCinematicLanguage}
           />
-        )}
+        </div>
 
         <label className="block">
           <span className="mb-2 block text-sm font-extrabold">
-            {needsScript ? "6. Write Script" : "6. Extra Instructions"}
+            {instructionLabel}
           </span>
           <textarea
+            value={cinematicScript}
+            onChange={(e) => setCinematicScript(e.target.value)}
             className={textareaClass}
-            placeholder={
-              needsScript
-                ? "Example: Hello everyone, welcome to XNewsApp. Today I want to share this important update..."
-                : "Optional: describe movement, background, camera direction, or visual style."
-            }
+            placeholder={instructionPlaceholder}
           />
         </label>
 
-        <PrimaryGenerateButton
-          label="Generate Cinematic AI Draft"
-          onClick={onGenerateCompleteVideo}
-        />
+        {cinematicStatus && (
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+            {cinematicStatus}
+          </div>
+        )}
+
+        {cinematicPreview && (
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
+            <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
+              Cinematic Mock Draft Preview
+            </div>
+            <img
+              src={cinematicPreview}
+              alt="Cinematic mock draft preview"
+              className="max-h-[420px] w-full rounded-2xl object-cover"
+            />
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3">
+          <PrimaryGenerateButton
+            label={`Generate ${tool} Mock Draft`}
+            onClick={handleGenerateCinematicDraft}
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              setVideoPrompt?.(buildCinematicPrompt());
+              setVideoCreativeType?.(cinematicMotionStyle);
+              setVideoOutputFormat?.(cinematicOutputFormat);
+              setCinematicStatus(
+                `${tool} workflow saved. Generate a mock draft or add source media, then export from the main Export section.`
+              );
+            }}
+            className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
+          >
+            Save Cinematic Workflow
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2382,7 +2600,10 @@ export default function DynamicToolWorkspace({
       <CinematicPlaceholderPanel
         tool={tool}
         onMediaUpload={onMediaUpload}
-        onGenerateCompleteVideo={onGenerateCompleteVideo}
+        setVideoPrompt={setVideoPrompt}
+        setVideoCreativeType={setVideoCreativeType}
+        setVideoOutputFormat={setVideoOutputFormat}
+        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
       />
     );
   }
