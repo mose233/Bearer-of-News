@@ -756,6 +756,16 @@ export default function DynamicToolWorkspace({
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
+  const [quoteText, setQuoteText] = useState("");
+  const [quoteAuthor, setQuoteAuthor] = useState("");
+  const [quoteCategory, setQuoteCategory] = useState("Motivational");
+  const [quoteBackground, setQuoteBackground] = useState("Sunrise");
+  const [quoteFont, setQuoteFont] = useState("Poppins");
+  const [quoteOutputFormat, setQuoteOutputFormat] = useState("Facebook Post");
+  const [quotePreview, setQuotePreview] = useState("");
+  const [quoteFile, setQuoteFile] = useState<File | null>(null);
+  const [quoteStatus, setQuoteStatus] = useState("");
+
 
   const [songLyrics, setSongLyrics] = useState("");
   const [songStyle, setSongStyle] = useState("Gengetone");
@@ -801,6 +811,166 @@ export default function DynamicToolWorkspace({
 
   const { category, tool } = selectedTool;
 
+
+  const wrapCanvasText = (
+    context: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number
+  ) => {
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines: string[] = [];
+    let currentLine = "";
+
+    words.forEach((word) => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const metrics = context.measureText(testLine);
+
+      if (metrics.width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+        return;
+      }
+
+      currentLine = testLine;
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
+  };
+
+  const getQuoteBackground = () => {
+    if (quoteBackground === "Nature") return ["#064e3b", "#22c55e"];
+    if (quoteBackground === "City") return ["#111827", "#0ea5e9"];
+    if (quoteBackground === "Luxury Gold") return ["#171717", "#f59e0b"];
+    if (quoteBackground === "Dark Minimal") return ["#020617", "#334155"];
+    if (quoteBackground === "Abstract") return ["#581c87", "#ec4899"];
+    if (quoteBackground === "Faith Light") return ["#1e3a8a", "#f8fafc"];
+    return ["#7c2d12", "#f97316"];
+  };
+
+  const generateQuoteImageFile = async () => {
+    const cleanQuote = quoteText.trim();
+
+    if (!cleanQuote) {
+      alert("Please write a quote first.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1080;
+
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      alert("Could not create quote image.");
+      return;
+    }
+
+    const [startColor, endColor] = getQuoteBackground();
+    const gradient = context.createLinearGradient(0, 0, 1080, 1080);
+    gradient.addColorStop(0, startColor);
+    gradient.addColorStop(1, endColor);
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 1080, 1080);
+
+    context.fillStyle = "rgba(255,255,255,0.08)";
+    context.beginPath();
+    context.arc(920, 120, 260, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(255,255,255,0.06)";
+    context.beginPath();
+    context.arc(120, 970, 330, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(0,0,0,0.28)";
+    context.beginPath();
+    context.roundRect?.(90, 140, 900, 800, 42);
+    if (!context.roundRect) {
+      context.rect(90, 140, 900, 800);
+    }
+    context.fill();
+
+    context.textAlign = "center";
+    context.fillStyle = "#ffffff";
+    context.font = `700 58px ${quoteFont}, Arial, sans-serif`;
+
+    const lines = wrapCanvasText(context, cleanQuote, 760);
+    const lineHeight = 76;
+    const quoteHeight = lines.length * lineHeight;
+    let startY = 500 - quoteHeight / 2;
+
+    context.font = `700 132px ${quoteFont}, Arial, sans-serif`;
+    context.fillStyle = "rgba(255,255,255,0.28)";
+    context.fillText("“", 540, startY - 38);
+
+    context.font = `700 58px ${quoteFont}, Arial, sans-serif`;
+    context.fillStyle = "#ffffff";
+
+    lines.forEach((line) => {
+      context.fillText(line, 540, startY);
+      startY += lineHeight;
+    });
+
+    if (quoteAuthor.trim()) {
+      context.font = `600 32px ${quoteFont}, Arial, sans-serif`;
+      context.fillStyle = "rgba(255,255,255,0.82)";
+      context.fillText(`— ${quoteAuthor.trim()}`, 540, startY + 36);
+    }
+
+    context.font = `800 28px ${quoteFont}, Arial, sans-serif`;
+    context.fillStyle = "rgba(255,255,255,0.75)";
+    context.fillText(quoteCategory.toUpperCase(), 540, 850);
+
+    context.font = `700 24px ${quoteFont}, Arial, sans-serif`;
+    context.fillStyle = "rgba(255,255,255,0.55)";
+    context.fillText("Created with XNewsApp", 540, 910);
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((result) => resolve(result), "image/png", 0.95);
+    });
+
+    if (!blob) {
+      alert("Could not generate quote image.");
+      return;
+    }
+
+    if (quotePreview) {
+      URL.revokeObjectURL(quotePreview);
+    }
+
+    const file = new File([blob], "xnewsapp-quote-image.png", {
+      type: "image/png",
+    });
+
+    const preview = URL.createObjectURL(blob);
+
+    setQuoteFile(file);
+    setQuotePreview(preview);
+    setQuoteStatus(
+      `${quoteOutputFormat} quote image created. Preview it, then add it to the timeline.`
+    );
+  };
+
+  const handleAddQuoteImageToTimeline = () => {
+    if (!quoteFile || !quotePreview) {
+      alert("Please generate the quote image first.");
+      return;
+    }
+
+    if (!onAddEnhancedPhotoToTimeline) {
+      alert("Timeline connection is not ready.");
+      return;
+    }
+
+    onAddEnhancedPhotoToTimeline(quoteFile, quotePreview);
+    alert("Quote image added to timeline.");
+  };
 
   const handleAddEnhancedPhotoToTimeline = () => {
     if (!pictureFile || !picturePreview) {
@@ -892,6 +1062,153 @@ export default function DynamicToolWorkspace({
     setMusicVideoAudioSource((current) => current || "Uploaded Audio");
     onMusicUpload(e);
   };
+
+  if (category === "Picture AI" && tool === "Quote Image Creator") {
+    return (
+      <div className={boxClass}>
+        <ToolHeader
+          title="Quote Image Creator"
+          icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
+          description="Create Facebook, Instagram, WhatsApp, or poster-ready quote graphics without uploading a photo first."
+        />
+
+        <div className="mt-5 space-y-5">
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              1. Write Quote
+            </span>
+            <textarea
+              value={quoteText}
+              onChange={(e) => {
+                setQuoteText(e.target.value);
+                setQuoteStatus("");
+              }}
+              placeholder="Example: Success comes from consistency, not luck."
+              className={textareaClass}
+            />
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Author / Source
+              </span>
+              <Input
+                value={quoteAuthor}
+                onChange={(e) => setQuoteAuthor(e.target.value)}
+                placeholder="Example: XNewsApp"
+                className={inputClass}
+              />
+            </label>
+
+            <SelectField
+              label="3. Quote Style"
+              value={quoteCategory}
+              options={[
+                "Motivational",
+                "Business",
+                "Faith",
+                "Love",
+                "Birthday",
+                "News",
+                "Education",
+                "Leadership",
+              ]}
+              onChange={setQuoteCategory}
+            />
+
+            <SelectField
+              label="4. Background Style"
+              value={quoteBackground}
+              options={[
+                "Sunrise",
+                "Nature",
+                "City",
+                "Luxury Gold",
+                "Dark Minimal",
+                "Abstract",
+                "Faith Light",
+              ]}
+              onChange={setQuoteBackground}
+            />
+
+            <SelectField
+              label="5. Font Style"
+              value={quoteFont}
+              options={[
+                "Poppins",
+                "Montserrat",
+                "Anton",
+                "Oswald",
+                "Playfair Display",
+                "Bebas Neue",
+                "Inter",
+              ]}
+              onChange={setQuoteFont}
+            />
+
+            <SelectField
+              label="6. Output Format"
+              value={quoteOutputFormat}
+              options={[
+                "Facebook Post",
+                "Instagram Square",
+                "WhatsApp Status",
+                "Poster",
+                "Story",
+              ]}
+              onChange={setQuoteOutputFormat}
+            />
+          </div>
+
+          {quoteStatus && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+              {quoteStatus}
+            </div>
+          )}
+
+          {quotePreview && (
+            <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-extrabold uppercase tracking-wide text-pink-200">
+                  Quote Image Preview
+                </span>
+                <span className="rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
+                  PNG
+                </span>
+              </div>
+
+              <img
+                src={quotePreview}
+                alt="Quote image preview"
+                className="mx-auto max-h-[520px] w-full rounded-2xl object-contain"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            <Button
+              type="button"
+              onClick={generateQuoteImageFile}
+              className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700"
+            >
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate Quote Image
+            </Button>
+
+            <Button
+              type="button"
+              disabled={!quotePreview || !quoteFile}
+              onClick={handleAddQuoteImageToTimeline}
+              className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
+            >
+              Add to Timeline
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (category === "Picture AI") {
     const filterClass = enhancementFilters[enhancementStyle];
