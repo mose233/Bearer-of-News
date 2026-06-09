@@ -778,6 +778,13 @@ export default function DynamicToolWorkspace({
   const [musicVideoAudioName, setMusicVideoAudioName] = useState("");
   const [musicVideoAudioSource, setMusicVideoAudioSource] = useState("");
   const [musicVideoAudioAccept, setMusicVideoAudioAccept] = useState("audio/*");
+  const [musicVideoStyle, setMusicVideoStyle] = useState("Performance");
+  const [musicVideoTheme, setMusicVideoTheme] = useState("TikTok Viral");
+  const [musicVideoMood, setMusicVideoMood] = useState("Energetic");
+  const [musicVideoOutputFormat, setMusicVideoOutputFormat] = useState("Facebook Reel");
+  const [musicVideoVisualPrompt, setMusicVideoVisualPrompt] = useState("");
+  const [musicVideoDraftPreview, setMusicVideoDraftPreview] = useState("");
+  const [musicVideoDraftStatus, setMusicVideoDraftStatus] = useState("");
   const [pictureStrength, setPictureStrength] = useState("Medium");
   const [pictureUpscale, setPictureUpscale] = useState("Yes");
   const [portraitRole, setPortraitRole] = useState("Corporate");
@@ -1060,7 +1067,142 @@ export default function DynamicToolWorkspace({
     if (!file) return;
     setMusicVideoAudioName(file.name);
     setMusicVideoAudioSource((current) => current || "Uploaded Audio");
+    setMusicVideoDraftStatus("Audio selected. Now choose the style/theme and generate a music video draft.");
     onMusicUpload(e);
+  };
+
+  const buildMusicVideoPrompt = () => {
+    return [
+      "Tool: AI Music Video Studio",
+      `Audio source: ${musicVideoAudioSource || "No audio selected"}`,
+      `Audio name: ${musicVideoAudioName || "None"}`,
+      `Video style: ${musicVideoStyle}`,
+      `Video theme: ${musicVideoTheme}`,
+      `Visual mood: ${musicVideoMood}`,
+      `Output format: ${musicVideoOutputFormat}`,
+      "",
+      "Visual instructions:",
+      musicVideoVisualPrompt.trim() ||
+        "Create a modern social music video using animated visuals, captions, beat-synced scene changes, and social-ready framing.",
+    ].join("\n");
+  };
+
+  const handleGenerateMusicVideoDraft = () => {
+    if (!musicVideoAudioName && !musicVideoAudioSource) {
+      alert("Please choose AI Song Studio Song or upload MP3/WAV/audio first.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1920;
+
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      alert("Could not create music video draft.");
+      return;
+    }
+
+    const gradient = context.createLinearGradient(0, 0, 1080, 1920);
+
+    if (musicVideoMood === "Romantic") {
+      gradient.addColorStop(0, "#831843");
+      gradient.addColorStop(1, "#f472b6");
+    } else if (musicVideoMood === "Luxury") {
+      gradient.addColorStop(0, "#171717");
+      gradient.addColorStop(1, "#f59e0b");
+    } else if (musicVideoMood === "Dark Mood") {
+      gradient.addColorStop(0, "#020617");
+      gradient.addColorStop(1, "#334155");
+    } else if (musicVideoMood === "Street") {
+      gradient.addColorStop(0, "#111827");
+      gradient.addColorStop(1, "#22c55e");
+    } else {
+      gradient.addColorStop(0, "#4c1d95");
+      gradient.addColorStop(1, "#06b6d4");
+    }
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 1080, 1920);
+
+    context.fillStyle = "rgba(255,255,255,0.10)";
+    for (let i = 0; i < 11; i += 1) {
+      context.beginPath();
+      context.arc(120 + i * 105, 360 + (i % 3) * 170, 50 + (i % 4) * 16, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    context.fillStyle = "rgba(0,0,0,0.45)";
+    context.fillRect(80, 290, 920, 980);
+
+    context.fillStyle = "#ffffff";
+    context.textAlign = "center";
+    context.font = "900 72px Inter, Arial, sans-serif";
+    context.fillText("AI MUSIC VIDEO", 540, 430);
+
+    context.font = "800 54px Inter, Arial, sans-serif";
+    context.fillText(musicVideoTheme.toUpperCase(), 540, 535);
+
+    context.font = "700 38px Inter, Arial, sans-serif";
+    context.fillStyle = "#cffafe";
+    context.fillText(musicVideoStyle, 540, 630);
+
+    context.fillStyle = "#fde68a";
+    context.font = "700 34px Inter, Arial, sans-serif";
+    context.fillText(musicVideoMood, 540, 700);
+
+    context.fillStyle = "#ffffff";
+    context.font = "700 34px Inter, Arial, sans-serif";
+    context.fillText(musicVideoAudioName || musicVideoAudioSource || "Selected Audio", 540, 805);
+
+    context.strokeStyle = "rgba(255,255,255,0.8)";
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(270, 980);
+    for (let i = 0; i < 16; i += 1) {
+      const x = 270 + i * 36;
+      const y = 980 - ((i % 5) + 1) * 35;
+      context.lineTo(x, y);
+    }
+    context.stroke();
+
+    context.fillStyle = "#ffffff";
+    context.font = "800 30px Inter, Arial, sans-serif";
+    context.fillText(musicVideoOutputFormat, 540, 1160);
+
+    context.fillStyle = "rgba(255,255,255,0.88)";
+    context.font = "700 28px Inter, Arial, sans-serif";
+    context.fillText("xnewsapp.com", 540, 1770);
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        alert("Could not generate music video draft image.");
+        return;
+      }
+
+      if (musicVideoDraftPreview) {
+        URL.revokeObjectURL(musicVideoDraftPreview);
+      }
+
+      const file = new File([blob], "xnewsapp-ai-music-video-draft.png", {
+        type: "image/png",
+      });
+      const preview = URL.createObjectURL(blob);
+
+      setMusicVideoDraftPreview(preview);
+      setVideoPrompt?.(buildMusicVideoPrompt());
+      setVideoCreativeType?.(musicVideoStyle);
+      setVideoOutputFormat?.(musicVideoOutputFormat);
+
+      if (onAddEnhancedPhotoToTimeline) {
+        onAddEnhancedPhotoToTimeline(file, preview);
+      }
+
+      setMusicVideoDraftStatus(
+        "Music video draft created and added to the timeline. Preview it, then use Export / Download Media."
+      );
+    }, "image/png");
   };
 
   if (category === "Picture AI" && tool === "Quote Image Creator") {
@@ -1961,23 +2103,82 @@ export default function DynamicToolWorkspace({
           <div className="grid gap-4 md:grid-cols-2">
             <SelectField
               label="2. Video Style"
-              options={["Performance", "Live Concert", "Stage Performance", "Dance Crew", "Street Performance", "Club Performance", "Choir Performance"]}
+              value={musicVideoStyle}
+              options={["Performance", "Live Concert", "Stage Performance", "Dance Crew", "Street Performance", "Club Performance", "Choir Performance", "Lyrics Video", "Visualizer"]}
+              onChange={setMusicVideoStyle}
             />
             <SelectField
               label="3. Video Theme"
+              value={musicVideoTheme}
               options={["TikTok Viral", "Love Story", "Breakup Story", "Birthday Celebration", "Wedding Story", "Friendship Story", "Motivational Journey", "Anime Music Video", "Dance Challenge", "Product Anthem", "Brand Intro", "Creator Intro"]}
+              onChange={setMusicVideoTheme}
             />
             <SelectField
               label="4. Visual Mood"
+              value={musicVideoMood}
               options={["Energetic", "Cinematic", "Colorful", "Dark Mood", "Luxury", "Romantic", "Emotional", "Minimal", "Street", "Vintage"]}
+              onChange={setMusicVideoMood}
             />
-            <SelectField label="5. Output Format" options={outputFormats} />
+            <SelectField
+              label="5. Output Format"
+              value={musicVideoOutputFormat}
+              options={outputFormats}
+              onChange={setMusicVideoOutputFormat}
+            />
           </div>
 
-          <PrimaryGenerateButton
-            label="Generate Music Video Draft"
-            onClick={onGenerateCompleteVideo}
-          />
+          <label className="block">
+            <span className="mb-2 block text-sm font-extrabold">
+              6. Visual Instructions / Lyrics Theme
+            </span>
+            <textarea
+              value={musicVideoVisualPrompt}
+              onChange={(e) => setMusicVideoVisualPrompt(e.target.value)}
+              className={textareaClass}
+              placeholder="Example: Nairobi nightlife, dancers, colorful stage lights, fast captions, beat-synced transitions."
+            />
+          </label>
+
+          {musicVideoDraftStatus && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+              {musicVideoDraftStatus}
+            </div>
+          )}
+
+          {musicVideoDraftPreview && (
+            <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
+              <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
+                Draft Cover Preview
+              </div>
+              <img
+                src={musicVideoDraftPreview}
+                alt="AI music video draft preview"
+                className="max-h-[420px] w-full rounded-2xl object-cover"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            <PrimaryGenerateButton
+              label="Generate Music Video Draft"
+              onClick={handleGenerateMusicVideoDraft}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                setVideoPrompt?.(buildMusicVideoPrompt());
+                setVideoCreativeType?.(musicVideoStyle);
+                setVideoOutputFormat?.(musicVideoOutputFormat);
+                setMusicVideoDraftStatus(
+                  "Music video workflow saved. Generate a draft cover or add scenes, then export from the main Export section."
+                );
+              }}
+              className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600"
+            >
+              Save Music Video Workflow
+            </button>
+          </div>
         </div>
       </div>
     );
