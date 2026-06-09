@@ -335,13 +335,34 @@ function PrimaryGenerateButton({
 
 function VideoTemplatePanel({
   tool,
+  videoPrompt,
+  setVideoPrompt,
+  videoCreativeType,
+  setVideoCreativeType,
+  videoOutputFormat,
+  setVideoOutputFormat,
   onMediaUpload,
   onGenerateCompleteVideo,
 }: {
   tool: string;
+  videoPrompt?: string;
+  setVideoPrompt?: (value: string) => void;
+  videoCreativeType?: string;
+  setVideoCreativeType?: (value: string) => void;
+  videoOutputFormat?: string;
+  setVideoOutputFormat?: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
 }) {
+  const [localVideoType, setLocalVideoType] = useState("Trending Reel");
+  const [localVisualStyle, setLocalVisualStyle] = useState("Modern Social");
+  const [localLanguage, setLocalLanguage] = useState("English");
+  const [localOutputFormat, setLocalOutputFormat] = useState(
+    videoOutputFormat || "Facebook Reel"
+  );
+  const [localMessage, setLocalMessage] = useState("");
+  const [videoDraftStatus, setVideoDraftStatus] = useState("");
+
   const isSocial = [
     "Facebook Reel Maker",
     "TikTok Video Maker",
@@ -366,35 +387,140 @@ function VideoTemplatePanel({
     "Educational Explainer Video",
   ].includes(tool);
 
+  const isPersonal = [
+    "Birthday Video",
+    "Wedding Video",
+    "Memorial Tribute Video",
+    "Love Story Video",
+    "Travel Video",
+  ].includes(tool);
+
   const typeOptions = isSocial
-    ? ["Trending Reel", "Fast Captions", "Photo Reel", "Story Style", "Product Reel", "Creator Update"]
+    ? [
+        "Trending Reel",
+        "Fast Captions",
+        "Photo Reel",
+        "Story Style",
+        "Product Reel",
+        "Creator Update",
+      ]
     : isBusiness
-      ? ["Product Launch", "Discount Offer", "Business Promo", "Service Promo", "New Arrival", "Brand Awareness"]
+      ? [
+          "Product Launch",
+          "Discount Offer",
+          "Business Promo",
+          "Service Promo",
+          "New Arrival",
+          "Brand Awareness",
+        ]
       : isNews
-        ? ["Breaking News", "News Summary", "Public Update", "Explainer", "Community Update", "School Update"]
-        : ["Motivational", "Birthday", "Story", "Quote", "Memory", "Announcement"];
+        ? [
+            "Breaking News",
+            "News Summary",
+            "Public Update",
+            "Explainer",
+            "Community Update",
+            "School Update",
+          ]
+        : isPersonal
+          ? [
+              "Birthday Wishes",
+              "Wedding Memory",
+              "Memorial Tribute",
+              "Family Memory",
+              "Romantic Story",
+              "Travel Memory",
+            ]
+          : ["Motivational", "Story", "Quote", "Memory", "Announcement"];
+
+  const messageLabel = isBusiness
+    ? "6. Write Business / Product Details"
+    : isNews
+      ? "6. Write Headline / News Story"
+      : isPersonal
+        ? "6. Write Names / Message"
+        : isSocial
+          ? "6. Write Reel Topic / Caption"
+          : "6. Write Message / Script";
+
+  const messagePlaceholder = isBusiness
+    ? "Example: Business: Mose Salon. Services: hair styling, nails, makeup. Location: Nairobi. WhatsApp: 0712 345 678. Offer: 20% discount this week."
+    : isNews
+      ? "Example: Headline: Heavy rains affect Nairobi roads. Story: Explain what happened, where it happened, and what people should know."
+      : isPersonal
+        ? "Example: Happy birthday Sarah! May your new year bring joy, success, and blessings. Add names, age, location, or special message."
+        : isSocial
+          ? "Example: Create a fast Facebook Reel about my new product launch. Make it catchy, short, and suitable for young buyers."
+          : "Example: Create a motivational video about never giving up, hard work, and building a better future.";
+
+  const buildDraftPrompt = () => {
+    const cleanMessage = localMessage.trim() || videoPrompt?.trim() || "Create a social video.";
+
+    return [
+      `Tool: ${tool}`,
+      `Video type: ${localVideoType}`,
+      `Visual style: ${localVisualStyle}`,
+      `Language: ${localLanguage}`,
+      `Output format: ${localOutputFormat}`,
+      "",
+      "User instructions:",
+      cleanMessage,
+      "",
+      "Create a short standard video using uploaded media, captions, music, voice narration, transitions and timeline export.",
+    ].join("\n");
+  };
+
+  const handleGenerateVideoDraft = () => {
+    const draftPrompt = buildDraftPrompt();
+
+    setVideoPrompt?.(draftPrompt);
+    setVideoCreativeType?.(localVideoType);
+    setVideoOutputFormat?.(localOutputFormat);
+
+    setVideoDraftStatus(
+      `${tool} draft prepared. If you uploaded media, XNewsApp will use it in the timeline. If not, upload photos/videos first, then export/download from the main Export section.`
+    );
+
+    window.setTimeout(() => {
+      onGenerateCompleteVideo?.();
+    }, 80);
+  };
 
   return (
     <div className={boxClass}>
       <ToolHeader
         title={tool}
-        icon={<Sparkles className="h-5 w-5 text-violet-300" />}
+        icon={
+          isNews ? (
+            <Newspaper className="h-5 w-5 text-violet-300" />
+          ) : isBusiness ? (
+            <Megaphone className="h-5 w-5 text-violet-300" />
+          ) : (
+            <Captions className="h-5 w-5 text-violet-300" />
+          )
+        }
         description="Create an affordable video using photos, AI images, captions, music, voice, transitions and timeline export."
       />
 
       <div className="mt-5 space-y-5">
         <UploadMediaBox
           title="1. Upload Photos or Videos"
-          description="Upload images or short clips for this video."
+          description="Upload images or short clips for this video. These become the scenes in your timeline."
           accept="image/*,video/*"
           multiple
           onChange={onMediaUpload}
         />
 
         <div className="grid gap-4 md:grid-cols-2">
-          <SelectField label="2. Video Type" options={typeOptions} />
+          <SelectField
+            label="2. Video Type"
+            value={localVideoType}
+            options={typeOptions}
+            onChange={setLocalVideoType}
+          />
           <SelectField
             label="3. Visual Style"
+            value={localVisualStyle}
             options={[
               "Modern Social",
               "Cinematic",
@@ -406,25 +532,65 @@ function VideoTemplatePanel({
               "African Market Style",
               "TikTok Viral",
             ]}
+            onChange={setLocalVisualStyle}
           />
-          <SelectField label="4. Language" options={languages} />
-          <SelectField label="5. Output Format" options={outputFormats} />
+          <SelectField
+            label="4. Language"
+            value={localLanguage}
+            options={languages}
+            onChange={setLocalLanguage}
+          />
+          <SelectField
+            label="5. Output Format"
+            value={localOutputFormat}
+            options={outputFormats}
+            onChange={(value) => {
+              setLocalOutputFormat(value);
+              setVideoOutputFormat?.(value);
+            }}
+          />
         </div>
 
         <label className="block">
           <span className="mb-2 block text-sm font-extrabold">
-            6. Write Message / Script
+            {messageLabel}
           </span>
           <textarea
+            value={localMessage}
+            onChange={(e) => setLocalMessage(e.target.value)}
             className={textareaClass}
-            placeholder="Example: Promote my new salon in Nairobi. Mention hair styling, nails, makeup, location, and WhatsApp number."
+            placeholder={messagePlaceholder}
           />
         </label>
 
-        <PrimaryGenerateButton
-          label="Generate Video Draft"
-          onClick={onGenerateCompleteVideo}
-        />
+        {videoDraftStatus && (
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+            {videoDraftStatus}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3">
+          <PrimaryGenerateButton
+            label="Generate Video Draft"
+            onClick={handleGenerateVideoDraft}
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              const draftPrompt = buildDraftPrompt();
+              setVideoPrompt?.(draftPrompt);
+              setVideoCreativeType?.(localVideoType);
+              setVideoOutputFormat?.(localOutputFormat);
+              setVideoDraftStatus(
+                `${tool} draft saved. Now upload/add media to the timeline, preview it, then use Export / Download Media.`
+              );
+            }}
+            className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600"
+          >
+            Save Draft to Timeline Workflow
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -574,6 +740,12 @@ export default function DynamicToolWorkspace({
   setDanceStyle,
   onDancingPhotoUpload,
   onGenerateDance,
+  videoPrompt = "",
+  setVideoPrompt,
+  videoCreativeType = "General",
+  setVideoCreativeType,
+  videoOutputFormat = "Facebook Reel",
+  setVideoOutputFormat,
   onMediaUpload,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
@@ -956,6 +1128,12 @@ export default function DynamicToolWorkspace({
     return (
       <VideoTemplatePanel
         tool={tool}
+        videoPrompt={videoPrompt}
+        setVideoPrompt={setVideoPrompt}
+        videoCreativeType={videoCreativeType}
+        setVideoCreativeType={setVideoCreativeType}
+        videoOutputFormat={videoOutputFormat}
+        setVideoOutputFormat={setVideoOutputFormat}
         onMediaUpload={onMediaUpload}
         onGenerateCompleteVideo={onGenerateCompleteVideo}
       />
