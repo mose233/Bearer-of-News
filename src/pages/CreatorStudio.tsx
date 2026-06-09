@@ -999,17 +999,17 @@ export default function CreatorStudio() {
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-                <ExportPanel
-                  isRecording={isRecording}
-                  isExporting={isExporting}
-                  exportStatus={exportStatus}
-                  onGenerateCompleteVideo={handleGenerateCompleteVideo}
-                  onOpenFacebook={openFacebookAfterExport}
-                  onInitializeFFmpeg={initializeFFmpeg}
-                  onExportSilentMp4={handleExportSilentMp4}
-                  onExportNarratedMp4={handleExportNarratedMp4}
-                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
-                />
+               <ExportPanel
+  isRecording={isRecording}
+  isExporting={isExporting}
+  exportStatus={exportStatus}
+  exportPrimaryLabel="Export / Download Media"
+  onExportPrimary={handleExportFinalMixedMp4}
+  onOpenFacebook={openFacebookAfterExport}
+  onInitializeFFmpeg={initializeFFmpeg}
+  onExportSilentMp4={handleExportSilentMp4}
+  onExportNarratedMp4={handleExportNarratedMp4}
+/>
               </CardContent>
             </Card>
             <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
