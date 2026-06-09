@@ -1,7 +1,12 @@
 import React, { RefObject, useRef, useState } from "react";
 import {
+  Captions,
+  Clapperboard,
+  Download,
   ImagePlus,
+  Megaphone,
   Music,
+  Newspaper,
   Sparkles,
   Upload,
   Wand2,
@@ -13,7 +18,7 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
-import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel.tsx";
+import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -90,6 +95,9 @@ const boxClass =
 const inputClass =
   "w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
 
+const textareaClass =
+  "min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
+
 const enhancementFilters: Record<string, string> = {
   "Natural Glow": "brightness(1.08) contrast(1.08) saturate(1.12)",
   "Beauty Filter": "brightness(1.16) contrast(1.04) saturate(1.2) blur(0.2px)",
@@ -99,18 +107,51 @@ const enhancementFilters: Record<string, string> = {
   "Younger Appearance":
     "brightness(1.18) contrast(1.03) saturate(1.12) blur(0.35px)",
   "Luxury Background": "brightness(1.04) contrast(1.22) saturate(1.18)",
-  "Soft Skin Retouch":
-    "brightness(1.15) contrast(1.04) saturate(1.1) blur(0.25px)",
-  "Fashion Model Look": "brightness(1.08) contrast(1.24) saturate(1.16)",
-  "Influencer Style": "brightness(1.12) contrast(1.15) saturate(1.22)",
   "Corporate Headshot": "brightness(1.06) contrast(1.18) saturate(1.05)",
   "TikTok Glow": "brightness(1.18) contrast(1.1) saturate(1.25)",
   "Instagram Ready": "brightness(1.12) contrast(1.14) saturate(1.2)",
   "Facebook DP Upgrade": "brightness(1.1) contrast(1.12) saturate(1.16)",
-  "Wedding Portrait": "brightness(1.14) contrast(1.08) saturate(1.14)",
-  "Professional Passport Look":
-    "brightness(1.05) contrast(1.16) saturate(1.03)",
+  "Product Ad Look": "brightness(1.08) contrast(1.25) saturate(1.2)",
+  "Poster Design Look": "brightness(1.05) contrast(1.3) saturate(1.18)",
 };
+
+const pictureStyleOptions = [
+  "Natural Glow",
+  "Beauty Filter",
+  "Studio Portrait Pro",
+  "HD Sharp Focus",
+  "Glow Up Look",
+  "Younger Appearance",
+  "Luxury Background",
+  "Corporate Headshot",
+  "TikTok Glow",
+  "Instagram Ready",
+  "Facebook DP Upgrade",
+  "Product Ad Look",
+  "Poster Design Look",
+];
+
+const outputFormats = [
+  "Facebook Feed",
+  "Facebook Reel",
+  "WhatsApp Status",
+  "Instagram Reel",
+  "TikTok",
+  "YouTube Shorts",
+];
+
+const languages = [
+  "English",
+  "Swahili",
+  "Sheng",
+  "Luganda",
+  "French",
+  "Arabic",
+  "Pidgin",
+  "Hindi",
+  "Urdu",
+  "Tagalog",
+];
 
 const songStyleGroups = [
   {
@@ -129,36 +170,15 @@ const songStyleGroups = [
     ],
   },
   {
-    label: "Tanzania",
-    styles: [
-      "Bongo Flava",
-      "Bongo Gospel",
-      "Taarab Pop",
-      "Amapiano Bongo Mix",
-      "Swahili Love Song",
-      "Street Bongo Vibes",
-    ],
-  },
-  {
-    label: "Uganda",
-    styles: [
-      "Afro Dancehall Uganda",
-      "Ugandan Gospel",
-      "Luganda Love Vibes",
-      "Party Anthem",
-    ],
-  },
-  {
-    label: "Wider Africa",
+    label: "Africa",
     styles: [
       "Afrobeats",
       "Amapiano",
+      "Bongo Flava",
       "Afro Fusion",
       "Afro R&B",
       "Dancehall",
-      "Trap Afro",
       "Reggae",
-      "Dancehall Reggae",
       "Gospel Reggae",
     ],
   },
@@ -171,22 +191,7 @@ const songStyleGroups = [
       "Afro Gospel Choir",
       "Contemporary Worship",
       "Praise & Worship",
-      "Traditional Catholic Hymn",
-      "Choir Anthem",
-      "Revival Worship",
       "Swahili Gospel Choir",
-      "Youth Church Praise",
-    ],
-  },
-  {
-    label: "South Asia / Philippines",
-    styles: [
-      "Bollywood Pop",
-      "Punjabi Beat",
-      "Desi Love Song",
-      "Qawwali Fusion",
-      "OPM Pop",
-      "Pinoy Acoustic Pop",
     ],
   },
   {
@@ -211,7 +216,6 @@ const songLanguages = [
   "Kikuyu",
   "Luo",
   "Kamba",
-  "Dholuo",
   "Kisii",
   "Lingala",
   "French",
@@ -223,38 +227,317 @@ const songLanguages = [
   "Tagalog",
 ];
 
-const textToVideoCreativeTypes = [
-  "Trending Reel",
-  "TikTok Viral",
-  "Funny Skit",
-  "Relationship Story",
-  "Glow Up / Beauty",
-  "Celebrity Gossip",
-  "Breaking News Style",
-  "Social Commentary",
-  "Motivational Hustle",
-  "Dance Promo",
-  "Birthday Shoutout",
-  "Faith / Gospel Message",
-  "Product Promo",
-  "Fashion / Drip Showcase",
-  "Food Promo",
-  "Business Promo",
-  "Event Hype",
-  "Travel Vlog Style",
-  "Church Announcement",
-];
-
-const textToVideoOutputFormats = [
-  "Facebook Feed",
-  "Facebook Reel",
-  "WhatsApp Status",
-  "Instagram Reel",
-  "TikTok",
-  "YouTube Shorts",
-];
-
 const songDurations = ["30 sec", "60 sec", "120 sec"];
+
+function ToolHeader({
+  title,
+  description,
+  icon,
+}: {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        {icon}
+        <h3 className="text-lg font-extrabold">{title}</h3>
+      </div>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function UploadMediaBox({
+  title,
+  description,
+  accept,
+  multiple = true,
+  onChange,
+}: {
+  title: string;
+  description: string;
+  accept: string;
+  multiple?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+      <h4 className="text-sm font-extrabold text-white">{title}</h4>
+      <p className="mt-1 text-xs leading-5 text-slate-300">{description}</p>
+
+      <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+        <Upload className="mb-3 h-7 w-7 text-violet-300" />
+        <span className="text-sm font-extrabold text-white">
+          Click to Upload
+        </span>
+        <span className="mt-1 text-xs font-medium text-slate-300">
+          {description}
+        </span>
+        <Input
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          className="hidden"
+          onChange={onChange || (() => {})}
+        />
+      </label>
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value?: string;
+  options: string[];
+  onChange?: (value: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-extrabold">{label}</span>
+      <select
+        className={inputClass}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+      >
+        {options.map((item) => (
+          <option key={item}>{item}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function PrimaryGenerateButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick || (() => alert("This workflow is ready for mock mode, but the generator is not connected yet."))}
+      className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+    >
+      {label}
+    </button>
+  );
+}
+
+function VideoTemplatePanel({
+  tool,
+  onMediaUpload,
+  onGenerateCompleteVideo,
+}: {
+  tool: string;
+  onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onGenerateCompleteVideo?: () => void;
+}) {
+  const isSocial = [
+    "Facebook Reel Maker",
+    "TikTok Video Maker",
+    "WhatsApp Status Maker",
+    "Instagram Reel Maker",
+    "YouTube Shorts Maker",
+  ].includes(tool);
+
+  const isBusiness = [
+    "Product Ad Generator",
+    "Business Promo Video",
+    "Restaurant Promo Video",
+    "Real Estate Promo Video",
+    "Church Announcement Video",
+    "Event Promotion Video",
+    "Job Vacancy Video",
+  ].includes(tool);
+
+  const isNews = [
+    "News Slideshow Video",
+    "News Summary Video",
+    "Educational Explainer Video",
+  ].includes(tool);
+
+  const typeOptions = isSocial
+    ? ["Trending Reel", "Fast Captions", "Photo Reel", "Story Style", "Product Reel", "Creator Update"]
+    : isBusiness
+      ? ["Product Launch", "Discount Offer", "Business Promo", "Service Promo", "New Arrival", "Brand Awareness"]
+      : isNews
+        ? ["Breaking News", "News Summary", "Public Update", "Explainer", "Community Update", "School Update"]
+        : ["Motivational", "Birthday", "Story", "Quote", "Memory", "Announcement"];
+
+  return (
+    <div className={boxClass}>
+      <ToolHeader
+        title={tool}
+        icon={<Sparkles className="h-5 w-5 text-violet-300" />}
+        description="Create an affordable video using photos, AI images, captions, music, voice, transitions and timeline export."
+      />
+
+      <div className="mt-5 space-y-5">
+        <UploadMediaBox
+          title="1. Upload Photos or Videos"
+          description="Upload images or short clips for this video."
+          accept="image/*,video/*"
+          multiple
+          onChange={onMediaUpload}
+        />
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <SelectField label="2. Video Type" options={typeOptions} />
+          <SelectField
+            label="3. Visual Style"
+            options={[
+              "Modern Social",
+              "Cinematic",
+              "News Style",
+              "Corporate",
+              "Colorful",
+              "Luxury",
+              "Minimal",
+              "African Market Style",
+              "TikTok Viral",
+            ]}
+          />
+          <SelectField label="4. Language" options={languages} />
+          <SelectField label="5. Output Format" options={outputFormats} />
+        </div>
+
+        <label className="block">
+          <span className="mb-2 block text-sm font-extrabold">
+            6. Write Message / Script
+          </span>
+          <textarea
+            className={textareaClass}
+            placeholder="Example: Promote my new salon in Nairobi. Mention hair styling, nails, makeup, location, and WhatsApp number."
+          />
+        </label>
+
+        <PrimaryGenerateButton
+          label="Generate Video Draft"
+          onClick={onGenerateCompleteVideo}
+        />
+      </div>
+    </div>
+  );
+}
+
+function CinematicPlaceholderPanel({
+  tool,
+  onMediaUpload,
+  onGenerateCompleteVideo,
+}: {
+  tool: string;
+  onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onGenerateCompleteVideo?: () => void;
+}) {
+  const needsScript = [
+    "Talking Avatar",
+    "AI News Presenter",
+    "AI Spokesperson",
+    "AI Teacher",
+    "AI Influencer",
+    "AI Customer Support Avatar",
+    "Lip Sync Video",
+  ].includes(tool);
+
+  const needsAudio = [
+    "Singing Animation",
+    "Lip Sync Video",
+    "Music Performance Video",
+  ].includes(tool);
+
+  return (
+    <div className={boxClass}>
+      <ToolHeader
+        title={tool}
+        icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
+        description="Cinematic AI is the premium motion-video workspace. For now this screen prepares a complete mock workflow; later fal.ai will replace the mock generator."
+      />
+
+      <div className="mt-5 space-y-5">
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
+          fal.ai key not connected yet. This workflow can collect inputs now and will connect to real AI video generation later.
+        </div>
+
+        <UploadMediaBox
+          title="1. Upload Source Media"
+          description="Upload a photo, image, or short video for this cinematic AI tool."
+          accept="image/*,video/*"
+          multiple={false}
+          onChange={onMediaUpload}
+        />
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <SelectField
+            label="2. Motion Style"
+            options={[
+              "Subtle Motion",
+              "Cinematic Camera Move",
+              "Talking Head",
+              "Dance Motion",
+              "News Presenter",
+              "Performance",
+              "Movie Scene",
+              "Trailer Style",
+            ]}
+          />
+          <SelectField label="3. Output Format" options={outputFormats} />
+          <SelectField
+            label="4. Mood"
+            options={[
+              "Professional",
+              "Energetic",
+              "Cinematic",
+              "Luxury",
+              "Emotional",
+              "Newsroom",
+              "Funny",
+              "Dramatic",
+            ]}
+          />
+          <SelectField label="5. Language" options={languages} />
+        </div>
+
+        {needsAudio && (
+          <Input
+            type="file"
+            accept="audio/*"
+            className="rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
+          />
+        )}
+
+        <label className="block">
+          <span className="mb-2 block text-sm font-extrabold">
+            {needsScript ? "6. Write Script" : "6. Extra Instructions"}
+          </span>
+          <textarea
+            className={textareaClass}
+            placeholder={
+              needsScript
+                ? "Example: Hello everyone, welcome to XNewsApp. Today I want to share this important update..."
+                : "Optional: describe movement, background, camera direction, or visual style."
+            }
+          />
+        </label>
+
+        <PrimaryGenerateButton
+          label="Generate Cinematic AI Draft"
+          onClick={onGenerateCompleteVideo}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function DynamicToolWorkspace({
   selectedTool,
@@ -274,7 +557,7 @@ export default function DynamicToolWorkspace({
   setMusicVolume: _setMusicVolume,
   isMusicPlaying: _isMusicPlaying,
   audioRef: _audioRef,
-  onMusicUpload: _onMusicUpload,
+  onMusicUpload,
   onToggleMusic: _onToggleMusic,
   photoMusicImagePreview,
   photoMusicAudioName,
@@ -292,26 +575,7 @@ export default function DynamicToolWorkspace({
   setDanceStyle,
   onDancingPhotoUpload,
   onGenerateDance,
-  videoPrompt = "",
-  setVideoPrompt,
-  videoCreativeType = "General",
-  setVideoCreativeType,
-  videoOutputFormat = "Facebook Reel",
-  setVideoOutputFormat,
-  onPrepareTextToVideoPrompt,
-  aiImagePrompt = "",
-  setAiImagePrompt,
-  isGeneratingImage = false,
-  generatedImagePreview = "",
-  multiScenePlan = [],
-  onGenerateImage,
-  onGenerateMultiScenePlan,
-  onAddGeneratedImage,
-  onGenerateSceneFromPlan,
-  onGenerateAllScenesFromPlan,
   onMediaUpload,
-  onPublishToFacebook,
-  onDownloadGeneratedImage,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
 }: DynamicToolWorkspaceProps) {
@@ -333,6 +597,20 @@ export default function DynamicToolWorkspace({
   const [musicVideoAudioName, setMusicVideoAudioName] = useState("");
   const [musicVideoAudioSource, setMusicVideoAudioSource] = useState("");
   const [musicVideoAudioAccept, setMusicVideoAudioAccept] = useState("audio/*");
+
+  if (!selectedTool) {
+    return (
+      <div className={boxClass}>
+        <ToolHeader
+          title="Choose a tool to begin"
+          icon={<Sparkles className="h-5 w-5 text-violet-300" />}
+          description="Select Picture AI, Video AI, Music AI, or Cinematic AI above to open the right workspace."
+        />
+      </div>
+    );
+  }
+
+  const { category, tool } = selectedTool;
 
   const downloadEnhancedImage = async () => {
     if (!picturePreview) return;
@@ -366,7 +644,6 @@ export default function DynamicToolWorkspace({
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
         URL.revokeObjectURL(url);
       }, "image/png");
     };
@@ -389,8 +666,7 @@ export default function DynamicToolWorkspace({
     }
 
     onAddEnhancedPhotoToTimeline(pictureFile, picturePreview);
-
-    alert("Enhanced photo added to timeline. You can now publish it to Facebook.");
+    alert("Enhanced photo added to timeline.");
   };
 
   const buildSongPrompt = () => {
@@ -410,7 +686,7 @@ export default function DynamicToolWorkspace({
 
     setSongPreviewReady(true);
     setSongStatus(
-      `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}. You can download the lyrics/request or use the idea in your video.`
+      `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}.`
     );
   };
 
@@ -429,91 +705,176 @@ export default function DynamicToolWorkspace({
 
     link.href = url;
     link.download = "xnewsapp-ai-song-lyrics.txt";
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     URL.revokeObjectURL(url);
   };
 
   const openMusicVideoAudioPicker = (source: string, accept: string) => {
     setMusicVideoAudioSource(source);
     setMusicVideoAudioAccept(accept);
-
-    window.setTimeout(() => {
-      musicVideoAudioInputRef.current?.click();
-    }, 0);
+    window.setTimeout(() => musicVideoAudioInputRef.current?.click(), 0);
   };
 
   const handleUseSongStudioSong = () => {
     if (!songPreviewReady || !songLyrics.trim()) {
       alert(
-        "Please create a song idea in AI Song Studio first. For now, AI Song Studio prepares lyrics/song requests. Upload MP3 or WAV when you want real audio in the music video."
+        "Please create a song idea in AI Song Studio first. For real audio, upload MP3 or WAV."
       );
       return;
     }
 
     setMusicVideoAudioSource("AI Song Studio Song");
     setMusicVideoAudioName(`${songStyle} song idea (${songLanguage})`);
-    alert("AI Song Studio song idea selected. Upload real audio later when available.");
+    alert("AI Song Studio song idea selected.");
   };
 
   const handleMusicVideoAudioUpload = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
-
     setMusicVideoAudioName(file.name);
     setMusicVideoAudioSource((current) => current || "Uploaded Audio");
-    _onMusicUpload(e);
+    onMusicUpload(e);
   };
 
-  
+  if (category === "Picture AI") {
+    const filterClass = enhancementFilters[enhancementStyle];
 
-
-  if (!selectedTool) {
     return (
       <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Choose a tool to begin</h3>
+        <ToolHeader
+          title={tool}
+          icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
+          description="Upload a photo, choose a style, preview the result, then download or add it to the timeline."
+        />
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
+            <Upload className="mb-3 h-7 w-7 text-pink-300" />
+            <span className="text-sm font-extrabold">Upload Photo</span>
+            <span className="mt-1 text-xs font-medium text-slate-300">
+              Portrait, product, poster, flyer, social post, or creative image
+            </span>
+            <Input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (picturePreview) URL.revokeObjectURL(picturePreview);
+                setPictureFile(file);
+                setPicturePreview(URL.createObjectURL(file));
+                setPictureFileName(file.name);
+                setHasPreviewedEnhancement(false);
+              }}
+            />
+          </label>
+
+          <SelectField
+            label="Enhancement / Design Style"
+            value={enhancementStyle}
+            options={pictureStyleOptions}
+            onChange={(value) => {
+              setEnhancementStyle(value);
+              setHasPreviewedEnhancement(false);
+            }}
+          />
         </div>
 
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          Select Picture AI, Video AI, or Audio / Music AI above to open the
-          right workspace.
-        </p>
+        {picturePreview && (
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
+              <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
+                Original
+              </div>
+              <img
+                src={picturePreview}
+                alt="Original preview"
+                className="max-h-[380px] w-full rounded-2xl object-cover"
+              />
+              {pictureFileName && (
+                <p className="mt-2 truncate text-xs font-medium text-slate-400">
+                  {pictureFileName}
+                </p>
+              )}
+            </div>
+
+            <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-extrabold uppercase tracking-wide text-pink-200">
+                  Enhanced Preview
+                </span>
+                {hasPreviewedEnhancement && (
+                  <span className="rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
+                    Mock AI
+                  </span>
+                )}
+              </div>
+
+              {hasPreviewedEnhancement ? (
+                <img
+                  src={picturePreview}
+                  alt="Enhanced preview"
+                  className="max-h-[380px] w-full rounded-2xl object-cover"
+                  style={{ filter: filterClass }}
+                />
+              ) : (
+                <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80 p-6 text-center">
+                  <p className="text-sm font-medium leading-6 text-slate-300">
+                    Click Generate Enhanced Photo to see the {enhancementStyle} result.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button
+            type="button"
+            disabled={!picturePreview}
+            onClick={() => setHasPreviewedEnhancement(true)}
+            className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
+          >
+            <Wand2 className="mr-2 h-4 w-4" />
+            Generate Enhanced Photo
+          </Button>
+
+          <Button
+            type="button"
+            disabled={!picturePreview || !hasPreviewedEnhancement}
+            onClick={downloadEnhancedImage}
+            className="h-12 rounded-2xl bg-slate-700 px-5 font-extrabold text-white hover:bg-slate-600 disabled:opacity-60"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Image
+          </Button>
+
+          <Button
+            type="button"
+            disabled={!picturePreview || !hasPreviewedEnhancement}
+            onClick={handleAddEnhancedPhotoToTimeline}
+            className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            Add to Timeline
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const { category, tool } = selectedTool;
-
-  if (
-    (category === "Video AI" && tool === "Text to Video Studio") ||
-    (category === "Cinematic AI" && tool === "Text to Video")
-  ) {
-    return <AIVideoStudioPanel />;
-  }
-
-  if (
-  (category === "Music AI" || category === "Audio / Music AI") &&
-  tool === "AI Song Studio"
-) {
+  if (category === "Music AI" && tool === "AI Song Studio") {
     return (
       <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Music className="h-5 w-5 text-cyan-300" />
-          <h3 className="text-lg font-extrabold">AI Song Studio</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Write lyrics, choose a style, select language and duration, then
-          prepare a song preview for your video.
-        </p>
+        <ToolHeader
+          title="AI Song Studio"
+          icon={<Music className="h-5 w-5 text-cyan-300" />}
+          description="Write lyrics, choose a style, select language and duration, then prepare a song request for your video."
+        />
 
         <div className="mt-5 space-y-5">
           <label className="block">
@@ -556,52 +917,30 @@ export default function DynamicToolWorkspace({
               </select>
             </label>
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Choose language
-              </span>
-              <select
-                value={songLanguage}
-                onChange={(e) => {
-                  setSongLanguage(e.target.value);
-                  setSongPreviewReady(false);
-                  setSongStatus("");
-                }}
-                className={inputClass}
-              >
-                {songLanguages.map((language) => (
-                  <option key={language}>{language}</option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label="3. Choose language"
+              value={songLanguage}
+              options={songLanguages}
+              onChange={(value) => {
+                setSongLanguage(value);
+                setSongPreviewReady(false);
+                setSongStatus("");
+              }}
+            />
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Choose duration
-              </span>
-              <select
-                value={songDuration}
-                onChange={(e) => {
-                  setSongDuration(e.target.value);
-                  setSongPreviewReady(false);
-                  setSongStatus("");
-                }}
-                className={inputClass}
-              >
-                {songDurations.map((duration) => (
-                  <option key={duration}>{duration}</option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label="4. Choose duration"
+              value={songDuration}
+              options={songDurations}
+              onChange={(value) => {
+                setSongDuration(value);
+                setSongPreviewReady(false);
+                setSongStatus("");
+              }}
+            />
           </div>
 
-          <button
-            type="button"
-            onClick={handleGenerateSong}
-            className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
-          >
-            Generate Song
-          </button>
+          <PrimaryGenerateButton label="Generate Song" onClick={handleGenerateSong} />
 
           {songStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -610,223 +949,35 @@ export default function DynamicToolWorkspace({
           )}
 
           {songPreviewReady && (
-            <div className="space-y-3 rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-4">
-              <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                <p className="text-sm font-extrabold text-white">
-                  AI Song Preview
-                </p>
-
-                <div className="mt-3 grid gap-2 text-xs font-semibold leading-5 text-slate-300 sm:grid-cols-3">
-                  <div className="rounded-xl bg-white/5 p-3">
-                    <span className="block text-cyan-200">Style</span>
-                    {songStyle}
-                  </div>
-
-                  <div className="rounded-xl bg-white/5 p-3">
-                    <span className="block text-cyan-200">Language</span>
-                    {songLanguage}
-                  </div>
-
-                  <div className="rounded-xl bg-white/5 p-3">
-                    <span className="block text-cyan-200">Duration</span>
-                    {songDuration}
-                  </div>
-                </div>
-
-                <div className="mt-3 rounded-xl bg-cyan-500/10 p-3 text-xs font-semibold leading-5 text-cyan-100">
-                  Lyrics prepared successfully. You can download the song request
-                  or use this song idea while building your video.
-                </div>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    alert(
-                      "Song idea ready. Upload or connect an audio file in AI Music Video Studio, then use it with your video."
-                    )
-                  }
-                  className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
-                >
-                  Use in Video
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleDownloadSongRequest}
-                  className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
-                >
-                  Download Lyrics
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSongPreviewReady(false);
-                    setSongStatus("");
-                  }}
-                  className="rounded-2xl bg-white/10 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-white/15"
-                >
-                  Generate Another
-                </button>
-              </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() =>
+                  alert("Song idea ready. Upload real audio in AI Music Video Studio when available.")
+                }
+                className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
+              >
+                Use in Video
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadSongRequest}
+                className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
+              >
+                Download Lyrics
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSongPreviewReady(false);
+                  setSongStatus("");
+                }}
+                className="rounded-2xl bg-white/10 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-white/15"
+              >
+                Generate Another
+              </button>
             </div>
           )}
-        </div>
-      </div>
-    );
-  }
-
-  if (category === "Picture AI") {
-    const filterClass = enhancementFilters[enhancementStyle];
-
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <ImagePlus className="h-5 w-5 text-pink-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          Upload a photo, choose an enhancement style, and preview a polished
-          mock result.
-        </p>
-
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
-            <Upload className="mb-3 h-7 w-7 text-pink-300" />
-            <span className="text-sm font-extrabold">Upload Photo</span>
-
-            <span className="mt-1 text-xs font-medium text-slate-300">
-              Portrait, selfie, fashion, business, or creative image
-            </span>
-
-            <Input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-
-                if (picturePreview) {
-                  URL.revokeObjectURL(picturePreview);
-                }
-
-                setPictureFile(file);
-                setPicturePreview(URL.createObjectURL(file));
-                setPictureFileName(file.name);
-                setHasPreviewedEnhancement(false);
-              }}
-            />
-          </label>
-
-          <div className="space-y-2">
-            <label className="text-sm font-extrabold">Enhancement Style</label>
-
-            <select
-              value={enhancementStyle}
-              onChange={(e) => {
-                setEnhancementStyle(e.target.value);
-                setHasPreviewedEnhancement(false);
-              }}
-              className={inputClass}
-            >
-              <option>Natural Glow</option>
-              <option>Beauty Filter</option>
-              <option>Studio Portrait Pro</option>
-              <option>HD Sharp Focus</option>
-              <option>Glow Up Look</option>
-              <option>Younger Appearance</option>
-              <option>Luxury Background</option>
-              <option>Soft Skin Retouch</option>
-              <option>Fashion Model Look</option>
-              <option>Influencer Style</option>
-              <option>Corporate Headshot</option>
-              <option>TikTok Glow</option>
-              <option>Instagram Ready</option>
-              <option>Facebook DP Upgrade</option>
-              <option>Wedding Portrait</option>
-              <option>Professional Passport Look</option>
-            </select>
-
-            <p className="text-xs font-medium leading-5 text-slate-400">
-              Current Style: {enhancementStyle}
-            </p>
-          </div>
-        </div>
-
-        {picturePreview && (
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
-              <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
-                Original
-              </div>
-
-              <img
-                src={picturePreview}
-                alt="Original preview"
-                className="max-h-[380px] w-full rounded-2xl object-cover"
-              />
-
-              {pictureFileName && (
-                <p className="mt-2 truncate text-xs font-medium text-slate-400">
-                  {pictureFileName}
-                </p>
-              )}
-            </div>
-
-            <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <span className="text-xs font-extrabold uppercase tracking-wide text-pink-200">
-                  Enhanced Preview
-                </span>
-
-                {hasPreviewedEnhancement && (
-                  <span className="rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
-                    Mock AI
-                  </span>
-                )}
-              </div>
-
-              {hasPreviewedEnhancement ? (
-                <img
-                  src={picturePreview}
-                  alt="Enhanced preview"
-                  className="max-h-[380px] w-full rounded-2xl object-cover"
-                  style={{ filter: filterClass }}
-                />
-              ) : (
-                <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80 p-6 text-center">
-                  <p className="text-sm font-medium leading-6 text-slate-300">
-                    Click Generate Enhanced Photo to see the {enhancementStyle} result.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button
-            type="button"
-            disabled={!picturePreview}
-            onClick={() => setHasPreviewedEnhancement(true)}
-            className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
-          >
-            <Wand2 className="mr-2 h-4 w-4" />
-            Generate Enhanced Photo
-          </Button>
-
-          <Button
-            type="button"
-            disabled={!picturePreview || !hasPreviewedEnhancement}
-            onClick={handleAddEnhancedPhotoToTimeline}
-            className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
-          >
-            Add Enhanced Photo to Timeline
-          </Button>
         </div>
       </div>
     );
@@ -848,7 +999,21 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (tool === "Dance Animation") {
+  if (category === "Video AI") {
+    return (
+      <VideoTemplatePanel
+        tool={tool}
+        onMediaUpload={onMediaUpload}
+        onGenerateCompleteVideo={onGenerateCompleteVideo}
+      />
+    );
+  }
+
+  if (category === "Cinematic AI" && tool === "Text to Video") {
+    return <AIVideoStudioPanel />;
+  }
+
+  if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
       <DancingPhotoPanel
         dancingPhotoPreview={dancingPhotoPreview}
@@ -862,742 +1027,18 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (
-    (category === "Video AI" && tool === "Photo to Video") ||
-    (category === "Cinematic AI" &&
-      ["Photo to Video", "Image to Video", "Character Animation", "Scene Animation", "Movie Scene Generator", "Short Film Generator", "Trailer Generator", "Story-to-Video Generator"].includes(tool))
-  ) {
+  if (category === "Cinematic AI" && tool === "AI Music Video Studio") {
     return (
       <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Photo to Video</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Turn your own photos or videos into Facebook-ready videos.
-        </p>
+        <ToolHeader
+          title="AI Music Video Studio"
+          icon={<Music className="h-5 w-5 text-violet-300" />}
+          description="Create Facebook-ready AI music videos from your song or audio."
+        />
 
         <div className="mt-5 space-y-5">
           <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              1. Upload Your Media
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload your own photos or videos to create your video.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-              <Upload className="mb-3 h-7 w-7 text-violet-300" />
-
-              <span className="text-sm font-extrabold text-white">
-                Click to Upload
-              </span>
-
-              <span className="mt-1 text-xs font-medium text-slate-300">
-                Upload multiple images or videos to build your Facebook-ready story.
-              </span>
-
-              <Input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="hidden"
-                onChange={onMediaUpload || (() => {})}
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Video Type
-              </span>
-
-              <select className={inputClass} defaultValue="Trending Reel">
-                {[
-                  "Trending Reel",
-                  "TikTok Viral Edit",
-                  "Slideshow",
-                  "Cinematic",
-                  "Glow Up / Beauty",
-                  "Relationship Story",
-                  "Birthday",
-                  "Birthday Tribute",
-                  "Wedding Memory",
-                  "Memorial Tribute",
-                  "Romantic",
-                  "Faith / Gospel Tribute",
-                  "Church Event",
-                  "Family Memories",
-                  "Travel Memories",
-                  "Funny Photo Edit",
-                  "Dance Photo Edit",
-                  "Motivational Hustle",
-                  "Product Showcase",
-                  "Fashion Showcase",
-                  "Food Promo",
-                  "Business Promo",
-                  "Event Highlights",
-                  "WhatsApp Status",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Music Style
-              </span>
-
-              <select className={inputClass} defaultValue="Trending Audio">
-                {[
-                  "Trending Audio",
-                  "Afrobeats",
-                  "Amapiano",
-                  "Gengetone",
-                  "Bongo Flava",
-                  "Gospel",
-                  "Emotional Piano",
-                  "Romantic Music",
-                  "Party Music",
-                  "Upload My Music",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              4. Output Format
-            </span>
-
-            <select className={inputClass} defaultValue="Facebook Reel">
-              {[
-                "Facebook Feed",
-                "Facebook Reel",
-                "WhatsApp Status",
-                "Instagram Reel",
-                "TikTok",
-                "YouTube Shorts",
-              ].map((format) => (
-                <option key={format}>{format}</option>
-              ))}
-            </select>
-          </label>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              Optional: Upload Music
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload your own audio if you selected Upload My Music.
-            </p>
-
-            <Input
-              type="file"
-              accept="audio/*"
-              className="mt-4 rounded-xl border border-white/10 bg-[#0B1020] p-3 text-sm text-slate-200"
-              onChange={_onMusicUpload}
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (
-    (category === "Video AI" && tool === "Talking Avatars") ||
-    (category === "Cinematic AI" &&
-      ["Talking Avatar", "AI Spokesperson", "AI Teacher", "AI Influencer", "AI Customer Support Avatar"].includes(tool))
-  ) {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Talking Avatars</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Upload a face photo, write a short script, choose voice and language,
-          then generate a Facebook-ready talking avatar video.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              1. Upload Avatar Photo
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload a clear face photo for the avatar.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-              <Upload className="mb-3 h-7 w-7 text-violet-300" />
-
-              <span className="text-sm font-extrabold text-white">
-                Click to Upload
-              </span>
-
-              <span className="mt-1 text-xs font-medium text-slate-300">
-                Upload one portrait photo with a clear face.
-              </span>
-
-              <Input
-                type="file"
-                accept="image/*"
-                className="hidden"
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Choose Voice
-              </span>
-
-              <select className={inputClass} defaultValue="Natural Presenter">
-                {[
-                  "Natural Presenter",
-                  "News Anchor",
-                  "Business Voice",
-                  "Warm Friendly",
-                  "Youth Creator",
-                  "Church Announcement",
-                ].map((voice) => (
-                  <option key={voice}>{voice}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Choose Language
-              </span>
-
-              <select className={inputClass} defaultValue="English">
-                {[
-                  "English",
-                  "Swahili",
-                  "Sheng",
-                  "Luganda",
-                  "French",
-                  "Arabic",
-                  "Pidgin",
-                  "Hindi",
-                  "Urdu",
-                  "Tagalog",
-                ].map((language) => (
-                  <option key={language}>{language}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Output Format
-              </span>
-
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((format) => (
-                  <option key={format}>{format}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              5. Write Script
-            </span>
-
-            <textarea
-              placeholder="Example: Hello everyone, welcome to xnewsapp. Today I want to share something important..."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (
-    (category === "Video AI" && tool === "AI News Presenter") ||
-    (category === "Cinematic AI" && tool === "AI News Presenter")
-  ) {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">AI News Presenter</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create Facebook-ready AI news presenter videos from your script.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. News Type
-              </span>
-              <select className={inputClass} defaultValue="Breaking News">
-                {[
-                  "Breaking News",
-                  "Politics",
-                  "Business News",
-                  "Sports News",
-                  "Entertainment News",
-                  "Technology News",
-                  "Health News",
-                  "World News",
-                  "Local Community Update",
-                  "Church Announcement",
-                  "School Announcement",
-                  "Public Notice",
-                  "Weather Update",
-                  "Traffic Update",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Presenter Style
-              </span>
-              <select className={inputClass} defaultValue="Professional Anchor">
-                {[
-                  "Professional Anchor",
-                  "Young Creator",
-                  "Female Presenter",
-                  "Male Presenter",
-                  "Business Presenter",
-                  "African News Anchor",
-                  "International Studio",
-                  "Church Announcer",
-                  "Government Briefing Style",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Choose Language
-              </span>
-              <select className={inputClass} defaultValue="English">
-                {[
-                  "English",
-                  "Swahili",
-                  "Sheng",
-                  "Luganda",
-                  "French",
-                  "Arabic",
-                  "Pidgin",
-                  "Hindi",
-                  "Urdu",
-                  "Tagalog",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Output Format
-              </span>
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              5. Write News Script
-            </span>
-            <textarea
-              placeholder="Example: Breaking: Nairobi County announces new traffic diversion after heavy flooding..."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (category === "Video AI" && tool === "Product Ad Generator") {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Product Ad Generator</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create Facebook-ready product advertisement videos for shops,
-          businesses, services, and online sellers.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              Upload Product Images
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload product photos, packaging, menu images, or business images.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-              <Upload className="mb-3 h-7 w-7 text-violet-300" />
-
-              <span className="text-sm font-extrabold text-white">
-                Click to Upload
-              </span>
-
-              <span className="mt-1 text-xs font-medium text-slate-300">
-                Upload one or more product images for your ad.
-              </span>
-
-              <Input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="hidden"
-                onChange={onMediaUpload || (() => {})}
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. Ad Type
-              </span>
-              <select className={inputClass} defaultValue="Product Launch">
-                {[
-                  "Product Launch",
-                  "Flash Sale",
-                  "Discount Offer",
-                  "New Arrival",
-                  "E-commerce Product",
-                  "Fashion Promo",
-                  "Beauty Product",
-                  "Electronics Ad",
-                  "Food Promotion",
-                  "Restaurant Promo",
-                  "Real Estate Promo",
-                  "Car Sale Ad",
-                  "Service Promotion",
-                  "Business Promotion",
-                  "Brand Awareness",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Ad Style
-              </span>
-              <select className={inputClass} defaultValue="Modern Social Ad">
-                {[
-                  "Professional Commercial",
-                  "Luxury Brand",
-                  "Modern Social Ad",
-                  "TikTok Promo",
-                  "Facebook Reel Ad",
-                  "Corporate Promo",
-                  "Minimal Product Showcase",
-                  "Bold Sales Promo",
-                  "Animated Promo",
-                  "African Market Style",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Choose Language
-              </span>
-              <select className={inputClass} defaultValue="English">
-                {[
-                  "English",
-                  "Swahili",
-                  "Sheng",
-                  "Luganda",
-                  "French",
-                  "Arabic",
-                  "Pidgin",
-                  "Hindi",
-                  "Urdu",
-                  "Tagalog",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Output Format
-              </span>
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              5. Write Product Details
-            </span>
-            <textarea
-              placeholder="Example: Product: Smart LED TV. Offer: 25% discount this weekend. Call to action: Order now via WhatsApp."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (category === "Video AI" && tool === "Dance Animation") {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Dance Animation</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Animate a photo into a short Facebook-ready dance video.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              Upload Photo
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload one clear full-body or portrait photo.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-              <Upload className="mb-3 h-7 w-7 text-violet-300" />
-
-              <span className="text-sm font-extrabold text-white">
-                Click to Upload
-              </span>
-
-              <span className="mt-1 text-xs font-medium text-slate-300">
-                Upload a clear photo for animation.
-              </span>
-
-              <Input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onDancingPhotoUpload}
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. Dance Type
-              </span>
-              <select className={inputClass} defaultValue="TikTok Viral Dance">
-                {[
-                  "Afrobeats Dance",
-                  "Amapiano Dance",
-                  "Gengetone Dance",
-                  "TikTok Viral Dance",
-                  "Gospel Celebration Dance",
-                  "Wedding Dance",
-                  "Birthday Dance",
-                  "Funny Meme Dance",
-                  "Club Dance",
-                  "Cultural Dance",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Motion Style
-              </span>
-              <select className={inputClass} defaultValue="Energetic Dance">
-                {[
-                  "Subtle Motion",
-                  "Energetic Dance",
-                  "Fast Viral Moves",
-                  "Smooth Body Movement",
-                  "Camera Zoom Dance",
-                  "Stage Performance",
-                  "Street Dance",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Music Style
-              </span>
-              <select className={inputClass} defaultValue="Afrobeats">
-                {[
-                  "Afrobeats",
-                  "Amapiano",
-                  "Gengetone",
-                  "Bongo Flava",
-                  "Gospel",
-                  "Dancehall",
-                  "Reggae",
-                  "Hip Hop",
-                  "Upload My Music",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Output Format
-              </span>
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (
-    (category === "Video AI" && tool === "AI Music Video Studio") ||
-    (category === "Cinematic AI" && tool === "AI Music Video Studio")
-  ) {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Music className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">AI Music Video Studio</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create Facebook-ready AI music videos from your song or audio.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              1. Audio Source
-            </h4>
-
+            <h4 className="text-sm font-extrabold text-white">1. Audio Source</h4>
             <p className="mt-1 text-xs leading-5 text-slate-300">
               Use a song from AI Song Studio or upload your own audio.
             </p>
@@ -1610,7 +1051,6 @@ export default function DynamicToolWorkspace({
               >
                 Use AI Song Studio Song
               </button>
-
               <button
                 type="button"
                 onClick={() => openMusicVideoAudioPicker("MP3 Upload", "audio/mpeg,.mp3")}
@@ -1618,7 +1058,6 @@ export default function DynamicToolWorkspace({
               >
                 Upload MP3
               </button>
-
               <button
                 type="button"
                 onClick={() => openMusicVideoAudioPicker("WAV Upload", "audio/wav,.wav")}
@@ -1626,7 +1065,6 @@ export default function DynamicToolWorkspace({
               >
                 Upload WAV
               </button>
-
               <button
                 type="button"
                 onClick={() => openMusicVideoAudioPicker("Audio File Upload", "audio/*")}
@@ -1645,9 +1083,7 @@ export default function DynamicToolWorkspace({
             />
 
             <div className="mt-4 rounded-2xl border border-white/10 bg-[#0B1020] p-3 text-xs font-semibold leading-5 text-slate-300">
-              <span className="block font-extrabold text-white">
-                Selected audio
-              </span>
+              <span className="block font-extrabold text-white">Selected audio</span>
               {musicVideoAudioName ? (
                 <span>
                   {musicVideoAudioName} {musicVideoAudioSource ? `• ${musicVideoAudioSource}` : ""}
@@ -1659,591 +1095,47 @@ export default function DynamicToolWorkspace({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Video Style
-              </span>
-              <select className={inputClass} defaultValue="Performance">
-                {[
-                  "Performance",
-                  "Live Concert",
-                  "Stage Performance",
-                  "Dance Crew",
-                  "Street Performance",
-                  "Club Performance",
-                  "Choir Performance",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Video Theme
-              </span>
-              <select className={inputClass} defaultValue="TikTok Viral">
-                {[
-                  "Love Story",
-                  "Breakup Story",
-                  "Birthday Celebration",
-                  "Wedding Story",
-                  "Friendship Story",
-                  "Motivational Journey",
-                  "Anime Music Video",
-                  "TikTok Viral",
-                  "Dance Challenge",
-                  "Product Anthem",
-                  "Brand Intro",
-                  "Creator Intro",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Visual Mood
-              </span>
-              <select className={inputClass} defaultValue="Energetic">
-                {[
-                  "Cinematic",
-                  "Colorful",
-                  "Dark Mood",
-                  "Luxury",
-                  "Romantic",
-                  "Emotional",
-                  "Energetic",
-                  "Minimal",
-                  "Street",
-                  "Vintage",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                5. Output Format
-              </span>
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (category === "Video AI" && tool === "Story Generator") {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Story Generator</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create Facebook-ready AI storytelling videos from your idea.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. Story Type
-              </span>
-              <select className={inputClass} defaultValue="Motivational Story">
-                {[
-                  "Motivational Story",
-                  "Love Story",
-                  "Breakup Story",
-                  "Friendship Story",
-                  "Success Journey",
-                  "Business Story",
-                  "Inspirational Story",
-                  "Faith Story",
-                  "Bible Story",
-                  "Testimony Story",
-                  "Funny Story",
-                  "Life Lesson Story",
-                  "African Folktale",
-                  "Children Story",
-                  "Drama Story",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Story Style
-              </span>
-              <select className={inputClass} defaultValue="Cinematic">
-                {[
-                  "Cinematic",
-                  "Animated",
-                  "Emotional",
-                  "Documentary",
-                  "Narrative Reel",
-                  "TikTok Story",
-                  "African Drama",
-                  "Luxury Storytelling",
-                  "Minimal Storytelling",
-                  "Comic Style",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Story Mood
-              </span>
-              <select className={inputClass} defaultValue="Inspirational">
-                {[
-                  "Inspirational",
-                  "Emotional",
-                  "Romantic",
-                  "Sad",
-                  "Happy",
-                  "Funny",
-                  "Suspense",
-                  "Dark",
-                  "Hopeful",
-                  "Energetic",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Output Format
-              </span>
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              5. Write Story Idea
-            </span>
-            <textarea
-              placeholder="Example: A young man in Nairobi starts with nothing, works hard, and finally opens his dream business."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            <SelectField
+              label="2. Video Style"
+              options={["Performance", "Live Concert", "Stage Performance", "Dance Crew", "Street Performance", "Club Performance", "Choir Performance"]}
             />
-          </label>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (category === "Video AI" && tool === "Birthday Video") {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">Birthday Video</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create Facebook-ready birthday celebration videos.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              Upload Birthday Photos
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Upload birthday or celebration photos for your video.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-              <Upload className="mb-3 h-7 w-7 text-violet-300" />
-
-              <span className="text-sm font-extrabold text-white">
-                Click to Upload
-              </span>
-
-              <span className="mt-1 text-xs font-medium text-slate-300">
-                Upload one or more birthday photos.
-              </span>
-
-              <Input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={onMediaUpload || (() => {})}
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                1. Celebration Type
-              </span>
-              <select className={inputClass} defaultValue="Birthday Wishes">
-                {[
-                  "Birthday Wishes",
-                  "Kids Birthday",
-                  "Adult Birthday",
-                  "Surprise Birthday",
-                  "Romantic Birthday",
-                  "Family Celebration",
-                  "Friend Celebration",
-                  "Church Birthday Tribute",
-                  "Memorial Birthday Tribute",
-                  "Luxury Birthday Party",
-                  "Simple Birthday Greeting",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Video Style
-              </span>
-              <select className={inputClass} defaultValue="Colorful Celebration">
-                {[
-                  "Slideshow",
-                  "Cinematic",
-                  "Animated Celebration",
-                  "Luxury Celebration",
-                  "Emotional Tribute",
-                  "Fun Party Style",
-                  "TikTok Birthday Style",
-                  "Elegant Greeting",
-                  "Colorful Celebration",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Music Style
-              </span>
-              <select className={inputClass} defaultValue="Happy Birthday Song">
-                {[
-                  "Happy Birthday Song",
-                  "Instrumental Celebration",
-                  "Romantic Music",
-                  "Kids Party Music",
-                  "Gospel Celebration",
-                  "Choir Tribute",
-                  "Emotional Piano",
-                  "Afrobeats Party",
-                  "Amapiano Party",
-                  "Upload My Music",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                4. Output Format
-              </span>
-              <select className={inputClass} defaultValue="Facebook Reel">
-                {[
-                  "Facebook Feed",
-                  "Facebook Reel",
-                  "WhatsApp Status",
-                  "Instagram Reel",
-                  "TikTok",
-                  "YouTube Shorts",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              5. Write Birthday Message
-            </span>
-            <textarea
-              placeholder="Example: Happy birthday Sarah! May your new year bring joy, success, and blessings."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            <SelectField
+              label="3. Video Theme"
+              options={["TikTok Viral", "Love Story", "Breakup Story", "Birthday Celebration", "Wedding Story", "Friendship Story", "Motivational Journey", "Anime Music Video", "Dance Challenge", "Product Anthem", "Brand Intro", "Creator Intro"]}
             />
-          </label>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Complete AI Video
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (category === "Video AI") {
-    const isSocialFormat = [
-      "Facebook Reel Maker",
-      "TikTok Video Maker",
-      "WhatsApp Status Maker",
-      "Instagram Reel Maker",
-      "YouTube Shorts Maker",
-    ].includes(tool);
-
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create an affordable social video using photos, AI images, captions,
-          music, voice, transitions and timeline export.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-            <h4 className="text-sm font-extrabold text-white">
-              1. Upload Photos or Videos
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-slate-300">
-              Add your media, then generate a draft and export it from the main Export & Share panel.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
-              <Upload className="mb-3 h-7 w-7 text-violet-300" />
-
-              <span className="text-sm font-extrabold text-white">
-                Click to Upload Media
-              </span>
-
-              <span className="mt-1 text-xs font-medium text-slate-300">
-                Upload images or short clips for this video.
-              </span>
-
-              <Input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="hidden"
-                onChange={onMediaUpload || (() => {})}
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                2. Video Style
-              </span>
-              <select className={inputClass} defaultValue={isSocialFormat ? tool : "Modern Social Video"}>
-                {[
-                  tool,
-                  "Modern Social Video",
-                  "Business Promo",
-                  "Product Showcase",
-                  "News Slideshow",
-                  "Motivational Reel",
-                  "Story Video",
-                  "Event Promotion",
-                  "Church Announcement",
-                  "Educational Explainer",
-                ].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                3. Output Format
-              </span>
-              <select className={inputClass} defaultValue={
-                tool.includes("TikTok")
-                  ? "TikTok"
-                  : tool.includes("WhatsApp")
-                    ? "WhatsApp Status"
-                    : tool.includes("Instagram")
-                      ? "Instagram Reel"
-                      : tool.includes("YouTube")
-                        ? "YouTube Shorts"
-                        : "Facebook Reel"
-              }>
-                {textToVideoOutputFormats.map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              4. Write Your Video Idea
-            </span>
-            <textarea
-              value={videoPrompt}
-              onChange={(e) => setVideoPrompt?.(e.target.value)}
-              placeholder="Example: Create a 20-second promo for my salon in Nairobi with prices and WhatsApp call-to-action."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
+            <SelectField
+              label="4. Visual Mood"
+              options={["Energetic", "Cinematic", "Colorful", "Dark Mood", "Luxury", "Romantic", "Emotional", "Minimal", "Street", "Vintage"]}
             />
-          </label>
+            <SelectField label="5. Output Format" options={outputFormats} />
+          </div>
 
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            Generate Video Draft
-          </button>
+          <PrimaryGenerateButton
+            label="Generate Music Video Draft"
+            onClick={onGenerateCompleteVideo}
+          />
         </div>
-      </div>
-    );
-  }
-
-  if (
-    category === "Video AI" &&
-    (tool === "Birthday Video")
-  ) {
-    return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-violet-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          This workflow will use fal.ai generation. Its full input panel will be
-          connected next.
-        </p>
       </div>
     );
   }
 
   if (category === "Cinematic AI") {
     return (
-      <div className={boxClass}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-300" />
-          <h3 className="text-lg font-extrabold">{tool}</h3>
-        </div>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Cinematic AI is the premium motion-video workflow. The screen is ready now as a mock workflow; later fal.ai will replace the mock generator.
-        </p>
-
-        <div className="mt-5 space-y-5">
-          <div className="rounded-3xl border border-amber-400/20 bg-amber-500/10 p-4 text-sm leading-6 text-amber-100">
-            This feature will use real AI motion models later. For now, upload media, write the idea, and use the Export & Share panel after generating a draft.
-          </div>
-
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-amber-400/50 hover:bg-slate-950/90">
-            <Upload className="mb-3 h-7 w-7 text-amber-300" />
-            <span className="text-sm font-extrabold text-white">Upload Photo / Video</span>
-            <span className="mt-1 text-xs font-medium text-slate-300">
-              Upload a source photo or clip for {tool}.
-            </span>
-            <Input
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="hidden"
-              onChange={onMediaUpload || (() => {})}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              Write Motion Prompt
-            </span>
-            <textarea
-              value={videoPrompt}
-              onChange={(e) => setVideoPrompt?.(e.target.value)}
-              placeholder="Example: Make this person walk confidently in Nairobi with cinematic camera movement."
-              className="min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={onGenerateCompleteVideo || (() => {})}
-            className="h-12 w-full rounded-2xl bg-amber-600 px-5 text-sm font-extrabold text-white transition hover:bg-amber-500 md:w-auto"
-          >
-            Generate Mock Cinematic Draft
-          </button>
-        </div>
-      </div>
+      <CinematicPlaceholderPanel
+        tool={tool}
+        onMediaUpload={onMediaUpload}
+        onGenerateCompleteVideo={onGenerateCompleteVideo}
+      />
     );
   }
 
   return (
     <div className={boxClass}>
-      <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-violet-300" />
-        <h3 className="text-lg font-extrabold">{tool}</h3>
-      </div>
-
-      <p className="mt-2 text-sm leading-6 text-slate-300">
-        This tool is coming soon.
-      </p>
+      <ToolHeader
+        title="Tool panel not configured"
+        icon={<Sparkles className="h-5 w-5 text-violet-300" />}
+        description={`No workspace found for ${category} / ${tool}.`}
+      />
     </div>
   );
 }
