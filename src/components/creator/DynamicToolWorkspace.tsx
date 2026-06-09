@@ -768,7 +768,6 @@ export default function DynamicToolWorkspace({
   const [musicVideoAudioName, setMusicVideoAudioName] = useState("");
   const [musicVideoAudioSource, setMusicVideoAudioSource] = useState("");
   const [musicVideoAudioAccept, setMusicVideoAudioAccept] = useState("audio/*");
-
   const [pictureStrength, setPictureStrength] = useState("Medium");
   const [pictureUpscale, setPictureUpscale] = useState("Yes");
   const [portraitRole, setPortraitRole] = useState("Corporate");
@@ -786,6 +785,7 @@ export default function DynamicToolWorkspace({
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
   const [eventPhone, setEventPhone] = useState("");
+
 
   if (!selectedTool) {
     return (
@@ -860,7 +860,40 @@ export default function DynamicToolWorkspace({
     link.download = "xnewsapp-ai-song-lyrics.txt";
     document.body.appendChild(link);
     link.click();
-   if (category === "Picture AI") {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const openMusicVideoAudioPicker = (source: string, accept: string) => {
+    setMusicVideoAudioSource(source);
+    setMusicVideoAudioAccept(accept);
+    window.setTimeout(() => musicVideoAudioInputRef.current?.click(), 0);
+  };
+
+  const handleUseSongStudioSong = () => {
+    if (!songPreviewReady || !songLyrics.trim()) {
+      alert(
+        "Please create a song idea in AI Song Studio first. For real audio, upload MP3 or WAV."
+      );
+      return;
+    }
+
+    setMusicVideoAudioSource("AI Song Studio Song");
+    setMusicVideoAudioName(`${songStyle} song idea (${songLanguage})`);
+    alert("AI Song Studio song idea selected.");
+  };
+
+  const handleMusicVideoAudioUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMusicVideoAudioName(file.name);
+    setMusicVideoAudioSource((current) => current || "Uploaded Audio");
+    onMusicUpload(e);
+  };
+
+  if (category === "Picture AI") {
     const filterClass = enhancementFilters[enhancementStyle];
 
     const isPhotoEnhancer = tool === "Photo Enhancer";
@@ -1007,7 +1040,13 @@ export default function DynamicToolWorkspace({
               <SelectField
                 label="Beauty Focus"
                 value={enhancementStyle}
-                options={["Natural Glow", "Beauty Filter", "Glow Up Look", "TikTok Glow", "Instagram Ready"]}
+                options={[
+                  "Natural Glow",
+                  "Beauty Filter",
+                  "Glow Up Look",
+                  "TikTok Glow",
+                  "Instagram Ready",
+                ]}
                 onChange={(value) => {
                   setEnhancementStyle(value);
                   setHasPreviewedEnhancement(false);
@@ -1027,7 +1066,12 @@ export default function DynamicToolWorkspace({
               <SelectField
                 label="Look Style"
                 value={enhancementStyle}
-                options={["Younger Appearance", "Natural Glow", "Glow Up Look", "Instagram Ready"]}
+                options={[
+                  "Younger Appearance",
+                  "Natural Glow",
+                  "Glow Up Look",
+                  "Instagram Ready",
+                ]}
                 onChange={(value) => {
                   setEnhancementStyle(value);
                   setHasPreviewedEnhancement(false);
@@ -1056,7 +1100,12 @@ export default function DynamicToolWorkspace({
               <SelectField
                 label="Blend Style"
                 value={enhancementStyle}
-                options={["Luxury Background", "Corporate Headshot", "Natural Glow", "Poster Design Look"]}
+                options={[
+                  "Luxury Background",
+                  "Corporate Headshot",
+                  "Natural Glow",
+                  "Poster Design Look",
+                ]}
                 onChange={(value) => {
                   setEnhancementStyle(value);
                   setHasPreviewedEnhancement(false);
@@ -1189,6 +1238,19 @@ export default function DynamicToolWorkspace({
               </label>
             </div>
           )}
+
+          {!isPhotoEnhancer &&
+            !isStudioPortrait &&
+            !isBeautyGlow &&
+            !isYoungerLook &&
+            !isBackgroundChanger &&
+            !isProductAdImage &&
+            !isFacebookPostImage &&
+            !isPosterFlyer && (
+              <p className="text-sm font-medium leading-6 text-slate-300">
+                This Picture AI tool uses the selected enhancement/design style.
+              </p>
+            )}
         </div>
 
         {picturePreview && (
@@ -1257,7 +1319,8 @@ export default function DynamicToolWorkspace({
                             {postHeadline || "Facebook Post Headline"}
                           </p>
                           <p className="text-xs font-semibold">
-                            {postDescription || "Short Facebook post description"}
+                            {postDescription ||
+                              "Short Facebook post description"}
                           </p>
                         </>
                       )}
@@ -1344,38 +1407,7 @@ export default function DynamicToolWorkspace({
         </div>
       </div>
     );
-  }     Click Generate Enhanced Photo to see the {enhancementStyle} result.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button
-            type="button"
-            disabled={!picturePreview}
-            onClick={() => setHasPreviewedEnhancement(true)}
-            className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
-          >
-            <Wand2 className="mr-2 h-4 w-4" />
-            Generate Enhanced Photo
-          </Button>
-
-          <Button
-            type="button"
-            disabled={!picturePreview || !hasPreviewedEnhancement}
-            onClick={handleAddEnhancedPhotoToTimeline}
-            className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
-          >
-            Add to Timeline
-          </Button>
-        </div>
-      </div>
-    );
   }
-
   if (category === "Music AI" && tool === "AI Song Studio") {
     return (
       <div className={boxClass}>
