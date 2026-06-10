@@ -16,10 +16,7 @@ export default function TextFontStudio({
   selectedFont,
   onFontChange,
 }: TextFontStudioProps) {
-  const recommended = useMemo(
-    () => getRecommendedFonts(tool),
-    [tool]
-  );
+  const recommended = useMemo(() => getRecommendedFonts(tool), [tool]);
 
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
@@ -29,33 +26,35 @@ export default function TextFontStudio({
         </h3>
 
         <p className="mt-1 text-xs leading-5 text-slate-300">
-          Choose a font style for posters, quote graphics,
-          Facebook posts, videos and cinematic content.
+          Choose a font style for posters, quote graphics, Facebook posts,
+          videos and cinematic content.
         </p>
       </div>
 
-      <div className="mb-5 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-        <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-emerald-300">
-          Recommended Fonts
-        </div>
+      {recommended.length > 0 && (
+        <div className="mb-5 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+          <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-emerald-300">
+            Recommended Fonts
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          {recommended.map((font) => (
-            <button
-              key={font}
-              type="button"
-              onClick={() => onFontChange(font)}
-              className={`rounded-xl px-3 py-2 text-xs font-bold transition ${
-                selectedFont === font
-                  ? "bg-emerald-500 text-white"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20"
-              }`}
-            >
-              {font}
-            </button>
-          ))}
+          <div className="flex flex-wrap gap-2">
+            {recommended.map((font) => (
+              <button
+                key={font}
+                type="button"
+                onClick={() => onFontChange(font)}
+                className={`rounded-xl px-3 py-2 text-xs font-bold transition ${
+                  selectedFont === font
+                    ? "bg-emerald-500 text-white"
+                    : "bg-white/10 text-slate-200 hover:bg-white/20"
+                }`}
+              >
+                {font}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {fontCategories.map((category) => {
         const fonts = creatorFonts.filter(
