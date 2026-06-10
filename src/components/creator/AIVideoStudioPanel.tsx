@@ -1,14 +1,12 @@
 import React, { useMemo, useState } from "react";
+
+import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
+import { getFontByName } from "@/lib/creator/fontLibrary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   Select,
@@ -101,18 +99,11 @@ const ratios = [
   "4:5 Social Feed",
 ];
 
-const durations = [
-  "10 sec",
-  "15 sec",
-  "30 sec",
-  "45 sec",
-  "60 sec",
-];
+const durations = ["10 sec", "15 sec", "30 sec", "45 sec", "60 sec"];
 
 function makeScenes(prompt: string, language: string, style: string) {
   const base =
-    prompt ||
-    "A young Kenyan creator promoting a new fashion brand in Nairobi";
+    prompt || "A young Kenyan creator promoting a new fashion brand in Nairobi";
 
   return [
     {
@@ -151,15 +142,26 @@ export default function AIVideoStudioPanel() {
   const [duration, setDuration] = useState("30 sec");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
+
+  const selectedFont = useMemo(
+    () => getFontByName(selectedCreatorFont),
+    [selectedCreatorFont],
+  );
+
+  const selectedFontStyle = useMemo(
+    () => ({ fontFamily: selectedFont.cssFamily }),
+    [selectedFont.cssFamily],
+  );
 
   const selectedProvider = useMemo(
     () => providers.find((item) => item.id === provider),
-    [provider]
+    [provider],
   );
 
   const scenes = useMemo(
     () => makeScenes(prompt, language, style),
-    [prompt, language, style]
+    [prompt, language, style],
   );
 
   const handleGenerate = () => {
@@ -177,13 +179,16 @@ export default function AIVideoStudioPanel() {
       <div className="rounded-[1.25rem] border border-white/10 bg-[#111827] px-4 py-4 shadow-creator">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            <h1
+              className="text-2xl font-extrabold tracking-tight text-white"
+              style={selectedFontStyle}
+            >
               XNewsApp AI Video Studio
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-              Create social videos using prompts, storyboard scenes,
-              captions, music, and Facebook-ready exports.
+              Create social videos using prompts, storyboard scenes, captions,
+              music, and Facebook-ready exports.
             </p>
           </div>
 
@@ -298,6 +303,12 @@ export default function AIVideoStudioPanel() {
               </div>
             </div>
 
+            <TextFontStudio
+              tool="AI Music Video Studio"
+              selectedFont={selectedCreatorFont}
+              onFontChange={setSelectedCreatorFont}
+            />
+
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-300">
                 AI engine
@@ -315,7 +326,10 @@ export default function AIVideoStudioPanel() {
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-semibold">
+                      <span
+                        className="text-sm font-semibold"
+                        style={selectedFontStyle}
+                      >
                         {item.name}
                       </span>
 
@@ -363,7 +377,10 @@ export default function AIVideoStudioPanel() {
               <div className="rounded-2xl border border-white/10 bg-[#0B1020] p-4">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <h2 className="flex items-center gap-2 text-lg font-bold">
+                    <h2
+                      className="flex items-center gap-2 text-lg font-bold"
+                      style={selectedFontStyle}
+                    >
                       {selectedProvider?.name}
 
                       {provider === "veo-style" && (
@@ -399,7 +416,10 @@ export default function AIVideoStudioPanel() {
                     className="rounded-2xl border border-white/10 bg-[#111827] text-white"
                   >
                     <CardHeader className="px-4 py-3">
-                      <CardTitle className="text-sm font-bold">
+                      <CardTitle
+                        className="text-sm font-bold"
+                        style={selectedFontStyle}
+                      >
                         Scene {index + 1}: {scene.title}
                       </CardTitle>
                     </CardHeader>
@@ -416,7 +436,10 @@ export default function AIVideoStudioPanel() {
                       <div className="flex items-start gap-2 rounded-xl border border-white/10 bg-[#0B1020] p-3">
                         <Captions className="mt-0.5 h-4 w-4 text-emerald-400" />
 
-                        <p className="text-xs leading-5 text-slate-200">
+                        <p
+                          className="text-xs leading-5 text-slate-200"
+                          style={selectedFontStyle}
+                        >
                           {scene.caption}
                         </p>
                       </div>
@@ -434,21 +457,27 @@ export default function AIVideoStudioPanel() {
                       <>
                         <Sparkles className="mb-4 h-12 w-12 text-emerald-400" />
 
-                        <h3 className="text-2xl font-bold">
+                        <h3
+                          className="text-2xl font-bold"
+                          style={selectedFontStyle}
+                        >
                           Video Draft Ready
                         </h3>
 
                         <p className="mt-2 max-w-md text-sm text-slate-400">
-                          This is the mock preview area. Later it will show
-                          real MP4 generation from fal.ai, Runware, Luma,
-                          Veo or your selected backend.
+                          This is the mock preview area. Later it will show real
+                          MP4 generation from fal.ai, Runware, Luma, Veo or your
+                          selected backend.
                         </p>
                       </>
                     ) : (
                       <>
                         <Film className="mb-4 h-12 w-12 text-slate-600" />
 
-                        <h3 className="text-2xl font-bold">
+                        <h3
+                          className="text-2xl font-bold"
+                          style={selectedFontStyle}
+                        >
                           No preview yet
                         </h3>
 
@@ -469,7 +498,9 @@ export default function AIVideoStudioPanel() {
                     <div className="rounded-2xl border border-white/10 bg-[#0B1020] p-4">
                       <Music className="mb-2 h-5 w-5 text-emerald-400" />
 
-                      <h3 className="font-semibold">Music</h3>
+                      <h3 className="font-semibold" style={selectedFontStyle}>
+                        Music
+                      </h3>
 
                       <p className="text-sm text-slate-400">
                         Add music library later.
@@ -479,7 +510,9 @@ export default function AIVideoStudioPanel() {
                     <div className="rounded-2xl border border-white/10 bg-[#0B1020] p-4">
                       <Captions className="mb-2 h-5 w-5 text-emerald-400" />
 
-                      <h3 className="font-semibold">Captions</h3>
+                      <h3 className="font-semibold" style={selectedFontStyle}>
+                        Captions
+                      </h3>
 
                       <p className="text-sm text-slate-400">
                         Auto captions ready for backend.
@@ -489,7 +522,9 @@ export default function AIVideoStudioPanel() {
                     <div className="rounded-2xl border border-white/10 bg-[#0B1020] p-4">
                       <Share2 className="mb-2 h-5 w-5 text-emerald-400" />
 
-                      <h3 className="font-semibold">Facebook</h3>
+                      <h3 className="font-semibold" style={selectedFontStyle}>
+                        Facebook
+                      </h3>
 
                       <p className="text-sm text-slate-400">
                         Connect Meta publishing later.
@@ -497,12 +532,15 @@ export default function AIVideoStudioPanel() {
                     </div>
                   </div>
 
-                 <div className="flex flex-col gap-3 sm:flex-row">
-  <Button className="rounded-2xl bg-slate-100 font-bold text-black hover:bg-white">
-    <Download className="mr-2 h-4 w-4" />
-    Export MP4
-  </Button>
-</div>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button
+                      className="rounded-2xl bg-slate-100 font-bold text-black hover:bg-white"
+                      style={selectedFontStyle}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Export MP4
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
