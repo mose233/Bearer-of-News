@@ -39,29 +39,22 @@ export default function ExportPanel({
   };
 
   return (
-    <div className="space-y-5 text-white">
+    <div className="space-y-4 text-white">
       <div>
         <h3 className="text-base font-extrabold text-white">
-          Export & Share
+          Export & Download
         </h3>
 
-        <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          First export/download your finished photo or video. Then open your
-          preferred social app and select the saved file from Downloads or
-          Gallery.
+        <p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+          Download your finished media, then post it anywhere.
         </p>
       </div>
 
       <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
-        <p className="font-extrabold">How to Post</p>
-
-        <ol className="mt-2 list-decimal space-y-2 pl-4">
-          <li>Tap Export / Download Media.</li>
-          <li>Wait for the file to save on your phone or laptop.</li>
-          <li>Open Facebook, TikTok, WhatsApp, Instagram, or Messenger.</li>
-          <li>Create a post, reel, status, or story.</li>
-          <li>Select the saved photo/video and publish.</li>
-        </ol>
+        <p className="font-extrabold">Export first, then share</p>
+        <p className="mt-1 text-blue-100/90">
+          Save the file to your phone or laptop, then open your social app and upload it.
+        </p>
       </div>
 
       {exportStatus && (
@@ -90,12 +83,12 @@ export default function ExportPanel({
         {exportPrimaryLabel || "Export / Download Media"}
       </Button>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3">
         <Button
           type="button"
           onClick={onOpenFacebook}
           disabled={busy}
-          className="h-12 rounded-2xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60 sm:text-sm"
         >
           <Facebook className="mr-2 h-4 w-4" />
           Facebook
@@ -105,7 +98,7 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://www.tiktok.com/upload")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-black font-bold text-white hover:bg-zinc-900 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-black text-xs font-bold text-white hover:bg-zinc-900 disabled:opacity-60 sm:text-sm"
         >
           <Film className="mr-2 h-4 w-4" />
           TikTok
@@ -115,7 +108,7 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://web.whatsapp.com/")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-green-600 font-bold text-white hover:bg-green-700 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-green-600 text-xs font-bold text-white hover:bg-green-700 disabled:opacity-60 sm:text-sm"
         >
           <MessageCircle className="mr-2 h-4 w-4" />
           WhatsApp
@@ -125,7 +118,7 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://www.instagram.com/")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-pink-600 font-bold text-white hover:bg-pink-700 disabled:opacity-60"
+          className="h-12 rounded-2xl bg-pink-600 text-xs font-bold text-white hover:bg-pink-700 disabled:opacity-60 sm:text-sm"
         >
           <Film className="mr-2 h-4 w-4" />
           Instagram
@@ -135,15 +128,15 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://www.messenger.com/")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-sky-600 font-bold text-white hover:bg-sky-700 disabled:opacity-60 sm:col-span-2"
+          className="col-span-2 h-12 rounded-2xl bg-sky-600 text-xs font-bold text-white hover:bg-sky-700 disabled:opacity-60 sm:text-sm"
         >
           <MessageCircle className="mr-2 h-4 w-4" />
           Messenger
         </Button>
 
-        <details className="rounded-2xl border border-white/10 bg-white/5 p-3 sm:col-span-2">
+        <details className="col-span-2 rounded-2xl border border-white/10 bg-white/5 p-3">
           <summary className="cursor-pointer text-sm font-bold text-slate-200">
-            Advanced export options
+            Advanced export
           </summary>
 
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
