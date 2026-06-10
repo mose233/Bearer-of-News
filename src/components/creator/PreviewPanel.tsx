@@ -55,15 +55,15 @@ export default function PreviewPanel({
 
   if (mediaFiles.length === 0) {
     return (
-      <div className="flex min-h-[220px] sm:min-h-[260px] lg:min-h-[300px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted">
+      <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted sm:min-h-[260px] lg:min-h-[300px]">
         <div className="mb-3 rounded-2xl bg-white/10 p-4">
-          <ImageIcon className="h-9 w-9 text-creator-muted" />
+          <ImageIcon className="h-8 w-8 text-creator-muted" />
         </div>
 
-        <p className="text-sm font-bold text-creator-text">Preview</p>
+        <p className="text-sm font-bold text-creator-text">No preview yet</p>
 
         <p className="mt-2 max-w-xs text-xs leading-5 text-creator-muted">
-          Generate or upload photos/videos to preview them here.
+          Upload or generate media to preview your project.
         </p>
       </div>
     );
@@ -77,7 +77,7 @@ export default function PreviewPanel({
             <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
               <img
                 src={imagePreviews[currentIndex]?.preview}
-                alt="preview"
+                alt="Project preview"
                 className="absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out animate-kenburns"
               />
 
@@ -100,6 +100,7 @@ export default function PreviewPanel({
               <button
                 type="button"
                 onClick={prevSlide}
+                aria-label="Previous scene"
                 className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -108,6 +109,7 @@ export default function PreviewPanel({
               <button
                 type="button"
                 onClick={nextSlide}
+                aria-label="Next scene"
                 className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -116,6 +118,7 @@ export default function PreviewPanel({
               <button
                 type="button"
                 onClick={() => setIsPlaying(!isPlaying)}
+                aria-label={isPlaying ? "Pause preview" : "Play preview"}
                 className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition hover:scale-105"
               >
                 {isPlaying ? (
@@ -130,10 +133,15 @@ export default function PreviewPanel({
       )}
 
       <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-xs font-bold text-creator-text">Timeline</h3>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-xs font-bold text-creator-text">Timeline</h3>
+            <p className="mt-0.5 text-[10px] font-medium text-creator-muted">
+              Arrange, copy or remove scenes.
+            </p>
+          </div>
 
-          <span className="text-[11px] text-creator-muted">
+          <span className="shrink-0 rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold text-creator-muted">
             {mediaFiles.length} scene{mediaFiles.length === 1 ? "" : "s"}
           </span>
         </div>
@@ -194,6 +202,7 @@ export default function PreviewPanel({
                       onUpdateSceneDuration?.(index, Number(e.target.value))
                     }
                     className="w-full bg-transparent text-[11px] font-semibold text-creator-text outline-none"
+                    aria-label={`Scene ${index + 1} duration`}
                   />
 
                   <span className="text-[10px] text-creator-muted">s</span>
