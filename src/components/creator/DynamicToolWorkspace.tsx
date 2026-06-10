@@ -343,6 +343,8 @@ function VideoTemplatePanel({
   setVideoCreativeType,
   videoOutputFormat,
   setVideoOutputFormat,
+  selectedCreatorFont,
+  setSelectedCreatorFont,
   onMediaUpload,
   onGenerateCompleteVideo,
 }: {
@@ -353,6 +355,8 @@ function VideoTemplatePanel({
   setVideoCreativeType?: (value: string) => void;
   videoOutputFormat?: string;
   setVideoOutputFormat?: (value: string) => void;
+  selectedCreatorFont: string;
+  setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
 }) {
@@ -464,6 +468,7 @@ function VideoTemplatePanel({
       `Visual style: ${localVisualStyle}`,
       `Language: ${localLanguage}`,
       `Output format: ${localOutputFormat}`,
+      `Selected font: ${selectedCreatorFont}`,
       "",
       "User instructions:",
       cleanMessage,
@@ -511,6 +516,12 @@ function VideoTemplatePanel({
           accept="image/*,video/*"
           multiple
           onChange={onMediaUpload}
+        />
+
+        <TextFontStudio
+          tool={tool}
+          selectedFont={selectedCreatorFont}
+          onFontChange={setSelectedCreatorFont}
         />
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -564,6 +575,22 @@ function VideoTemplatePanel({
             placeholder={messagePlaceholder}
           />
         </label>
+
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3">
+          <div className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
+            Selected video font
+          </div>
+          <div
+            className="mt-1 text-2xl font-extrabold text-white"
+            style={{ fontFamily: `${selectedCreatorFont}, sans-serif` }}
+          >
+            {tool} • {localVideoType}
+          </div>
+          <p className="mt-1 text-xs font-semibold text-slate-300">
+            This font is saved into the video draft instructions for titles,
+            captions and social video text.
+          </p>
+        </div>
 
         {videoDraftStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -2382,6 +2409,8 @@ export default function DynamicToolWorkspace({
         setVideoCreativeType={setVideoCreativeType}
         videoOutputFormat={videoOutputFormat}
         setVideoOutputFormat={setVideoOutputFormat}
+        selectedCreatorFont={selectedCreatorFont}
+        setSelectedCreatorFont={setSelectedCreatorFont}
         onMediaUpload={onMediaUpload}
         onGenerateCompleteVideo={onGenerateCompleteVideo}
       />
