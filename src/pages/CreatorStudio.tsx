@@ -680,12 +680,12 @@ export default function CreatorStudio() {
   };
 
   const openFacebookAfterExport = () => {
-  window.open(
-    "https://www.facebook.com/",
-    "_blank",
-    "noopener,noreferrer"
-  );
-};
+    window.open(
+      "https://www.facebook.com/",
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   const initializeFFmpeg = async () => {
     try {
@@ -892,16 +892,16 @@ export default function CreatorStudio() {
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
         <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
-          <div className="mb-3 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-xs font-bold text-violet-100">
+          <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
             Creator Studio
           </div>
 
           <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Create AI Videos, Images & Music
+            Create AI videos, images and music
           </h1>
 
           <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-            Build content for Facebook, TikTok, YouTube Shorts and WhatsApp.
+            Choose a tool, create your media, then export and download.
           </p>
         </header>
 
@@ -977,11 +977,11 @@ export default function CreatorStudio() {
 
         <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
-<Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-sm font-semibold text-slate-200">
-  Preview
-</CardTitle>
+                  Preview
+                </CardTitle>
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
@@ -1001,38 +1001,36 @@ export default function CreatorStudio() {
               </CardContent>
             </Card>
 
-
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-sm font-semibold text-slate-200">
-  Export & Share
-</CardTitle>
+                  Export & Download
+                </CardTitle>
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-               <ExportPanel
-  isRecording={isRecording}
-  isExporting={isExporting}
-  exportStatus={exportStatus}
-  exportPrimaryLabel="Export / Download Media"
-  onExportPrimary={
-    aiVoiceBlob
-      ? handleExportFinalMixedMp4
-      : handleExportSilentMp4
-  }
-  onOpenFacebook={openFacebookAfterExport}
-  onInitializeFFmpeg={initializeFFmpeg}
-  onExportSilentMp4={handleExportSilentMp4}
-  onExportNarratedMp4={handleExportNarratedMp4}
-/>
+                <ExportPanel
+                  isRecording={isRecording}
+                  isExporting={isExporting}
+                  exportStatus={exportStatus}
+                  exportPrimaryLabel="Export / Download Media"
+                  onExportPrimary={
+                    aiVoiceBlob
+                      ? handleExportFinalMixedMp4
+                      : handleExportSilentMp4
+                  }
+                  onOpenFacebook={openFacebookAfterExport}
+                  onInitializeFFmpeg={initializeFFmpeg}
+                  onExportSilentMp4={handleExportSilentMp4}
+                  onExportNarratedMp4={handleExportNarratedMp4}
+                />
               </CardContent>
             </Card>
+
             <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Review content before publishing.
+              Review your content before downloading or sharing.
             </div>
           </section>
-
-
         </div>
 
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0B1020]/95 px-4 py-3 backdrop-blur xl:hidden">
@@ -1043,8 +1041,8 @@ export default function CreatorStudio() {
             className="h-11 w-full rounded-xl bg-violet-600 text-xs font-bold text-white shadow-creator disabled:opacity-60"
           >
             {isRecording || isExporting
-              ? exportStatus || "Generating video..."
-              : "Generate Video"}
+              ? exportStatus || "Generating..."
+              : "Generate / Export"}
           </button>
         </div>
       </div>
