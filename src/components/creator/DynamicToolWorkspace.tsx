@@ -18,6 +18,7 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
+import TextFontStudio from "@/components/creator/TextFontStudio";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -968,6 +969,7 @@ export default function DynamicToolWorkspace({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
 }: DynamicToolWorkspaceProps) {
+  const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const [picturePreview, setPicturePreview] = useState("");
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [pictureFileName, setPictureFileName] = useState("");
@@ -978,7 +980,7 @@ export default function DynamicToolWorkspace({
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
   const [quoteBackground, setQuoteBackground] = useState("Sunrise");
-  const [quoteFont, setQuoteFont] = useState("Poppins");
+  const [quoteFont, setQuoteFont] = useState("Metamorphous");
   const [quoteOutputFormat, setQuoteOutputFormat] = useState("Facebook Post");
   const [quotePreview, setQuotePreview] = useState("");
   const [quoteFile, setQuoteFile] = useState<File | null>(null);
@@ -1521,6 +1523,15 @@ export default function DynamicToolWorkspace({
             />
           </div>
 
+          <TextFontStudio
+            tool={tool}
+            selectedFont={selectedCreatorFont}
+            onFontChange={(font) => {
+              setSelectedCreatorFont(font);
+              setQuoteFont(font);
+            }}
+          />
+
           {quoteStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
               {quoteStatus}
@@ -1581,6 +1592,11 @@ export default function DynamicToolWorkspace({
     const isProductAdImage = tool === "Product Ad Image";
     const isFacebookPostImage = tool === "Facebook Post Image";
     const isPosterFlyer = tool === "Poster / Flyer";
+    const showFontStudio = [
+      "Product Ad Image",
+      "Facebook Post Image",
+      "Poster / Flyer",
+    ].includes(tool);
 
     const pictureDescription = isPhotoEnhancer
       ? "Improve photo quality, sharpness, lighting and color before adding it to the timeline."
@@ -1929,6 +1945,14 @@ export default function DynamicToolWorkspace({
               </p>
             )}
         </div>
+
+        {showFontStudio && (
+          <TextFontStudio
+            tool={tool}
+            selectedFont={selectedCreatorFont}
+            onFontChange={setSelectedCreatorFont}
+          />
+        )}
 
         {picturePreview && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
