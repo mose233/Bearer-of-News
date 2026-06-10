@@ -273,7 +273,7 @@ function UploadMediaBox({
       <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
         <Upload className="mb-3 h-7 w-7 text-violet-300" />
         <span className="text-sm font-extrabold text-white">
-          Click to Upload
+          Upload Media
         </span>
         <span className="mt-1 text-xs font-medium text-slate-300">
           {description}
@@ -506,13 +506,13 @@ function VideoTemplatePanel({
             <Captions className="h-5 w-5 text-violet-300" />
           )
         }
-        description="Create an affordable video using photos, AI images, captions, music, voice, transitions and timeline export."
+        description="Create videos with photos, captions, music, voice and export."
       />
 
       <div className="mt-5 space-y-5">
         <UploadMediaBox
           title="1. Upload Photos or Videos"
-          description="Upload images or short clips for this video. These become the scenes in your timeline."
+          description="Photos or videos for your project."
           accept="image/*,video/*"
           multiple
           onChange={onMediaUpload}
@@ -855,7 +855,7 @@ function CinematicPlaceholderPanel({
 
       <div className="mt-5 space-y-5">
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
-          Mock mode active: this prepares the video workflow and timeline draft now. Real AI motion will be connected later through fal.ai.
+          Mock Mode Active — Real AI video generation will be available soon.
         </div>
 
         <UploadMediaBox
@@ -1131,7 +1131,7 @@ export default function DynamicToolWorkspace({
         <ToolHeader
           title="Choose a tool to begin"
           icon={<Sparkles className="h-5 w-5 text-violet-300" />}
-          description="Select Picture AI, Video AI, Music AI, or Cinematic AI above to open the right workspace."
+          description="Select a tool above to start creating."
         />
       </div>
     );
