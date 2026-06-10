@@ -22,6 +22,7 @@ import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
+import { getFontByName } from "@/lib/creator/fontLibrary";
 
 type DynamicToolWorkspaceProps = {
   selectedTool: AiToolSelection | null;
@@ -599,6 +600,8 @@ function VideoTemplatePanel({
 
 function CinematicPlaceholderPanel({
   tool,
+  selectedCreatorFont,
+  setSelectedCreatorFont,
   onMediaUpload,
   setVideoPrompt,
   setVideoCreativeType,
@@ -606,6 +609,8 @@ function CinematicPlaceholderPanel({
   onAddEnhancedPhotoToTimeline,
 }: {
   tool: string;
+  selectedCreatorFont: string;
+  setSelectedCreatorFont: (font: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setVideoPrompt?: (value: string) => void;
   setVideoCreativeType?: (value: string) => void;
@@ -630,6 +635,8 @@ function CinematicPlaceholderPanel({
   const [cinematicScript, setCinematicScript] = useState("");
   const [cinematicStatus, setCinematicStatus] = useState("");
   const [cinematicPreview, setCinematicPreview] = useState("");
+
+  const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
 
   const isPhotoToVideo = tool === "Photo to Video";
   const isTalkingAvatar = tool === "Talking Avatar";
@@ -732,19 +739,19 @@ function CinematicPlaceholderPanel({
 
     context.textAlign = "center";
     context.fillStyle = "#ffffff";
-    context.font = "900 72px Inter, Arial, sans-serif";
+    context.font = `900 72px ${creatorFontCss}`;
     context.fillText(tool.toUpperCase(), 540, 450);
 
-    context.font = "800 46px Inter, Arial, sans-serif";
+    context.font = `800 46px ${creatorFontCss}`;
     context.fillStyle = "#fde68a";
     context.fillText(cinematicMotionStyle, 540, 560);
 
-    context.font = "700 36px Inter, Arial, sans-serif";
+    context.font = `700 36px ${creatorFontCss}`;
     context.fillStyle = "#cffafe";
     context.fillText(cinematicMood, 540, 650);
 
     context.fillStyle = "rgba(255,255,255,0.88)";
-    context.font = "700 30px Inter, Arial, sans-serif";
+    context.font = `700 30px ${creatorFontCss}`;
     context.fillText(cinematicOutputFormat, 540, 750);
 
     context.strokeStyle = "rgba(255,255,255,0.75)";
@@ -755,15 +762,15 @@ function CinematicPlaceholderPanel({
     context.stroke();
 
     context.fillStyle = "#ffffff";
-    context.font = "800 34px Inter, Arial, sans-serif";
+    context.font = `800 34px ${creatorFontCss}`;
     context.fillText("MOCK CINEMATIC DRAFT", 540, 1160);
 
     context.fillStyle = "rgba(255,255,255,0.8)";
-    context.font = "700 26px Inter, Arial, sans-serif";
+    context.font = `700 26px ${creatorFontCss}`;
     context.fillText("fal.ai will power real motion later", 540, 1230);
 
     context.fillStyle = "rgba(255,255,255,0.88)";
-    context.font = "700 28px Inter, Arial, sans-serif";
+    context.font = `700 28px ${creatorFontCss}`;
     context.fillText("xnewsapp.com", 540, 1770);
 
     canvas.toBlob((blob) => {
@@ -878,6 +885,12 @@ function CinematicPlaceholderPanel({
           />
         </label>
 
+        <TextFontStudio
+          tool={tool}
+          selectedFont={selectedCreatorFont}
+          onFontChange={setSelectedCreatorFont}
+        />
+
         {cinematicStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
             {cinematicStatus}
@@ -970,6 +983,7 @@ export default function DynamicToolWorkspace({
   onAddEnhancedPhotoToTimeline,
 }: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
+  const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
   const [picturePreview, setPicturePreview] = useState("");
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [pictureFileName, setPictureFileName] = useState("");
@@ -1123,20 +1137,22 @@ export default function DynamicToolWorkspace({
     }
     context.fill();
 
+    const quoteFontCss = getFontByName(quoteFont).cssFamily;
+
     context.textAlign = "center";
     context.fillStyle = "#ffffff";
-    context.font = `700 58px ${quoteFont}, Arial, sans-serif`;
+    context.font = `700 58px ${quoteFontCss}`;
 
     const lines = wrapCanvasText(context, cleanQuote, 760);
     const lineHeight = 76;
     const quoteHeight = lines.length * lineHeight;
     let startY = 500 - quoteHeight / 2;
 
-    context.font = `700 132px ${quoteFont}, Arial, sans-serif`;
+    context.font = `700 132px ${quoteFontCss}`;
     context.fillStyle = "rgba(255,255,255,0.28)";
     context.fillText("“", 540, startY - 38);
 
-    context.font = `700 58px ${quoteFont}, Arial, sans-serif`;
+    context.font = `700 58px ${quoteFontCss}`;
     context.fillStyle = "#ffffff";
 
     lines.forEach((line) => {
@@ -1145,16 +1161,16 @@ export default function DynamicToolWorkspace({
     });
 
     if (quoteAuthor.trim()) {
-      context.font = `600 32px ${quoteFont}, Arial, sans-serif`;
+      context.font = `600 32px ${quoteFontCss}`;
       context.fillStyle = "rgba(255,255,255,0.82)";
       context.fillText(`— ${quoteAuthor.trim()}`, 540, startY + 36);
     }
 
-    context.font = `800 28px ${quoteFont}, Arial, sans-serif`;
+    context.font = `800 28px ${quoteFontCss}`;
     context.fillStyle = "rgba(255,255,255,0.75)";
     context.fillText(quoteCategory.toUpperCase(), 540, 850);
 
-    context.font = `700 24px ${quoteFont}, Arial, sans-serif`;
+    context.font = `700 24px ${quoteFontCss}`;
     context.fillStyle = "rgba(255,255,255,0.55)";
     context.fillText("Created with XNewsApp", 540, 910);
 
@@ -1358,22 +1374,22 @@ export default function DynamicToolWorkspace({
 
     context.fillStyle = "#ffffff";
     context.textAlign = "center";
-    context.font = "900 72px Inter, Arial, sans-serif";
+    context.font = `900 72px ${creatorFontCss}`;
     context.fillText("AI MUSIC VIDEO", 540, 430);
 
-    context.font = "800 54px Inter, Arial, sans-serif";
+    context.font = `800 54px ${creatorFontCss}`;
     context.fillText(musicVideoTheme.toUpperCase(), 540, 535);
 
-    context.font = "700 38px Inter, Arial, sans-serif";
+    context.font = `700 38px ${creatorFontCss}`;
     context.fillStyle = "#cffafe";
     context.fillText(musicVideoStyle, 540, 630);
 
     context.fillStyle = "#fde68a";
-    context.font = "700 34px Inter, Arial, sans-serif";
+    context.font = `700 34px ${creatorFontCss}`;
     context.fillText(musicVideoMood, 540, 700);
 
     context.fillStyle = "#ffffff";
-    context.font = "700 34px Inter, Arial, sans-serif";
+    context.font = `700 34px ${creatorFontCss}`;
     context.fillText(musicVideoAudioName || musicVideoAudioSource || "Selected Audio", 540, 805);
 
     context.strokeStyle = "rgba(255,255,255,0.8)";
@@ -1388,11 +1404,11 @@ export default function DynamicToolWorkspace({
     context.stroke();
 
     context.fillStyle = "#ffffff";
-    context.font = "800 30px Inter, Arial, sans-serif";
+    context.font = `800 30px ${creatorFontCss}`;
     context.fillText(musicVideoOutputFormat, 540, 1160);
 
     context.fillStyle = "rgba(255,255,255,0.88)";
-    context.font = "700 28px Inter, Arial, sans-serif";
+    context.font = `700 28px ${creatorFontCss}`;
     context.fillText("xnewsapp.com", 540, 1770);
 
     canvas.toBlob((blob) => {
@@ -1498,13 +1514,15 @@ export default function DynamicToolWorkspace({
               label="5. Font Style"
               value={quoteFont}
               options={[
-                "Poppins",
-                "Montserrat",
-                "Anton",
-                "Oswald",
+                "Metamorphous",
                 "Playfair Display",
                 "Bebas Neue",
-                "Inter",
+                "Bruno Ace",
+                "Orbitron",
+                "Oswald",
+                "Cinzel",
+                "Iceberg",
+                "New Rocker",
               ]}
               onChange={setQuoteFont}
             />
@@ -1583,6 +1601,7 @@ export default function DynamicToolWorkspace({
 
   if (category === "Picture AI") {
     const filterClass = enhancementFilters[enhancementStyle];
+    const selectedFontStyle = { fontFamily: creatorFontCss };
 
     const isPhotoEnhancer = tool === "Photo Enhancer";
     const isStudioPortrait = tool === "Studio Portrait";
@@ -1996,7 +2015,7 @@ export default function DynamicToolWorkspace({
                   {(isProductAdImage ||
                     isFacebookPostImage ||
                     isPosterFlyer) && (
-                    <div className="absolute inset-x-3 bottom-3 rounded-2xl bg-black/70 p-3 text-white backdrop-blur">
+                    <div className="absolute inset-x-3 bottom-3 rounded-2xl bg-black/70 p-3 text-white backdrop-blur" style={selectedFontStyle}>
                       {isProductAdImage && (
                         <>
                           <p className="text-base font-extrabold">
@@ -2572,6 +2591,12 @@ export default function DynamicToolWorkspace({
           />
         </label>
 
+        <TextFontStudio
+          tool="AI Music Video Studio"
+          selectedFont={selectedCreatorFont}
+          onFontChange={setSelectedCreatorFont}
+        />
+
         {musicVideoDraftStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold text-emerald-100">
             {musicVideoDraftStatus}
@@ -2623,6 +2648,8 @@ export default function DynamicToolWorkspace({
     return (
       <CinematicPlaceholderPanel
         tool={tool}
+        selectedCreatorFont={selectedCreatorFont}
+        setSelectedCreatorFont={setSelectedCreatorFont}
         onMediaUpload={onMediaUpload}
         setVideoPrompt={setVideoPrompt}
         setVideoCreativeType={setVideoCreativeType}
