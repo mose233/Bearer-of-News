@@ -659,11 +659,33 @@ function CinematicPlaceholderPanel({
   const [cinematicLanguage, setCinematicLanguage] = useState("English");
   const [cinematicOutputFormat, setCinematicOutputFormat] =
     useState("Facebook Reel");
+  const [cinematicAspectRatio, setCinematicAspectRatio] = useState("9:16 Reel");
+  const [cinematicTextPreset, setCinematicTextPreset] = useState("Hollywood");
   const [cinematicScript, setCinematicScript] = useState("");
   const [cinematicStatus, setCinematicStatus] = useState("");
   const [cinematicPreview, setCinematicPreview] = useState("");
 
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
+
+  const cinematicPresetFontMap: Record<string, string> = {
+    Hollywood: "Bebas Neue",
+    "Netflix Style": "Bebas Neue",
+    "News Documentary": "Oswald",
+    "Faith Film": "Metamorphous",
+    Luxury: "Playfair Display",
+    "Epic Fantasy": "Cinzel",
+    Afrobeats: "New Rocker",
+    "AI Futuristic": "Bruno Ace",
+    Corporate: "Oswald",
+  };
+
+  const handleCinematicTextPresetChange = (value: string) => {
+    setCinematicTextPreset(value);
+    const recommendedFont = cinematicPresetFontMap[value];
+    if (recommendedFont) {
+      setSelectedCreatorFont(recommendedFont);
+    }
+  };
 
   const isPhotoToVideo = tool === "Photo to Video";
   const isTalkingAvatar = tool === "Talking Avatar";
@@ -709,6 +731,9 @@ function CinematicPlaceholderPanel({
       `Mood: ${cinematicMood}`,
       `Language: ${cinematicLanguage}`,
       `Output format: ${cinematicOutputFormat}`,
+      `Aspect ratio: ${cinematicAspectRatio}`,
+      `Cinematic text preset: ${cinematicTextPreset}`,
+      `Selected font: ${selectedCreatorFont}`,
       "",
       "User instructions:",
       cinematicScript.trim() || instructionPlaceholder,
@@ -781,6 +806,10 @@ function CinematicPlaceholderPanel({
     context.font = `700 30px ${creatorFontCss}`;
     context.fillText(cinematicOutputFormat, 540, 750);
 
+    context.fillStyle = "rgba(255,255,255,0.78)";
+    context.font = `700 28px ${creatorFontCss}`;
+    context.fillText(`${cinematicAspectRatio} • ${cinematicTextPreset}`, 540, 820);
+
     context.strokeStyle = "rgba(255,255,255,0.75)";
     context.lineWidth = 7;
     context.beginPath();
@@ -825,7 +854,7 @@ function CinematicPlaceholderPanel({
       }
 
       setCinematicStatus(
-        `${tool} mock draft created and added to the timeline. Preview it, then use Export / Download Media.`
+        `${tool} mock draft created with ${cinematicTextPreset} text style and added to the timeline. Preview it, then use Export / Download Media.`
       );
     }, "image/png");
   };
@@ -877,7 +906,37 @@ function CinematicPlaceholderPanel({
           />
 
           <SelectField
-            label="4. Mood"
+            label="4. Aspect Ratio"
+            value={cinematicAspectRatio}
+            options={[
+              "9:16 Reel",
+              "16:9 YouTube",
+              "1:1 Square",
+              "4:5 Social Feed",
+              "21:9 CinemaScope",
+            ]}
+            onChange={setCinematicAspectRatio}
+          />
+
+          <SelectField
+            label="5. Text Preset"
+            value={cinematicTextPreset}
+            options={[
+              "Hollywood",
+              "Netflix Style",
+              "News Documentary",
+              "Faith Film",
+              "Luxury",
+              "Epic Fantasy",
+              "Afrobeats",
+              "AI Futuristic",
+              "Corporate",
+            ]}
+            onChange={handleCinematicTextPresetChange}
+          />
+
+          <SelectField
+            label="6. Mood"
             value={cinematicMood}
             options={[
               "Professional",
@@ -893,7 +952,7 @@ function CinematicPlaceholderPanel({
           />
 
           <SelectField
-            label="5. Language"
+            label="7. Language"
             value={cinematicLanguage}
             options={languages}
             onChange={setCinematicLanguage}
@@ -917,6 +976,21 @@ function CinematicPlaceholderPanel({
           selectedFont={selectedCreatorFont}
           onFontChange={setSelectedCreatorFont}
         />
+
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3">
+          <div className="text-xs font-extrabold uppercase tracking-wide text-amber-200">
+            Cinematic title preview
+          </div>
+          <div
+            className="mt-2 text-3xl font-extrabold text-white"
+            style={{ fontFamily: creatorFontCss }}
+          >
+            {tool.toUpperCase()}
+          </div>
+          <p className="mt-1 text-xs font-semibold text-slate-300">
+            {cinematicTextPreset} • {cinematicAspectRatio} • {selectedCreatorFont}
+          </p>
+        </div>
 
         {cinematicStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -950,7 +1024,7 @@ function CinematicPlaceholderPanel({
               setVideoCreativeType?.(cinematicMotionStyle);
               setVideoOutputFormat?.(cinematicOutputFormat);
               setCinematicStatus(
-                `${tool} workflow saved. Generate a mock draft or add source media, then export from the main Export section.`
+                `${tool} workflow saved with ${cinematicTextPreset} text style. Generate a mock draft or add source media, then export from the main Export section.`
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
