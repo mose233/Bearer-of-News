@@ -91,6 +91,18 @@ export default function CreatorStudio() {
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
+  const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
+
+  const handleSelectTool = (tool: AiToolSelection) => {
+    setSelectedTool(tool);
+
+    window.setTimeout(() => {
+      workspaceSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  };
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
     return mediaFiles
@@ -896,11 +908,11 @@ export default function CreatorStudio() {
         <div className="mb-5">
           <AiToolLauncher
             selectedTool={selectedTool}
-            onSelectTool={setSelectedTool}
+            onSelectTool={handleSelectTool}
           />
         </div>
 
-        <div className="mb-5">
+        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
           <DynamicToolWorkspace
             selectedTool={selectedTool}
             speechRate={speechRate}
