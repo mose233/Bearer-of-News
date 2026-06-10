@@ -43,11 +43,11 @@ export const creatorFonts: CreatorFont[] = [
     cssFamily: "'Bebas Neue', sans-serif",
   },
   {
-    name: "Franklin Gothic",
+    name: "Oswald",
     category: "Business / Headlines",
     sample: "BREAKING NEWS",
     useFor: "News, business, professional posts",
-    cssFamily: "'Franklin Gothic Medium', Arial, sans-serif",
+    cssFamily: "'Oswald', sans-serif",
   },
   {
     name: "Stencil",
@@ -57,18 +57,18 @@ export const creatorFonts: CreatorFont[] = [
     cssFamily: "Stencil, Impact, sans-serif",
   },
   {
-    name: "Felix Titling",
+    name: "Playfair Display",
     category: "Premium / Luxury",
     sample: "LUXURY EVENT",
     useFor: "Weddings, premium flyers, certificates",
-    cssFamily: "'Felix Titling', serif",
+    cssFamily: "'Playfair Display', serif",
   },
   {
-    name: "TypoGraphica",
+    name: "Cinzel",
     category: "Premium / Luxury",
     sample: "DESIGN POSTER",
     useFor: "Designer posters and premium branding",
-    cssFamily: "TypoGraphica, serif",
+    cssFamily: "'Cinzel', serif",
   },
   {
     name: "New Rocker",
@@ -114,7 +114,7 @@ export function getRecommendedFonts(tool: string): string[] {
       "Facebook Reel Maker",
     ].includes(tool)
   ) {
-    return ["Bebas Neue", "Franklin Gothic", "Stencil"];
+    return ["Bebas Neue", "Oswald", "Orbitron"];
   }
 
   if (
@@ -124,20 +124,22 @@ export function getRecommendedFonts(tool: string): string[] {
       "Facebook Post Image",
     ].includes(tool)
   ) {
-    return ["Franklin Gothic", "Bebas Neue", "Orbitron"];
+    return ["Oswald", "Bebas Neue", "Orbitron"];
   }
 
   if (["Birthday Video", "Wedding Video"].includes(tool)) {
-    return ["Felix Titling", "Metamorphous", "Bebas Neue"];
+    return ["Playfair Display", "Metamorphous", "Bebas Neue"];
   }
 
   if (["Quote Image Creator"].includes(tool)) {
-    return ["Metamorphous", "Felix Titling", "Bruno Ace"];
+    return ["Metamorphous", "Playfair Display", "Bruno Ace"];
   }
 
-  return ["Bebas Neue", "Bruno Ace", "Franklin Gothic"];
+  return ["Bebas Neue", "Bruno Ace", "Oswald"];
 }
 
 export function getFontByName(name: string): CreatorFont {
-  return creatorFonts.find((font) => font.name === name) || creatorFonts[0];
+  return (
+    creatorFonts.find((font) => font.name === name) || creatorFonts[0]
+  );
 }
