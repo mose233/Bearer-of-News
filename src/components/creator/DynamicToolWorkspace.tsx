@@ -1015,30 +1015,33 @@ function LifeEventVideoPanel({
             />
 
             <SelectField
-  label="9. Font Style"
-  value={selectedCreatorFont}
-  options={[
-    "Bebas Neue",
-    "Oswald",
-    "Playfair Display",
-    "Cinzel",
-    "Orbitron",
-    "Bruno Ace",
-    "Metamorphous",
-    "New Rocker",
-  ]}
-  onChange={setSelectedCreatorFont}
-/>
+              label="8. Music Style"
+              value={musicStyle}
+              options={greetingMusicStyles}
+              onChange={setMusicStyle}
+            />
+          </div>
+        )}
 
-        <TextFontStudio
-          tool={tool}
-          selectedFont={selectedCreatorFont}
-          onFontChange={setSelectedCreatorFont}
+        <SelectField
+          label="9. Font Style"
+          value={selectedCreatorFont}
+          options={[
+            "Bebas Neue",
+            "Oswald",
+            "Playfair Display",
+            "Cinzel",
+            "Orbitron",
+            "Bruno Ace",
+            "Metamorphous",
+            "New Rocker",
+          ]}
+          onChange={setSelectedCreatorFont}
         />
 
         <label className="block">
           <span className="mb-2 block text-sm font-extrabold">
-            {isTribute ? "9. Tribute Message" : "9. Personal Message"}
+            {isTribute ? "10. Tribute Message" : "10. Personal Message"}
           </span>
           <textarea
             value={isTribute ? tributeMessage : personalMessage}
