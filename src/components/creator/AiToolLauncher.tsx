@@ -58,6 +58,8 @@ const categories: AiToolCategory[] = [
     icon: Video,
     accent: "from-violet-500 to-purple-600",
     tools: [
+      "AI Greeting Video Studio",
+      "Obituary / Tribute Studio",
       "Photo Music Video",
       "Birthday Video",
       "Product Ad Generator",
