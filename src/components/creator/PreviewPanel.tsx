@@ -12,8 +12,6 @@ import {
 
 import type { ImagePreviewItem } from "@/lib/creator/videoExport";
 
-type PreviewMode = "image" | "video" | "cinematic";
-
 type PreviewPanelProps = {
   mediaFiles: File[];
   imagePreviews: ImagePreviewItem[];
@@ -23,7 +21,6 @@ type PreviewPanelProps = {
   setIsPlaying: (value: boolean) => void;
   facebookCaption: string;
   sceneDurations?: number[];
-  previewMode?: PreviewMode;
   onDeleteScene?: (index: number) => void;
   onDuplicateScene?: (index: number) => void;
   onUpdateSceneDuration?: (index: number, duration: number) => void;
@@ -38,44 +35,27 @@ export default function PreviewPanel({
   setIsPlaying,
   facebookCaption,
   sceneDurations = [],
-  previewMode = "image",
   onDeleteScene,
   onDuplicateScene,
   onUpdateSceneDuration,
 }: PreviewPanelProps) {
-  const shouldAnimatePreview = previewMode !== "image";
-
-  const safeCurrentIndex =
-    imagePreviews.length > 0
-      ? Math.min(currentIndex, imagePreviews.length - 1)
-      : Math.min(currentIndex, mediaFiles.length - 1);
-
-  const currentPreview = imagePreviews[safeCurrentIndex];
-  const currentFile =
-    currentPreview?.file || mediaFiles[safeCurrentIndex] || mediaFiles[0];
-
-  const isCurrentVideo = currentFile?.type?.startsWith("video/");
-  const isCurrentImage = currentFile?.type?.startsWith("image/");
-
-  const currentPreviewUrl =
-    currentPreview?.preview ||
-    (currentFile ? URL.createObjectURL(currentFile) : "");
-
-  const totalScenes = Math.max(imagePreviews.length, mediaFiles.length);
-
   const nextSlide = () => {
-    if (totalScenes === 0) return;
-    setCurrentIndex((prev) => (prev === totalScenes - 1 ? 0 : prev + 1));
+    if (imagePreviews.length === 0) return;
+    setCurrentIndex((prev) =>
+      prev === imagePreviews.length - 1 ? 0 : prev + 1
+    );
   };
 
   const prevSlide = () => {
-    if (totalScenes === 0) return;
-    setCurrentIndex((prev) => (prev === 0 ? totalScenes - 1 : prev - 1));
+    if (imagePreviews.length === 0) return;
+    setCurrentIndex((prev) =>
+      prev === 0 ? imagePreviews.length - 1 : prev - 1
+    );
   };
 
   if (mediaFiles.length === 0) {
     return (
-      <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted sm:min-h-[260px] lg:min-h-[300px]">
+      <div className="flex min-h-[220px] sm:min-h-[260px] lg:min-h-[300px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted">
         <div className="mb-3 rounded-2xl bg-white/10 p-4">
           <ImageIcon className="h-9 w-9 text-creator-muted" />
         </div>
@@ -91,71 +71,48 @@ export default function PreviewPanel({
 
   return (
     <div className="space-y-3">
-      <div className="mx-auto w-full max-w-[220px] sm:max-w-[260px] lg:max-w-[300px]">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black p-1.5 shadow-creator">
-          <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
-            {isCurrentVideo ? (
-  <video
-    src={currentPreviewUrl}
-    controls
-    playsInline
-    preload="metadata"
-    className="h-full w-full rounded-xl bg-black object-contain"
-  />
-            ) : isCurrentImage || currentPreviewUrl ? (
+      {imagePreviews.length > 0 && (
+        <div className="mx-auto w-full max-w-[220px] sm:max-w-[260px] lg:max-w-[300px]">
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black p-1.5 shadow-creator">
+            <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
               <img
-                src={currentPreviewUrl}
+                src={imagePreviews[currentIndex]?.preview}
                 alt="preview"
-                className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out ${
-                  shouldAnimatePreview ? "animate-kenburns" : ""
-                }`}
+                className="absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out animate-kenburns"
               />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-slate-300">
-                <Video className="mb-3 h-8 w-8" />
-                <p className="text-xs font-bold">Preview not available</p>
-              </div>
-            )}
 
-            {!isCurrentVideo && (
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/15" />
-            )}
 
-            <div className="absolute left-2 top-2 rounded-full bg-black/50 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
-              {safeCurrentIndex + 1} / {totalScenes}
-            </div>
-
-            {facebookCaption && !isCurrentVideo && (
-              <div className="absolute bottom-12 left-2 right-2">
-                <div className="rounded-xl bg-black/45 px-2 py-2 backdrop-blur-md">
-                  <p className="line-clamp-4 whitespace-pre-wrap text-[11px] font-semibold leading-4 text-white drop-shadow-lg">
-                    {facebookCaption}
-                  </p>
-                </div>
+              <div className="absolute left-2 top-2 rounded-full bg-black/50 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                {currentIndex + 1} / {imagePreviews.length}
               </div>
-            )}
 
-            {totalScenes > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={prevSlide}
-                  className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
+              {facebookCaption && (
+                <div className="absolute bottom-12 left-2 right-2">
+                  <div className="rounded-xl bg-black/45 px-2 py-2 backdrop-blur-md">
+                    <p className="line-clamp-4 whitespace-pre-wrap text-[11px] font-semibold leading-4 text-white drop-shadow-lg">
+                      {facebookCaption}
+                    </p>
+                  </div>
+                </div>
+              )}
 
-                <button
-                  type="button"
-                  onClick={nextSlide}
-                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
+              <button
+                type="button"
+                onClick={prevSlide}
+                className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
 
-            {!isCurrentVideo && (
+              <button
+                type="button"
+                onClick={nextSlide}
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+
               <button
                 type="button"
                 onClick={() => setIsPlaying(!isPlaying)}
@@ -167,10 +124,10 @@ export default function PreviewPanel({
                   <Play className="h-4 w-4" />
                 )}
               </button>
-            )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
         <div className="mb-3 flex items-center justify-between">
@@ -187,11 +144,7 @@ export default function PreviewPanel({
               (item) => item.file === file
             );
 
-            const isSelected =
-              imageIndex >= 0
-                ? imageIndex === safeCurrentIndex
-                : index === safeCurrentIndex;
-
+            const isSelected = imageIndex === currentIndex;
             const duration = sceneDurations[index] || 5;
 
             return (
@@ -206,7 +159,9 @@ export default function PreviewPanel({
                 <button
                   type="button"
                   onClick={() => {
-                    setCurrentIndex(imageIndex >= 0 ? imageIndex : index);
+                    if (imageIndex >= 0) {
+                      setCurrentIndex(imageIndex);
+                    }
                   }}
                   className="w-full text-left"
                 >
