@@ -1,8 +1,8 @@
-
+import { useState } from "react";
 import {
   creatorFonts,
   fontCategories,
-  getRecommendedFonts,
+  FontCategory,
 } from "@/lib/creator/fontLibrary";
 
 type TextFontStudioProps = {
@@ -12,11 +12,12 @@ type TextFontStudioProps = {
 };
 
 export default function TextFontStudio({
-  tool,
+  tool: _tool,
   selectedFont,
   onFontChange,
 }: TextFontStudioProps) {
- 
+  const [openCategory, setOpenCategory] =
+    useState<FontCategory | null>(null);
 
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
@@ -31,56 +32,73 @@ export default function TextFontStudio({
         </p>
       </div>
 
-      
+      <div className="space-y-3">
+        {fontCategories.map((category) => {
+          const isOpen = openCategory === category;
+          const fonts = creatorFonts.filter(
+            (font) => font.category === category
+          );
 
-      {fontCategories.map((category) => {
-        const fonts = creatorFonts.filter(
-          (font) => font.category === category
-        );
+          return (
+            <div
+              key={category}
+              className="rounded-2xl border border-white/10 bg-white/5"
+            >
+              <button
+                type="button"
+                onClick={() => setOpenCategory(isOpen ? null : category)}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+              >
+                <span className="text-sm font-extrabold text-white">
+                  {category}
+                </span>
 
-        return (
-          <details
-            key={category}
-            className="mb-3 rounded-2xl border border-white/10 bg-white/5"
-          >
-            <summary className="cursor-pointer px-4 py-3 text-sm font-extrabold text-white">
-              {category}
-            </summary>
-
-            <div className="space-y-2 p-3">
-              {fonts.map((font) => (
-                <button
-                  key={font.name}
-                  type="button"
-                  onClick={() => onFontChange(font.name)}
-                  className={`w-full rounded-2xl border p-3 text-left transition ${
-                    selectedFont === font.name
-                      ? "border-cyan-400 bg-cyan-500/10"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                <span
+                  className={`rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold text-white transition ${
+                    isOpen ? "rotate-180" : ""
                   }`}
                 >
-                  <div
-                    className="text-lg font-bold text-white"
-                    style={{
-                      fontFamily: font.cssFamily,
-                    }}
-                  >
-                    {font.sample}
-                  </div>
+                  ▼
+                </span>
+              </button>
 
-                  <div className="mt-1 text-xs font-semibold text-slate-300">
-                    {font.name}
-                  </div>
+              {isOpen && (
+                <div className="space-y-2 border-t border-white/10 p-3">
+                  {fonts.map((font) => (
+                    <button
+                      key={font.name}
+                      type="button"
+                      onClick={() => onFontChange(font.name)}
+                      className={`w-full rounded-2xl border p-3 text-left transition ${
+                        selectedFont === font.name
+                          ? "border-cyan-400 bg-cyan-500/10"
+                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                      }`}
+                    >
+                      <div
+                        className="text-lg font-bold text-white"
+                        style={{
+                          fontFamily: font.cssFamily,
+                        }}
+                      >
+                        {font.sample}
+                      </div>
 
-                  <div className="text-[11px] text-slate-400">
-                    {font.useFor}
-                  </div>
-                </button>
-              ))}
+                      <div className="mt-1 text-xs font-semibold text-slate-300">
+                        {font.name}
+                      </div>
+
+                      <div className="text-[11px] text-slate-400">
+                        {font.useFor}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </details>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
