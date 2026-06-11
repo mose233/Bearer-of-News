@@ -2097,9 +2097,9 @@ export default function DynamicToolWorkspace({
               : isHairstyleChanger
                 ? "Try a new hairstyle look from an uploaded photo."
                 : isOutfitChanger
-                  ? "Change outfit style for fashion, sports, work, events or creative looks."
+                  ? "Change outfits for sports fans, careers, weddings, fashion and creative looks."
                   : isSceneChanger
-                    ? "Place a person into a new lifestyle, travel, work or action scene."
+                    ? "Place a person into travel, luxury, work, sports or action scenes."
                     : isProductAdImage
                 ? "Turn a product photo into a simple marketing image with product details and offer text."
                 : isFacebookPostImage
@@ -2353,10 +2353,25 @@ export default function DynamicToolWorkspace({
                   "Military-Inspired Outfit",
                   "Graduation Gown",
                   "African Traditional Wear",
+                  "Sports Fan Outfit",
                   "Football Fan Jersey",
+                  "European Club-Inspired Jersey",
+                  "Kenyan Club-Inspired Jersey",
+                  "Nigerian Club-Inspired Jersey",
+                  "South African Club-Inspired Jersey",
+                  "Tanzanian Club-Inspired Jersey",
+                  "Ugandan Club-Inspired Jersey",
+                  "Career Uniform",
+                  "Doctor Coat",
+                  "Nurse Uniform",
+                  "Pilot Uniform",
+                  "Lawyer Suit",
+                  "Teacher Outfit",
+                  "Engineer Safety Wear",
+                  "Chef Uniform",
+                  "News Anchor Outfit",
                   "Luxury Fashion",
                   "School Uniform Style",
-                  "Doctor Coat",
                   "80s Pop Star Stage Outfit",
                 ]}
                 onChange={setOutfitChoice}
@@ -2385,6 +2400,30 @@ export default function DynamicToolWorkspace({
                 label="Scene"
                 value={sceneChoice}
                 options={[
+                  "Luxury Lifestyle Photo",
+                  "Private Jet",
+                  "Luxury Villa",
+                  "Penthouse",
+                  "Sports Car",
+                  "Yacht",
+                  "Five-Star Hotel",
+                  "VIP Event",
+                  "Red Carpet",
+                  "Travel Scene Photo",
+                  "Paris",
+                  "London",
+                  "Dubai",
+                  "New York",
+                  "Nairobi",
+                  "Cape Town",
+                  "Lagos",
+                  "Kampala",
+                  "Dar es Salaam",
+                  "Safari",
+                  "Beach Resort",
+                  "Mountain",
+                  "Desert",
+                  "Cruise Ship",
                   "Luxury Car",
                   "Modern House",
                   "Office",
