@@ -95,12 +95,13 @@ export default function PreviewPanel({
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black p-1.5 shadow-creator">
           <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
             {isCurrentVideo ? (
-              <video
-                src={currentPreviewUrl}
-                controls
-                playsInline
-                className="absolute inset-0 h-full w-full object-contain"
-              />
+  <video
+    src={currentPreviewUrl}
+    controls
+    playsInline
+    preload="metadata"
+    className="h-full w-full rounded-xl bg-black object-contain"
+  />
             ) : isCurrentImage || currentPreviewUrl ? (
               <img
                 src={currentPreviewUrl}
