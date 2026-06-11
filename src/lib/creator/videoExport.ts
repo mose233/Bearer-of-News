@@ -77,6 +77,11 @@ export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
 
     const response = await fetch(image.preview);
     const blob = await response.blob();
+
+    if (blob.size === 0) {
+      throw new Error(`Image ${i + 1} preview is empty.`);
+    }
+
     const buffer = await blob.arrayBuffer();
 
     await ffmpeg.writeFile(`image${i}.png`, new Uint8Array(buffer));
@@ -104,10 +109,22 @@ export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
 }
 
 export async function exportSilentMp4(imagePreviews: ImagePreviewItem[]) {
-  const ffmpeg = await createSlideshowVideo(imagePreviews);
-  const data = await ffmpeg.readFile("slideshow.mp4");
+  try {
+    const ffmpeg = await createSlideshowVideo(imagePreviews);
+    const data = await ffmpeg.readFile("slideshow.mp4");
 
-  return createMp4Blob(data as Uint8Array | string);
+    return createMp4Blob(data as Uint8Array | string);
+  } catch (error) {
+    console.error("EXPORT ERROR:", error);
+
+    alert(
+      `Export failed:\n${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+
+    throw error;
+  }
 }
 
 export async function exportNarratedMp4({
@@ -248,6 +265,11 @@ export async function exportPhotoMusicVideoMp4({
 
   const imageResponse = await fetch(imagePreview);
   const imageBlob = await imageResponse.blob();
+
+  if (imageBlob.size === 0) {
+    throw new Error("Uploaded photo preview is empty.");
+  }
+
   const imageBuffer = await imageBlob.arrayBuffer();
 
   await ffmpeg.writeFile("photo-music-image.png", new Uint8Array(imageBuffer));
