@@ -19,6 +19,7 @@ import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
 import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
+import MusicStudioPanel from "@/components/creator/MusicStudioPanel";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -2777,233 +2778,26 @@ export default function DynamicToolWorkspace({
     );
   }
   if (category === "Music AI") {
-    const isLyrics = tool === "Lyrics Generator";
-    const isSongWriter = tool === "Song Writer" || tool === "AI Song Studio";
-    const isBeat = tool === "Beat Generator";
-    const isBackground = tool === "Background Music Generator";
-    const isJingle = tool === "Jingle Creator";
-
-    const musicDescription = isLyrics
-      ? "Generate lyrics for songs, reels, worship, ads, and social media."
-      : isSongWriter
-        ? "Create a complete song idea with verses, chorus, bridge, style, language, and duration."
-        : isBeat
-          ? "Create beat ideas and production instructions for producers or AI music tools."
-          : isBackground
-            ? "Create background music ideas for videos, adverts, news, reels, and presentations."
-            : isJingle
-              ? "Create short brand jingles for businesses, radio, TikTok, and product ads."
-              : "Create music, lyrics, beats, jingles, and audio ideas.";
-
-    const mainLabel = isLyrics
-      ? "1. Lyrics Topic / Message"
-      : isSongWriter
-        ? "1. Song Idea / Lyrics"
-        : isBeat
-          ? "1. Beat Description"
-          : isBackground
-            ? "1. Background Music Purpose"
-            : isJingle
-              ? "1. Brand / Business Message"
-              : "1. Write Music Idea";
-
-    const mainPlaceholder = isLyrics
-      ? "Example: Write motivational lyrics about working hard in Nairobi and never giving up."
-      : isSongWriter
-        ? "Example: Nimeamka leo na ndoto kubwa, Nairobi inaningoja..."
-        : isBeat
-          ? "Example: Create an energetic Gengetone beat with heavy drums, club bass, and viral TikTok feel."
-          : isBackground
-            ? "Example: Create soft corporate background music for a business promo video."
-            : isJingle
-              ? "Example: Create a short catchy jingle for Mose Salon. Mention beauty, nails, hair, and Nairobi."
-              : "Write your music idea here.";
-
-    const styleLabel = isBeat
-      ? "2. Beat Style"
-      : isBackground
-        ? "2. Music Mood"
-        : isJingle
-          ? "2. Jingle Style"
-          : "2. Choose Style";
-
-    const secondSelectLabel = isBeat || isBackground
-      ? "3. Usage"
-      : isJingle
-        ? "3. Market / Language"
-        : "3. Choose Language";
-
-    const secondSelectOptions = isBeat || isBackground
-      ? ["Reels", "YouTube", "Advert", "News", "Podcast", "Presentation", "Background"]
-      : isJingle
-        ? ["English", "Swahili", "Sheng", "Mixed", "Radio", "TikTok", "Business Ad"]
-        : songLanguages;
-
-    const durationOptions = isJingle
-      ? ["10 sec", "15 sec", "30 sec"]
-      : isBeat || isBackground
-        ? ["15 sec", "30 sec", "60 sec", "120 sec"]
-        : songDurations;
-
-    const buttonLabel = isLyrics
-      ? "Generate Lyrics"
-      : isSongWriter
-        ? "Generate Song"
-        : isBeat
-          ? "Generate Beat Idea"
-          : isBackground
-            ? "Generate Background Music Idea"
-            : isJingle
-              ? "Generate Jingle"
-              : "Generate Music Idea";
-
-    const resultLabel = isLyrics
-      ? "Lyrics prepared"
-      : isSongWriter
-        ? "Song idea prepared"
-        : isBeat
-          ? "Beat idea prepared"
-          : isBackground
-            ? "Background music idea prepared"
-            : isJingle
-              ? "Jingle prepared"
-              : "Music idea prepared";
-
     return (
-      <div className={boxClass}>
-        <ToolHeader
-          title={tool}
-          icon={<Music className="h-5 w-5 text-cyan-300" />}
-          description={musicDescription}
-        />
-
-        <div className="mt-5 space-y-5">
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              {mainLabel}
-            </span>
-            <textarea
-              value={songLyrics}
-              onChange={(e) => {
-                setSongLyrics(e.target.value);
-                setSongPreviewReady(false);
-                setSongStatus("");
-              }}
-              placeholder={mainPlaceholder}
-              className="min-h-[180px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
-            />
-          </label>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <label className="block">
-              <span className="mb-2 block text-sm font-extrabold">
-                {styleLabel}
-              </span>
-              <select
-                value={songStyle}
-                onChange={(e) => {
-                  setSongStyle(e.target.value);
-                  setSongPreviewReady(false);
-                  setSongStatus("");
-                }}
-                className={inputClass}
-              >
-                {songStyleGroups.map((group) => (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.styles.map((style) => (
-                      <option key={style}>{style}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </label>
-
-            <SelectField
-              label={secondSelectLabel}
-              value={songLanguage}
-              options={secondSelectOptions}
-              onChange={(value) => {
-                setSongLanguage(value);
-                setSongPreviewReady(false);
-                setSongStatus("");
-              }}
-            />
-
-            <SelectField
-              label="4. Duration"
-              value={songDuration}
-              options={durationOptions}
-              onChange={(value) => {
-                setSongDuration(value);
-                setSongPreviewReady(false);
-                setSongStatus("");
-              }}
-            />
-          </div>
-
-          {isBeat && (
-            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
-              Beat Generator creates a production brief now. Later it can connect to a real audio/music API.
-            </div>
-          )}
-
-          {isBackground && (
-            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
-              Background Music Generator prepares music direction for videos, ads, news, and reels.
-            </div>
-          )}
-
-          {isJingle && (
-            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
-              Jingle Creator is best for short business slogans, radio ads, TikTok promos, and product mentions.
-            </div>
-          )}
-
-          <PrimaryGenerateButton
-            label={buttonLabel}
-            onClick={handleGenerateSong}
-          />
-
-          {songStatus && (
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
-              {resultLabel}: {songStatus}
-            </div>
-          )}
-
-          {songPreviewReady && (
-            <div className="grid gap-2 sm:grid-cols-3">
-              <button
-                type="button"
-                onClick={() =>
-                  alert("Music idea ready. Use it in AI Music Video Studio or upload real audio when available.")
-                }
-                className="rounded-2xl bg-violet-600 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-violet-500"
-              >
-                Use in Video
-              </button>
-              <button
-                type="button"
-                onClick={handleDownloadSongRequest}
-                className="rounded-2xl bg-slate-700 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-slate-600"
-              >
-                Download Text
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSongPreviewReady(false);
-                  setSongStatus("");
-                }}
-                className="rounded-2xl bg-white/10 px-4 py-3 text-xs font-extrabold text-white transition hover:bg-white/15"
-              >
-                Generate Another
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      <MusicStudioPanel
+        tool={tool}
+        songLyrics={songLyrics}
+        setSongLyrics={setSongLyrics}
+        songStyle={songStyle}
+        setSongStyle={setSongStyle}
+        songLanguage={songLanguage}
+        setSongLanguage={setSongLanguage}
+        songDuration={songDuration}
+        setSongDuration={setSongDuration}
+        songPreviewReady={songPreviewReady}
+        setSongPreviewReady={setSongPreviewReady}
+        songStatus={songStatus}
+        setSongStatus={setSongStatus}
+        onMusicUpload={onMusicUpload}
+      />
     );
   }
+
   if (tool === "Photo Music Video") {
     return (
       <PhotoMusicVideoPanel
