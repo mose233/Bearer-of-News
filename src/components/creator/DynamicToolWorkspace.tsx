@@ -230,6 +230,54 @@ const songLanguages = [
 
 const songDurations = ["30 sec", "60 sec", "120 sec"];
 
+const africanVoiceStyles = [
+  "Warm Female Voice",
+  "Warm Male Voice",
+  "Kenyan Radio Host",
+  "Nigerian Narrator",
+  "South African Presenter",
+  "News Presenter",
+  "Motivational Speaker",
+  "Luxury Commercial Voice",
+  "Business Presenter",
+  "Gospel Female Voice",
+  "Gospel Male Voice",
+  "Afrobeats Male Voice",
+  "Afrobeats Female Voice",
+  "Story Teller",
+];
+
+const greetingOccasions = [
+  "Birthday",
+  "Wedding",
+  "Anniversary",
+  "Graduation",
+  "Promotion",
+  "Mother's Day",
+  "Father's Day",
+  "Eid",
+  "Christmas",
+  "New Year",
+];
+
+const greetingMusicStyles = [
+  "Happy Celebration",
+  "Warm Emotional",
+  "Inspirational",
+  "Afrobeats Soft",
+  "Gospel Celebration",
+  "Luxury Piano",
+];
+
+const tributeMusicStyles = [
+  "Soft Piano",
+  "Gospel Tribute",
+  "Instrumental",
+  "Choir",
+  "Soft Strings",
+  "Peaceful Worship",
+];
+
 function ToolHeader({
   title,
   description,
@@ -601,6 +649,329 @@ function VideoTemplatePanel({
                 `${tool} draft saved. Now upload/add media to the timeline, preview it, then use Export / Download Media.`
               );
             }}
+            className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600"
+          >
+            Save Draft to Timeline Workflow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LifeEventVideoPanel({
+  tool,
+  videoPrompt,
+  setVideoPrompt,
+  setVideoCreativeType,
+  videoOutputFormat,
+  setVideoOutputFormat,
+  selectedCreatorFont,
+  setSelectedCreatorFont,
+  onMediaUpload,
+  onGenerateCompleteVideo,
+}: {
+  tool: string;
+  videoPrompt?: string;
+  setVideoPrompt?: (value: string) => void;
+  setVideoCreativeType?: (value: string) => void;
+  videoOutputFormat?: string;
+  setVideoOutputFormat?: (value: string) => void;
+  selectedCreatorFont: string;
+  setSelectedCreatorFont: (value: string) => void;
+  onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onGenerateCompleteVideo?: () => void;
+}) {
+  const isTribute = tool === "Obituary / Tribute Studio";
+  const [occasion, setOccasion] = useState("Birthday");
+  const [recipientName, setRecipientName] = useState("");
+  const [senderName, setSenderName] = useState("");
+  const [personalMessage, setPersonalMessage] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [passingDate, setPassingDate] = useState("");
+  const [tributeMessage, setTributeMessage] = useState("");
+  const [language, setLanguage] = useState("English");
+  const [voiceStyle, setVoiceStyle] = useState(
+    isTribute ? "Gospel Female Voice" : "Warm Female Voice"
+  );
+  const [musicStyle, setMusicStyle] = useState(
+    isTribute ? "Soft Piano" : "Happy Celebration"
+  );
+  const [outputFormat, setOutputFormat] = useState(
+    videoOutputFormat || "Facebook Reel"
+  );
+  const [draftStatus, setDraftStatus] = useState("");
+
+  const buildLifeEventPrompt = () => {
+    if (isTribute) {
+      return [
+        "Tool: Obituary / Tribute Studio",
+        `Full name: ${fullName.trim() || "Not provided"}`,
+        `Birth date: ${birthDate.trim() || "Not provided"}`,
+        `Date of passing: ${passingDate.trim() || "Not provided"}`,
+        `Language: ${language}`,
+        `Voice style: ${voiceStyle}`,
+        `Music style: ${musicStyle}`,
+        `Output format: ${outputFormat}`,
+        `Selected font: ${selectedCreatorFont}`,
+        "",
+        "Tribute message:",
+        tributeMessage.trim() ||
+          videoPrompt?.trim() ||
+          "Create a respectful memorial tribute video with photos, soft music, captions and voice narration.",
+        "",
+        "Create a respectful memorial slideshow video using uploaded photos, calm transitions, tribute captions, soft music and voice narration. Avoid sensational effects. Keep it dignified and comforting.",
+      ].join("\n");
+    }
+
+    return [
+      "Tool: AI Greeting Video Studio",
+      `Occasion: ${occasion}`,
+      `Recipient name: ${recipientName.trim() || "Not provided"}`,
+      `Sender name: ${senderName.trim() || "Not provided"}`,
+      `Language: ${language}`,
+      `Voice style: ${voiceStyle}`,
+      `Music style: ${musicStyle}`,
+      `Output format: ${outputFormat}`,
+      `Selected font: ${selectedCreatorFont}`,
+      "",
+      "Personal message:",
+      personalMessage.trim() ||
+        videoPrompt?.trim() ||
+        "Create a warm personalized greeting video with photos, captions, music and voice narration.",
+      "",
+      "Create a personalized greeting video using uploaded photos, warm captions, background music, voice narration, clean transitions and a social-media-ready ending.",
+    ].join("\n");
+  };
+
+  const handlePrepareDraft = (shouldGenerate = false) => {
+    const draftPrompt = buildLifeEventPrompt();
+
+    setVideoPrompt?.(draftPrompt);
+    setVideoCreativeType?.(isTribute ? "Memorial Tribute" : occasion);
+    setVideoOutputFormat?.(outputFormat);
+
+    setDraftStatus(
+      isTribute
+        ? "Tribute video draft prepared. Upload photos, preview the timeline, then export/download the MP4."
+        : "Greeting video draft prepared. Upload photos, preview the timeline, then export/download the MP4."
+    );
+
+    if (shouldGenerate) {
+      window.setTimeout(() => {
+        onGenerateCompleteVideo?.();
+      }, 80);
+    }
+  };
+
+  return (
+    <div className={boxClass}>
+      <ToolHeader
+        title={tool}
+        icon={
+          isTribute ? (
+            <Captions className="h-5 w-5 text-violet-300" />
+          ) : (
+            <Megaphone className="h-5 w-5 text-violet-300" />
+          )
+        }
+        description={
+          isTribute
+            ? "Create memorial tribute videos with photos, captions, music, voice and export."
+            : "Create personalized greeting videos with photos, captions, music, voice and export."
+        }
+      />
+
+      <div className="mt-5 space-y-5">
+        <UploadMediaBox
+          title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
+          description={
+            isTribute
+              ? "Photos for the memorial slideshow."
+              : "Photos or videos for the greeting video."
+          }
+          accept="image/*,video/*"
+          multiple
+          onChange={onMediaUpload}
+        />
+
+        {isTribute ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block md:col-span-2">
+              <span className="mb-2 block text-sm font-extrabold">
+                2. Full Name
+              </span>
+              <Input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Example: Sarah Wanjiku Mwangi"
+                className={inputClass}
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                3. Birth Date
+              </span>
+              <Input
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                placeholder="Example: 12 May 1954"
+                className={inputClass}
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Date of Passing
+              </span>
+              <Input
+                value={passingDate}
+                onChange={(e) => setPassingDate(e.target.value)}
+                placeholder="Example: 20 June 2026"
+                className={inputClass}
+              />
+            </label>
+
+            <SelectField
+              label="5. Language"
+              value={language}
+              options={languages}
+              onChange={setLanguage}
+            />
+
+            <SelectField
+              label="6. Voice Style"
+              value={voiceStyle}
+              options={africanVoiceStyles}
+              onChange={setVoiceStyle}
+            />
+
+            <SelectField
+              label="7. Music Style"
+              value={musicStyle}
+              options={tributeMusicStyles}
+              onChange={setMusicStyle}
+            />
+
+            <SelectField
+              label="8. Output Format"
+              value={outputFormat}
+              options={outputFormats}
+              onChange={(value) => {
+                setOutputFormat(value);
+                setVideoOutputFormat?.(value);
+              }}
+            />
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            <SelectField
+              label="2. Occasion"
+              value={occasion}
+              options={greetingOccasions}
+              onChange={setOccasion}
+            />
+
+            <SelectField
+              label="3. Output Format"
+              value={outputFormat}
+              options={outputFormats}
+              onChange={(value) => {
+                setOutputFormat(value);
+                setVideoOutputFormat?.(value);
+              }}
+            />
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                4. Recipient Name
+              </span>
+              <Input
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+                placeholder="Example: Sarah"
+                className={inputClass}
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-extrabold">
+                5. Sender Name
+              </span>
+              <Input
+                value={senderName}
+                onChange={(e) => setSenderName(e.target.value)}
+                placeholder="Example: From John"
+                className={inputClass}
+              />
+            </label>
+
+            <SelectField
+              label="6. Language"
+              value={language}
+              options={languages}
+              onChange={setLanguage}
+            />
+
+            <SelectField
+              label="7. Voice Style"
+              value={voiceStyle}
+              options={africanVoiceStyles}
+              onChange={setVoiceStyle}
+            />
+
+            <SelectField
+              label="8. Music Style"
+              value={musicStyle}
+              options={greetingMusicStyles}
+              onChange={setMusicStyle}
+            />
+          </div>
+        )}
+
+        <TextFontStudio
+          tool={tool}
+          selectedFont={selectedCreatorFont}
+          onFontChange={setSelectedCreatorFont}
+        />
+
+        <label className="block">
+          <span className="mb-2 block text-sm font-extrabold">
+            {isTribute ? "9. Tribute Message" : "9. Personal Message"}
+          </span>
+          <textarea
+            value={isTribute ? tributeMessage : personalMessage}
+            onChange={(e) =>
+              isTribute
+                ? setTributeMessage(e.target.value)
+                : setPersonalMessage(e.target.value)
+            }
+            className={textareaClass}
+            placeholder={
+              isTribute
+                ? "Example: We celebrate a life well lived. Your love, wisdom and kindness will remain in our hearts forever."
+                : "Example: Happy birthday Sarah! May your new year bring joy, blessings and success."
+            }
+          />
+        </label>
+
+        {draftStatus && (
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
+            {draftStatus}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3">
+          <PrimaryGenerateButton
+            label={isTribute ? "Generate Tribute Draft" : "Generate Greeting Draft"}
+            onClick={() => handlePrepareDraft(true)}
+          />
+
+          <button
+            type="button"
+            onClick={() => handlePrepareDraft(false)}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600"
           >
             Save Draft to Timeline Workflow
@@ -2455,6 +2826,26 @@ export default function DynamicToolWorkspace({
         onAudioUpload={onPhotoMusicAudioUpload}
         onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
         onExportPhotoMusicVideo={onExportPhotoMusicVideo}
+      />
+    );
+  }
+
+  if (
+    category === "Video AI" &&
+    ["AI Greeting Video Studio", "Obituary / Tribute Studio"].includes(tool)
+  ) {
+    return (
+      <LifeEventVideoPanel
+        tool={tool}
+        videoPrompt={videoPrompt}
+        setVideoPrompt={setVideoPrompt}
+        setVideoCreativeType={setVideoCreativeType}
+        videoOutputFormat={videoOutputFormat}
+        setVideoOutputFormat={setVideoOutputFormat}
+        selectedCreatorFont={selectedCreatorFont}
+        setSelectedCreatorFont={setSelectedCreatorFont}
+        onMediaUpload={onMediaUpload}
+        onGenerateCompleteVideo={onGenerateCompleteVideo}
       />
     );
   }
