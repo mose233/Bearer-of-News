@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Download, Loader2, Music, Upload, Wand2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Download, Loader2, Music, Plus, Upload, Wand2 } from "lucide-react";
 
 type MusicStudioPanelProps = {
   tool: string;
@@ -122,6 +122,10 @@ export default function MusicStudioPanel({
   setSongStatus,
   onMusicUpload,
 }: MusicStudioPanelProps) {
+  const [voiceStyle, setVoiceStyle] = useState("Afrobeats Male Voice");
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [audioReady, setAudioReady] = useState(false);
+
   const config = useMemo(() => {
     const lowerTool = tool.toLowerCase();
 
@@ -129,11 +133,11 @@ export default function MusicStudioPanel({
       return {
         title: "Birthday Song Creator",
         description:
-          "Create a personalized birthday song draft with lyrics, style, voice and fal.ai-ready audio instructions.",
+          "Generate birthday audio with lyrics, voice direction and a downloadable draft.",
         mainLabel: "1. Birthday Details",
         placeholder:
           "Example: Birthday person: Sarah. Age: 25. Message: May God bless you with joy, success and long life.",
-        button: "Create Birthday Song Draft",
+        button: "Generate Birthday Audio",
         defaultStyle: "Birthday Song",
       };
     }
@@ -142,11 +146,11 @@ export default function MusicStudioPanel({
       return {
         title: "Wedding Song Creator",
         description:
-          "Create a wedding song draft for couples, invitations, memories and celebration videos.",
+          "Generate wedding audio for couples, invitations, memories and celebration videos.",
         mainLabel: "1. Wedding Details",
         placeholder:
           "Example: Couple: Brian and Faith. Message: A beautiful love story, family blessing and joyful celebration.",
-        button: "Create Wedding Song Draft",
+        button: "Generate Wedding Audio",
         defaultStyle: "Wedding Song",
       };
     }
@@ -155,11 +159,11 @@ export default function MusicStudioPanel({
       return {
         title: "Love Song Creator",
         description:
-          "Create romantic song lyrics and audio instructions for dedications, reels and status videos.",
+          "Generate romantic audio for dedications, reels and status videos.",
         mainLabel: "1. Love Message",
         placeholder:
           "Example: Write a romantic song for my partner about loyalty, distance and true love.",
-        button: "Create Love Song Draft",
+        button: "Generate Love Audio",
         defaultStyle: "Love Ballad",
       };
     }
@@ -168,11 +172,11 @@ export default function MusicStudioPanel({
       return {
         title: "Baby Dedication Song Creator",
         description:
-          "Create a warm baby dedication song draft for family, church and celebration videos.",
+          "Generate warm baby dedication audio for family, church and celebration videos.",
         mainLabel: "1. Baby Dedication Details",
         placeholder:
           "Example: Baby name: Ethan. Message: A blessing to the family, protected by God and loved by everyone.",
-        button: "Create Baby Song Draft",
+        button: "Generate Baby Dedication Audio",
         defaultStyle: "Gospel",
       };
     }
@@ -181,11 +185,11 @@ export default function MusicStudioPanel({
       return {
         title: "Gospel Song Creator",
         description:
-          "Create gospel song lyrics and fal.ai-ready instructions for worship, testimony and praise.",
+          "Generate gospel audio for worship, testimony and praise.",
         mainLabel: "1. Gospel Song Message",
         placeholder:
           "Example: Write a gospel song about God's mercy, hope, healing and victory.",
-        button: "Create Gospel Song Draft",
+        button: "Generate Gospel Audio",
         defaultStyle: "Gospel",
       };
     }
@@ -194,11 +198,11 @@ export default function MusicStudioPanel({
       return {
         title: "Praise & Worship Song Creator",
         description:
-          "Create praise and worship song drafts for church, choirs, services and events.",
+          "Generate praise and worship audio for church, choirs, services and events.",
         mainLabel: "1. Worship Theme",
         placeholder:
           "Example: Create a worship song about surrender, faith, gratitude and God's presence.",
-        button: "Create Worship Song Draft",
+        button: "Generate Worship Audio",
         defaultStyle: "Praise & Worship",
       };
     }
@@ -207,11 +211,11 @@ export default function MusicStudioPanel({
       return {
         title: "Bible Verse Song Creator",
         description:
-          "Turn a Bible verse or faith message into a song draft for worship or social videos.",
+          "Turn a Bible verse or faith message into audio for worship or social videos.",
         mainLabel: "1. Bible Verse / Message",
         placeholder:
           "Example: Psalm 23. The Lord is my shepherd. Make it calm, powerful and worshipful.",
-        button: "Create Bible Song Draft",
+        button: "Generate Bible Audio",
         defaultStyle: "Gospel",
       };
     }
@@ -220,11 +224,11 @@ export default function MusicStudioPanel({
       return {
         title: "Choir Song Creator",
         description:
-          "Create choir-style song drafts for church, school, memorials and celebrations.",
+          "Generate choir-style audio for church, school, memorials and celebrations.",
         mainLabel: "1. Choir Song Message",
         placeholder:
           "Example: Create a choir song about unity, faith and thanksgiving.",
-        button: "Create Choir Song Draft",
+        button: "Generate Choir Audio",
         defaultStyle: "Choir",
       };
     }
@@ -233,11 +237,11 @@ export default function MusicStudioPanel({
       return {
         title: "Afrobeats Song Creator",
         description:
-          "Create an Afrobeats song draft for reels, celebrations, music videos and social content.",
+          "Generate Afrobeats audio for reels, celebrations, music videos and social content.",
         mainLabel: "1. Song Topic",
         placeholder:
           "Example: Create a catchy Afrobeats song about success, dancing and Nairobi nightlife.",
-        button: "Create Afrobeats Draft",
+        button: "Generate Afrobeats Audio",
         defaultStyle: "Afrobeats",
       };
     }
@@ -246,11 +250,11 @@ export default function MusicStudioPanel({
       return {
         title: "Amapiano Song Creator",
         description:
-          "Create an Amapiano song draft with rhythm, hook, vibe and audio generation instructions.",
+          "Generate Amapiano audio with rhythm, hook and dance-ready energy.",
         mainLabel: "1. Song Topic",
         placeholder:
           "Example: Create an Amapiano song for a party, dance challenge and good vibes.",
-        button: "Create Amapiano Draft",
+        button: "Generate Amapiano Audio",
         defaultStyle: "Amapiano",
       };
     }
@@ -259,11 +263,11 @@ export default function MusicStudioPanel({
       return {
         title: "Bongo Flava Song Creator",
         description:
-          "Create a Bongo Flava song draft for love, life, dance or social videos.",
+          "Generate Bongo Flava audio for love, life, dance or social videos.",
         mainLabel: "1. Song Topic",
         placeholder:
           "Example: Create a Bongo Flava love song in Swahili about missing someone.",
-        button: "Create Bongo Flava Draft",
+        button: "Generate Bongo Flava Audio",
         defaultStyle: "Bongo Flava",
       };
     }
@@ -272,11 +276,11 @@ export default function MusicStudioPanel({
       return {
         title: "Hip Hop Song Creator",
         description:
-          "Create hip hop lyrics, hook and production direction for rap, motivation and street stories.",
+          "Generate hip hop audio for rap, motivation and street stories.",
         mainLabel: "1. Rap Topic",
         placeholder:
           "Example: Create a rap about hustle, education, Nairobi streets and building a better future.",
-        button: "Create Hip Hop Draft",
+        button: "Generate Hip Hop Audio",
         defaultStyle: "Hip Hop",
       };
     }
@@ -285,11 +289,11 @@ export default function MusicStudioPanel({
       return {
         title: "Dancehall Song Creator",
         description:
-          "Create dancehall song drafts for parties, reels, clubs and social videos.",
+          "Generate dancehall audio for parties, reels, clubs and social videos.",
         mainLabel: "1. Dancehall Song Topic",
         placeholder:
           "Example: Create a dancehall chorus about confidence, style and weekend vibes.",
-        button: "Create Dancehall Draft",
+        button: "Generate Dancehall Audio",
         defaultStyle: "Dancehall",
       };
     }
@@ -298,11 +302,11 @@ export default function MusicStudioPanel({
       return {
         title: "Business Jingle Creator",
         description:
-          "Create short business jingles for ads, radio, TikTok, products and local brands.",
+          "Generate short jingle audio for ads, radio, TikTok, products and local brands.",
         mainLabel: "1. Business / Product Details",
         placeholder:
           "Example: Business: Mose Salon. Services: hair, nails, makeup. Location: Nairobi. Make it catchy.",
-        button: "Create Jingle Draft",
+        button: "Generate Jingle Audio",
         defaultStyle: "Business Jingle",
       };
     }
@@ -311,11 +315,11 @@ export default function MusicStudioPanel({
       return {
         title: "Political Campaign Song Creator",
         description:
-          "Create neutral campaign song drafts for public messaging, rallies and civic communication.",
+          "Generate neutral campaign audio for public messaging, rallies and civic communication.",
         mainLabel: "1. Campaign Message",
         placeholder:
           "Example: Candidate name, slogan, county/region, peaceful message and key promise.",
-        button: "Create Campaign Song Draft",
+        button: "Generate Campaign Audio",
         defaultStyle: "Campaign Song",
       };
     }
@@ -324,11 +328,11 @@ export default function MusicStudioPanel({
       return {
         title: "School Anthem Creator",
         description:
-          "Create school anthem drafts using school name, motto, values, pride and choir style.",
+          "Generate school anthem audio using school name, motto, values and choir style.",
         mainLabel: "1. School Details",
         placeholder:
           "Example: School: Hope Academy. Motto: Learn and Serve. Values: discipline, excellence and faith.",
-        button: "Create School Anthem Draft",
+        button: "Generate School Anthem Audio",
         defaultStyle: "School Anthem",
       };
     }
@@ -337,11 +341,11 @@ export default function MusicStudioPanel({
       return {
         title: "Lyrics Generator",
         description:
-          "Generate lyrics for songs, reels, worship, ads and social media.",
+          "Generate lyrics and a structured draft for songs, reels, worship, ads and social media.",
         mainLabel: "1. Lyrics Topic / Message",
         placeholder:
           "Example: Write motivational lyrics about working hard and never giving up.",
-        button: "Generate Lyrics Draft",
+        button: "Generate Lyrics",
         defaultStyle: "Afrobeats",
       };
     }
@@ -350,11 +354,11 @@ export default function MusicStudioPanel({
       return {
         title: "Beat Generator",
         description:
-          "Create beat and production instructions ready for real audio generation later.",
+          "Generate beat direction and future audio instructions for production.",
         mainLabel: "1. Beat Description",
         placeholder:
           "Example: Energetic Gengetone beat with heavy drums, club bass and viral TikTok feel.",
-        button: "Create Beat Draft",
+        button: "Generate Beat Audio",
         defaultStyle: "Gengetone",
       };
     }
@@ -363,11 +367,11 @@ export default function MusicStudioPanel({
       return {
         title: "Background Music Generator",
         description:
-          "Create background music direction for videos, adverts, news, reels and presentations.",
+          "Generate background audio for videos, adverts, news, reels and presentations.",
         mainLabel: "1. Background Music Purpose",
         placeholder:
           "Example: Soft corporate background music for a business promo video.",
-        button: "Create Background Music Draft",
+        button: "Generate Background Audio",
         defaultStyle: "Background Music",
       };
     }
@@ -375,65 +379,118 @@ export default function MusicStudioPanel({
     return {
       title: "AI Song Studio",
       description:
-        "Create a structured song draft now and generate real audio later through fal.ai.",
+        "Generate audio and an editable song draft for future fal.ai music generation.",
       mainLabel: "1. Song Idea / Lyrics",
       placeholder:
         "Example: Create a Swahili Afrobeats song about dreams, success and Nairobi life.",
-      button: "Create Song Draft",
+      button: "Generate Audio",
       defaultStyle: "Afrobeats",
     };
   }, [tool]);
 
-  const buildMusicPrompt = () => {
+  const generatedDraft = useMemo(() => {
     return [
       `Tool: ${tool}`,
       `Music style: ${songStyle || config.defaultStyle}`,
       `Language: ${songLanguage}`,
+      `Voice style: ${voiceStyle}`,
       `Duration: ${songDuration}`,
+      "",
+      "Song Title:",
+      `${config.title.replace(" Creator", "")} Draft`,
       "",
       "User instructions:",
       songLyrics.trim() || config.placeholder,
       "",
-      "Create:",
-      "- Song title",
-      "- Verse 1",
-      "- Chorus",
-      "- Verse 2",
-      "- Bridge or chant",
-      "- Audio generation prompt",
-      "- Voice style recommendation",
+      "Lyrics Structure:",
+      "Verse 1:",
+      "Write the opening story or message here.",
       "",
-      "Future fal.ai instruction:",
-      "Use this structured draft to generate real MP3/WAV audio when the fal.ai audio model is connected.",
-    ].join("\\n");
-  };
+      "Chorus:",
+      "Repeat the strongest hook here.",
+      "",
+      "Verse 2:",
+      "Add emotion, details, names or location here.",
+      "",
+      "Bridge / Chant:",
+      "Add a memorable chant, worship line, slogan or call-and-response.",
+      "",
+      "fal.ai Audio Prompt:",
+      `Generate ${songDuration} ${songStyle || config.defaultStyle} audio in ${songLanguage} using ${voiceStyle}. Keep it polished, social-media ready and suitable for XNewsApp export.`,
+    ].join("\n");
+  }, [
+    config.defaultStyle,
+    config.placeholder,
+    config.title,
+    songDuration,
+    songLanguage,
+    songLyrics,
+    songStyle,
+    tool,
+    voiceStyle,
+  ]);
 
-  const handleCreateDraft = () => {
+  const handleGenerateAudio = () => {
     if (!songLyrics.trim()) {
       alert("Please write the music details first.");
       return;
     }
 
-    setSongPreviewReady(true);
-    setSongStatus(
-      `${config.title} prepared in ${songLanguage}, ${songStyle || config.defaultStyle}, ${songDuration}.`
-    );
+    setIsGeneratingAudio(true);
+    setSongStatus("Generating audio preview...");
+
+    window.setTimeout(() => {
+      setAudioReady(true);
+      setSongPreviewReady(true);
+      setIsGeneratingAudio(false);
+      setSongStatus(
+        `${config.title} audio request prepared. fal.ai will generate the real MP3/WAV when connected.`
+      );
+    }, 700);
   };
 
   const handleDownloadDraft = () => {
     if (!songPreviewReady) {
-      alert("Please create the music draft first.");
+      alert("Please generate audio first.");
       return;
     }
 
-    const blob = new Blob([buildMusicPrompt()], {
+    const blob = new Blob([generatedDraft], {
       type: "text/plain;charset=utf-8",
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "xnewsapp-music-draft.txt";
+    link.download = "xnewsapp-song-draft.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadAudio = () => {
+    if (!audioReady) {
+      alert("Please generate audio first.");
+      return;
+    }
+
+    const audioPlaceholder = [
+      "XNewsApp Audio Placeholder",
+      "",
+      "Real MP3/WAV download will be enabled when fal.ai is connected.",
+      "",
+      generatedDraft,
+    ].join("\n");
+
+    const blob = new Blob([audioPlaceholder], {
+      type: "text/plain;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "xnewsapp-audio-placeholder.txt";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -454,74 +511,12 @@ export default function MusicStudioPanel({
       </div>
 
       <div className="mt-5 space-y-5">
-        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs font-bold leading-5 text-cyan-100">
-          Structure ready for fal.ai: drafts work now, real audio generation can be connected later without redesigning this screen.
-        </div>
-
-        <label className="block">
-          <span className="mb-2 block text-sm font-extrabold text-white">
-            {config.mainLabel}
-          </span>
-          <textarea
-            value={songLyrics}
-            onChange={(e) => {
-              setSongLyrics(e.target.value);
-              setSongPreviewReady(false);
-              setSongStatus("");
-            }}
-            placeholder={config.placeholder}
-            className={textareaClass}
-          />
-        </label>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <SelectField
-            label="2. Music Style"
-            value={songStyle || config.defaultStyle}
-            options={musicStyles}
-            onChange={(value) => {
-              setSongStyle(value);
-              setSongPreviewReady(false);
-              setSongStatus("");
-            }}
-          />
-
-          <SelectField
-            label="3. Language"
-            value={songLanguage}
-            options={languages}
-            onChange={(value) => {
-              setSongLanguage(value);
-              setSongPreviewReady(false);
-              setSongStatus("");
-            }}
-          />
-
-          <SelectField
-            label="4. Voice Style"
-            value="Afrobeats Male Voice"
-            options={voiceStyles}
-            onChange={() => {}}
-          />
-
-          <SelectField
-            label="5. Duration"
-            value={songDuration}
-            options={durations}
-            onChange={(value) => {
-              setSongDuration(value);
-              setSongPreviewReady(false);
-              setSongStatus("");
-            }}
-          />
-        </div>
-
         <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
           <h4 className="text-sm font-extrabold text-white">
             Optional: Upload Reference Audio
           </h4>
           <p className="mt-1 text-xs leading-5 text-slate-300">
-            Upload a voice note, beat, melody or sample for future audio generation.
+            Upload a voice note, beat, melody or sample for audio generation.
           </p>
 
           <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-7 text-center transition hover:border-cyan-400/50 hover:bg-slate-950/90">
@@ -541,36 +536,86 @@ export default function MusicStudioPanel({
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={handleCreateDraft}
-            className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 md:w-auto"
-          >
-            <Wand2 className="mr-2 inline h-4 w-4" />
-            {config.button}
-          </button>
+        <label className="block">
+          <span className="mb-2 block text-sm font-extrabold text-white">
+            {config.mainLabel}
+          </span>
+          <textarea
+            value={songLyrics}
+            onChange={(e) => {
+              setSongLyrics(e.target.value);
+              setSongPreviewReady(false);
+              setSongStatus("");
+              setAudioReady(false);
+            }}
+            placeholder={config.placeholder}
+            className={textareaClass}
+          />
+        </label>
 
-          <button
-            type="button"
-            onClick={() =>
-              alert("Real audio generation will connect here through fal.ai after payments and API setup.")
-            }
-            className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
-          >
-            <Loader2 className="mr-2 inline h-4 w-4" />
-            Generate Real Audio
-          </button>
+        <div className="grid gap-4 md:grid-cols-2">
+          <SelectField
+            label="2. Music Style"
+            value={songStyle || config.defaultStyle}
+            options={musicStyles}
+            onChange={(value) => {
+              setSongStyle(value);
+              setSongPreviewReady(false);
+              setSongStatus("");
+              setAudioReady(false);
+            }}
+          />
 
-          <button
-            type="button"
-            onClick={handleDownloadDraft}
-            className="h-12 w-full rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600 md:w-auto"
-          >
-            <Download className="mr-2 inline h-4 w-4" />
-            Download Draft
-          </button>
+          <SelectField
+            label="3. Language"
+            value={songLanguage}
+            options={languages}
+            onChange={(value) => {
+              setSongLanguage(value);
+              setSongPreviewReady(false);
+              setSongStatus("");
+              setAudioReady(false);
+            }}
+          />
+
+          <SelectField
+            label="4. Voice Style"
+            value={voiceStyle}
+            options={voiceStyles}
+            onChange={(value) => {
+              setVoiceStyle(value);
+              setSongPreviewReady(false);
+              setSongStatus("");
+              setAudioReady(false);
+            }}
+          />
+
+          <SelectField
+            label="5. Duration"
+            value={songDuration}
+            options={durations}
+            onChange={(value) => {
+              setSongDuration(value);
+              setSongPreviewReady(false);
+              setSongStatus("");
+              setAudioReady(false);
+            }}
+          />
         </div>
+
+        <button
+          type="button"
+          onClick={handleGenerateAudio}
+          disabled={isGeneratingAudio}
+          className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
+        >
+          {isGeneratingAudio ? (
+            <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+          ) : (
+            <Wand2 className="mr-2 inline h-4 w-4" />
+          )}
+          {isGeneratingAudio ? "Generating..." : config.button}
+        </button>
 
         {songStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -578,14 +623,67 @@ export default function MusicStudioPanel({
           </div>
         )}
 
+        {audioReady && (
+          <div className="space-y-4 rounded-3xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+            <div>
+              <div className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
+                Audio Preview
+              </div>
+              <p className="mt-1 text-xs font-medium leading-5 text-slate-300">
+                Real playable MP3/WAV will appear here after fal.ai is connected.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
+              <div className="mb-2 text-xs font-bold text-white">
+                {config.title} • {songDuration}
+              </div>
+              <div className="h-10 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-slate-300">
+                Audio player placeholder
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleDownloadAudio}
+                className="h-11 rounded-2xl bg-cyan-600 px-4 text-xs font-extrabold text-white hover:bg-cyan-500"
+              >
+                <Download className="mr-2 inline h-4 w-4" />
+                Download Audio
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadDraft}
+                className="h-11 rounded-2xl bg-slate-700 px-4 text-xs font-extrabold text-white hover:bg-slate-600"
+              >
+                <Download className="mr-2 inline h-4 w-4" />
+                Download Draft
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  alert("Add To Video will attach generated audio to the video timeline after real audio is connected.")
+                }
+                className="h-11 rounded-2xl bg-violet-600 px-4 text-xs font-extrabold text-white hover:bg-violet-500"
+              >
+                <Plus className="mr-2 inline h-4 w-4" />
+                Add To Video
+              </button>
+            </div>
+          </div>
+        )}
+
         {songPreviewReady && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
             <div className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
-              Draft Ready
+              Generated Song Draft
             </div>
-            <p className="mt-1 text-xs font-medium leading-5 text-slate-300">
-              This music draft is ready for lyrics, voice direction and future fal.ai audio generation.
-            </p>
+            <pre className="mt-2 max-h-[260px] overflow-auto whitespace-pre-wrap rounded-2xl bg-black/30 p-3 text-[11px] font-medium leading-5 text-slate-200">
+              {generatedDraft}
+            </pre>
           </div>
         )}
       </div>
