@@ -1469,10 +1469,20 @@ function CinematicPlaceholderPanel({
           />
         </label>
 
-        <TextFontStudio
-          tool={tool}
-          selectedFont={selectedCreatorFont}
-          onFontChange={setSelectedCreatorFont}
+        <SelectField
+          label="8. Font Style"
+          value={selectedCreatorFont}
+          options={[
+            "Bebas Neue",
+            "Oswald",
+            "Playfair Display",
+            "Cinzel",
+            "Orbitron",
+            "Bruno Ace",
+            "Metamorphous",
+            "New Rocker",
+          ]}
+          onChange={setSelectedCreatorFont}
         />
 
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3">
