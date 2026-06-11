@@ -394,8 +394,9 @@ function VideoTemplatePanel({
   setVideoOutputFormat,
   selectedCreatorFont,
   setSelectedCreatorFont,
-  onMediaUpload,
+  onMediaUpload: _onMediaUpload,
   onGenerateCompleteVideo,
+  onAddEnhancedPhotoToTimeline,
 }: {
   tool: string;
   videoPrompt?: string;
@@ -408,6 +409,7 @@ function VideoTemplatePanel({
   setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
 }) {
   const [localVideoType, setLocalVideoType] = useState("Trending Reel");
   const [localVisualStyle, setLocalVisualStyle] = useState("Modern Social");
@@ -417,6 +419,8 @@ function VideoTemplatePanel({
   );
   const [localMessage, setLocalMessage] = useState("");
   const [videoDraftStatus, setVideoDraftStatus] = useState("");
+  const [stagedVideoFiles, setStagedVideoFiles] = useState<File[]>([]);
+  const [stagedVideoFileNames, setStagedVideoFileNames] = useState<string[]>([]);
 
   const isSocial = [
     "Facebook Reel Maker",
@@ -526,15 +530,48 @@ function VideoTemplatePanel({
     ].join("\n");
   };
 
+  const handleStageVideoMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    if (files.length === 0) return;
+
+    setStagedVideoFiles(files);
+    setStagedVideoFileNames(files.map((file) => file.name));
+    setVideoDraftStatus(
+      `${files.length} file${files.length === 1 ? "" : "s"} uploaded. Click Generate Video to add them to the preview and timeline.`
+    );
+  };
+
+  const addStagedVideoMediaToTimeline = () => {
+    if (stagedVideoFiles.length === 0) {
+      return true;
+    }
+
+    if (!onAddEnhancedPhotoToTimeline) {
+      alert("Timeline connection is not ready.");
+      return false;
+    }
+
+    stagedVideoFiles.forEach((file) => {
+      const preview = URL.createObjectURL(file);
+      onAddEnhancedPhotoToTimeline(file, preview);
+    });
+
+    return true;
+  };
+
   const handleGenerateVideoDraft = () => {
     const draftPrompt = buildDraftPrompt();
+    const addedMedia = addStagedVideoMediaToTimeline();
+
+    if (!addedMedia) return;
 
     setVideoPrompt?.(draftPrompt);
     setVideoCreativeType?.(localVideoType);
     setVideoOutputFormat?.(localOutputFormat);
 
     setVideoDraftStatus(
-      `${tool} video prepared. If you uploaded media, XNewsApp will use it in the timeline. Preview it, then export/download from the main Export section.`
+      `${tool} video prepared. ${stagedVideoFiles.length > 0 ? "Uploaded media has been added to the preview and timeline. " : ""}Preview it, then export/download from the main Export section.`
     );
 
     window.setTimeout(() => {
@@ -555,7 +592,7 @@ function VideoTemplatePanel({
             <Captions className="h-5 w-5 text-violet-300" />
           )
         }
-        description="Upload photos or videos, choose style, generate video, then export."
+        description="Create videos with photos, captions, music, voice and export."
       />
 
       <div className="mt-5 space-y-5">
@@ -564,8 +601,14 @@ function VideoTemplatePanel({
           description="Photos or videos for your project."
           accept="image/*,video/*"
           multiple
-          onChange={onMediaUpload}
+          onChange={handleStageVideoMedia}
         />
+
+        {stagedVideoFileNames.length > 0 && (
+          <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
+            Uploaded and ready: {stagedVideoFileNames.join(", ")}. Click Generate Video to show it in preview.
+          </div>
+        )}
 
         <TextFontStudio
           tool={tool}
@@ -647,12 +690,12 @@ function VideoTemplatePanel({
               setVideoCreativeType?.(localVideoType);
               setVideoOutputFormat?.(localOutputFormat);
               setVideoDraftStatus(
-                `${tool} video saved. Preview it in the timeline, then use Export / Download Media.`
+                `${tool} settings saved. Upload media, then click Generate Video to add it to preview and timeline.`
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600"
           >
-            Save to Timeline
+            Save Settings
           </button>
         </div>
       </div>
@@ -669,8 +712,9 @@ function LifeEventVideoPanel({
   setVideoOutputFormat,
   selectedCreatorFont,
   setSelectedCreatorFont,
-  onMediaUpload,
+  onMediaUpload: _onMediaUpload,
   onGenerateCompleteVideo,
+  onAddEnhancedPhotoToTimeline,
 }: {
   tool: string;
   videoPrompt?: string;
@@ -682,6 +726,7 @@ function LifeEventVideoPanel({
   setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
 }) {
   const isTribute = tool === "Obituary / Tribute Studio";
   const [occasion, setOccasion] = useState("Birthday");
@@ -703,6 +748,8 @@ function LifeEventVideoPanel({
     videoOutputFormat || "Facebook Reel"
   );
   const [draftStatus, setDraftStatus] = useState("");
+  const [stagedLifeEventFiles, setStagedLifeEventFiles] = useState<File[]>([]);
+  const [stagedLifeEventFileNames, setStagedLifeEventFileNames] = useState<string[]>([]);
 
   const buildLifeEventPrompt = () => {
     if (isTribute) {
@@ -746,8 +793,46 @@ function LifeEventVideoPanel({
     ].join("\n");
   };
 
+  const handleStageLifeEventMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    if (files.length === 0) return;
+
+    setStagedLifeEventFiles(files);
+    setStagedLifeEventFileNames(files.map((file) => file.name));
+    setDraftStatus(
+      `${files.length} file${files.length === 1 ? "" : "s"} uploaded. Click ${
+        isTribute ? "Generate Tribute Video" : "Generate Greeting Video"
+      } to add them to preview and timeline.`
+    );
+  };
+
+  const addStagedLifeEventMediaToTimeline = () => {
+    if (stagedLifeEventFiles.length === 0) {
+      return true;
+    }
+
+    if (!onAddEnhancedPhotoToTimeline) {
+      alert("Timeline connection is not ready.");
+      return false;
+    }
+
+    stagedLifeEventFiles.forEach((file) => {
+      const preview = URL.createObjectURL(file);
+      onAddEnhancedPhotoToTimeline(file, preview);
+    });
+
+    return true;
+  };
+
   const handlePrepareDraft = (shouldGenerate = false) => {
     const draftPrompt = buildLifeEventPrompt();
+
+    if (shouldGenerate) {
+      const addedMedia = addStagedLifeEventMediaToTimeline();
+
+      if (!addedMedia) return;
+    }
 
     setVideoPrompt?.(draftPrompt);
     setVideoCreativeType?.(isTribute ? "Memorial Tribute" : occasion);
@@ -755,8 +840,8 @@ function LifeEventVideoPanel({
 
     setDraftStatus(
       isTribute
-        ? "Tribute video video prepared. Preview the timeline, then export/download the MP4."
-        : "Greeting video video prepared. Preview the timeline, then export/download the MP4."
+        ? `Tribute video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+        : `Greeting video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
     );
 
     if (shouldGenerate) {
@@ -779,8 +864,8 @@ function LifeEventVideoPanel({
         }
         description={
           isTribute
-            ? "Upload tribute photos or videos, generate a memorial video, then export."
-            : "Upload photos or videos, generate a greeting video, then export."
+            ? "Create memorial tribute videos with photos, captions, music, voice and export."
+            : "Create personalized greeting videos with photos, captions, music, voice and export."
         }
       />
 
@@ -794,8 +879,14 @@ function LifeEventVideoPanel({
           }
           accept="image/*,video/*"
           multiple
-          onChange={onMediaUpload}
+          onChange={handleStageLifeEventMedia}
         />
+
+        {stagedLifeEventFileNames.length > 0 && (
+          <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
+            Uploaded and ready: {stagedLifeEventFileNames.join(", ")}. Click {isTribute ? "Generate Tribute Video" : "Generate Greeting Video"} to show it in preview.
+          </div>
+        )}
 
         {isTribute ? (
           <div className="grid gap-4 md:grid-cols-2">
@@ -975,7 +1066,7 @@ function LifeEventVideoPanel({
             onClick={() => handlePrepareDraft(false)}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white transition hover:bg-slate-600"
           >
-            Save to Timeline
+            Save Settings
           </button>
         </div>
       </div>
@@ -1096,7 +1187,7 @@ function CinematicPlaceholderPanel({
       "User instructions:",
       cinematicScript.trim() || instructionPlaceholder,
       "",
-      "Create a timeline-ready cinematic video preview now. Later fal.ai will generate the real motion video.",
+      "Mock mode: create a timeline-ready cinematic draft cover now. Later fal.ai will replace this with real AI video generation.",
     ].join("\n");
   };
 
@@ -1177,7 +1268,7 @@ function CinematicPlaceholderPanel({
 
     context.fillStyle = "#ffffff";
     context.font = `800 34px ${creatorFontCss}`;
-    context.fillText("CINEMATIC VIDEO", 540, 1160);
+    context.fillText("MOCK CINEMATIC DRAFT", 540, 1160);
 
     context.fillStyle = "rgba(255,255,255,0.8)";
     context.font = `700 26px ${creatorFontCss}`;
@@ -1189,7 +1280,7 @@ function CinematicPlaceholderPanel({
 
     canvas.toBlob((blob) => {
       if (!blob) {
-        alert("Could not generate cinematic preview image.");
+        alert("Could not generate cinematic draft image.");
         return;
       }
 
@@ -1212,7 +1303,7 @@ function CinematicPlaceholderPanel({
       }
 
       setCinematicStatus(
-        `${tool} video preview created with ${cinematicTextPreset} text style and added to the timeline. Preview it, then use Export / Download Media.`
+        `${tool} mock draft created with ${cinematicTextPreset} text style and added to the timeline. Preview it, then use Export / Download Media.`
       );
     }, "image/png");
   };
@@ -1222,12 +1313,12 @@ function CinematicPlaceholderPanel({
       <ToolHeader
         title={tool}
         icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
-        description="Cinematic AI is the premium AI motion-video workspace. Mock mode collects the right inputs today and creates a timeline-ready video preview while fal.ai is not connected yet."
+        description="Cinematic AI is the premium AI motion-video workspace. Mock mode collects the right inputs today and creates a timeline-ready draft while fal.ai is not connected yet."
       />
 
       <div className="mt-5 space-y-5">
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
-          AI video workspace ready — upload media, choose style, then generate.
+          Mock Mode Active — Real AI video generation will be available soon.
         </div>
 
         <UploadMediaBox
@@ -1359,7 +1450,7 @@ function CinematicPlaceholderPanel({
         {cinematicPreview && (
           <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
             <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
-              Cinematic Preview
+              Cinematic Mock Draft Preview
             </div>
             <img
               src={cinematicPreview}
@@ -1371,7 +1462,7 @@ function CinematicPlaceholderPanel({
 
         <div className="flex flex-wrap gap-3">
           <PrimaryGenerateButton
-            label={`Generate ${tool}`}
+            label={`Generate ${tool} Mock Draft`}
             onClick={handleGenerateCinematicDraft}
           />
 
@@ -1382,12 +1473,12 @@ function CinematicPlaceholderPanel({
               setVideoCreativeType?.(cinematicMotionStyle);
               setVideoOutputFormat?.(cinematicOutputFormat);
               setCinematicStatus(
-                `${tool} video settings saved with ${cinematicTextPreset} text style. Generate a mock draft or add source media, then export from the main Export section.`
+                `${tool} workflow saved with ${cinematicTextPreset} text style. Generate a mock draft or add source media, then export from the main Export section.`
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
           >
-            Save to Timeline
+            Save Cinematic Workflow
           </button>
         </div>
       </div>
@@ -1875,7 +1966,7 @@ export default function DynamicToolWorkspace({
 
     canvas.toBlob((blob) => {
       if (!blob) {
-        alert("Could not generate music video preview image.");
+        alert("Could not generate music video draft image.");
         return;
       }
 
@@ -2830,6 +2921,7 @@ export default function DynamicToolWorkspace({
         setSelectedCreatorFont={setSelectedCreatorFont}
         onMediaUpload={onMediaUpload}
         onGenerateCompleteVideo={onGenerateCompleteVideo}
+        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
       />
     );
   }
@@ -2848,6 +2940,7 @@ export default function DynamicToolWorkspace({
         setSelectedCreatorFont={setSelectedCreatorFont}
         onMediaUpload={onMediaUpload}
         onGenerateCompleteVideo={onGenerateCompleteVideo}
+        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
       />
     );
   }
@@ -3095,7 +3188,7 @@ export default function DynamicToolWorkspace({
               setVideoOutputFormat?.(musicVideoOutputFormat);
 
               setMusicVideoDraftStatus(
-                "Music video video settings saved. Add media, preview the draft, then use Export / Download Media."
+                "Music video workflow saved. Add media, preview the draft, then use Export / Download Media."
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
