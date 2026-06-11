@@ -1033,18 +1033,6 @@ export default function CreatorStudio() {
           </section>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0B1020]/95 px-4 py-3 backdrop-blur xl:hidden">
-          <button
-            type="button"
-            onClick={handleGenerateCompleteVideo}
-            disabled={isRecording || isExporting}
-            className="h-11 w-full rounded-xl bg-violet-600 text-xs font-bold text-white shadow-creator disabled:opacity-60"
-          >
-            {isRecording || isExporting
-              ? exportStatus || "Generating..."
-              : "Generate / Export"}
-          </button>
-        </div>
       </div>
     </main>
   );
