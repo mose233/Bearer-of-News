@@ -1484,6 +1484,9 @@ export default function DynamicToolWorkspace({
   const [beautyLevel, setBeautyLevel] = useState("Natural");
   const [youngerAge, setYoungerAge] = useState("10 years");
   const [backgroundChoice, setBackgroundChoice] = useState("Office");
+  const [hairStyleChoice, setHairStyleChoice] = useState("Braids");
+  const [outfitChoice, setOutfitChoice] = useState("Business Suit");
+  const [sceneChoice, setSceneChoice] = useState("Luxury Car");
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productOffer, setProductOffer] = useState("");
@@ -2066,6 +2069,9 @@ export default function DynamicToolWorkspace({
     const isBeautyGlow = tool === "Beauty Glow";
     const isYoungerLook = tool === "Younger Look";
     const isBackgroundChanger = tool === "Background Changer";
+    const isHairstyleChanger = tool === "Hairstyle Changer";
+    const isOutfitChanger = tool === "Outfit Changer";
+    const isSceneChanger = tool === "Scene Changer";
     const isProductAdImage = tool === "Product Ad Image";
     const isFacebookPostImage = tool === "Facebook Post Image";
     const isPosterFlyer = tool === "Poster / Flyer";
@@ -2073,6 +2079,9 @@ export default function DynamicToolWorkspace({
       "Product Ad Image",
       "Facebook Post Image",
       "Poster / Flyer",
+      "Hairstyle Changer",
+      "Outfit Changer",
+      "Scene Changer",
     ].includes(tool);
 
     const pictureDescription = isPhotoEnhancer
@@ -2085,7 +2094,13 @@ export default function DynamicToolWorkspace({
             ? "Create a youthful mock transformation effect before adding the photo to the timeline."
             : isBackgroundChanger
               ? "Prepare a background-change mock preview for office, studio, beach, Nairobi, or transparent-style content."
-              : isProductAdImage
+              : isHairstyleChanger
+                ? "Try a new hairstyle look from an uploaded photo."
+                : isOutfitChanger
+                  ? "Change outfit style for fashion, sports, work, events or creative looks."
+                  : isSceneChanger
+                    ? "Place a person into a new lifestyle, travel, work or action scene."
+                    : isProductAdImage
                 ? "Turn a product photo into a simple marketing image with product details and offer text."
                 : isFacebookPostImage
                   ? "Create a Facebook-ready post image with a headline and short description."
@@ -2101,7 +2116,13 @@ export default function DynamicToolWorkspace({
           ? "Generate Poster / Flyer"
           : isBackgroundChanger
             ? "Generate Background Preview"
-            : isStudioPortrait
+            : isHairstyleChanger
+              ? "Generate Hairstyle Preview"
+              : isOutfitChanger
+                ? "Generate Outfit Preview"
+                : isSceneChanger
+                  ? "Generate Scene Preview"
+                  : isStudioPortrait
               ? "Generate Studio Portrait"
               : isBeautyGlow
                 ? "Generate Beauty Glow"
@@ -2284,6 +2305,133 @@ export default function DynamicToolWorkspace({
             </div>
           )}
 
+          {isHairstyleChanger && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Hairstyle"
+                value={hairStyleChoice}
+                options={[
+                  "Braids",
+                  "Dreadlocks",
+                  "Afro",
+                  "Short Hair",
+                  "Long Hair",
+                  "Curly Hair",
+                  "Wig Style",
+                  "Bald Look",
+                  "Beard Style",
+                  "Clean Shave",
+                ]}
+                onChange={setHairStyleChoice}
+              />
+
+              <SelectField
+                label="Look Style"
+                value={enhancementStyle}
+                options={[
+                  "Natural Glow",
+                  "Studio Portrait Pro",
+                  "HD Sharp Focus",
+                  "Instagram Ready",
+                ]}
+                onChange={(value) => {
+                  setEnhancementStyle(value);
+                  setHasPreviewedEnhancement(false);
+                }}
+              />
+            </div>
+          )}
+
+          {isOutfitChanger && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Outfit Style"
+                value={outfitChoice}
+                options={[
+                  "Business Suit",
+                  "Wedding Dress",
+                  "Military-Inspired Outfit",
+                  "Graduation Gown",
+                  "African Traditional Wear",
+                  "Football Fan Jersey",
+                  "Luxury Fashion",
+                  "School Uniform Style",
+                  "Doctor Coat",
+                  "80s Pop Star Stage Outfit",
+                ]}
+                onChange={setOutfitChoice}
+              />
+
+              <SelectField
+                label="Design Style"
+                value={enhancementStyle}
+                options={[
+                  "Poster Design Look",
+                  "Luxury Background",
+                  "Corporate Headshot",
+                  "Instagram Ready",
+                ]}
+                onChange={(value) => {
+                  setEnhancementStyle(value);
+                  setHasPreviewedEnhancement(false);
+                }}
+              />
+            </div>
+          )}
+
+          {isSceneChanger && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Scene"
+                value={sceneChoice}
+                options={[
+                  "Luxury Car",
+                  "Modern House",
+                  "Office",
+                  "Classroom",
+                  "Hospital",
+                  "Airport",
+                  "Aircraft",
+                  "Train",
+                  "Ship",
+                  "Bus",
+                  "Football Stadium",
+                  "Wrestling Arena",
+                  "Forest",
+                  "Beach",
+                  "Running",
+                  "Swimming",
+                  "Walking",
+                  "Climbing",
+                  "Carrying a Bag",
+                  "Carrying a Child",
+                  "Sitting",
+                  "Singing on Stage",
+                  "Watching Movie",
+                  "Watching Football",
+                  "Watching Basketball",
+                ]}
+                onChange={setSceneChoice}
+              />
+
+              <SelectField
+                label="Scene Mood"
+                value={enhancementStyle}
+                options={[
+                  "Poster Design Look",
+                  "Natural Glow",
+                  "Luxury Background",
+                  "TikTok Glow",
+                  "Instagram Ready",
+                ]}
+                onChange={(value) => {
+                  setEnhancementStyle(value);
+                  setHasPreviewedEnhancement(false);
+                }}
+              />
+            </div>
+          )}
+
           {isProductAdImage && (
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
@@ -2414,6 +2562,9 @@ export default function DynamicToolWorkspace({
             !isBeautyGlow &&
             !isYoungerLook &&
             !isBackgroundChanger &&
+            !isHairstyleChanger &&
+            !isOutfitChanger &&
+            !isSceneChanger &&
             !isProductAdImage &&
             !isFacebookPostImage &&
             !isPosterFlyer && (
