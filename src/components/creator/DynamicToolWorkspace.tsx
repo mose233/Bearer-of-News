@@ -1078,7 +1078,7 @@ function CinematicPlaceholderPanel({
   tool,
   selectedCreatorFont,
   setSelectedCreatorFont,
-  onMediaUpload,
+  onMediaUpload: _onMediaUpload,
   setVideoPrompt,
   setVideoCreativeType,
   setVideoOutputFormat,
@@ -1113,6 +1113,8 @@ function CinematicPlaceholderPanel({
   const [cinematicScript, setCinematicScript] = useState("");
   const [cinematicStatus, setCinematicStatus] = useState("");
   const [cinematicPreview, setCinematicPreview] = useState("");
+  const [stagedCinematicFile, setStagedCinematicFile] = useState<File | null>(null);
+  const [stagedCinematicFileName, setStagedCinematicFileName] = useState("");
 
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
 
@@ -1187,11 +1189,42 @@ function CinematicPlaceholderPanel({
       "User instructions:",
       cinematicScript.trim() || instructionPlaceholder,
       "",
-      "Mock mode: create a timeline-ready cinematic draft cover now. Later fal.ai will replace this with real AI video generation.",
+      "Create a timeline-ready cinematic preview now. Later fal.ai will replace this with real AI video generation.",
     ].join("\n");
   };
 
+  const handleStageCinematicMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setStagedCinematicFile(file);
+    setStagedCinematicFileName(file.name);
+    setCinematicStatus(
+      `${file.name} uploaded and ready. Click Generate ${tool} to add it to preview and timeline.`
+    );
+  };
+
+  const addStagedCinematicMediaToTimeline = () => {
+    if (!stagedCinematicFile) {
+      return true;
+    }
+
+    if (!onAddEnhancedPhotoToTimeline) {
+      alert("Timeline connection is not ready.");
+      return false;
+    }
+
+    const preview = URL.createObjectURL(stagedCinematicFile);
+    onAddEnhancedPhotoToTimeline(stagedCinematicFile, preview);
+    return true;
+  };
+
   const handleGenerateCinematicDraft = () => {
+    const addedMedia = addStagedCinematicMediaToTimeline();
+
+    if (!addedMedia) return;
+
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
     canvas.height = 1920;
@@ -1268,7 +1301,7 @@ function CinematicPlaceholderPanel({
 
     context.fillStyle = "#ffffff";
     context.font = `800 34px ${creatorFontCss}`;
-    context.fillText("MOCK CINEMATIC DRAFT", 540, 1160);
+    context.fillText("CINEMATIC VIDEO", 540, 1160);
 
     context.fillStyle = "rgba(255,255,255,0.8)";
     context.font = `700 26px ${creatorFontCss}`;
@@ -1303,7 +1336,7 @@ function CinematicPlaceholderPanel({
       }
 
       setCinematicStatus(
-        `${tool} mock draft created with ${cinematicTextPreset} text style and added to the timeline. Preview it, then use Export / Download Media.`
+        `${tool} generated. Uploaded media and preview cover have been added to the timeline. Preview it, then use Export / Download Media.`
       );
     }, "image/png");
   };
@@ -1313,12 +1346,12 @@ function CinematicPlaceholderPanel({
       <ToolHeader
         title={tool}
         icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
-        description="Cinematic AI is the premium AI motion-video workspace. Mock mode collects the right inputs today and creates a timeline-ready draft while fal.ai is not connected yet."
+        description="Cinematic AI is the premium AI motion-video workspace. Upload source media, choose motion style, then generate a preview. fal.ai will power real motion later."
       />
 
       <div className="mt-5 space-y-5">
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
-          Mock Mode Active — Real AI video generation will be available soon.
+          AI video workspace ready — upload media, choose style, then generate.
         </div>
 
         <UploadMediaBox
@@ -1326,8 +1359,14 @@ function CinematicPlaceholderPanel({
           description={uploadDescription}
           accept="image/*,video/*"
           multiple={false}
-          onChange={onMediaUpload}
+          onChange={handleStageCinematicMedia}
         />
+
+        {stagedCinematicFileName && (
+          <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
+            Uploaded and ready: {stagedCinematicFileName}. Click Generate {tool} to show it in preview.
+          </div>
+        )}
 
         <div className="grid gap-4 md:grid-cols-2">
           <SelectField
@@ -1450,7 +1489,7 @@ function CinematicPlaceholderPanel({
         {cinematicPreview && (
           <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
             <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
-              Cinematic Mock Draft Preview
+              Cinematic Preview
             </div>
             <img
               src={cinematicPreview}
@@ -1462,7 +1501,7 @@ function CinematicPlaceholderPanel({
 
         <div className="flex flex-wrap gap-3">
           <PrimaryGenerateButton
-            label={`Generate ${tool} Mock Draft`}
+            label={`Generate ${tool}`}
             onClick={handleGenerateCinematicDraft}
           />
 
@@ -1473,12 +1512,12 @@ function CinematicPlaceholderPanel({
               setVideoCreativeType?.(cinematicMotionStyle);
               setVideoOutputFormat?.(cinematicOutputFormat);
               setCinematicStatus(
-                `${tool} workflow saved with ${cinematicTextPreset} text style. Generate a mock draft or add source media, then export from the main Export section.`
+                `${tool} video settings saved with ${cinematicTextPreset} text style. Click Generate to add uploaded media to preview/timeline, then export from the main Export section.`
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
           >
-            Save Cinematic Workflow
+            Save Settings
           </button>
         </div>
       </div>
@@ -3188,7 +3227,7 @@ export default function DynamicToolWorkspace({
               setVideoOutputFormat?.(musicVideoOutputFormat);
 
               setMusicVideoDraftStatus(
-                "Music video workflow saved. Add media, preview the draft, then use Export / Download Media."
+                "Music video video settings saved. Add media, preview the draft, then use Export / Download Media."
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
