@@ -1015,13 +1015,20 @@ function LifeEventVideoPanel({
             />
 
             <SelectField
-              label="8. Music Style"
-              value={musicStyle}
-              options={greetingMusicStyles}
-              onChange={setMusicStyle}
-            />
-          </div>
-        )}
+  label="9. Font Style"
+  value={selectedCreatorFont}
+  options={[
+    "Bebas Neue",
+    "Oswald",
+    "Playfair Display",
+    "Cinzel",
+    "Orbitron",
+    "Bruno Ace",
+    "Metamorphous",
+    "New Rocker",
+  ]}
+  onChange={setSelectedCreatorFont}
+/>
 
         <TextFontStudio
           tool={tool}
