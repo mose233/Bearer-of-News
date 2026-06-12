@@ -98,23 +98,72 @@ export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
   return ffmpeg;
 }
 
-export async function exportSilentMp4(imagePreviews: ImagePreviewItem[]) {
-  try {
-    const ffmpeg = await createSlideshowVideo(imagePreviews);
-    const data = await ffmpeg.readFile("slideshow.mp4");
+export async function exportSilentMp4(
+  imagePreviews: ImagePreviewItem[]
+) {
+  if (imagePreviews.length === 0) {
+    throw new Error("Please upload images first.");
+  }
 
-    return createMp4Blob(data as Uint8Array | string);
-  } catch (error) {
-    console.error("EXPORT ERROR:", error);
+  const canvas = document.createElement("canvas");
+  canvas.width = 720;
+  canvas.height = 1280;
 
-    alert(
-      `Export failed:\n${
-        error instanceof Error ? error.message : String(error)
-      }`
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("Could not create canvas.");
+  }
+
+  const stream = canvas.captureStream(24);
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm",
+  });
+
+  const chunks: Blob[] = [];
+
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      chunks.push(e.data);
+    }
+  };
+
+  const finished = new Promise<Blob>((resolve) => {
+    recorder.onstop = () => {
+      resolve(new Blob(chunks, { type: "video/webm" }));
+    };
+  });
+
+  recorder.start();
+
+  for (const item of imagePreviews) {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = item.preview;
+    });
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.drawImage(
+      img,
+      0,
+      0,
+      canvas.width,
+      canvas.height
     );
 
-    throw error;
+    await new Promise((resolve) =>
+      setTimeout(resolve, 5000)
+    );
   }
+
+  recorder.stop();
+
+  return await finished;
 }
 
 export async function exportNarratedMp4({
