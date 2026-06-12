@@ -711,7 +711,33 @@ export default function CreatorStudio() {
   };
   const handleExportPrimaryMedia = async () => {
     if (selectedTool?.category === "Picture AI") {
-      await handleDownloadGeneratedImage();
+      if (generatedImageFile || generatedImagePreview) {
+        await handleDownloadGeneratedImage();
+        return;
+      }
+
+      const currentPreview = mediaPreviews[currentIndex];
+      const currentFile = mediaFiles[currentIndex];
+
+      if (currentPreview && currentFile?.type.startsWith("image/")) {
+        const response = await fetch(currentPreview);
+        const blob = await response.blob();
+
+        saveAs(blob, currentFile.name || "xnewsapp-image.png");
+        return;
+      }
+
+      if (imagePreviews.length > 0) {
+        const fallbackPreview = imagePreviews[0];
+
+        const response = await fetch(fallbackPreview.preview);
+        const blob = await response.blob();
+
+        saveAs(blob, fallbackPreview.file.name || "xnewsapp-image.png");
+        return;
+      }
+
+      alert("Please generate or add an image first.");
       return;
     }
 
