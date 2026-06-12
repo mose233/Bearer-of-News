@@ -730,6 +730,28 @@ const handleExportPrimaryMedia = async () => {
 
   await handleExportSilentMp4();
 };
+  const handleExportPrimaryMedia = async () => {
+  if (selectedTool?.category === "Picture AI") {
+    if (generatedImagePreview) {
+      const link = document.createElement("a");
+
+      link.href = generatedImagePreview;
+      link.download = "xnewsapp-image.png";
+      link.click();
+    } else {
+      alert("Please generate an image first.");
+    }
+
+    return;
+  }
+
+  if (aiVoiceBlob) {
+    await handleExportFinalMixedMp4();
+    return;
+  }
+
+  await handleExportSilentMp4();
+};
   const handleExportSilentMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
@@ -1029,22 +1051,22 @@ const handleExportPrimaryMedia = async () => {
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-                <ExportPanel
-                  isRecording={isRecording}
-                  isExporting={isExporting}
-                  exportStatus={exportStatus}
-                  exportPrimaryLabel="Export / Download Media"
-                  onExportPrimary={
-                    aiVoiceBlob
-                      ? handleExportFinalMixedMp4
-                      : handleExportSilentMp4
-                  }
-                  onOpenFacebook={openFacebookAfterExport}
-                  onInitializeFFmpeg={initializeFFmpeg}
-                  onExportSilentMp4={handleExportSilentMp4}
-                  onExportNarratedMp4={handleExportNarratedMp4}
-                />
-              </CardContent>
+  <ExportPanel
+    isRecording={isRecording}
+    isExporting={isExporting}
+    exportStatus={exportStatus}
+    exportPrimaryLabel={
+      selectedTool?.category === "Picture AI"
+        ? "Download Image"
+        : "Export / Download Media"
+    }
+    onExportPrimary={handleExportPrimaryMedia}
+    onOpenFacebook={openFacebookAfterExport}
+    onInitializeFFmpeg={initializeFFmpeg}
+    onExportSilentMp4={handleExportSilentMp4}
+    onExportNarratedMp4={handleExportNarratedMp4}
+  />
+</CardContent>
             </Card>
 
             <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
