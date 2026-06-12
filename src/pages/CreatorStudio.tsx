@@ -709,7 +709,27 @@ export default function CreatorStudio() {
       setIsExporting(false);
     }
   };
+const handleExportPrimaryMedia = async () => {
+  if (selectedTool?.category === "Picture AI") {
+    if (generatedImagePreview) {
+      const link = document.createElement("a");
+      link.href = generatedImagePreview;
+      link.download = "xnewsapp-image.png";
+      link.click();
+    } else {
+      alert("Please generate an image first.");
+    }
 
+    return;
+  }
+
+  if (aiVoiceBlob) {
+    await handleExportFinalMixedMp4();
+    return;
+  }
+
+  await handleExportSilentMp4();
+};
   const handleExportSilentMp4 = async () => {
     try {
       if (imagePreviews.length === 0) {
