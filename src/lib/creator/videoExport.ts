@@ -7,6 +7,7 @@ export type ImagePreviewItem = {
 
 export type ExportVideoOptions = {
   imagePreviews: ImagePreviewItem[];
+  durationSeconds?: number;
   voiceBlob?: Blob | null;
   voiceVolume?: number;
   backgroundMusic?: File | null;
@@ -20,6 +21,10 @@ export type ExportPhotoMusicVideoOptions = {
   durationSeconds?: number;
   musicVolume?: number;
 };
+
+function getSafeDuration(durationSeconds?: number) {
+  return Math.min(Math.max(durationSeconds || 10, 5), 60);
+}
 
 function createMp4Blob(data: Uint8Array | string) {
   const bytes =
@@ -50,10 +55,15 @@ async function cleanupFFmpegFiles(files: string[]) {
   return ffmpeg;
 }
 
-export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
+export async function createSlideshowVideo(
+  imagePreviews: ImagePreviewItem[],
+  durationSeconds = 10
+) {
   if (imagePreviews.length === 0) {
     throw new Error("Please upload images first.");
   }
+
+  const safeDuration = getSafeDuration(durationSeconds);
 
   const ffmpeg = await cleanupFFmpegFiles([
     "slideshow.mp4",
@@ -79,7 +89,7 @@ export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
     "-i",
     "input.png",
     "-t",
-    "5",
+    String(safeDuration),
     "-vf",
     "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
     "-r",
@@ -99,11 +109,15 @@ export async function createSlideshowVideo(imagePreviews: ImagePreviewItem[]) {
 }
 
 export async function exportSilentMp4(
-  imagePreviews: ImagePreviewItem[]
+  imagePreviews: ImagePreviewItem[],
+  durationSeconds = 10
 ) {
   if (imagePreviews.length === 0) {
     throw new Error("Please upload images first.");
   }
+
+  const safeDuration = getSafeDuration(durationSeconds);
+  const millisecondsPerScene = safeDuration * 1000;
 
   const canvas = document.createElement("canvas");
   canvas.width = 720;
@@ -148,16 +162,10 @@ export async function exportSilentMp4(
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(
-      img,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     await new Promise((resolve) =>
-      setTimeout(resolve, 5000)
+      setTimeout(resolve, millisecondsPerScene)
     );
   }
 
@@ -168,6 +176,7 @@ export async function exportSilentMp4(
 
 export async function exportNarratedMp4({
   imagePreviews,
+  durationSeconds = 10,
   voiceBlob,
   voiceVolume = 1,
 }: ExportVideoOptions) {
@@ -175,7 +184,11 @@ export async function exportNarratedMp4({
     throw new Error("Please generate AI voice first.");
   }
 
-  const ffmpeg = await createSlideshowVideo(imagePreviews);
+  const ffmpeg = await createSlideshowVideo(
+    imagePreviews,
+    durationSeconds
+  );
+
   const voiceBuffer = await voiceBlob.arrayBuffer();
 
   await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
@@ -208,6 +221,7 @@ export async function exportNarratedMp4({
 
 export async function exportFinalMixedMp4({
   imagePreviews,
+  durationSeconds = 10,
   voiceBlob,
   voiceVolume = 1,
   backgroundMusic,
@@ -217,7 +231,11 @@ export async function exportFinalMixedMp4({
     throw new Error("Please generate AI voice first.");
   }
 
-  const ffmpeg = await createSlideshowVideo(imagePreviews);
+  const ffmpeg = await createSlideshowVideo(
+    imagePreviews,
+    durationSeconds
+  );
+
   const voiceBuffer = await voiceBlob.arrayBuffer();
 
   await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
@@ -293,7 +311,7 @@ export async function exportPhotoMusicVideoMp4({
     throw new Error("Please upload a song first.");
   }
 
-  const safeDuration = Math.min(Math.max(durationSeconds, 5), 60);
+  const safeDuration = getSafeDuration(durationSeconds);
 
   const ffmpeg = await cleanupFFmpegFiles([
     "photo-music-video.mp4",
