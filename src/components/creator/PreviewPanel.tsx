@@ -35,12 +35,16 @@ export default function PreviewPanel({
   isPlaying,
   setIsPlaying,
   facebookCaption,
+  sceneDurations = [],
   previewMode = "image",
+  onUpdateSceneDuration,
 }: PreviewPanelProps) {
   const totalScenes = Math.max(mediaFiles.length, imagePreviews.length);
 
   const safeCurrentIndex =
     totalScenes > 0 ? Math.min(Math.max(currentIndex, 0), totalScenes - 1) : 0;
+
+  const currentDuration = sceneDurations[safeCurrentIndex] || 5;
 
   const currentPreview = imagePreviews[safeCurrentIndex];
   const currentFile =
@@ -119,6 +123,10 @@ export default function PreviewPanel({
             {safeCurrentIndex + 1} / {totalScenes}
           </div>
 
+          <div className="absolute right-2 top-2 rounded-full bg-emerald-500/90 px-2 py-1 text-[10px] font-extrabold text-white shadow-lg">
+            {currentDuration}s
+          </div>
+
           {facebookCaption && !isCurrentVideo && (
             <div className="absolute bottom-12 left-2 right-2">
               <div className="rounded-xl bg-black/45 px-2 py-2 backdrop-blur-md">
@@ -164,6 +172,31 @@ export default function PreviewPanel({
           )}
         </div>
       </div>
+
+      {onUpdateSceneDuration && (
+        <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/60 p-3">
+          <label className="block text-xs font-extrabold text-white">
+            Scene Duration
+          </label>
+
+          <select
+            value={currentDuration}
+            onChange={(event) =>
+              onUpdateSceneDuration(
+                safeCurrentIndex,
+                Number(event.target.value)
+              )
+            }
+            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-xs font-bold text-white"
+          >
+            {[10, 20, 30, 40, 50, 60].map((duration) => (
+              <option key={duration} value={duration}>
+                {duration} Seconds
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }
