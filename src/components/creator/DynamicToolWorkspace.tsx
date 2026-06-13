@@ -25,27 +25,6 @@ import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 import { getFontByName } from "@/lib/creator/fontLibrary";
 
-
-const premiumPictureTools = [
-  "Poster / Flyer",
-  "Event Poster",
-  "Business Banner",
-  "Product Ad Image",
-  "Thumbnail Creator",
-  "Text to Image",
-  "AI Art Generator",
-];
-
-function getPictureAiPrice(tool: string) {
-  return premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
-}
-
-function getPictureAiPriceLabel(tool: string) {
-  return premiumPictureTools.includes(tool)
-    ? "🎨 Premium Picture AI"
-    : "🖼️ Basic Picture AI";
-}
-
 type DynamicToolWorkspaceProps = {
   selectedTool: AiToolSelection | null;
 
@@ -630,21 +609,6 @@ function VideoTemplatePanel({
             Uploaded and ready: {stagedVideoFileNames.join(", ")}. Click Generate Video to show it in preview.
           </div>
         )}
-
-
-        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-          <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
-            {getPictureAiPriceLabel(tool)}
-          </div>
-
-          <p className="mt-1 text-sm font-extrabold text-white">
-            💰 Price: {getPictureAiPrice(tool)} per image
-          </p>
-
-          <p className="mt-1 text-[11px] font-medium leading-5 text-emerald-100">
-            You will pay before generation. Local payment methods appear after clicking Generate.
-          </p>
-        </div>
 
         <TextFontStudio
           tool={tool}
@@ -2318,27 +2282,12 @@ export default function DynamicToolWorkspace({
                   : "Generate Enhanced Photo";
 
     return (
-      <div>
-  <ToolHeader
-    title={tool}
-    icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
-    description={`${pictureDescription} Export/download later from the main Export section.`}
-  />
-
-  <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-    <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
-      {getPictureAiPriceLabel(tool)}
-    </div>
-
-    <p className="mt-1 text-sm font-extrabold text-white">
-      💰 Price: {getPictureAiPrice(tool)} per image
-    </p>
-
-    <p className="mt-1 text-[11px] font-medium leading-5 text-emerald-100">
-      You will pay before generation. Local payment methods appear after clicking Generate.
-    </p>
-  </div>
-</div>
+      <div className={boxClass}>
+        <ToolHeader
+          title={tool}
+          icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
+          description={`${pictureDescription} Export/download later from the main Export section.`}
+        />
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
