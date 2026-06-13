@@ -20,7 +20,6 @@ import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
 import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 import MusicStudioPanel from "@/components/creator/MusicStudioPanel";
-import PaymentModal from "@/components/payments/PaymentModal";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -279,6 +278,66 @@ const tributeMusicStyles = [
   "Soft Strings",
   "Peaceful Worship",
 ];
+
+const premiumVideoTools = [
+  "AI Greeting Video Studio",
+  "Business Promo Video",
+  "Product Ad Generator",
+  "Real Estate Video",
+  "Event Promotion Video",
+  "Obituary / Tribute Studio",
+  "News Summary Video",
+  "Educational Explainer Video",
+  "Story Generator",
+];
+
+const basicVideoPrices = [
+  ["10 Seconds", "$0.70"],
+  ["20 Seconds", "$1.20"],
+  ["30 Seconds", "$1.70"],
+  ["40 Seconds", "$2.20"],
+  ["50 Seconds", "$2.70"],
+  ["60 Seconds", "$3.20"],
+];
+
+const premiumVideoPrices = [
+  ["10 Seconds", "$0.72"],
+  ["20 Seconds", "$1.22"],
+  ["30 Seconds", "$1.72"],
+  ["40 Seconds", "$2.22"],
+  ["50 Seconds", "$2.72"],
+  ["60 Seconds", "$3.22"],
+];
+
+function getVideoPriceLabel(tool: string) {
+  return premiumVideoTools.includes(tool) ? "🎬 Premium Video AI" : "🎬 Video AI";
+}
+
+function getVideoPrices(tool: string) {
+  return premiumVideoTools.includes(tool) ? premiumVideoPrices : basicVideoPrices;
+}
+
+function VideoPricingCard({ tool }: { tool: string }) {
+  return (
+    <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+      <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
+        {getVideoPriceLabel(tool)}
+      </div>
+
+      <div className="mt-2 space-y-1">
+        {getVideoPrices(tool).map(([duration, price]) => (
+          <div
+            key={duration}
+            className="flex items-center justify-between gap-3 text-xs font-bold text-emerald-50"
+          >
+            <span>{duration}</span>
+            <span>{price}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function ToolHeader({
   title,
@@ -597,6 +656,7 @@ function VideoTemplatePanel({
       />
 
       <div className="mt-5 space-y-5">
+        <VideoPricingCard tool={tool} />
         <UploadMediaBox
           title="1. Upload Photos or Videos"
           description="Photos or videos for your project."
@@ -871,6 +931,7 @@ function LifeEventVideoPanel({
       />
 
       <div className="mt-5 space-y-5">
+        <VideoPricingCard tool={tool} />
         <UploadMediaBox
           title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
           description={
@@ -1600,7 +1661,6 @@ export default function DynamicToolWorkspace({
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [quoteText, setQuoteText] = useState("");
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
@@ -1679,6 +1739,30 @@ export default function DynamicToolWorkspace({
   const getCurrentPicturePrice = () =>
     premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
 
+  const confirmPictureGeneration = () => {
+    const price = getCurrentPicturePrice();
+
+    const ready = window.confirm(
+      `✨ Ready to Generate\n\nCreate your image for ${price}`
+    );
+
+    if (!ready) {
+      return false;
+    }
+
+    const method = window.prompt(
+      "Choose Payment Method\n\n1. M-Pesa\n2. Airtel Money\n3. Visa\n4. Mastercard\n5. PayPal\n\nType the number or name of your preferred method:"
+    );
+
+    if (!method || !method.trim()) {
+      return false;
+    }
+
+    return true;
+  };
+
+
+
   const wrapCanvasText = (
     context: CanvasRenderingContext2D,
     text: string,
@@ -1719,6 +1803,10 @@ export default function DynamicToolWorkspace({
   };
 
   const generateQuoteImageFile = async () => {
+    if (!confirmPictureGeneration()) {
+      return;
+    }
+
     const cleanQuote = quoteText.trim();
 
     if (!cleanQuote) {
@@ -2956,7 +3044,10 @@ export default function DynamicToolWorkspace({
           <Button
             type="button"
             disabled={!picturePreview}
-            onClick={() => setPaymentModalOpen(true)}
+            onClick={() => {
+              if (!confirmPictureGeneration()) return;
+              setHasPreviewedEnhancement(true);
+            }}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
@@ -2972,16 +3063,6 @@ export default function DynamicToolWorkspace({
             Add to Timeline
           </Button>
         </div>
-
-        <PaymentModal
-          open={paymentModalOpen}
-          price={getCurrentPicturePrice()}
-          onClose={() => setPaymentModalOpen(false)}
-          onPaymentSuccess={() => {
-            setPaymentModalOpen(false);
-            setHasPreviewedEnhancement(true);
-          }}
-        />
       </div>
     );
   }
