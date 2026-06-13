@@ -322,10 +322,20 @@ function getVideoPricingList(tool: string) {
     : ordinaryVideoPrices;
 }
 
-function VideoPricingCard({ tool }: { tool: string }) {
+function VideoPricingCard({
+  tool,
+  selectedDuration,
+  onDurationChange,
+}: {
+  tool: string;
+  selectedDuration: string;
+  onDurationChange: (duration: string) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const prices = getVideoPricingList(tool);
-  const [firstDuration, firstPrice] = prices[0];
+  const selectedPrice =
+    prices.find(([duration]) => duration === selectedDuration)?.[1] ||
+    prices[0][1];
 
   return (
     <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
@@ -340,7 +350,7 @@ function VideoPricingCard({ tool }: { tool: string }) {
           </div>
 
           <div className="mt-2 text-xs font-bold text-emerald-50">
-            {firstDuration} ........ {firstPrice}
+            {selectedDuration} ........ {selectedPrice}
           </div>
         </div>
 
@@ -354,13 +364,22 @@ function VideoPricingCard({ tool }: { tool: string }) {
       {isOpen && (
         <div className="mt-3 space-y-1 border-t border-emerald-400/20 pt-3">
           {prices.map(([duration, price]) => (
-            <div
+            <button
               key={duration}
-              className="flex items-center justify-between gap-3 text-xs font-bold text-emerald-50"
+              type="button"
+              onClick={() => {
+                onDurationChange(duration);
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-xs font-bold transition ${
+                selectedDuration === duration
+                  ? "bg-emerald-400/20 text-white"
+                  : "text-emerald-50 hover:bg-white/10"
+              }`}
             >
               <span>{duration}</span>
               <span>{price}</span>
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -508,6 +527,7 @@ function VideoTemplatePanel({
   );
   const [localMessage, setLocalMessage] = useState("");
   const [videoDraftStatus, setVideoDraftStatus] = useState("");
+  const [selectedVideoDuration, setSelectedVideoDuration] = useState("10 Seconds");
   const [stagedVideoFiles, setStagedVideoFiles] = useState<File[]>([]);
   const [stagedVideoFileNames, setStagedVideoFileNames] = useState<string[]>([]);
 
@@ -610,6 +630,7 @@ function VideoTemplatePanel({
       `Visual style: ${localVisualStyle}`,
       `Language: ${localLanguage}`,
       `Output format: ${localOutputFormat}`,
+      `Video duration: ${selectedVideoDuration}`,
       `Selected font: ${selectedCreatorFont}`,
       "",
       "User instructions:",
@@ -660,7 +681,7 @@ function VideoTemplatePanel({
     setVideoOutputFormat?.(localOutputFormat);
 
     setVideoDraftStatus(
-      `${tool} video prepared. ${stagedVideoFiles.length > 0 ? "Uploaded media has been added to the preview and timeline. " : ""}Preview it, then export/download from the main Export section.`
+      `${tool} ${selectedVideoDuration} video prepared. ${stagedVideoFiles.length > 0 ? "Uploaded media has been added to the preview and timeline. " : ""}Preview it, then export/download from the main Export section.`
     );
 
     window.setTimeout(() => {
@@ -685,7 +706,11 @@ function VideoTemplatePanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard tool={tool} />
+        <VideoPricingCard
+          tool={tool}
+          selectedDuration={selectedVideoDuration}
+          onDurationChange={setSelectedVideoDuration}
+        />
 
         <UploadMediaBox
           title="1. Upload Photos or Videos"
@@ -839,6 +864,7 @@ function LifeEventVideoPanel({
     videoOutputFormat || "Facebook Reel"
   );
   const [draftStatus, setDraftStatus] = useState("");
+  const [selectedVideoDuration, setSelectedVideoDuration] = useState("10 Seconds");
   const [stagedLifeEventFiles, setStagedLifeEventFiles] = useState<File[]>([]);
   const [stagedLifeEventFileNames, setStagedLifeEventFileNames] = useState<string[]>([]);
 
@@ -853,6 +879,8 @@ function LifeEventVideoPanel({
         `Voice style: ${voiceStyle}`,
         `Music style: ${musicStyle}`,
         `Output format: ${outputFormat}`,
+      `Video duration: ${selectedVideoDuration}`,
+        `Video duration: ${selectedVideoDuration}`,
         `Selected font: ${selectedCreatorFont}`,
         "",
         "Tribute message:",
@@ -931,8 +959,8 @@ function LifeEventVideoPanel({
 
     setDraftStatus(
       isTribute
-        ? `Tribute video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
-        : `Greeting video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+        ? `Tribute ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+        : `Greeting ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
     );
 
     if (shouldGenerate) {
@@ -961,7 +989,11 @@ function LifeEventVideoPanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard tool={tool} />
+        <VideoPricingCard
+          tool={tool}
+          selectedDuration={selectedVideoDuration}
+          onDurationChange={setSelectedVideoDuration}
+        />
 
         <UploadMediaBox
           title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
