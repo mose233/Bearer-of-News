@@ -1,6 +1,7 @@
 import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
+  ChevronDown,
   Clapperboard,
   ImagePlus,
   Megaphone,
@@ -318,23 +319,48 @@ function getVideoPrices(tool: string) {
 }
 
 function VideoPricingCard({ tool }: { tool: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const prices = getVideoPrices(tool);
+  const [firstDuration, firstPrice] = prices[0];
+
   return (
     <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-      <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
-        {getVideoPriceLabel(tool)}
-      </div>
-
-      <div className="mt-2 space-y-1">
-        {getVideoPrices(tool).map(([duration, price]) => (
-          <div
-            key={duration}
-            className="flex items-center justify-between gap-3 text-xs font-bold text-emerald-50"
-          >
-            <span>{duration}</span>
-            <span>{price}</span>
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        className="flex w-full items-center justify-between gap-3 text-left"
+      >
+        <div>
+          <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
+            {getVideoPriceLabel(tool)}
           </div>
-        ))}
-      </div>
+
+          <div className="mt-2 flex items-center gap-3 text-xs font-bold text-emerald-50">
+            <span>{firstDuration}</span>
+            <span>{firstPrice}</span>
+          </div>
+        </div>
+
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-emerald-200 transition ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="mt-3 space-y-1 border-t border-emerald-400/20 pt-3">
+          {prices.map(([duration, price]) => (
+            <div
+              key={duration}
+              className="flex items-center justify-between gap-3 text-xs font-bold text-emerald-50"
+            >
+              <span>{duration}</span>
+              <span>{price}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
