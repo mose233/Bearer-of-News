@@ -89,7 +89,8 @@ export default function CreatorStudio() {
     useState<AiToolSelection | null>(null);
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
-  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
+  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] =
+    useState(10);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
@@ -171,14 +172,14 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-    if (selectedTool?.category === "Video AI") {
-      return selectedVideoDurationSeconds;
-    }
-
-    return 5;
+    return selectedVideoDurationSeconds;
   };
 
-  const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
+  const addSceneToTimeline = (
+    file: File,
+    preview: string,
+    duration = getTimelineDuration()
+  ) => {
     const nextIndex = mediaFiles.length;
 
     setMediaFiles((prev) => [...prev, file]);
@@ -346,7 +347,7 @@ export default function CreatorStudio() {
         imageFile: photoMusicImageFile,
         imagePreview: photoMusicImagePreview,
         audioFile: photoMusicAudioFile,
-        durationSeconds: 15,
+        durationSeconds: selectedVideoDurationSeconds,
         musicVolume: 0.9,
       });
 
@@ -499,7 +500,11 @@ export default function CreatorStudio() {
 
       const result = await generateSceneImage(scene.prompt, "1024x1024");
 
-      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
+      addSceneToTimeline(
+        result.file,
+        result.previewUrl,
+        scene.duration || selectedVideoDurationSeconds
+      );
 
       alert(`Scene ${index + 1} added to timeline.`);
     } catch (error) {
@@ -524,7 +529,10 @@ export default function CreatorStudio() {
 
         setMediaFiles((prev) => [...prev, result.file]);
         setMediaPreviews((prev) => [...prev, result.previewUrl]);
-        setSceneDurations((prev) => [...prev, scene.duration]);
+        setSceneDurations((prev) => [
+          ...prev,
+          scene.duration || selectedVideoDurationSeconds,
+        ]);
       }
 
       setCurrentIndex(mediaFiles.length);
@@ -602,7 +610,7 @@ export default function CreatorStudio() {
 
     setSceneDurations((prev) => [
       ...prev.slice(0, index + 1),
-      prev[index] || 5,
+      prev[index] || selectedVideoDurationSeconds,
       ...prev.slice(index + 1),
     ]);
 
@@ -1087,8 +1095,12 @@ export default function CreatorStudio() {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview) =>
-              addSceneToTimeline(file, preview, getTimelineDuration())
+            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+              addSceneToTimeline(
+                file,
+                preview,
+                durationSeconds || getTimelineDuration()
+              )
             }
             onVideoDurationChange={setSelectedVideoDurationSeconds}
           />
