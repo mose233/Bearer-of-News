@@ -89,8 +89,7 @@ export default function CreatorStudio() {
     useState<AiToolSelection | null>(null);
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
-  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] =
-    useState(10);
+  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
@@ -113,6 +112,15 @@ export default function CreatorStudio() {
         preview: mediaPreviews[index],
       }))
       .filter((item) => item.file.type.startsWith("image/"));
+  }, [mediaFiles, mediaPreviews]);
+
+  const mediaItems: ImagePreviewItem[] = useMemo(() => {
+    return mediaFiles
+      .map((file, index) => ({
+        file,
+        preview: mediaPreviews[index],
+      }))
+      .filter((item) => Boolean(item.preview));
   }, [mediaFiles, mediaPreviews]);
 
   useEffect(() => {
@@ -172,14 +180,14 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-    return selectedVideoDurationSeconds;
+    if (selectedTool?.category === "Video AI") {
+      return selectedVideoDurationSeconds;
+    }
+
+    return 5;
   };
 
-  const addSceneToTimeline = (
-    file: File,
-    preview: string,
-    duration = getTimelineDuration()
-  ) => {
+  const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
 
     setMediaFiles((prev) => [...prev, file]);
@@ -347,7 +355,7 @@ export default function CreatorStudio() {
         imageFile: photoMusicImageFile,
         imagePreview: photoMusicImagePreview,
         audioFile: photoMusicAudioFile,
-        durationSeconds: selectedVideoDurationSeconds,
+        durationSeconds: 15,
         musicVolume: 0.9,
       });
 
@@ -500,11 +508,7 @@ export default function CreatorStudio() {
 
       const result = await generateSceneImage(scene.prompt, "1024x1024");
 
-      addSceneToTimeline(
-        result.file,
-        result.previewUrl,
-        scene.duration || selectedVideoDurationSeconds
-      );
+      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
 
       alert(`Scene ${index + 1} added to timeline.`);
     } catch (error) {
@@ -529,10 +533,7 @@ export default function CreatorStudio() {
 
         setMediaFiles((prev) => [...prev, result.file]);
         setMediaPreviews((prev) => [...prev, result.previewUrl]);
-        setSceneDurations((prev) => [
-          ...prev,
-          scene.duration || selectedVideoDurationSeconds,
-        ]);
+        setSceneDurations((prev) => [...prev, scene.duration]);
       }
 
       setCurrentIndex(mediaFiles.length);
@@ -610,7 +611,7 @@ export default function CreatorStudio() {
 
     setSceneDurations((prev) => [
       ...prev.slice(0, index + 1),
-      prev[index] || selectedVideoDurationSeconds,
+      prev[index] || 5,
       ...prev.slice(index + 1),
     ]);
 
@@ -804,8 +805,8 @@ export default function CreatorStudio() {
 
   const handleExportSilentMp4 = async () => {
     try {
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
+      if (mediaItems.length === 0) {
+        alert("Please upload or generate images/videos first.");
         return;
       }
 
@@ -813,7 +814,7 @@ export default function CreatorStudio() {
       setExportStatus("Rendering silent MP4...");
 
       const videoBlob = await exportSilentMp4(
-        imagePreviews,
+        mediaItems,
         selectedVideoDurationSeconds
       );
 
@@ -836,8 +837,8 @@ export default function CreatorStudio() {
 
   const handleExportNarratedMp4 = async () => {
     try {
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
+      if (mediaItems.length === 0) {
+        alert("Please upload or generate images/videos first.");
         return;
       }
 
@@ -951,7 +952,7 @@ export default function CreatorStudio() {
         setExportStatus("Exporting silent fallback MP4...");
 
         const videoBlob = await exportSilentMp4(
-          imagePreviews,
+          mediaItems,
           selectedVideoDurationSeconds
         );
 
@@ -1095,12 +1096,8 @@ export default function CreatorStudio() {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-              addSceneToTimeline(
-                file,
-                preview,
-                durationSeconds || getTimelineDuration()
-              )
+            onAddEnhancedPhotoToTimeline={(file, preview) =>
+              addSceneToTimeline(file, preview, getTimelineDuration())
             }
             onVideoDurationChange={setSelectedVideoDurationSeconds}
           />
