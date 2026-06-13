@@ -2319,9 +2319,7 @@ export default function DynamicToolWorkspace({
                 : "$0.05"} per image
             </p>
 
-            <p className="mt-1 text-[11px] text-emerald-100">
-              Pay before generation.
-            </p>
+           
           </div>
         </>
 
