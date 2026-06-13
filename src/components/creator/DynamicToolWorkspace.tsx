@@ -280,6 +280,18 @@ const tributeMusicStyles = [
   "Peaceful Worship",
 ];
 
+const premiumVideoTools = [
+  "AI Greeting Video Studio",
+  "Business Promo Video",
+  "Product Ad Generator",
+  "Real Estate Video",
+  "Event Promotion Video",
+  "Obituary / Tribute Studio",
+  "News Summary Video",
+  "Educational Explainer Video",
+  "Story Generator",
+];
+
 const ordinaryVideoPrices = [
   ["10 Seconds", "$0.70"],
   ["20 Seconds", "$1.20"],
@@ -298,29 +310,36 @@ const premiumVideoPrices = [
   ["60 Seconds", "$3.22"],
 ];
 
-function VideoPricingColumn({
-  title,
-  prices,
-}: {
-  title: string;
-  prices: string[][];
-}) {
+function getVideoPricingLabel(tool: string) {
+  return premiumVideoTools.includes(tool)
+    ? "🎬 Premium Video AI"
+    : "🎬 Ordinary Video AI";
+}
+
+function getVideoPricingList(tool: string) {
+  return premiumVideoTools.includes(tool)
+    ? premiumVideoPrices
+    : ordinaryVideoPrices;
+}
+
+function VideoPricingCard({ tool }: { tool: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const prices = getVideoPricingList(tool);
   const [firstDuration, firstPrice] = prices[0];
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-3">
+    <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="flex w-full items-center justify-between gap-2 text-left"
+        className="flex w-full items-center justify-between gap-3 text-left"
       >
         <div>
-          <div className="text-xs font-extrabold uppercase tracking-wide text-white">
-            {title}
+          <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
+            {getVideoPricingLabel(tool)}
           </div>
 
-          <div className="mt-1 text-[11px] font-bold text-emerald-100">
+          <div className="mt-2 text-xs font-bold text-emerald-50">
             {firstDuration} ........ {firstPrice}
           </div>
         </div>
@@ -333,11 +352,11 @@ function VideoPricingColumn({
       </button>
 
       {isOpen && (
-        <div className="mt-3 space-y-1 border-t border-white/10 pt-3">
+        <div className="mt-3 space-y-1 border-t border-emerald-400/20 pt-3">
           {prices.map(([duration, price]) => (
             <div
-              key={`${title}-${duration}`}
-              className="flex items-center justify-between gap-3 text-[11px] font-bold text-emerald-50"
+              key={duration}
+              className="flex items-center justify-between gap-3 text-xs font-bold text-emerald-50"
             >
               <span>{duration}</span>
               <span>{price}</span>
@@ -345,21 +364,6 @@ function VideoPricingColumn({
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function VideoPricingCard() {
-  return (
-    <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-      <div className="mb-3 text-sm font-extrabold text-emerald-300">
-        🎬 Video AI
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <VideoPricingColumn title="Ordinary" prices={ordinaryVideoPrices} />
-        <VideoPricingColumn title="Premium" prices={premiumVideoPrices} />
-      </div>
     </div>
   );
 }
@@ -681,7 +685,7 @@ function VideoTemplatePanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard />
+        <VideoPricingCard tool={tool} />
 
         <UploadMediaBox
           title="1. Upload Photos or Videos"
@@ -957,7 +961,7 @@ function LifeEventVideoPanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard />
+        <VideoPricingCard tool={tool} />
 
         <UploadMediaBox
           title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
