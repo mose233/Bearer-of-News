@@ -1677,10 +1677,27 @@ export default function DynamicToolWorkspace({
   const getCurrentPicturePrice = () =>
     premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
 
-  const confirmPictureGeneration = () =>
-    window.confirm(
-      `✨ Ready to Generate\n\nCreate your image for ${getCurrentPicturePrice()}`
+  const confirmPictureGeneration = () => {
+    const price = getCurrentPicturePrice();
+
+    const ready = window.confirm(
+      `✨ Ready to Generate\n\nCreate your image for ${price}`
     );
+
+    if (!ready) {
+      return false;
+    }
+
+    const method = window.prompt(
+      "Choose Payment Method\n\n1. M-Pesa\n2. Airtel Money\n3. Visa\n4. Mastercard\n5. PayPal\n\nType the number or name of your preferred method:"
+    );
+
+    if (!method || !method.trim()) {
+      return false;
+    }
+
+    return true;
+  };
 
 
 
@@ -1727,7 +1744,6 @@ export default function DynamicToolWorkspace({
     if (!confirmPictureGeneration()) {
       return;
     }
-
 
     const cleanQuote = quoteText.trim();
 
@@ -2966,7 +2982,10 @@ export default function DynamicToolWorkspace({
           <Button
             type="button"
             disabled={!picturePreview}
-            onClick={() => setHasPreviewedEnhancement(true)}
+            onClick={() => {
+              if (!confirmPictureGeneration()) return;
+              setHasPreviewedEnhancement(true);
+            }}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
