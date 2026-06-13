@@ -90,6 +90,7 @@ type DynamicToolWorkspaceProps = {
   onDownloadGeneratedImage?: () => void;
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onVideoDurationChange?: (durationSeconds: number) => void;
 };
 
 const boxClass =
@@ -322,6 +323,11 @@ function getVideoPricingList(tool: string) {
     : ordinaryVideoPrices;
 }
 
+function getDurationSecondsFromLabel(duration: string) {
+  const value = Number.parseInt(duration, 10);
+  return Number.isFinite(value) ? value : 10;
+}
+
 function VideoPricingCard({
   tool,
   selectedDuration,
@@ -505,6 +511,7 @@ function VideoTemplatePanel({
   onMediaUpload: _onMediaUpload,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
+  onVideoDurationChange,
 }: {
   tool: string;
   videoPrompt?: string;
@@ -518,6 +525,7 @@ function VideoTemplatePanel({
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const [localVideoType, setLocalVideoType] = useState("Trending Reel");
   const [localVisualStyle, setLocalVisualStyle] = useState("Modern Social");
@@ -709,7 +717,10 @@ function VideoTemplatePanel({
         <VideoPricingCard
           tool={tool}
           selectedDuration={selectedVideoDuration}
-          onDurationChange={setSelectedVideoDuration}
+          onDurationChange={(duration) => {
+            setSelectedVideoDuration(duration);
+            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
+          }}
         />
 
         <UploadMediaBox
@@ -831,6 +842,7 @@ function LifeEventVideoPanel({
   onMediaUpload: _onMediaUpload,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
+  onVideoDurationChange,
 }: {
   tool: string;
   videoPrompt?: string;
@@ -843,6 +855,7 @@ function LifeEventVideoPanel({
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const isTribute = tool === "Obituary / Tribute Studio";
   const [occasion, setOccasion] = useState("Birthday");
@@ -992,7 +1005,10 @@ function LifeEventVideoPanel({
         <VideoPricingCard
           tool={tool}
           selectedDuration={selectedVideoDuration}
-          onDurationChange={setSelectedVideoDuration}
+          onDurationChange={(duration) => {
+            setSelectedVideoDuration(duration);
+            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
+          }}
         />
 
         <UploadMediaBox
@@ -1715,6 +1731,7 @@ export default function DynamicToolWorkspace({
   onMediaUpload,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
+  onVideoDurationChange,
 }: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
@@ -3164,6 +3181,7 @@ export default function DynamicToolWorkspace({
         onMediaUpload={onMediaUpload}
         onGenerateCompleteVideo={onGenerateCompleteVideo}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+        onVideoDurationChange={onVideoDurationChange}
       />
     );
   }
@@ -3183,6 +3201,7 @@ export default function DynamicToolWorkspace({
         onMediaUpload={onMediaUpload}
         onGenerateCompleteVideo={onGenerateCompleteVideo}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+        onVideoDurationChange={onVideoDurationChange}
       />
     );
   }
