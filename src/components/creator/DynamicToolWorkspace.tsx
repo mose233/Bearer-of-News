@@ -2283,11 +2283,47 @@ export default function DynamicToolWorkspace({
 
     return (
       <div className={boxClass}>
-        <ToolHeader
-          title={tool}
-          icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
-          description={`${pictureDescription} Export/download later from the main Export section.`}
-        />
+        <>
+          <ToolHeader
+            title={tool}
+            icon={<ImagePlus className="h-5 w-5 text-pink-300" />}
+            description={`${pictureDescription} Export/download later from the main Export section.`}
+          />
+
+          <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+            <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
+              {[
+                "Poster / Flyer",
+                "Event Poster",
+                "Business Banner",
+                "Product Ad Image",
+                "Thumbnail Creator",
+                "Text to Image",
+                "AI Art Generator",
+              ].includes(tool)
+                ? "🎨 Premium Picture AI"
+                : "🖼️ Basic Picture AI"}
+            </div>
+
+            <p className="mt-1 text-sm font-extrabold text-white">
+              💰 Price: {[
+                "Poster / Flyer",
+                "Event Poster",
+                "Business Banner",
+                "Product Ad Image",
+                "Thumbnail Creator",
+                "Text to Image",
+                "AI Art Generator",
+              ].includes(tool)
+                ? "$0.10"
+                : "$0.05"} per image
+            </p>
+
+            <p className="mt-1 text-[11px] text-emerald-100">
+              Pay before generation.
+            </p>
+          </div>
+        </>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
