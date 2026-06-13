@@ -1664,6 +1664,25 @@ export default function DynamicToolWorkspace({
 
   const { category, tool } = selectedTool;
 
+  const premiumPictureTools = [
+    "Poster / Flyer",
+    "Event Poster",
+    "Business Banner",
+    "Product Ad Image",
+    "Thumbnail Creator",
+    "Text to Image",
+    "AI Art Generator",
+  ];
+
+  const getCurrentPicturePrice = () =>
+    premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
+
+  const confirmPictureGeneration = () =>
+    window.confirm(
+      `✨ Ready to Generate\n\nCreate your image for ${getCurrentPicturePrice()}`
+    );
+
+
 
   const wrapCanvasText = (
     context: CanvasRenderingContext2D,
@@ -1705,6 +1724,11 @@ export default function DynamicToolWorkspace({
   };
 
   const generateQuoteImageFile = async () => {
+    if (!confirmPictureGeneration()) {
+      return;
+    }
+
+
     const cleanQuote = quoteText.trim();
 
     if (!cleanQuote) {
