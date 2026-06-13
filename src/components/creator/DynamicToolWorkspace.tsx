@@ -280,19 +280,7 @@ const tributeMusicStyles = [
   "Peaceful Worship",
 ];
 
-const premiumVideoTools = [
-  "AI Greeting Video Studio",
-  "Business Promo Video",
-  "Product Ad Generator",
-  "Real Estate Video",
-  "Event Promotion Video",
-  "Obituary / Tribute Studio",
-  "News Summary Video",
-  "Educational Explainer Video",
-  "Story Generator",
-];
-
-const basicVideoPrices = [
+const ordinaryVideoPrices = [
   ["10 Seconds", "$0.70"],
   ["20 Seconds", "$1.20"],
   ["30 Seconds", "$1.70"],
@@ -310,34 +298,30 @@ const premiumVideoPrices = [
   ["60 Seconds", "$3.22"],
 ];
 
-function getVideoPriceLabel(tool: string) {
-  return premiumVideoTools.includes(tool) ? "🎬 Premium Video AI" : "🎬 Video AI";
-}
-
-function getVideoPrices(tool: string) {
-  return premiumVideoTools.includes(tool) ? premiumVideoPrices : basicVideoPrices;
-}
-
-function VideoPricingCard({ tool }: { tool: string }) {
+function VideoPricingColumn({
+  title,
+  prices,
+}: {
+  title: string;
+  prices: string[][];
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const prices = getVideoPrices(tool);
   const [firstDuration, firstPrice] = prices[0];
 
   return (
-    <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-3">
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="flex w-full items-center justify-between gap-3 text-left"
+        className="flex w-full items-center justify-between gap-2 text-left"
       >
         <div>
-          <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
-            {getVideoPriceLabel(tool)}
+          <div className="text-xs font-extrabold uppercase tracking-wide text-white">
+            {title}
           </div>
 
-          <div className="mt-2 flex items-center gap-3 text-xs font-bold text-emerald-50">
-            <span>{firstDuration}</span>
-            <span>{firstPrice}</span>
+          <div className="mt-1 text-[11px] font-bold text-emerald-100">
+            {firstDuration} ........ {firstPrice}
           </div>
         </div>
 
@@ -349,11 +333,11 @@ function VideoPricingCard({ tool }: { tool: string }) {
       </button>
 
       {isOpen && (
-        <div className="mt-3 space-y-1 border-t border-emerald-400/20 pt-3">
+        <div className="mt-3 space-y-1 border-t border-white/10 pt-3">
           {prices.map(([duration, price]) => (
             <div
-              key={duration}
-              className="flex items-center justify-between gap-3 text-xs font-bold text-emerald-50"
+              key={`${title}-${duration}`}
+              className="flex items-center justify-between gap-3 text-[11px] font-bold text-emerald-50"
             >
               <span>{duration}</span>
               <span>{price}</span>
@@ -361,6 +345,21 @@ function VideoPricingCard({ tool }: { tool: string }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function VideoPricingCard() {
+  return (
+    <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+      <div className="mb-3 text-sm font-extrabold text-emerald-300">
+        🎬 Video AI
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <VideoPricingColumn title="Ordinary" prices={ordinaryVideoPrices} />
+        <VideoPricingColumn title="Premium" prices={premiumVideoPrices} />
+      </div>
     </div>
   );
 }
@@ -682,7 +681,8 @@ function VideoTemplatePanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard tool={tool} />
+        <VideoPricingCard />
+
         <UploadMediaBox
           title="1. Upload Photos or Videos"
           description="Photos or videos for your project."
@@ -957,7 +957,8 @@ function LifeEventVideoPanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard tool={tool} />
+        <VideoPricingCard />
+
         <UploadMediaBox
           title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
           description={
@@ -1765,27 +1766,10 @@ export default function DynamicToolWorkspace({
   const getCurrentPicturePrice = () =>
     premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
 
-  const confirmPictureGeneration = () => {
-    const price = getCurrentPicturePrice();
-
-    const ready = window.confirm(
-      `✨ Ready to Generate\n\nCreate your image for ${price}`
+  const confirmPictureGeneration = () =>
+    window.confirm(
+      `✨ Ready to Generate\n\nCreate your image for ${getCurrentPicturePrice()}`
     );
-
-    if (!ready) {
-      return false;
-    }
-
-    const method = window.prompt(
-      "Choose Payment Method\n\n1. M-Pesa\n2. Airtel Money\n3. Visa\n4. Mastercard\n5. PayPal\n\nType the number or name of your preferred method:"
-    );
-
-    if (!method || !method.trim()) {
-      return false;
-    }
-
-    return true;
-  };
 
 
 
@@ -1832,6 +1816,7 @@ export default function DynamicToolWorkspace({
     if (!confirmPictureGeneration()) {
       return;
     }
+
 
     const cleanQuote = quoteText.trim();
 
@@ -3070,10 +3055,7 @@ export default function DynamicToolWorkspace({
           <Button
             type="button"
             disabled={!picturePreview}
-            onClick={() => {
-              if (!confirmPictureGeneration()) return;
-              setHasPreviewedEnhancement(true);
-            }}
+            onClick={() => setHasPreviewedEnhancement(true)}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
