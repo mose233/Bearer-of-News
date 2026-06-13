@@ -735,6 +735,25 @@ export default function CreatorStudio() {
       setIsExporting(false);
     }
   };
+
+  const showGeneratedVideoInPreview = (videoBlob: Blob, fileName: string) => {
+    const videoFile = new File([videoBlob], fileName, {
+      type: videoBlob.type || "video/mp4",
+    });
+
+    const videoPreview = URL.createObjectURL(videoBlob);
+
+    mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
+
+    setMediaFiles([videoFile]);
+    setMediaPreviews([videoPreview]);
+    setSceneDurations([selectedVideoDurationSeconds]);
+    setCurrentIndex(0);
+
+    scrollToLivePreview();
+  };
+
+
   const handleExportPrimaryMedia = async () => {
     if (selectedTool?.category === "Picture AI") {
       if (generatedImageFile || generatedImagePreview) {
@@ -790,6 +809,11 @@ export default function CreatorStudio() {
         selectedVideoDurationSeconds
       );
 
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-silent-video.mp4`
+      );
+
       saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
       alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
@@ -824,6 +848,11 @@ export default function CreatorStudio() {
         voiceBlob: aiVoiceBlob,
         voiceVolume,
       });
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-narrated-video.mp4`
+      );
 
       saveAs(videoBlob, "creator-studio-narrated-video.mp4");
 
@@ -862,6 +891,11 @@ export default function CreatorStudio() {
         backgroundMusic,
         musicVolume,
       });
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-final-video.mp4`
+      );
 
       saveAs(videoBlob, "creator-studio-final-video.mp4");
 
@@ -913,6 +947,11 @@ export default function CreatorStudio() {
           selectedVideoDurationSeconds
         );
 
+        showGeneratedVideoInPreview(
+          videoBlob,
+          `xnewsapp-${selectedVideoDurationSeconds}s-complete-video-no-ai-voice.mp4`
+        );
+
         saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
 
         return;
@@ -932,6 +971,11 @@ export default function CreatorStudio() {
         backgroundMusic,
         musicVolume,
       });
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-complete-ai-video.mp4`
+      );
 
       saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
 
