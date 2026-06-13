@@ -20,6 +20,7 @@ import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
 import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
 import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 import MusicStudioPanel from "@/components/creator/MusicStudioPanel";
+import PaymentModal from "@/components/payments/PaymentModal";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
@@ -1599,6 +1600,7 @@ export default function DynamicToolWorkspace({
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [quoteText, setQuoteText] = useState("");
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
@@ -1677,30 +1679,6 @@ export default function DynamicToolWorkspace({
   const getCurrentPicturePrice = () =>
     premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
 
-  const confirmPictureGeneration = () => {
-    const price = getCurrentPicturePrice();
-
-    const ready = window.confirm(
-      `✨ Ready to Generate\n\nCreate your image for ${price}`
-    );
-
-    if (!ready) {
-      return false;
-    }
-
-    const method = window.prompt(
-      "Choose Payment Method\n\n1. M-Pesa\n2. Airtel Money\n3. Visa\n4. Mastercard\n5. PayPal\n\nType the number or name of your preferred method:"
-    );
-
-    if (!method || !method.trim()) {
-      return false;
-    }
-
-    return true;
-  };
-
-
-
   const wrapCanvasText = (
     context: CanvasRenderingContext2D,
     text: string,
@@ -1741,10 +1719,6 @@ export default function DynamicToolWorkspace({
   };
 
   const generateQuoteImageFile = async () => {
-    if (!confirmPictureGeneration()) {
-      return;
-    }
-
     const cleanQuote = quoteText.trim();
 
     if (!cleanQuote) {
@@ -2982,10 +2956,7 @@ export default function DynamicToolWorkspace({
           <Button
             type="button"
             disabled={!picturePreview}
-            onClick={() => {
-              if (!confirmPictureGeneration()) return;
-              setHasPreviewedEnhancement(true);
-            }}
+            onClick={() => setPaymentModalOpen(true)}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
@@ -3001,6 +2972,16 @@ export default function DynamicToolWorkspace({
             Add to Timeline
           </Button>
         </div>
+
+        <PaymentModal
+          open={paymentModalOpen}
+          price={getCurrentPicturePrice()}
+          onClose={() => setPaymentModalOpen(false)}
+          onPaymentSuccess={() => {
+            setPaymentModalOpen(false);
+            setHasPreviewedEnhancement(true);
+          }}
+        />
       </div>
     );
   }
