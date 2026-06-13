@@ -256,7 +256,7 @@ export default function CreatorStudio() {
 
         generatedFiles.push(result.file);
         generatedPreviews.push(result.previewUrl);
-        generatedDurations.push(scene.duration || 5);
+        generatedDurations.push(scene.duration || selectedVideoDurationSeconds);
       }
 
       setMediaFiles((prev) => [...prev, ...generatedFiles]);
@@ -398,7 +398,11 @@ export default function CreatorStudio() {
 
       setDanceResultMessage(result.message);
 
-      addSceneToTimeline(dancingPhotoFile, dancingPhotoPreview, 5);
+      addSceneToTimeline(
+        dancingPhotoFile,
+        dancingPhotoPreview,
+        selectedVideoDurationSeconds
+      );
 
       alert("Mock dancing video added to timeline.");
     } catch (error) {
@@ -540,7 +544,11 @@ export default function CreatorStudio() {
       return;
     }
 
-    addSceneToTimeline(generatedImageFile, generatedImagePreview, 5);
+    addSceneToTimeline(
+      generatedImageFile,
+      generatedImagePreview,
+      selectedVideoDurationSeconds
+    );
 
     setGeneratedImageFile(null);
     setGeneratedImagePreview("");
@@ -602,7 +610,7 @@ export default function CreatorStudio() {
   };
 
   const handleUpdateSceneDuration = (index: number, duration: number) => {
-    const safeDuration = Math.min(Math.max(duration || 1, 1), 30);
+    const safeDuration = Math.min(Math.max(duration || 1, 1), 60);
 
     setSceneDurations((prev) => {
       const next = [...prev];
@@ -777,7 +785,10 @@ export default function CreatorStudio() {
       setIsRecording(true);
       setExportStatus("Rendering silent MP4...");
 
-      const videoBlob = await exportSilentMp4(imagePreviews);
+      const videoBlob = await exportSilentMp4(
+        imagePreviews,
+        selectedVideoDurationSeconds
+      );
 
       saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
@@ -809,6 +820,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportNarratedMp4({
         imagePreviews,
+        durationSeconds: selectedVideoDurationSeconds,
         voiceBlob: aiVoiceBlob,
         voiceVolume,
       });
@@ -844,6 +856,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
+        durationSeconds: selectedVideoDurationSeconds,
         voiceBlob: aiVoiceBlob,
         voiceVolume,
         backgroundMusic,
@@ -895,7 +908,10 @@ export default function CreatorStudio() {
 
         setExportStatus("Exporting silent fallback MP4...");
 
-        const videoBlob = await exportSilentMp4(imagePreviews);
+        const videoBlob = await exportSilentMp4(
+          imagePreviews,
+          selectedVideoDurationSeconds
+        );
 
         saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
 
@@ -910,6 +926,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
+        durationSeconds: selectedVideoDurationSeconds,
         voiceBlob,
         voiceVolume,
         backgroundMusic,
