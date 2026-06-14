@@ -44,7 +44,7 @@ export default function PreviewPanel({
   const safeCurrentIndex =
     totalScenes > 0 ? Math.min(Math.max(currentIndex, 0), totalScenes - 1) : 0;
 
-  const currentDuration = sceneDurations[safeCurrentIndex] || 5;
+  const currentDuration = sceneDurations[safeCurrentIndex] || 10;
 
   const currentPreview = imagePreviews[safeCurrentIndex];
   const currentFile =
