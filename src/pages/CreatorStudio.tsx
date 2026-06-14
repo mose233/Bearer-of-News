@@ -611,7 +611,7 @@ export default function CreatorStudio() {
 
     setSceneDurations((prev) => [
       ...prev.slice(0, index + 1),
-      prev[index] || 5,
+      prev[index] || selectedVideoDurationSeconds || 10,
       ...prev.slice(index + 1),
     ]);
 
