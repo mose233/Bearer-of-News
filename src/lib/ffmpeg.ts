@@ -1,28 +1,35 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL } from "@ffmpeg/util";
 
 let ffmpeg: FFmpeg | null = null;
+let loadingPromise: Promise<FFmpeg> | null = null;
 
 export const loadFFmpeg = async () => {
-  try {
-    // Return existing instance
-    if (ffmpeg) {
-      return ffmpeg;
-    }
+  if (ffmpeg) return ffmpeg;
+  if (loadingPromise) return loadingPromise;
 
-    ffmpeg = new FFmpeg();
+  loadingPromise = (async () => {
+    const instance = new FFmpeg();
 
-    console.log("Loading FFmpeg core...");
+    const baseURL =
+      "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
 
-    await ffmpeg.load();
+    await instance.load({
+      coreURL: await toBlobURL(
+        `${baseURL}/ffmpeg-core.js`,
+        "text/javascript"
+      ),
+      wasmURL: await toBlobURL(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm"
+      ),
+    });
 
-    console.log("✅ FFmpeg loaded successfully");
+    ffmpeg = instance;
+    return instance;
+  })();
 
-    return ffmpeg;
-  } catch (error) {
-    console.error("❌ FFmpeg load error:", error);
-
-    throw error;
-  }
+  return loadingPromise;
 };
 
 export default loadFFmpeg;
