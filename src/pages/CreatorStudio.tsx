@@ -804,42 +804,39 @@ export default function CreatorStudio() {
 
     await handleExportSilentMp4();
   };
-const handleExportSilentMp4 = async () => {
-  try {
-    if (mediaItems.length === 0) {
-      alert("Please upload or generate images/videos first.");
-      return;
+
+  const handleExportSilentMp4 = async () => {
+    try {
+      if (mediaItems.length === 0) {
+        alert("Please upload or generate images/videos first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setExportStatus("Rendering silent MP4...");
+
+      const videoBlob = await exportSilentMp4(
+        mediaItems,
+        selectedVideoDurationSeconds
+      );
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-silent-video.mp4`
+      );
+
+      saveAs(videoBlob, "creator-studio-silent-video.mp4");
+
+      alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export silent MP4.");
+    } finally {
+      setIsRecording(false);
+      setExportStatus("");
     }
+  };
 
-    setIsRecording(true);
-    setExportStatus("Rendering silent MP4...");
-
-    const duration = getTimelineDuration();
-
-    const videoBlob = await exportSilentMp4(mediaItems, duration);
-
-    showGeneratedVideoInPreview(
-      videoBlob,
-      `xnewsapp-${duration}s-silent-video.mp4`
-    );
-
-    saveAs(videoBlob, `xnewsapp-${duration}s-silent-video.mp4`);
-
-    alert("Silent MP4 exported successfully.");
-  } catch (error) {
-    console.error("Silent MP4 export error:", error);
-
-    alert(
-      error instanceof Error
-        ? `Failed to export silent MP4: ${error.message}`
-        : `Failed to export silent MP4: ${String(error)}`
-    );
-  } finally {
-    setIsRecording(false);
-    setExportStatus("");
-  }
-};
-  
   const handleExportNarratedMp4 = async () => {
     try {
       if (mediaItems.length === 0) {
