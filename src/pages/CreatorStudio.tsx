@@ -264,7 +264,7 @@ export default function CreatorStudio() {
 
         generatedFiles.push(result.file);
         generatedPreviews.push(result.previewUrl);
-        generatedDurations.push(scene.duration || selectedVideoDurationSeconds);
+        generatedDurations.push(scene.duration || getTimelineDuration());
       }
 
       setMediaFiles((prev) => [...prev, ...generatedFiles]);
@@ -330,7 +330,7 @@ export default function CreatorStudio() {
       return;
     }
 
-    addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, selectedVideoDurationSeconds);
+    addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, getTimelineDuration());
 
     alert("Photo music video scene added to timeline.");
   };
@@ -358,7 +358,13 @@ export default function CreatorStudio() {
         musicVolume: 0.9,
       });
 
-      saveAs(videoBlob, "photo-music-video.mp4");
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${getTimelineDuration()}s-photo-music-video.mp4`,
+        getTimelineDuration()
+      );
+
+      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-photo-music-video.mp4`);
 
       alert("Photo music video exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -409,7 +415,7 @@ export default function CreatorStudio() {
       addSceneToTimeline(
         dancingPhotoFile,
         dancingPhotoPreview,
-        selectedVideoDurationSeconds
+        getTimelineDuration()
       );
 
       alert("Mock dancing video added to timeline.");
@@ -490,7 +496,7 @@ export default function CreatorStudio() {
 
       setMultiScenePlan(plan);
 
-      alert("4-scene plan generated.");
+      alert("Scene plan generated.");
     } catch (error) {
       console.error(error);
       alert("Failed to generate scene plan.");
@@ -558,7 +564,7 @@ export default function CreatorStudio() {
     addSceneToTimeline(
       generatedImageFile,
       generatedImagePreview,
-      selectedVideoDurationSeconds
+      getTimelineDuration()
     );
 
     setGeneratedImageFile(null);
@@ -613,7 +619,7 @@ export default function CreatorStudio() {
 
     setSceneDurations((prev) => [
       ...prev.slice(0, index + 1),
-      prev[index] || selectedVideoDurationSeconds || 10,
+      prev[index] || getTimelineDuration(),
       ...prev.slice(index + 1),
     ]);
 
@@ -747,18 +753,24 @@ export default function CreatorStudio() {
     }
   };
 
-  const showGeneratedVideoInPreview = (videoBlob: Blob, fileName: string) => {
+  const showGeneratedVideoInPreview = (
+    videoBlob: Blob,
+    fileName: string,
+    durationSeconds = getTimelineDuration()
+  ) => {
+    const safeDuration = Math.min(Math.max(durationSeconds || 10, 10), 60);
+
     const videoFile = new File([videoBlob], fileName, {
       type: videoBlob.type || "video/mp4",
     });
 
-    const videoPreview = URL.createObjectURL(videoBlob);
+    const videoPreview = URL.createObjectURL(videoFile);
 
     mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
 
     setMediaFiles([videoFile]);
     setMediaPreviews([videoPreview]);
-    setSceneDurations([selectedVideoDurationSeconds]);
+    setSceneDurations([safeDuration]);
     setCurrentIndex(0);
 
     scrollToLivePreview();
@@ -815,17 +827,17 @@ export default function CreatorStudio() {
       setIsRecording(true);
       setExportStatus("Rendering silent MP4...");
 
-      const videoBlob = await exportSilentMp4(
-        mediaItems,
-        selectedVideoDurationSeconds
-      );
+      const duration = getTimelineDuration();
+
+      const videoBlob = await exportSilentMp4(mediaItems, duration);
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-silent-video.mp4`
+        `xnewsapp-${duration}s-silent-video.mp4`,
+        duration
       );
 
-      saveAs(videoBlob, "creator-studio-silent-video.mp4");
+      saveAs(videoBlob, `xnewsapp-${duration}s-silent-video.mp4`);
 
       alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -862,10 +874,11 @@ export default function CreatorStudio() {
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-narrated-video.mp4`
+        `xnewsapp-${getTimelineDuration()}s-narrated-video.mp4`,
+        getTimelineDuration()
       );
 
-      saveAs(videoBlob, "creator-studio-narrated-video.mp4");
+      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-narrated-video.mp4`);
 
       alert("Narrated MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -896,7 +909,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
-        durationSeconds: selectedVideoDurationSeconds,
+        durationSeconds: getTimelineDuration(),
         voiceBlob: aiVoiceBlob,
         voiceVolume,
         backgroundMusic,
@@ -905,10 +918,11 @@ export default function CreatorStudio() {
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-final-video.mp4`
+        `xnewsapp-${getTimelineDuration()}s-final-video.mp4`,
+        getTimelineDuration()
       );
 
-      saveAs(videoBlob, "creator-studio-final-video.mp4");
+      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-final-video.mp4`);
 
       alert("Final MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -953,17 +967,17 @@ export default function CreatorStudio() {
 
         setExportStatus("Exporting silent fallback MP4...");
 
-        const videoBlob = await exportSilentMp4(
-          mediaItems,
-          selectedVideoDurationSeconds
-        );
+        const duration = getTimelineDuration();
+
+        const videoBlob = await exportSilentMp4(mediaItems, duration);
 
         showGeneratedVideoInPreview(
           videoBlob,
-          `xnewsapp-${selectedVideoDurationSeconds}s-complete-video-no-ai-voice.mp4`
+          `xnewsapp-${duration}s-complete-video-no-ai-voice.mp4`,
+          duration
         );
 
-        saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
+        saveAs(videoBlob, `xnewsapp-${duration}s-complete-video-no-ai-voice.mp4`);
 
         return;
       }
@@ -976,7 +990,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
-        durationSeconds: selectedVideoDurationSeconds,
+        durationSeconds: getTimelineDuration(),
         voiceBlob,
         voiceVolume,
         backgroundMusic,
@@ -985,10 +999,11 @@ export default function CreatorStudio() {
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-complete-ai-video.mp4`
+        `xnewsapp-${getTimelineDuration()}s-complete-ai-video.mp4`,
+        getTimelineDuration()
       );
 
-      saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
+      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-complete-ai-video.mp4`);
 
       alert("Video generated successfully. Download your MP4 and share it on social media.");
     } catch (error) {
