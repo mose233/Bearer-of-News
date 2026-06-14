@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Play,
   Pause,
@@ -27,6 +27,14 @@ type PreviewPanelProps = {
   onUpdateSceneDuration?: (index: number, duration: number) => void;
 };
 
+function formatTime(seconds: number) {
+  const safeSeconds = Math.max(0, Math.floor(seconds || 0));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
+
 export default function PreviewPanel({
   mediaFiles,
   imagePreviews,
@@ -37,8 +45,10 @@ export default function PreviewPanel({
   facebookCaption,
   sceneDurations = [],
   previewMode = "image",
-  onUpdateSceneDuration,
 }: PreviewPanelProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [previewTime, setPreviewTime] = useState(0);
+
   const totalScenes = Math.max(mediaFiles.length, imagePreviews.length);
 
   const safeCurrentIndex =
@@ -61,6 +71,40 @@ export default function PreviewPanel({
     currentFile?.type?.startsWith("image/") || Boolean(currentPreview?.preview);
 
   const shouldAnimatePreview = previewMode !== "image" && isCurrentImage;
+
+  useEffect(() => {
+    setPreviewTime(0);
+
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+    }
+  }, [previewUrl, safeCurrentIndex]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const timer = window.setInterval(() => {
+      setPreviewTime((prev) => {
+        if (prev >= currentDuration) return currentDuration;
+        return prev + 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [isPlaying, currentDuration]);
+
+  const togglePreview = () => {
+    const nextPlaying = !isPlaying;
+    setIsPlaying(nextPlaying);
+
+    if (videoRef.current) {
+      if (nextPlaying) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
 
   const nextSlide = () => {
     if (totalScenes === 0) return;
@@ -94,11 +138,18 @@ export default function PreviewPanel({
         <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
           {isCurrentVideo && previewUrl ? (
             <video
+              ref={videoRef}
               src={previewUrl}
-              controls
               playsInline
               preload="metadata"
               className="h-full w-full rounded-xl bg-black object-contain"
+              onTimeUpdate={(event) => {
+                setPreviewTime(event.currentTarget.currentTime);
+              }}
+              onEnded={() => {
+                setIsPlaying(false);
+                setPreviewTime(currentDuration);
+              }}
             />
           ) : isCurrentImage && previewUrl ? (
             <img
@@ -115,9 +166,7 @@ export default function PreviewPanel({
             </div>
           )}
 
-          {!isCurrentVideo && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/15" />
-          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/15" />
 
           <div className="absolute left-2 top-2 rounded-full bg-black/50 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
             {safeCurrentIndex + 1} / {totalScenes}
@@ -128,7 +177,7 @@ export default function PreviewPanel({
           </div>
 
           {facebookCaption && !isCurrentVideo && (
-            <div className="absolute bottom-12 left-2 right-2">
+            <div className="absolute bottom-14 left-2 right-2">
               <div className="rounded-xl bg-black/45 px-2 py-2 backdrop-blur-md">
                 <p className="line-clamp-4 whitespace-pre-wrap text-[11px] font-semibold leading-4 text-white drop-shadow-lg">
                   {facebookCaption}
@@ -157,23 +206,37 @@ export default function PreviewPanel({
             </>
           )}
 
-          {!isCurrentVideo && (
+          <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-full bg-black/70 px-2 py-1.5 backdrop-blur">
             <button
               type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition hover:scale-105"
+              onClick={togglePreview}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-black shadow-lg"
             >
               {isPlaying ? (
-                <Pause className="h-4 w-4" />
+                <Pause className="h-3.5 w-3.5" />
               ) : (
-                <Play className="h-4 w-4" />
+                <Play className="h-3.5 w-3.5" />
               )}
             </button>
-          )}
+
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/20">
+              <div
+                className="h-full rounded-full bg-white"
+                style={{
+                  width: `${Math.min(
+                    (previewTime / currentDuration) * 100,
+                    100
+                  )}%`,
+                }}
+              />
+            </div>
+
+            <div className="min-w-[58px] text-right text-[10px] font-bold text-white">
+              {formatTime(previewTime)} / {formatTime(currentDuration)}
+            </div>
+          </div>
         </div>
       </div>
-
-    
     </div>
   );
 }
