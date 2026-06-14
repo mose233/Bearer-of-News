@@ -107,6 +107,8 @@ export async function exportMediaMp4(
     await ffmpeg.writeFile("input-image.png", new Uint8Array(mediaBuffer));
 
     await ffmpeg.exec([
+      "-framerate",
+      "30",
       "-loop",
       "1",
       "-i",
@@ -163,6 +165,8 @@ export async function createSlideshowVideo(
   await ffmpeg.writeFile("input.png", new Uint8Array(imageBuffer));
 
   await ffmpeg.exec([
+    "-framerate",
+    "30",
     "-loop",
     "1",
     "-i",
@@ -204,7 +208,8 @@ export async function exportNarratedMp4({
     throw new Error("Please generate AI voice first.");
   }
 
-  const ffmpeg = await createSlideshowVideo(imagePreviews, durationSeconds);
+  const safeDuration = getSafeDuration(durationSeconds);
+  const ffmpeg = await createSlideshowVideo(imagePreviews, safeDuration);
   const voiceBuffer = await voiceBlob.arrayBuffer();
 
   await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
@@ -215,11 +220,13 @@ export async function exportNarratedMp4({
     "-i",
     "voiceover.mp3",
     "-filter_complex",
-    `[1:a]volume=${voiceVolume}[voice]`,
+    `[1:a]volume=${voiceVolume},apad[aout]`,
     "-map",
     "0:v",
     "-map",
-    "[voice]",
+    "[aout]",
+    "-t",
+    String(safeDuration),
     "-c:v",
     "copy",
     "-c:a",
@@ -246,7 +253,8 @@ export async function exportFinalMixedMp4({
     throw new Error("Please generate AI voice first.");
   }
 
-  const ffmpeg = await createSlideshowVideo(imagePreviews, durationSeconds);
+  const safeDuration = getSafeDuration(durationSeconds);
+  const ffmpeg = await createSlideshowVideo(imagePreviews, safeDuration);
   const voiceBuffer = await voiceBlob.arrayBuffer();
 
   await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
@@ -266,11 +274,13 @@ export async function exportFinalMixedMp4({
       "-i",
       "background-music",
       "-filter_complex",
-      `[1:a]volume=${voiceVolume}[voice];[2:a]volume=${musicVolume}[music];[voice][music]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+      `[1:a]volume=${voiceVolume},apad[voice];[2:a]volume=${musicVolume}[music];[voice][music]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
       "-map",
       "0:v",
       "-map",
       "[aout]",
+      "-t",
+      String(safeDuration),
       "-c:v",
       "copy",
       "-c:a",
@@ -286,11 +296,13 @@ export async function exportFinalMixedMp4({
       "-i",
       "voiceover.mp3",
       "-filter_complex",
-      `[1:a]volume=${voiceVolume}[voice]`,
+      `[1:a]volume=${voiceVolume},apad[aout]`,
       "-map",
       "0:v",
       "-map",
-      "[voice]",
+      "[aout]",
+      "-t",
+      String(safeDuration),
       "-c:v",
       "copy",
       "-c:a",
@@ -345,6 +357,8 @@ export async function exportPhotoMusicVideoMp4({
   await ffmpeg.writeFile("photo-music-audio", new Uint8Array(audioBuffer));
 
   await ffmpeg.exec([
+    "-framerate",
+    "30",
     "-loop",
     "1",
     "-i",
