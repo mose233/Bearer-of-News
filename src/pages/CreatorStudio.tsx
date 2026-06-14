@@ -89,7 +89,8 @@ export default function CreatorStudio() {
     useState<AiToolSelection | null>(null);
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
-  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
+  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] =
+    useState<10 | 30 | 60>(10);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
@@ -180,8 +181,28 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-  return selectedVideoDurationSeconds || 10;
-};
+    if (
+      selectedVideoDurationSeconds === 10 ||
+      selectedVideoDurationSeconds === 30 ||
+      selectedVideoDurationSeconds === 60
+    ) {
+      return selectedVideoDurationSeconds;
+    }
+
+    return 10;
+  };
+
+  const handleVideoDurationChange = (duration: number) => {
+    const safeDuration: 10 | 30 | 60 =
+      duration === 30 ? 30 : duration === 60 ? 60 : 10;
+
+    setSelectedVideoDurationSeconds(safeDuration);
+
+    // Keep the preview timeline in sync with the duration selected in Creator Studio.
+    // This makes a 10s selection show as 10s in the generated/preview timeline,
+    // 30s as 30s, and 60s as 60s.
+    setSceneDurations((prev) => prev.map(() => safeDuration));
+  };
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
@@ -238,9 +259,9 @@ export default function CreatorStudio() {
       setAiVoiceBlob(null);
 
       const plan = generateMultiScenePlan(
-  enrichedPrompt,
-  getTimelineDuration()
-);
+        enrichedPrompt,
+        getTimelineDuration()
+      );
       setMultiScenePlan(plan);
 
       if (plan.length === 0) {
@@ -490,9 +511,9 @@ export default function CreatorStudio() {
       setGeneratedImagePreview("");
 
       const plan = generateMultiScenePlan(
-  prompt,
-  getTimelineDuration()
-);
+        prompt,
+        getTimelineDuration()
+      );
 
       setMultiScenePlan(plan);
 
@@ -1116,7 +1137,8 @@ export default function CreatorStudio() {
             onAddEnhancedPhotoToTimeline={(file, preview) =>
               addSceneToTimeline(file, preview, getTimelineDuration())
             }
-            onVideoDurationChange={setSelectedVideoDurationSeconds}
+            selectedVideoDurationSeconds={selectedVideoDurationSeconds}
+            onVideoDurationChange={handleVideoDurationChange}
           />
         </div>
 
