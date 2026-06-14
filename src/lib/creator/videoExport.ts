@@ -41,6 +41,18 @@ function createMp4Blob(data: Uint8Array | string) {
   return blob;
 }
 
+function getInputImageName(file: File) {
+  if (file.type.includes("jpeg") || file.type.includes("jpg")) {
+    return "input-image.jpg";
+  }
+
+  if (file.type.includes("webp")) {
+    return "input-image.webp";
+  }
+
+  return "input-image.png";
+}
+
 async function cleanupFFmpegFiles(files: string[]) {
   const ffmpeg = await loadFFmpeg();
 
@@ -55,6 +67,19 @@ async function cleanupFFmpegFiles(files: string[]) {
   return ffmpeg;
 }
 
+async function runFFmpeg(command: string[], label: string) {
+  const ffmpeg = await loadFFmpeg();
+
+  try {
+    await ffmpeg.exec(command);
+  } catch (error) {
+    console.error(`${label} failed:`, error);
+    console.error("FFmpeg command:", command.join(" "));
+
+    throw new Error(`${label} failed. Check console for FFmpeg details.`);
+  }
+}
+
 export async function exportMediaMp4(
   mediaItems: ImagePreviewItem[],
   durationSeconds = 10
@@ -66,9 +91,17 @@ export async function exportMediaMp4(
   const safeDuration = getSafeDuration(durationSeconds);
   const firstItem = mediaItems[0];
 
+  if (!firstItem?.file) {
+    throw new Error("Media file is missing.");
+  }
+
+  const inputImageName = getInputImageName(firstItem.file);
+
   const ffmpeg = await cleanupFFmpegFiles([
     "media-output.mp4",
     "input-image.png",
+    "input-image.jpg",
+    "input-image.webp",
     "input-video.mp4",
   ]);
 
@@ -81,54 +114,62 @@ export async function exportMediaMp4(
   if (firstItem.file.type.startsWith("video/")) {
     await ffmpeg.writeFile("input-video.mp4", new Uint8Array(mediaBuffer));
 
-    await ffmpeg.exec([
-      "-stream_loop",
-      "-1",
-      "-i",
-      "input-video.mp4",
-      "-t",
-      String(safeDuration),
-      "-vf",
-      "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
-      "-r",
-      "30",
-      "-an",
-      "-c:v",
-      "libx264",
-      "-pix_fmt",
-      "yuv420p",
-      "-preset",
-      "ultrafast",
-      "-movflags",
-      "+faststart",
-      "media-output.mp4",
-    ]);
+    await runFFmpeg(
+      [
+        "-y",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "input-video.mp4",
+        "-t",
+        String(safeDuration),
+        "-vf",
+        "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
+        "-r",
+        "30",
+        "-an",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-preset",
+        "ultrafast",
+        "-movflags",
+        "+faststart",
+        "media-output.mp4",
+      ],
+      "Video export"
+    );
   } else {
-    await ffmpeg.writeFile("input-image.png", new Uint8Array(mediaBuffer));
+    await ffmpeg.writeFile(inputImageName, new Uint8Array(mediaBuffer));
 
-    await ffmpeg.exec([
-      "-framerate",
-      "30",
-      "-loop",
-      "1",
-      "-i",
-      "input-image.png",
-      "-t",
-      String(safeDuration),
-      "-vf",
-      "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
-      "-r",
-      "30",
-      "-c:v",
-      "libx264",
-      "-pix_fmt",
-      "yuv420p",
-      "-preset",
-      "ultrafast",
-      "-movflags",
-      "+faststart",
-      "media-output.mp4",
-    ]);
+    await runFFmpeg(
+      [
+        "-y",
+        "-loop",
+        "1",
+        "-framerate",
+        "30",
+        "-i",
+        inputImageName,
+        "-t",
+        String(safeDuration),
+        "-vf",
+        "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
+        "-r",
+        "30",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-preset",
+        "ultrafast",
+        "-movflags",
+        "+faststart",
+        "media-output.mp4",
+      ],
+      "Image to MP4 export"
+    );
   }
 
   const data = await ffmpeg.readFile("media-output.mp4");
@@ -145,6 +186,13 @@ export async function createSlideshowVideo(
   }
 
   const safeDuration = getSafeDuration(durationSeconds);
+  const firstImage = imagePreviews[0];
+
+  if (!firstImage?.file) {
+    throw new Error("Image file is missing.");
+  }
+
+  const inputImageName = getInputImageName(firstImage.file);
 
   const ffmpeg = await cleanupFFmpegFiles([
     "slideshow.mp4",
@@ -153,40 +201,46 @@ export async function createSlideshowVideo(
     "voiceover.mp3",
     "background-music",
     "input.png",
+    "input-image.png",
+    "input-image.jpg",
+    "input-image.webp",
   ]);
 
-  const firstImage = imagePreviews[0];
   const imageBuffer = await firstImage.file.arrayBuffer();
 
   if (imageBuffer.byteLength === 0) {
     throw new Error("Uploaded image is empty.");
   }
 
-  await ffmpeg.writeFile("input.png", new Uint8Array(imageBuffer));
+  await ffmpeg.writeFile(inputImageName, new Uint8Array(imageBuffer));
 
-  await ffmpeg.exec([
-    "-framerate",
-    "30",
-    "-loop",
-    "1",
-    "-i",
-    "input.png",
-    "-t",
-    String(safeDuration),
-    "-vf",
-    "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
-    "-r",
-    "30",
-    "-c:v",
-    "libx264",
-    "-pix_fmt",
-    "yuv420p",
-    "-preset",
-    "ultrafast",
-    "-movflags",
-    "+faststart",
-    "slideshow.mp4",
-  ]);
+  await runFFmpeg(
+    [
+      "-y",
+      "-loop",
+      "1",
+      "-framerate",
+      "30",
+      "-i",
+      inputImageName,
+      "-t",
+      String(safeDuration),
+      "-vf",
+      "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
+      "-r",
+      "30",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-preset",
+      "ultrafast",
+      "-movflags",
+      "+faststart",
+      "slideshow.mp4",
+    ],
+    "Slideshow export"
+  );
 
   return ffmpeg;
 }
@@ -212,29 +266,37 @@ export async function exportNarratedMp4({
   const ffmpeg = await createSlideshowVideo(imagePreviews, safeDuration);
   const voiceBuffer = await voiceBlob.arrayBuffer();
 
+  if (voiceBuffer.byteLength === 0) {
+    throw new Error("Voice audio is empty.");
+  }
+
   await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
 
-  await ffmpeg.exec([
-    "-i",
-    "slideshow.mp4",
-    "-i",
-    "voiceover.mp3",
-    "-filter_complex",
-    `[1:a]volume=${voiceVolume},apad[aout]`,
-    "-map",
-    "0:v",
-    "-map",
-    "[aout]",
-    "-t",
-    String(safeDuration),
-    "-c:v",
-    "copy",
-    "-c:a",
-    "aac",
-    "-movflags",
-    "+faststart",
-    "final-video.mp4",
-  ]);
+  await runFFmpeg(
+    [
+      "-y",
+      "-i",
+      "slideshow.mp4",
+      "-i",
+      "voiceover.mp3",
+      "-filter_complex",
+      `[1:a]volume=${voiceVolume},apad[aout]`,
+      "-map",
+      "0:v",
+      "-map",
+      "[aout]",
+      "-t",
+      String(safeDuration),
+      "-c:v",
+      "copy",
+      "-c:a",
+      "aac",
+      "-movflags",
+      "+faststart",
+      "final-video.mp4",
+    ],
+    "Narrated MP4 export"
+  );
 
   const data = await ffmpeg.readFile("final-video.mp4");
 
@@ -257,60 +319,76 @@ export async function exportFinalMixedMp4({
   const ffmpeg = await createSlideshowVideo(imagePreviews, safeDuration);
   const voiceBuffer = await voiceBlob.arrayBuffer();
 
+  if (voiceBuffer.byteLength === 0) {
+    throw new Error("Voice audio is empty.");
+  }
+
   await ffmpeg.writeFile("voiceover.mp3", new Uint8Array(voiceBuffer));
 
   if (backgroundMusic) {
     const musicBuffer = await backgroundMusic.arrayBuffer();
 
+    if (musicBuffer.byteLength === 0) {
+      throw new Error("Background music is empty.");
+    }
+
     await ffmpeg.writeFile("background-music", new Uint8Array(musicBuffer));
 
-    await ffmpeg.exec([
-      "-i",
-      "slideshow.mp4",
-      "-i",
-      "voiceover.mp3",
-      "-stream_loop",
-      "-1",
-      "-i",
-      "background-music",
-      "-filter_complex",
-      `[1:a]volume=${voiceVolume},apad[voice];[2:a]volume=${musicVolume}[music];[voice][music]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
-      "-map",
-      "0:v",
-      "-map",
-      "[aout]",
-      "-t",
-      String(safeDuration),
-      "-c:v",
-      "copy",
-      "-c:a",
-      "aac",
-      "-movflags",
-      "+faststart",
-      "final-mixed-video.mp4",
-    ]);
+    await runFFmpeg(
+      [
+        "-y",
+        "-i",
+        "slideshow.mp4",
+        "-i",
+        "voiceover.mp3",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "background-music",
+        "-filter_complex",
+        `[1:a]volume=${voiceVolume},apad[voice];[2:a]volume=${musicVolume}[music];[voice][music]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+        "-map",
+        "0:v",
+        "-map",
+        "[aout]",
+        "-t",
+        String(safeDuration),
+        "-c:v",
+        "copy",
+        "-c:a",
+        "aac",
+        "-movflags",
+        "+faststart",
+        "final-mixed-video.mp4",
+      ],
+      "Final mixed MP4 export"
+    );
   } else {
-    await ffmpeg.exec([
-      "-i",
-      "slideshow.mp4",
-      "-i",
-      "voiceover.mp3",
-      "-filter_complex",
-      `[1:a]volume=${voiceVolume},apad[aout]`,
-      "-map",
-      "0:v",
-      "-map",
-      "[aout]",
-      "-t",
-      String(safeDuration),
-      "-c:v",
-      "copy",
-      "-c:a",
-      "aac",
-      "-movflags",
-      "+faststart",
-      "final-mixed-video.mp4",
-    ]);
+    await runFFmpeg(
+      [
+        "-y",
+        "-i",
+        "slideshow.mp4",
+        "-i",
+        "voiceover.mp3",
+        "-filter_complex",
+        `[1:a]volume=${voiceVolume},apad[aout]`,
+        "-map",
+        "0:v",
+        "-map",
+        "[aout]",
+        "-t",
+        String(safeDuration),
+        "-c:v",
+        "copy",
+        "-c:a",
+        "aac",
+        "-movflags",
+        "+faststart",
+        "final-mixed-video.mp4",
+      ],
+      "Final MP4 export"
+    );
   }
 
   const data = await ffmpeg.readFile("final-mixed-video.mp4");
@@ -333,10 +411,13 @@ export async function exportPhotoMusicVideoMp4({
   }
 
   const safeDuration = getSafeDuration(durationSeconds);
+  const inputImageName = getInputImageName(imageFile);
 
   const ffmpeg = await cleanupFFmpegFiles([
     "photo-music-video.mp4",
     "photo-music-image.png",
+    "photo-music-image.jpg",
+    "photo-music-image.webp",
     "photo-music-audio",
   ]);
 
@@ -346,7 +427,14 @@ export async function exportPhotoMusicVideoMp4({
     throw new Error("Uploaded photo is empty.");
   }
 
-  await ffmpeg.writeFile("photo-music-image.png", new Uint8Array(imageBuffer));
+  const photoImageName =
+    inputImageName === "input-image.jpg"
+      ? "photo-music-image.jpg"
+      : inputImageName === "input-image.webp"
+        ? "photo-music-image.webp"
+        : "photo-music-image.png";
+
+  await ffmpeg.writeFile(photoImageName, new Uint8Array(imageBuffer));
 
   const audioBuffer = await audioFile.arrayBuffer();
 
@@ -356,35 +444,39 @@ export async function exportPhotoMusicVideoMp4({
 
   await ffmpeg.writeFile("photo-music-audio", new Uint8Array(audioBuffer));
 
-  await ffmpeg.exec([
-    "-framerate",
-    "30",
-    "-loop",
-    "1",
-    "-i",
-    "photo-music-image.png",
-    "-stream_loop",
-    "-1",
-    "-i",
-    "photo-music-audio",
-    "-t",
-    String(safeDuration),
-    "-vf",
-    "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
-    "-filter:a",
-    `volume=${musicVolume}`,
-    "-c:v",
-    "libx264",
-    "-c:a",
-    "aac",
-    "-pix_fmt",
-    "yuv420p",
-    "-preset",
-    "ultrafast",
-    "-movflags",
-    "+faststart",
-    "photo-music-video.mp4",
-  ]);
+  await runFFmpeg(
+    [
+      "-y",
+      "-loop",
+      "1",
+      "-framerate",
+      "30",
+      "-i",
+      photoImageName,
+      "-stream_loop",
+      "-1",
+      "-i",
+      "photo-music-audio",
+      "-t",
+      String(safeDuration),
+      "-vf",
+      "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,format=yuv420p",
+      "-filter:a",
+      `volume=${musicVolume}`,
+      "-c:v",
+      "libx264",
+      "-c:a",
+      "aac",
+      "-pix_fmt",
+      "yuv420p",
+      "-preset",
+      "ultrafast",
+      "-movflags",
+      "+faststart",
+      "photo-music-video.mp4",
+    ],
+    "Photo music video export"
+  );
 
   const data = await ffmpeg.readFile("photo-music-video.mp4");
 
