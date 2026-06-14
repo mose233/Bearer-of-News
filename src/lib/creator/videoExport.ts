@@ -23,7 +23,7 @@ export type ExportPhotoMusicVideoOptions = {
 };
 
 function getSafeDuration(durationSeconds?: number) {
-  return Math.min(Math.max(durationSeconds || 10, 5), 60);
+  return Math.min(Math.max(durationSeconds || 10, 10), 60);
 }
 
 function createMp4Blob(data: Uint8Array | string) {
