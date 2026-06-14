@@ -184,7 +184,7 @@ export default function CreatorStudio() {
       return selectedVideoDurationSeconds;
     }
 
-    return 5;
+    return 10;
   };
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
@@ -241,7 +241,10 @@ export default function CreatorStudio() {
       setVoiceText(generated.voice);
       setAiVoiceBlob(null);
 
-      const plan = generateMultiScenePlan(enrichedPrompt, 5);
+      const plan = generateMultiScenePlan(
+  enrichedPrompt,
+  getTimelineDuration()
+);
       setMultiScenePlan(plan);
 
       if (plan.length === 0) {
@@ -853,7 +856,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportNarratedMp4({
         imagePreviews,
-        durationSeconds: selectedVideoDurationSeconds,
+        durationSeconds: getTimelineDuration(),
         voiceBlob: aiVoiceBlob,
         voiceVolume,
       });
