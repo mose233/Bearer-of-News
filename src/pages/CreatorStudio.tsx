@@ -863,7 +863,11 @@ export default function CreatorStudio() {
       alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
-      alert("Failed to export silent MP4.");
+      alert(
+  error instanceof Error
+    ? `Failed to export silent MP4: ${error.message}`
+    : "Failed to export silent MP4."
+);
     } finally {
       setIsRecording(false);
       setExportStatus("");
