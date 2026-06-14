@@ -89,8 +89,7 @@ export default function CreatorStudio() {
     useState<AiToolSelection | null>(null);
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
-  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] =
-    useState<10 | 30 | 60>(10);
+  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
@@ -181,28 +180,8 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-    if (
-      selectedVideoDurationSeconds === 10 ||
-      selectedVideoDurationSeconds === 30 ||
-      selectedVideoDurationSeconds === 60
-    ) {
-      return selectedVideoDurationSeconds;
-    }
-
-    return 10;
-  };
-
-  const handleVideoDurationChange = (duration: number) => {
-    const safeDuration: 10 | 30 | 60 =
-      duration === 30 ? 30 : duration === 60 ? 60 : 10;
-
-    setSelectedVideoDurationSeconds(safeDuration);
-
-    // Keep the preview timeline in sync with the duration selected in Creator Studio.
-    // This makes a 10s selection show as 10s in the generated/preview timeline,
-    // 30s as 30s, and 60s as 60s.
-    setSceneDurations((prev) => prev.map(() => safeDuration));
-  };
+  return selectedVideoDurationSeconds || 10;
+};
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
@@ -259,9 +238,9 @@ export default function CreatorStudio() {
       setAiVoiceBlob(null);
 
       const plan = generateMultiScenePlan(
-        enrichedPrompt,
-        getTimelineDuration()
-      );
+  enrichedPrompt,
+  getTimelineDuration()
+);
       setMultiScenePlan(plan);
 
       if (plan.length === 0) {
@@ -285,7 +264,7 @@ export default function CreatorStudio() {
 
         generatedFiles.push(result.file);
         generatedPreviews.push(result.previewUrl);
-        generatedDurations.push(scene.duration || getTimelineDuration());
+        generatedDurations.push(scene.duration || selectedVideoDurationSeconds);
       }
 
       setMediaFiles((prev) => [...prev, ...generatedFiles]);
@@ -351,7 +330,7 @@ export default function CreatorStudio() {
       return;
     }
 
-    addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, getTimelineDuration());
+    addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, selectedVideoDurationSeconds);
 
     alert("Photo music video scene added to timeline.");
   };
@@ -379,13 +358,7 @@ export default function CreatorStudio() {
         musicVolume: 0.9,
       });
 
-      showGeneratedVideoInPreview(
-        videoBlob,
-        `xnewsapp-${getTimelineDuration()}s-photo-music-video.mp4`,
-        getTimelineDuration()
-      );
-
-      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-photo-music-video.mp4`);
+      saveAs(videoBlob, "photo-music-video.mp4");
 
       alert("Photo music video exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -436,7 +409,7 @@ export default function CreatorStudio() {
       addSceneToTimeline(
         dancingPhotoFile,
         dancingPhotoPreview,
-        getTimelineDuration()
+        selectedVideoDurationSeconds
       );
 
       alert("Mock dancing video added to timeline.");
@@ -511,13 +484,13 @@ export default function CreatorStudio() {
       setGeneratedImagePreview("");
 
       const plan = generateMultiScenePlan(
-        prompt,
-        getTimelineDuration()
-      );
+  prompt,
+  getTimelineDuration()
+);
 
       setMultiScenePlan(plan);
 
-      alert("Scene plan generated.");
+      alert("4-scene plan generated.");
     } catch (error) {
       console.error(error);
       alert("Failed to generate scene plan.");
@@ -585,7 +558,7 @@ export default function CreatorStudio() {
     addSceneToTimeline(
       generatedImageFile,
       generatedImagePreview,
-      getTimelineDuration()
+      selectedVideoDurationSeconds
     );
 
     setGeneratedImageFile(null);
@@ -640,7 +613,7 @@ export default function CreatorStudio() {
 
     setSceneDurations((prev) => [
       ...prev.slice(0, index + 1),
-      prev[index] || getTimelineDuration(),
+      prev[index] || selectedVideoDurationSeconds || 10,
       ...prev.slice(index + 1),
     ]);
 
@@ -774,24 +747,18 @@ export default function CreatorStudio() {
     }
   };
 
-  const showGeneratedVideoInPreview = (
-    videoBlob: Blob,
-    fileName: string,
-    durationSeconds = getTimelineDuration()
-  ) => {
-    const safeDuration = Math.min(Math.max(durationSeconds || 10, 10), 60);
-
+  const showGeneratedVideoInPreview = (videoBlob: Blob, fileName: string) => {
     const videoFile = new File([videoBlob], fileName, {
       type: videoBlob.type || "video/mp4",
     });
 
-    const videoPreview = URL.createObjectURL(videoFile);
+    const videoPreview = URL.createObjectURL(videoBlob);
 
     mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
 
     setMediaFiles([videoFile]);
     setMediaPreviews([videoPreview]);
-    setSceneDurations([safeDuration]);
+    setSceneDurations([selectedVideoDurationSeconds]);
     setCurrentIndex(0);
 
     scrollToLivePreview();
@@ -848,26 +815,22 @@ export default function CreatorStudio() {
       setIsRecording(true);
       setExportStatus("Rendering silent MP4...");
 
-      const duration = getTimelineDuration();
-
-      const videoBlob = await exportSilentMp4(mediaItems, duration);
+      const videoBlob = await exportSilentMp4(
+        mediaItems,
+        selectedVideoDurationSeconds
+      );
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${duration}s-silent-video.mp4`,
-        duration
+        `xnewsapp-${selectedVideoDurationSeconds}s-silent-video.mp4`
       );
 
-      saveAs(videoBlob, `xnewsapp-${duration}s-silent-video.mp4`);
+      saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
       alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
       console.error(error);
-      alert(
-  error instanceof Error
-    ? `Failed to export silent MP4: ${error.message}`
-    : "Failed to export silent MP4."
-);
+      alert("Failed to export silent MP4.");
     } finally {
       setIsRecording(false);
       setExportStatus("");
@@ -899,11 +862,10 @@ export default function CreatorStudio() {
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${getTimelineDuration()}s-narrated-video.mp4`,
-        getTimelineDuration()
+        `xnewsapp-${selectedVideoDurationSeconds}s-narrated-video.mp4`
       );
 
-      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-narrated-video.mp4`);
+      saveAs(videoBlob, "creator-studio-narrated-video.mp4");
 
       alert("Narrated MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -934,7 +896,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
-        durationSeconds: getTimelineDuration(),
+        durationSeconds: selectedVideoDurationSeconds,
         voiceBlob: aiVoiceBlob,
         voiceVolume,
         backgroundMusic,
@@ -943,11 +905,10 @@ export default function CreatorStudio() {
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${getTimelineDuration()}s-final-video.mp4`,
-        getTimelineDuration()
+        `xnewsapp-${selectedVideoDurationSeconds}s-final-video.mp4`
       );
 
-      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-final-video.mp4`);
+      saveAs(videoBlob, "creator-studio-final-video.mp4");
 
       alert("Final MP4 exported successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -992,17 +953,17 @@ export default function CreatorStudio() {
 
         setExportStatus("Exporting silent fallback MP4...");
 
-        const duration = getTimelineDuration();
-
-        const videoBlob = await exportSilentMp4(mediaItems, duration);
+        const videoBlob = await exportSilentMp4(
+          mediaItems,
+          selectedVideoDurationSeconds
+        );
 
         showGeneratedVideoInPreview(
           videoBlob,
-          `xnewsapp-${duration}s-complete-video-no-ai-voice.mp4`,
-          duration
+          `xnewsapp-${selectedVideoDurationSeconds}s-complete-video-no-ai-voice.mp4`
         );
 
-        saveAs(videoBlob, `xnewsapp-${duration}s-complete-video-no-ai-voice.mp4`);
+        saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
 
         return;
       }
@@ -1015,7 +976,7 @@ export default function CreatorStudio() {
 
       const videoBlob = await exportFinalMixedMp4({
         imagePreviews,
-        durationSeconds: getTimelineDuration(),
+        durationSeconds: selectedVideoDurationSeconds,
         voiceBlob,
         voiceVolume,
         backgroundMusic,
@@ -1024,11 +985,10 @@ export default function CreatorStudio() {
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${getTimelineDuration()}s-complete-ai-video.mp4`,
-        getTimelineDuration()
+        `xnewsapp-${selectedVideoDurationSeconds}s-complete-ai-video.mp4`
       );
 
-      saveAs(videoBlob, `xnewsapp-${getTimelineDuration()}s-complete-ai-video.mp4`);
+      saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
 
       alert("Video generated successfully. Download your MP4 and share it on social media.");
     } catch (error) {
@@ -1141,8 +1101,7 @@ export default function CreatorStudio() {
             onAddEnhancedPhotoToTimeline={(file, preview) =>
               addSceneToTimeline(file, preview, getTimelineDuration())
             }
-            selectedVideoDurationSeconds={selectedVideoDurationSeconds}
-            onVideoDurationChange={handleVideoDurationChange}
+            onVideoDurationChange={setSelectedVideoDurationSeconds}
           />
         </div>
 
