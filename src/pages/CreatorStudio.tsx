@@ -180,12 +180,8 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-    if (selectedTool?.category === "Video AI") {
-      return selectedVideoDurationSeconds;
-    }
-
-    return 10;
-  };
+  return selectedVideoDurationSeconds || 10;
+};
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
@@ -487,7 +483,10 @@ export default function CreatorStudio() {
       setGeneratedImageFile(null);
       setGeneratedImagePreview("");
 
-      const plan = generateMultiScenePlan(prompt, 4);
+      const plan = generateMultiScenePlan(
+  prompt,
+  getTimelineDuration()
+);
 
       setMultiScenePlan(plan);
 
