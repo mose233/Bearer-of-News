@@ -55,6 +55,7 @@ export default function PreviewPanel({
     totalScenes > 0 ? Math.min(Math.max(currentIndex, 0), totalScenes - 1) : 0;
 
   const currentDuration = sceneDurations[safeCurrentIndex] || 10;
+  const isFinished = previewTime >= currentDuration;
 
   const currentPreview = imagePreviews[safeCurrentIndex];
   const currentFile =
@@ -77,6 +78,7 @@ export default function PreviewPanel({
 
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
+      videoRef.current.pause();
     }
   }, [previewUrl, safeCurrentIndex]);
 
@@ -85,15 +87,40 @@ export default function PreviewPanel({
 
     const timer = window.setInterval(() => {
       setPreviewTime((prev) => {
-        if (prev >= currentDuration) return currentDuration;
+        if (prev + 1 >= currentDuration) {
+          setIsPlaying(false);
+
+          if (videoRef.current) {
+            videoRef.current.pause();
+          }
+
+          return currentDuration;
+        }
+
         return prev + 1;
       });
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [isPlaying, currentDuration]);
+  }, [isPlaying, currentDuration, setIsPlaying]);
 
   const togglePreview = () => {
+    if (isFinished) {
+      setPreviewTime(0);
+
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+      }
+
+      setIsPlaying(true);
+
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+
+      return;
+    }
+
     const nextPlaying = !isPlaying;
     setIsPlaying(nextPlaying);
 
@@ -144,7 +171,9 @@ export default function PreviewPanel({
               preload="metadata"
               className="h-full w-full rounded-xl bg-black object-contain"
               onTimeUpdate={(event) => {
-                setPreviewTime(event.currentTarget.currentTime);
+                setPreviewTime(
+                  Math.min(event.currentTarget.currentTime, currentDuration)
+                );
               }}
               onEnded={() => {
                 setIsPlaying(false);
@@ -173,7 +202,7 @@ export default function PreviewPanel({
           </div>
 
           <div className="absolute right-2 top-2 rounded-full bg-emerald-500/90 px-2 py-1 text-[10px] font-extrabold text-white shadow-lg">
-            {currentDuration}s
+            {isFinished ? "Finished" : `${currentDuration}s`}
           </div>
 
           {facebookCaption && !isCurrentVideo && (
@@ -231,8 +260,12 @@ export default function PreviewPanel({
               />
             </div>
 
-            <div className="min-w-[58px] text-right text-[10px] font-bold text-white">
-              {formatTime(previewTime)} / {formatTime(currentDuration)}
+            <div className="min-w-[66px] text-right text-[10px] font-bold text-white">
+              {isFinished
+                ? "Finished"
+                : `${formatTime(previewTime)} / ${formatTime(
+                    currentDuration
+                  )}`}
             </div>
           </div>
         </div>
