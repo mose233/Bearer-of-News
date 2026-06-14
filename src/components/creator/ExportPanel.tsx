@@ -38,6 +38,46 @@ export default function ExportPanel({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const handlePrimaryExport = async () => {
+    if (busy) return;
+
+    try {
+      await onExportPrimary();
+    } catch (error) {
+      console.error("Primary export failed:", error);
+    }
+  };
+
+  const handleSilentExport = async () => {
+    if (busy) return;
+
+    try {
+      await onExportSilentMp4();
+    } catch (error) {
+      console.error("Silent export failed:", error);
+    }
+  };
+
+  const handleNarratedExport = async () => {
+    if (busy) return;
+
+    try {
+      await onExportNarratedMp4();
+    } catch (error) {
+      console.error("Narrated export failed:", error);
+    }
+  };
+
+  const handleInitializeFFmpeg = async () => {
+    if (busy) return;
+
+    try {
+      await onInitializeFFmpeg();
+    } catch (error) {
+      console.error("FFmpeg initialization failed:", error);
+    }
+  };
+
   return (
     <div className="space-y-4 text-white">
       <div>
@@ -71,7 +111,7 @@ export default function ExportPanel({
 
       <Button
         type="button"
-        onClick={onExportPrimary}
+        onClick={handlePrimaryExport}
         disabled={busy}
         className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
       >
@@ -143,36 +183,36 @@ export default function ExportPanel({
             <Button
               type="button"
               variant="outline"
-              onClick={onInitializeFFmpeg}
-              disabled={isExporting}
+              onClick={handleInitializeFFmpeg}
+              disabled={busy}
               className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
             >
-              {isExporting ? (
+              {busy ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
               )}
-              {isExporting ? "Loading..." : "Initialize FFmpeg"}
+              {busy ? "Loading..." : "Initialize FFmpeg"}
             </Button>
 
             <Button
               type="button"
               variant="outline"
-              onClick={onExportSilentMp4}
-              disabled={isRecording}
+              onClick={handleSilentExport}
+              disabled={busy}
               className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
             >
-              {isRecording ? (
+              {busy ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Film className="mr-2 h-4 w-4 text-cyan-300" />
               )}
-              {isRecording ? "Rendering..." : "Silent MP4"}
+              {busy ? "Rendering..." : "Silent MP4"}
             </Button>
 
             <Button
               type="button"
-              onClick={onExportNarratedMp4}
+              onClick={handleNarratedExport}
               disabled={busy}
               className="h-12 rounded-2xl bg-amber-500 font-bold text-white hover:bg-amber-600 disabled:opacity-60 sm:col-span-2"
             >
