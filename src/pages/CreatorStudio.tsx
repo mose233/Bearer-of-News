@@ -1126,7 +1126,6 @@ export default function CreatorStudio() {
                   sceneDurations={sceneDurations}
                   onDeleteScene={handleDeleteScene}
                   onDuplicateScene={handleDuplicateScene}
-                  onUpdateSceneDuration={handleUpdateSceneDuration}
                 />
               </CardContent>
             </Card>
