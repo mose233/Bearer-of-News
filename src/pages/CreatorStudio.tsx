@@ -806,6 +806,10 @@ export default function CreatorStudio() {
   };
 
   const handleExportSilentMp4 = async () => {
+  alert(
+    "MP4 export is temporarily disabled while we move video rendering to the backend. You can still download images and use the preview."
+  );
+};
     try {
       if (mediaItems.length === 0) {
         alert("Please upload or generate images/videos first.");
