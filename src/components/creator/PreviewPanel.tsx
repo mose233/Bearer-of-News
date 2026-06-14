@@ -173,30 +173,7 @@ export default function PreviewPanel({
         </div>
       </div>
 
-      {onUpdateSceneDuration && (
-        <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/60 p-3">
-          <label className="block text-xs font-extrabold text-white">
-            Scene Duration
-          </label>
-
-          <select
-            value={currentDuration}
-            onChange={(event) =>
-              onUpdateSceneDuration(
-                safeCurrentIndex,
-                Number(event.target.value)
-              )
-            }
-            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-xs font-bold text-white"
-          >
-            {[10, 20, 30, 40, 50, 60].map((duration) => (
-              <option key={duration} value={duration}>
-                {duration} Seconds
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+    
     </div>
   );
 }
