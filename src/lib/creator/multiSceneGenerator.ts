@@ -33,7 +33,7 @@ export function generateMultiScenePlan(
     if (index === 0) {
       return {
         title,
-        duration: 5,
+        duration: 10,
         prompt: `Opening scene for: ${basePrompt}. Show the beginning clearly and make it suitable for a vertical social video.`,
       };
     }
