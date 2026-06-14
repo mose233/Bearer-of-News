@@ -355,7 +355,7 @@ export default function CreatorStudio() {
         imageFile: photoMusicImageFile,
         imagePreview: photoMusicImagePreview,
         audioFile: photoMusicAudioFile,
-        durationSeconds: 15,
+        durationSeconds: getTimelineDuration(),
         musicVolume: 0.9,
       });
 
