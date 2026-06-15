@@ -8,6 +8,7 @@ import AiToolLauncher, {
 } from "@/components/creator/AiToolLauncher";
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
+import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
 import { generateVoice } from "@/lib/voice";
@@ -1009,19 +1010,29 @@ export default function CreatorStudio() {
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-                <PreviewPanel
-                  mediaFiles={mediaFiles}
-                  imagePreviews={imagePreviews}
-                  currentIndex={currentIndex}
-                  setCurrentIndex={setCurrentIndex}
-                  isPlaying={isPlaying}
-                  setIsPlaying={setIsPlaying}
-                  facebookCaption={facebookCaption}
-                  sceneDurations={sceneDurations}
-                  onDeleteScene={handleDeleteScene}
-                  onDuplicateScene={handleDuplicateScene}
-                  onUpdateSceneDuration={handleUpdateSceneDuration}
-                />
+                {selectedTool?.category === "Picture AI" ? (
+                  <PicturePreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    facebookCaption={facebookCaption}
+                  />
+                ) : (
+                  <PreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                    facebookCaption={facebookCaption}
+                    sceneDurations={sceneDurations}
+                    onDeleteScene={handleDeleteScene}
+                    onDuplicateScene={handleDuplicateScene}
+                    onUpdateSceneDuration={handleUpdateSceneDuration}
+                  />
+                )}
               </CardContent>
             </Card>
 
