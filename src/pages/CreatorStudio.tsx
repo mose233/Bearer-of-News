@@ -763,13 +763,27 @@ export default function CreatorStudio() {
         );
         return;
       } catch (error) {
-        console.error(error);
-        alert("Video export failed. Please try again or use image download for now.");
-        return;
-      } finally {
-        setIsExporting(false);
-        setExportStatus("");
-      }
+  console.error("MP4 export error:", error);
+
+  alert(
+    "Unable to create MP4 video. The image/video is still available and can be downloaded directly."
+  );
+
+  if (currentFile) {
+    saveAs(
+      currentFile,
+      currentFile.name ||
+        (currentFile.type.startsWith("image/")
+          ? "xnewsapp-image.png"
+          : "xnewsapp-video.mp4")
+    );
+  }
+
+  return;
+} finally {
+  setIsExporting(false);
+  setExportStatus("");
+}
     }
 
     saveAs(currentFile, currentFile.name || "xnewsapp-media");
