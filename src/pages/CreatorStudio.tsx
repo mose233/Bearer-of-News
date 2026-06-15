@@ -806,27 +806,30 @@ export default function CreatorStudio() {
   };
 
   const handleExportSilentMp4 = async () => {
-  alert(
-    "MP4 export is temporarily disabled while we move video rendering to the backend. You can still download images and use the preview."
-  );
-};
+    try {
+      if (mediaItems.length === 0) {
+        alert("Please upload or generate images/videos first.");
+        return;
+      }
 
       setIsRecording(true);
       setExportStatus("Rendering silent MP4...");
 
       const videoBlob = await exportSilentMp4(
         mediaItems,
-        selectedVideoDurationSeconds
+        getTimelineDuration()
       );
 
       showGeneratedVideoInPreview(
         videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-silent-video.mp4`
+        `xnewsapp-${getTimelineDuration()}s-silent-video.mp4`
       );
 
       saveAs(videoBlob, "creator-studio-silent-video.mp4");
 
-      alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
+      alert(
+        "Silent MP4 exported successfully. Download your MP4 and share it on social media."
+      );
     } catch (error) {
       console.error(error);
       alert("Failed to export silent MP4.");
@@ -1097,8 +1100,12 @@ export default function CreatorStudio() {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview) =>
-              addSceneToTimeline(file, preview, getTimelineDuration())
+            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+              addSceneToTimeline(
+                file,
+                preview,
+                durationSeconds || getTimelineDuration()
+              )
             }
             onVideoDurationChange={setSelectedVideoDurationSeconds}
           />
@@ -1125,6 +1132,7 @@ export default function CreatorStudio() {
                   sceneDurations={sceneDurations}
                   onDeleteScene={handleDeleteScene}
                   onDuplicateScene={handleDuplicateScene}
+                  onUpdateSceneDuration={handleUpdateSceneDuration}
                 />
               </CardContent>
             </Card>
