@@ -7,8 +7,8 @@ import AiToolLauncher, {
   AiToolSelection,
 } from "@/components/creator/AiToolLauncher";
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
+import PreviewPanel from "@/components/creator/PreviewPanel";
 import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
-import VideoPreviewPanel from "@/components/creator/VideoPreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
 import { generateVoice } from "@/lib/voice";
@@ -1019,7 +1019,7 @@ export default function CreatorStudio() {
                     facebookCaption={facebookCaption}
                   />
                 ) : (
-                  <VideoPreviewPanel
+                  <PreviewPanel
                     mediaFiles={mediaFiles}
                     imagePreviews={imagePreviews}
                     currentIndex={currentIndex}
@@ -1028,11 +1028,6 @@ export default function CreatorStudio() {
                     setIsPlaying={setIsPlaying}
                     facebookCaption={facebookCaption}
                     sceneDurations={sceneDurations}
-                    previewMode={
-                      selectedTool?.category === "Cinematic AI"
-                        ? "cinematic"
-                        : "video"
-                    }
                     onDeleteScene={handleDeleteScene}
                     onDuplicateScene={handleDuplicateScene}
                     onUpdateSceneDuration={handleUpdateSceneDuration}
