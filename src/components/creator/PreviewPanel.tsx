@@ -125,9 +125,7 @@ export default function PreviewPanel({
 
       
 
-          <div className="absolute right-2 top-2 rounded-full bg-emerald-500/90 px-2 py-1 text-[10px] font-extrabold text-white shadow-lg">
-            {currentDuration}s
-          </div>
+          
 
           {facebookCaption && !isCurrentVideo && (
             <div className="absolute bottom-12 left-2 right-2">
