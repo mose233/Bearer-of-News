@@ -79,17 +79,17 @@ export default function PreviewPanel({
 
     const interval = window.setInterval(() => {
       setPreviewTime((previous) => {
-        if (previous >= selectedDuration) {
-          setIsPlaying(false);
-          return selectedDuration;
-        }
+  if (previous >= selectedDuration) {
+    setIsPlaying(false);
+    return selectedDuration;
+  }
 
-        return Math.min(previous + 0.25, selectedDuration);
-      });
+  return Math.min(previous + 0.25, selectedDuration);
+});
     }, 250);
 
     return () => window.clearInterval(interval);
-  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo, setIsPlaying]);
+  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo]);
 
   const progressPercent =
     selectedDuration > 0
