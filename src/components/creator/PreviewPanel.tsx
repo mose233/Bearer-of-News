@@ -94,12 +94,16 @@ export default function PreviewPanel({
         <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
           {isCurrentVideo && previewUrl ? (
             <video
-              src={previewUrl}
-              controls
-              playsInline
-              preload="metadata"
-              className="h-full w-full rounded-xl bg-black object-contain"
-            />
+  key={previewUrl}
+  src={previewUrl}
+  controls
+  autoPlay
+  muted
+  loop
+  playsInline
+  preload="auto"
+  className="h-full w-full rounded-xl bg-black object-contain"
+/>
           ) : isCurrentImage && previewUrl ? (
             <img
               src={previewUrl}
@@ -119,9 +123,7 @@ export default function PreviewPanel({
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/15" />
           )}
 
-          <div className="absolute left-2 top-2 rounded-full bg-black/50 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
-            {safeCurrentIndex + 1} / {totalScenes}
-          </div>
+      
 
           <div className="absolute right-2 top-2 rounded-full bg-emerald-500/90 px-2 py-1 text-[10px] font-extrabold text-white shadow-lg">
             {currentDuration}s
