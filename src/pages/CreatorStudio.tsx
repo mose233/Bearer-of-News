@@ -1018,6 +1018,13 @@ export default function CreatorStudio() {
                   setIsPlaying={setIsPlaying}
                   facebookCaption={facebookCaption}
                   sceneDurations={sceneDurations}
+                  previewMode={
+                    selectedTool?.category === "Picture AI"
+                      ? "image"
+                      : selectedTool?.category === "Cinematic AI"
+                        ? "cinematic"
+                        : "video"
+                  }
                   onDeleteScene={handleDeleteScene}
                   onDuplicateScene={handleDuplicateScene}
                   onUpdateSceneDuration={handleUpdateSceneDuration}
