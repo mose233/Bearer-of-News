@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Play,
   Pause,
+  RotateCcw,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
@@ -46,6 +47,7 @@ export default function PreviewPanel({
   sceneDurations = [],
   previewMode = "video",
 }: PreviewPanelProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [previewTime, setPreviewTime] = useState(0);
 
   const totalScenes = Math.max(mediaFiles.length, imagePreviews.length);
@@ -79,22 +81,32 @@ export default function PreviewPanel({
 
     const interval = window.setInterval(() => {
       setPreviewTime((previous) => {
-  if (previous >= selectedDuration) {
-    setIsPlaying(false);
-    return selectedDuration;
-  }
+        if (previous >= selectedDuration) {
+          setIsPlaying(false);
+          return selectedDuration;
+        }
 
-  return Math.min(previous + 0.25, selectedDuration);
-});
+        return Math.min(previous + 0.25, selectedDuration);
+      });
     }, 250);
 
     return () => window.clearInterval(interval);
-  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo]);
+  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo, setIsPlaying]);
 
   const progressPercent =
     selectedDuration > 0
       ? Math.min((previewTime / selectedDuration) * 100, 100)
       : 0;
+
+  const rewindPreview = () => {
+    setPreviewTime(0);
+    setIsPlaying(true);
+
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  };
 
   const nextSlide = () => {
     if (totalScenes === 0) return;
@@ -130,6 +142,7 @@ export default function PreviewPanel({
         <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
           {isCurrentVideo && previewUrl ? (
             <video
+              ref={videoRef}
               key={previewUrl}
               src={previewUrl}
               controls
@@ -204,23 +217,34 @@ export default function PreviewPanel({
               />
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-extrabold text-black transition hover:scale-[1.02]"
-            >
-              {isPlaying ? (
-                <>
-                  <Pause className="h-3.5 w-3.5" />
-                  Pause Preview
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  Play Preview
-                </>
-              )}
-            </button>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="flex h-8 items-center justify-center gap-2 rounded-xl bg-white text-xs font-extrabold text-black transition hover:scale-[1.02]"
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="h-3.5 w-3.5" />
+                    Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    Play
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={rewindPreview}
+                className="flex h-8 items-center justify-center gap-2 rounded-xl bg-white/90 text-xs font-extrabold text-black transition hover:scale-[1.02]"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Rewind
+              </button>
+            </div>
           </div>
         </div>
       </div>
