@@ -44,7 +44,7 @@ export default function PreviewPanel({
   setIsPlaying,
   facebookCaption,
   sceneDurations = [],
-  previewMode = "video",
+  previewMode = "image",
 }: PreviewPanelProps) {
   const [previewTime, setPreviewTime] = useState(0);
 
@@ -68,28 +68,38 @@ export default function PreviewPanel({
   const isCurrentImage =
     currentFile?.type?.startsWith("image/") || Boolean(currentPreview?.preview);
 
-  useEffect(() => {
-    setPreviewTime(0);
-  }, [safeCurrentIndex, previewUrl, selectedDuration]);
+  const shouldShowVideoPreview = previewMode !== "image";
 
   useEffect(() => {
+    setPreviewTime(0);
+  }, [safeCurrentIndex, previewUrl, selectedDuration, previewMode]);
+
+  useEffect(() => {
+    if (!shouldShowVideoPreview) return;
     if (!isPlaying) return;
     if (!previewUrl) return;
     if (isCurrentVideo) return;
 
     const interval = window.setInterval(() => {
       setPreviewTime((previous) => {
-  if (previous >= selectedDuration) {
-    setIsPlaying(false);
-    return selectedDuration;
-  }
+        if (previous >= selectedDuration) {
+          setIsPlaying(false);
+          return selectedDuration;
+        }
 
-  return Math.min(previous + 0.25, selectedDuration);
-});
+        return Math.min(previous + 0.25, selectedDuration);
+      });
     }, 250);
 
     return () => window.clearInterval(interval);
-  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo]);
+  }, [
+    shouldShowVideoPreview,
+    isPlaying,
+    previewUrl,
+    selectedDuration,
+    isCurrentVideo,
+    setIsPlaying,
+  ]);
 
   const progressPercent =
     selectedDuration > 0
@@ -133,9 +143,9 @@ export default function PreviewPanel({
               key={previewUrl}
               src={previewUrl}
               controls
-              autoPlay
+              autoPlay={shouldShowVideoPreview}
               muted
-              loop
+              loop={shouldShowVideoPreview}
               playsInline
               preload="auto"
               className="absolute inset-0 h-full w-full rounded-xl bg-black object-contain"
@@ -145,7 +155,7 @@ export default function PreviewPanel({
               src={previewUrl}
               alt="preview"
               className={`absolute inset-0 h-full w-full object-cover ${
-                isPlaying ? "animate-kenburns" : ""
+                shouldShowVideoPreview && isPlaying ? "animate-kenburns" : ""
               }`}
             />
           ) : (
@@ -162,7 +172,11 @@ export default function PreviewPanel({
           </div>
 
           {facebookCaption && (
-            <div className="absolute bottom-20 left-2 right-2">
+            <div
+              className={`absolute left-2 right-2 ${
+                shouldShowVideoPreview ? "bottom-20" : "bottom-12"
+              }`}
+            >
               <div className="rounded-xl bg-black/45 px-2 py-2 backdrop-blur-md">
                 <p className="line-clamp-4 whitespace-pre-wrap text-[11px] font-semibold leading-4 text-white drop-shadow-lg">
                   {facebookCaption}
@@ -191,37 +205,39 @@ export default function PreviewPanel({
             </>
           )}
 
-          <div className="absolute bottom-3 left-2 right-2 rounded-2xl bg-black/70 p-2 backdrop-blur">
-            <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-white">
-              <span>{formatTime(previewTime)}</span>
-              <span>{formatTime(selectedDuration)}</span>
-            </div>
+          {shouldShowVideoPreview && (
+            <div className="absolute bottom-3 left-2 right-2 rounded-2xl bg-black/70 p-2 backdrop-blur">
+              <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-white">
+                <span>{formatTime(previewTime)}</span>
+                <span>{formatTime(selectedDuration)}</span>
+              </div>
 
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/25">
-              <div
-                className="h-full rounded-full bg-white transition-all"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/25">
+                <div
+                  className="h-full rounded-full bg-white transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
 
-            <button
-              type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-extrabold text-black transition hover:scale-[1.02]"
-            >
-              {isPlaying ? (
-                <>
-                  <Pause className="h-3.5 w-3.5" />
-                  Pause Preview
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  Play Preview
-                </>
-              )}
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-extrabold text-black transition hover:scale-[1.02]"
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="h-3.5 w-3.5" />
+                    Pause Preview
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    Play Preview
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
