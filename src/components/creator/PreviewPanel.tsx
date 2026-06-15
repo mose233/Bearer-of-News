@@ -72,6 +72,11 @@ export default function PreviewPanel({
 
   useEffect(() => {
     setPreviewTime(0);
+
+    const video = videoRef.current;
+    if (video) {
+      video.currentTime = 0;
+    }
   }, [safeCurrentIndex, previewUrl, selectedDuration]);
 
   useEffect(() => {
@@ -81,22 +86,61 @@ export default function PreviewPanel({
 
     const interval = window.setInterval(() => {
       setPreviewTime((previous) => {
-        if (previous >= selectedDuration) {
+        const nextTime = Math.min(previous + 0.25, selectedDuration);
+
+        if (nextTime >= selectedDuration) {
           setIsPlaying(false);
           return selectedDuration;
         }
 
-        return Math.min(previous + 0.25, selectedDuration);
+        return nextTime;
       });
     }, 250);
 
     return () => window.clearInterval(interval);
   }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo, setIsPlaying]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video || !isCurrentVideo || !previewUrl) return;
+
+    if (isPlaying) {
+      if (video.currentTime >= selectedDuration) {
+        video.currentTime = 0;
+        setPreviewTime(0);
+      }
+
+      video.play().catch(() => {
+        setIsPlaying(false);
+      });
+
+      return;
+    }
+
+    video.pause();
+  }, [isPlaying, isCurrentVideo, previewUrl, selectedDuration, setIsPlaying]);
+
   const progressPercent =
     selectedDuration > 0
       ? Math.min((previewTime / selectedDuration) * 100, 100)
       : 0;
+
+  const stopAtSelectedDuration = (time: number) => {
+    const safeTime = Math.min(time || 0, selectedDuration);
+    setPreviewTime(safeTime);
+
+    if (safeTime >= selectedDuration) {
+      const video = videoRef.current;
+
+      if (video) {
+        video.pause();
+        video.currentTime = selectedDuration;
+      }
+
+      setIsPlaying(false);
+    }
+  };
 
   const rewindPreview = () => {
     setPreviewTime(0);
@@ -148,9 +192,19 @@ export default function PreviewPanel({
               controls
               autoPlay
               muted
-              loop
               playsInline
               preload="auto"
+              onLoadedMetadata={(event) => {
+                event.currentTarget.currentTime = 0;
+                setPreviewTime(0);
+              }}
+              onTimeUpdate={(event) => {
+                stopAtSelectedDuration(event.currentTarget.currentTime);
+              }}
+              onEnded={() => {
+                setIsPlaying(false);
+                setPreviewTime(selectedDuration);
+              }}
               className="absolute inset-0 h-full w-full rounded-xl bg-black object-contain"
             />
           ) : isCurrentImage && previewUrl ? (
