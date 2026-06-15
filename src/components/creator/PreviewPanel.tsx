@@ -1,1074 +1,229 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { saveAs } from "file-saver";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import AiToolLauncher, {
-  AiToolSelection,
-} from "@/components/creator/AiToolLauncher";
-import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
-import PreviewPanel from "@/components/creator/PreviewPanel";
-import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
-import ExportPanel from "@/components/creator/ExportPanel";
-
-import { generateVoice } from "@/lib/voice";
-import { generateSceneImage } from "@/lib/creator/imageGeneration";
-import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
+import { useEffect, useMemo, useState } from "react";
 import {
-  generateMultiScenePlan,
-  MultiScenePlan,
-} from "@/lib/creator/multiSceneGenerator";
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
+  Video,
+} from "lucide-react";
 
-import {
-  CreatorContentType,
-  generateCreatorContent,
-} from "@/lib/creator/templates";
+import type { ImagePreviewItem } from "@/lib/creator/videoExport";
 
-import { ImagePreviewItem } from "@/lib/creator/videoExport";
+type PreviewMode = "image" | "video" | "cinematic";
 
-export default function CreatorStudio() {
-  const [videoPrompt, setVideoPrompt] = useState("");
-  const [facebookCaption, setFacebookCaption] = useState("");
-  const [contentType, setContentType] =
-    useState<CreatorContentType>("general");
+type PreviewPanelProps = {
+  mediaFiles: File[];
+  imagePreviews: ImagePreviewItem[];
+  currentIndex: number;
+  setCurrentIndex: (value: number | ((prev: number) => number)) => void;
+  isPlaying: boolean;
+  setIsPlaying: (value: boolean) => void;
+  facebookCaption: string;
+  sceneDurations?: number[];
+  previewMode?: PreviewMode;
+  onDeleteScene?: (index: number) => void;
+  onDuplicateScene?: (index: number) => void;
+  onUpdateSceneDuration?: (index: number, duration: number) => void;
+};
 
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [voiceText, setVoiceText] = useState("");
-  const [speechRate, setSpeechRate] = useState(1);
-  const [voiceVolume, setVoiceVolume] = useState(1);
-  const [aiVoiceBlob, setAiVoiceBlob] = useState<Blob | null>(null);
+function formatTime(seconds: number) {
+  const safeSeconds = Math.max(0, Math.floor(seconds || 0));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = String(safeSeconds % 60).padStart(2, "0");
 
-  const [isRecording, setIsRecording] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportStatus, setExportStatus] = useState("");
+  return `${minutes}:${remainingSeconds}`;
+}
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
-  const [musicPreview, setMusicPreview] = useState("");
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(0.18);
+export default function PreviewPanel({
+  mediaFiles,
+  imagePreviews,
+  currentIndex,
+  setCurrentIndex,
+  isPlaying,
+  setIsPlaying,
+  facebookCaption,
+  sceneDurations = [],
+  previewMode = "video",
+}: PreviewPanelProps) {
+  const [previewTime, setPreviewTime] = useState(0);
 
-  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
-  const [sceneDurations, setSceneDurations] = useState<number[]>([]);
+  const totalScenes = Math.max(mediaFiles.length, imagePreviews.length);
 
-  const [aiImagePrompt, setAiImagePrompt] = useState("");
-  const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(
-    null
-  );
-  const [generatedImagePreview, setGeneratedImagePreview] = useState("");
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [multiScenePlan, setMultiScenePlan] = useState<MultiScenePlan[]>([]);
+  const safeCurrentIndex =
+    totalScenes > 0 ? Math.min(Math.max(currentIndex, 0), totalScenes - 1) : 0;
 
-  const [photoMusicImageFile, setPhotoMusicImageFile] =
-    useState<File | null>(null);
-  const [photoMusicImagePreview, setPhotoMusicImagePreview] = useState("");
-  const [photoMusicAudioFile, setPhotoMusicAudioFile] =
-    useState<File | null>(null);
-  const [photoMusicAudioName, setPhotoMusicAudioName] = useState("");
-  const [photoMusicStyle, setPhotoMusicStyle] = useState("Music Video");
-  const [isExportingPhotoMusic, setIsExportingPhotoMusic] = useState(false);
+  const selectedDuration = sceneDurations[safeCurrentIndex] || 10;
 
-  const [dancingPhotoFile, setDancingPhotoFile] = useState<File | null>(null);
-  const [dancingPhotoPreview, setDancingPhotoPreview] = useState("");
-  const [danceStyle, setDanceStyle] = useState<DanceStyle>("Afrobeats");
-  const [isGeneratingDance, setIsGeneratingDance] = useState(false);
-  const [danceResultMessage, setDanceResultMessage] = useState("");
+  const currentFile = mediaFiles[safeCurrentIndex] || mediaFiles[0];
+  const currentPreview = imagePreviews[safeCurrentIndex];
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const previewUrl = useMemo(() => {
+    if (currentPreview?.preview) return currentPreview.preview;
+    if (!currentFile) return "";
+    return URL.createObjectURL(currentFile);
+  }, [currentFile, currentPreview?.preview]);
 
-  const [selectedTool, setSelectedTool] =
-    useState<AiToolSelection | null>(null);
-  const [videoCreativeType, setVideoCreativeType] = useState("General");
-  const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
-  const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
-
-  const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
-  const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
-
-  const handleSelectTool = (tool: AiToolSelection) => {
-    setSelectedTool(tool);
-
-    window.setTimeout(() => {
-      workspaceSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 120);
-  };
-
-  const imagePreviews: ImagePreviewItem[] = useMemo(() => {
-    return mediaFiles
-      .map((file, index) => ({
-        file,
-        preview: mediaPreviews[index],
-      }))
-      .filter((item) => item.file.type.startsWith("image/"));
-  }, [mediaFiles, mediaPreviews]);
-
-  const mediaItems: ImagePreviewItem[] = useMemo(() => {
-    return mediaFiles
-      .map((file, index) => ({
-        file,
-        preview: mediaPreviews[index],
-      }))
-      .filter((item) => Boolean(item.preview));
-  }, [mediaFiles, mediaPreviews]);
+  const isCurrentVideo = currentFile?.type?.startsWith("video/");
+  const isCurrentImage =
+    currentFile?.type?.startsWith("image/") || Boolean(currentPreview?.preview);
 
   useEffect(() => {
-    return () => {
-      mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
-
-      if (musicPreview) URL.revokeObjectURL(musicPreview);
-      if (generatedImagePreview) URL.revokeObjectURL(generatedImagePreview);
-      if (photoMusicImagePreview) URL.revokeObjectURL(photoMusicImagePreview);
-      if (dancingPhotoPreview) URL.revokeObjectURL(dancingPhotoPreview);
-
-      window.speechSynthesis.cancel();
-    };
-  }, [
-    mediaPreviews,
-    musicPreview,
-    generatedImagePreview,
-    photoMusicImagePreview,
-    dancingPhotoPreview,
-  ]);
+    setPreviewTime(0);
+  }, [safeCurrentIndex, previewUrl, selectedDuration]);
 
   useEffect(() => {
     if (!isPlaying) return;
-    if (imagePreviews.length <= 1) return;
+    if (!previewUrl) return;
+    if (isCurrentVideo) return;
 
-    const currentDuration = sceneDurations[currentIndex] || getTimelineDuration();
+    const interval = window.setInterval(() => {
+      setPreviewTime((previous) => {
+        if (previous >= selectedDuration) {
+          setIsPlaying(false);
+          return selectedDuration;
+        }
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) =>
-        prev === imagePreviews.length - 1 ? 0 : prev + 1
-      );
-    }, currentDuration * 1000);
-
-    return () => clearInterval(interval);
-  }, [
-    isPlaying,
-    imagePreviews.length,
-    currentIndex,
-    sceneDurations,
-    selectedVideoDurationSeconds,
-    selectedTool?.category,
-  ]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = musicVolume;
-    }
-  }, [musicVolume]);
-
-  const scrollToLivePreview = () => {
-    setTimeout(() => {
-      livePreviewSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+        return Math.min(previous + 0.25, selectedDuration);
       });
-    }, 120);
+    }, 250);
+
+    return () => window.clearInterval(interval);
+  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo]);
+
+  const progressPercent =
+    selectedDuration > 0
+      ? Math.min((previewTime / selectedDuration) * 100, 100)
+      : 0;
+
+  const nextSlide = () => {
+    if (totalScenes === 0) return;
+    setPreviewTime(0);
+    setCurrentIndex((prev) => (prev === totalScenes - 1 ? 0 : prev + 1));
   };
 
-  const getTimelineDuration = () => {
-    return selectedVideoDurationSeconds || 10;
+  const prevSlide = () => {
+    if (totalScenes === 0) return;
+    setPreviewTime(0);
+    setCurrentIndex((prev) => (prev === 0 ? totalScenes - 1 : prev - 1));
   };
 
+  if (mediaFiles.length === 0 && imagePreviews.length === 0) {
+    return (
+      <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted sm:min-h-[260px] lg:min-h-[300px]">
+        <div className="mb-3 rounded-2xl bg-white/10 p-4">
+          <ImageIcon className="h-9 w-9 text-creator-muted" />
+        </div>
 
-  const createAnimatedPreviewVideo = async (
-    imageUrl: string,
-    durationSeconds: number
-  ) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 720;
-    canvas.height = 1280;
+        <p className="text-sm font-bold text-creator-text">Preview</p>
 
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      throw new Error("Could not create video canvas.");
-    }
-
-    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = imageUrl;
-    });
-
-    const stream = canvas.captureStream(30);
-    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-      ? "video/webm;codecs=vp9"
-      : "video/webm";
-
-    const recorder = new MediaRecorder(stream, {
-      mimeType,
-    });
-
-    const chunks: Blob[] = [];
-
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
-      }
-    };
-
-    const finished = new Promise<Blob>((resolve) => {
-      recorder.onstop = () => {
-        resolve(
-          new Blob(chunks, {
-            type: "video/webm",
-          })
-        );
-      };
-    });
-
-    const startTime = performance.now();
-    const durationMs = Math.max(durationSeconds, 1) * 1000;
-
-    recorder.start();
-
-    const drawFrame = () => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / durationMs, 1);
-      const scale = 1 + progress * 0.12;
-
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const imageRatio = image.width / image.height;
-      const canvasRatio = canvas.width / canvas.height;
-
-      let drawWidth = canvas.width;
-      let drawHeight = canvas.height;
-
-      if (imageRatio > canvasRatio) {
-        drawHeight = canvas.height * scale;
-        drawWidth = drawHeight * imageRatio;
-      } else {
-        drawWidth = canvas.width * scale;
-        drawHeight = drawWidth / imageRatio;
-      }
-
-      const moveX = -canvas.width * 0.03 * progress;
-      const moveY = -canvas.height * 0.03 * progress;
-
-      const x = (canvas.width - drawWidth) / 2 + moveX;
-      const y = (canvas.height - drawHeight) / 2 + moveY;
-
-      ctx.drawImage(image, x, y, drawWidth, drawHeight);
-
-      if (progress < 1) {
-        requestAnimationFrame(drawFrame);
-        return;
-      }
-
-      recorder.stop();
-    };
-
-    drawFrame();
-
-    return finished;
-  };
-
-  const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
-    const nextIndex = mediaFiles.length;
-
-    setMediaFiles((prev) => [...prev, file]);
-    setMediaPreviews((prev) => [...prev, preview]);
-    setSceneDurations((prev) => [...prev, duration]);
-    setCurrentIndex(nextIndex);
-
-    scrollToLivePreview();
-  };
-
-  const handleGenerateScript = () => {
-    if (!videoPrompt.trim()) {
-      alert("Please write a video prompt first.");
-      return;
-    }
-
-    const generated = generateCreatorContent(contentType, videoPrompt);
-
-    setFacebookCaption(generated.caption);
-    setVoiceText(generated.voice);
-    setAiVoiceBlob(null);
-
-    if (!aiImagePrompt.trim()) {
-      setAiImagePrompt(videoPrompt);
-    }
-
-    alert("Script generated successfully.");
-  };
-
-  const handlePrepareTextToVideoPrompt = async () => {
-    const prompt = videoPrompt.trim();
-
-    if (!prompt) {
-      alert("Please write a video prompt first.");
-      return;
-    }
-
-    const enrichedPrompt = [
-      `Creative type: ${videoCreativeType}`,
-      `Output format: ${videoOutputFormat}`,
-      prompt,
-    ].join("\n");
-
-    try {
-      setIsGeneratingImage(true);
-      setExportStatus("Creating AI storyboard...");
-      setAiImagePrompt(enrichedPrompt);
-
-      const generated = generateCreatorContent(contentType, prompt);
-      setFacebookCaption(generated.caption);
-      setVoiceText(generated.voice);
-      setAiVoiceBlob(null);
-
-      const plan = generateMultiScenePlan(
-  enrichedPrompt,
-  getTimelineDuration()
-);
-      setMultiScenePlan(plan);
-
-      if (plan.length === 0) {
-        alert("Storyboard could not be created. Please try a clearer idea.");
-        return;
-      }
-
-      const startIndex = mediaFiles.length;
-      const generatedFiles: File[] = [];
-      const generatedPreviews: string[] = [];
-      const generatedDurations: number[] = [];
-
-      for (let index = 0; index < plan.length; index += 1) {
-        const scene = plan[index];
-
-        setExportStatus(
-          `Generating scene image ${index + 1} of ${plan.length}...`
-        );
-
-        const result = await generateSceneImage(scene.prompt, "1024x1024");
-
-        generatedFiles.push(result.file);
-        generatedPreviews.push(result.previewUrl);
-        generatedDurations.push(scene.duration || selectedVideoDurationSeconds);
-      }
-
-      setMediaFiles((prev) => [...prev, ...generatedFiles]);
-      setMediaPreviews((prev) => [...prev, ...generatedPreviews]);
-      setSceneDurations((prev) => [...prev, ...generatedDurations]);
-      setCurrentIndex(startIndex);
-
-      scrollToLivePreview();
-
-      alert(
-        `${plan.length} AI scene images generated and added to the timeline. You can now preview and export.`
-      );
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate AI video draft scenes.");
-    } finally {
-      setIsGeneratingImage(false);
-      setExportStatus("");
-    }
-  };
-
-  const handlePhotoMusicPhotoUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    if (photoMusicImagePreview) {
-      URL.revokeObjectURL(photoMusicImagePreview);
-    }
-
-    const preview = URL.createObjectURL(file);
-
-    setPhotoMusicImageFile(file);
-    setPhotoMusicImagePreview(preview);
-  };
-
-  const handlePhotoMusicAudioUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    setPhotoMusicAudioFile(file);
-    setPhotoMusicAudioName(file.name);
-    setBackgroundMusic(file);
-
-    if (musicPreview) {
-      URL.revokeObjectURL(musicPreview);
-    }
-
-    const preview = URL.createObjectURL(file);
-
-    setMusicPreview(preview);
-    setIsMusicPlaying(false);
-  };
-
-  const handleAddPhotoMusicSceneToTimeline = () => {
-    if (!photoMusicImageFile || !photoMusicImagePreview) {
-      alert("Please upload a photo first.");
-      return;
-    }
-
-    addSceneToTimeline(photoMusicImageFile, photoMusicImagePreview, selectedVideoDurationSeconds);
-
-    alert("Photo music video scene added to timeline.");
-  };
-
-  const handleExportPhotoMusicVideo = async () => {
-    alert(
-      "Video download is temporarily disabled while backend rendering is being connected. You can still preview your media and download images."
+        <p className="mt-2 max-w-xs text-xs leading-5 text-creator-muted">
+          Generate or upload photos/videos to preview them here.
+        </p>
+      </div>
     );
-  };
-
-  const handleDancingPhotoUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    if (dancingPhotoPreview) {
-      URL.revokeObjectURL(dancingPhotoPreview);
-    }
-
-    const preview = URL.createObjectURL(file);
-
-    setDancingPhotoFile(file);
-    setDancingPhotoPreview(preview);
-    setDanceResultMessage("");
-  };
-
-  const handleGenerateDancingVideo = async () => {
-    try {
-      if (!dancingPhotoFile || !dancingPhotoPreview) {
-        alert("Please upload a dancing photo first.");
-        return;
-      }
-
-      setIsGeneratingDance(true);
-      setExportStatus("Generating mock dancing video...");
-
-      const result = await generateDancingVideo({
-        imageFile: dancingPhotoFile,
-        imagePreview: dancingPhotoPreview,
-        danceStyle,
-      });
-
-      setDanceResultMessage(result.message);
-
-      addSceneToTimeline(
-        dancingPhotoFile,
-        dancingPhotoPreview,
-        selectedVideoDurationSeconds
-      );
-
-      alert("Mock dancing video added to timeline.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate dancing video.");
-    } finally {
-      setIsGeneratingDance(false);
-      setExportStatus("");
-    }
-  };
-
-  const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-
-    if (files.length === 0) return;
-
-    mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
-
-    const previews = files.map((file) => URL.createObjectURL(file));
-
-    setMediaFiles(files);
-    setMediaPreviews(previews);
-    setSceneDurations(files.map(() => getTimelineDuration()));
-    setCurrentIndex(0);
-  };
-
-  const handleGenerateImage = async () => {
-    try {
-      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
-
-      if (!prompt) {
-        alert("Please write an AI image prompt first.");
-        return;
-      }
-
-      setIsGeneratingImage(true);
-      setMultiScenePlan([]);
-
-      const result = await generateSceneImage(prompt, "1024x1024");
-
-      if (generatedImagePreview) {
-        URL.revokeObjectURL(generatedImagePreview);
-      }
-
-      setGeneratedImageFile(result.file);
-      setGeneratedImagePreview(result.previewUrl);
-
-      alert("AI scene image generated successfully.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate AI scene image.");
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
-
-  const handleGenerateMultiScenePlan = () => {
-    try {
-      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
-
-      if (!prompt) {
-        alert("Please write a prompt first.");
-        return;
-      }
-
-      if (generatedImagePreview) {
-        URL.revokeObjectURL(generatedImagePreview);
-      }
-
-      setGeneratedImageFile(null);
-      setGeneratedImagePreview("");
-
-      const plan = generateMultiScenePlan(
-  prompt,
-  getTimelineDuration()
-);
-
-      setMultiScenePlan(plan);
-
-      alert("4-scene plan generated.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate scene plan.");
-    }
-  };
-
-  const handleGenerateSceneFromPlan = async (index: number) => {
-    try {
-      const scene = multiScenePlan[index];
-
-      if (!scene) {
-        alert("Scene not found.");
-        return;
-      }
-
-      setIsGeneratingImage(true);
-
-      const result = await generateSceneImage(scene.prompt, "1024x1024");
-
-      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
-
-      alert(`Scene ${index + 1} added to timeline.`);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate scene.");
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
-
-  const handleGenerateAllScenesFromPlan = async () => {
-    try {
-      if (multiScenePlan.length === 0) {
-        alert("Please generate a scene plan first.");
-        return;
-      }
-
-      setIsGeneratingImage(true);
-
-      for (const scene of multiScenePlan) {
-        const result = await generateSceneImage(scene.prompt, "1024x1024");
-
-        setMediaFiles((prev) => [...prev, result.file]);
-        setMediaPreviews((prev) => [...prev, result.previewUrl]);
-        setSceneDurations((prev) => [...prev, scene.duration]);
-      }
-
-      setCurrentIndex(mediaFiles.length);
-
-      alert("All scenes generated and added to timeline.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate all scenes.");
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
-
-  const handleAddGeneratedImage = () => {
-    if (!generatedImageFile || !generatedImagePreview) {
-      alert("Please generate an AI scene image first.");
-      return;
-    }
-
-    addSceneToTimeline(
-      generatedImageFile,
-      generatedImagePreview,
-      selectedVideoDurationSeconds
-    );
-
-    setGeneratedImageFile(null);
-    setGeneratedImagePreview("");
-
-    alert("AI image added to video timeline.");
-  };
-
-  const handleDeleteScene = (index: number) => {
-    const previewToDelete = mediaPreviews[index];
-
-    if (previewToDelete) {
-      URL.revokeObjectURL(previewToDelete);
-    }
-
-    const nextFiles = mediaFiles.filter((_, itemIndex) => itemIndex !== index);
-    const nextPreviews = mediaPreviews.filter(
-      (_, itemIndex) => itemIndex !== index
-    );
-    const nextDurations = sceneDurations.filter(
-      (_, itemIndex) => itemIndex !== index
-    );
-
-    setMediaFiles(nextFiles);
-    setMediaPreviews(nextPreviews);
-    setSceneDurations(nextDurations);
-
-    setCurrentIndex((prev) => {
-      if (nextFiles.length === 0) return 0;
-      if (prev >= nextFiles.length) return nextFiles.length - 1;
-      return prev;
-    });
-  };
-
-  const handleDuplicateScene = (index: number) => {
-    const fileToCopy = mediaFiles[index];
-    const previewToCopy = mediaPreviews[index];
-
-    if (!fileToCopy || !previewToCopy) return;
-
-    setMediaFiles((prev) => [
-      ...prev.slice(0, index + 1),
-      fileToCopy,
-      ...prev.slice(index + 1),
-    ]);
-
-    setMediaPreviews((prev) => [
-      ...prev.slice(0, index + 1),
-      previewToCopy,
-      ...prev.slice(index + 1),
-    ]);
-
-    setSceneDurations((prev) => [
-      ...prev.slice(0, index + 1),
-      prev[index] || selectedVideoDurationSeconds || 10,
-      ...prev.slice(index + 1),
-    ]);
-
-    setCurrentIndex(index + 1);
-  };
-
-  const handleUpdateSceneDuration = (index: number, duration: number) => {
-    const safeDuration = Math.min(Math.max(duration || 1, 1), 60);
-
-    setSceneDurations((prev) => {
-      const next = [...prev];
-      next[index] = safeDuration;
-      return next;
-    });
-  };
-
-  const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    if (musicPreview) {
-      URL.revokeObjectURL(musicPreview);
-    }
-
-    const preview = URL.createObjectURL(file);
-
-    setBackgroundMusic(file);
-    setMusicPreview(preview);
-    setIsMusicPlaying(false);
-  };
-
-  const toggleMusic = () => {
-    if (!audioRef.current) return;
-
-    if (isMusicPlaying) {
-      audioRef.current.pause();
-      setIsMusicPlaying(false);
-      return;
-    }
-
-    audioRef.current.volume = musicVolume;
-
-    audioRef.current
-      .play()
-      .then(() => setIsMusicPlaying(true))
-      .catch((error) => {
-        console.error(error);
-        alert("Failed to play background music.");
-      });
-  };
-
-  const startVoiceover = () => {
-    if (!voiceText.trim()) {
-      alert("Please type voice text first.");
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(voiceText);
-
-    utterance.rate = speechRate;
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    speechRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const stopVoiceover = () => {
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-  };
-
-  const generateRealVoice = async () => {
-    try {
-      if (!voiceText.trim()) {
-        alert("Please type voice text first.");
-        return;
-      }
-
-      setIsExporting(true);
-      setExportStatus("Generating AI voice...");
-
-      const audioBlob = await generateVoice(voiceText);
-
-      setAiVoiceBlob(audioBlob);
-
-      saveAs(audioBlob, "creator-studio-voiceover.mp3");
-
-      alert("AI voice generated successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate AI voice.");
-    } finally {
-      setIsExporting(false);
-      setExportStatus("");
-    }
-  };
-
-  const openFacebookAfterExport = () => {
-    window.open(
-      "https://www.facebook.com/",
-      "_blank",
-      "noopener,noreferrer"
-    );
-  };
-
-  const initializeFFmpeg = async () => {
-    alert(
-      "FFmpeg browser export has been removed for now. Video rendering will be handled by backend AI/rendering services later."
-    );
-  };
-
-  const handleExportPrimaryMedia = async () => {
-    if (selectedTool?.category === "Picture AI") {
-      if (generatedImageFile || generatedImagePreview) {
-        await handleDownloadGeneratedImage();
-        return;
-      }
-
-      const currentPreview = mediaPreviews[currentIndex];
-      const currentFile = mediaFiles[currentIndex];
-
-      if (currentPreview && currentFile?.type.startsWith("image/")) {
-        const response = await fetch(currentPreview);
-        const blob = await response.blob();
-
-        saveAs(blob, currentFile.name || "xnewsapp-image.png");
-        return;
-      }
-
-      if (imagePreviews.length > 0) {
-        const fallbackPreview = imagePreviews[0];
-
-        const response = await fetch(fallbackPreview.preview);
-        const blob = await response.blob();
-
-        saveAs(blob, fallbackPreview.file.name || "xnewsapp-image.png");
-        return;
-      }
-
-      alert("Please generate or add an image first.");
-      return;
-    }
-
-    const currentFile = mediaFiles[currentIndex];
-    const currentPreview = mediaPreviews[currentIndex];
-
-    if (!currentFile || !currentPreview) {
-      alert("Please upload or generate media first.");
-      return;
-    }
-
-    if (currentFile.type.startsWith("video/")) {
-      saveAs(currentFile, currentFile.name || "xnewsapp-video.mp4");
-      return;
-    }
-
-    if (currentFile.type.startsWith("image/")) {
-      try {
-        setIsExporting(true);
-        setExportStatus("Creating preview video download...");
-
-        const videoBlob = await createAnimatedPreviewVideo(
-          currentPreview,
-          getTimelineDuration()
-        );
-
-        saveAs(
-          videoBlob,
-          `xnewsapp-preview-${getTimelineDuration()}s.webm`
-        );
-        return;
-      } catch (error) {
-        console.error(error);
-        alert("Failed to create video download. Downloading image instead.");
-        saveAs(currentFile, currentFile.name || "xnewsapp-image.png");
-        return;
-      } finally {
-        setIsExporting(false);
-        setExportStatus("");
-      }
-    }
-
-    saveAs(currentFile, currentFile.name || "xnewsapp-media");
-  };
-
-  const handleExportSilentMp4 = async () => {
-    alert(
-      "MP4 export is temporarily disabled while backend rendering is being connected. Use Download Media for now."
-    );
-  };
-
-  const handleExportNarratedMp4 = async () => {
-    alert(
-      "Narrated MP4 export is temporarily disabled while backend rendering is being connected."
-    );
-  };
-
-  const handleExportFinalMixedMp4 = async () => {
-    alert(
-      "Final mixed MP4 export is temporarily disabled while backend rendering is being connected."
-    );
-  };
-
-  const handleGenerateCompleteVideo = async () => {
-    alert(
-      "Complete AI video export is temporarily disabled while backend rendering is being connected. You can still prepare scenes, preview, and download uploaded/generated media."
-    );
-  };
-
-  const handleDownloadGeneratedImage = async () => {
-    if (generatedImageFile) {
-      saveAs(generatedImageFile, "xnewsapp-ai-image.png");
-      return;
-    }
-
-    if (!generatedImagePreview) {
-      alert("Please generate an image first.");
-      return;
-    }
-
-    const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
-    saveAs(blob, "xnewsapp-ai-image.png");
-  };
+  }
 
   return (
-    <main className="min-h-screen bg-[#0B1020] text-slate-100">
-      <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
-        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
-          <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
-            Creator Studio
+    <div className="mx-auto w-full max-w-[220px] sm:max-w-[260px] lg:max-w-[300px]">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black p-1.5 shadow-creator">
+        <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
+          {isCurrentVideo && previewUrl ? (
+            <video
+              key={previewUrl}
+              src={previewUrl}
+              controls
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 h-full w-full rounded-xl bg-black object-contain"
+            />
+          ) : isCurrentImage && previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="preview"
+              className={`absolute inset-0 h-full w-full object-cover ${
+                isPlaying ? "animate-kenburns" : ""
+              }`}
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-slate-300">
+              <Video className="mb-3 h-8 w-8" />
+              <p className="text-xs font-bold">Preview not available</p>
+            </div>
+          )}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/20" />
+
+          <div className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
+            {safeCurrentIndex + 1} / {totalScenes}
           </div>
 
-          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Create AI videos, images and music
-          </h1>
-
-          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-            Choose a tool, create your media, then export and download.
-          </p>
-        </header>
-
-        <div className="mb-5">
-          <AiToolLauncher
-            selectedTool={selectedTool}
-            onSelectTool={handleSelectTool}
-          />
-        </div>
-
-        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
-          <DynamicToolWorkspace
-            selectedTool={selectedTool}
-            speechRate={speechRate}
-            setSpeechRate={setSpeechRate}
-            voiceVolume={voiceVolume}
-            setVoiceVolume={setVoiceVolume}
-            isSpeaking={isSpeaking}
-            aiVoiceBlob={aiVoiceBlob}
-            isExporting={isExporting}
-            onPlayVoiceover={startVoiceover}
-            onStopVoiceover={stopVoiceover}
-            onGenerateRealVoice={generateRealVoice}
-            backgroundMusic={backgroundMusic}
-            musicPreview={musicPreview}
-            musicVolume={musicVolume}
-            setMusicVolume={setMusicVolume}
-            isMusicPlaying={isMusicPlaying}
-            audioRef={audioRef}
-            onMusicUpload={handleMusicUpload}
-            onToggleMusic={toggleMusic}
-            photoMusicImagePreview={photoMusicImagePreview}
-            photoMusicAudioName={photoMusicAudioName}
-            photoMusicStyle={photoMusicStyle}
-            isExportingPhotoMusic={isExportingPhotoMusic}
-            setPhotoMusicStyle={setPhotoMusicStyle}
-            onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
-            onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
-            onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
-            onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
-            dancingPhotoPreview={dancingPhotoPreview}
-            danceStyle={danceStyle}
-            isGeneratingDance={isGeneratingDance}
-            danceResultMessage={danceResultMessage}
-            setDanceStyle={setDanceStyle}
-            onDancingPhotoUpload={handleDancingPhotoUpload}
-            onGenerateDance={handleGenerateDancingVideo}
-            videoPrompt={videoPrompt}
-            setVideoPrompt={setVideoPrompt}
-            videoCreativeType={videoCreativeType}
-            setVideoCreativeType={setVideoCreativeType}
-            videoOutputFormat={videoOutputFormat}
-            setVideoOutputFormat={setVideoOutputFormat}
-            onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
-            aiImagePrompt={aiImagePrompt}
-            setAiImagePrompt={setAiImagePrompt}
-            isGeneratingImage={isGeneratingImage}
-            generatedImagePreview={generatedImagePreview}
-            multiScenePlan={multiScenePlan}
-            onGenerateImage={handleGenerateImage}
-            onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
-            onAddGeneratedImage={handleAddGeneratedImage}
-            onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
-            onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
-            onMediaUpload={handleMediaUpload}
-            onPublishToFacebook={openFacebookAfterExport}
-            onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-              addSceneToTimeline(
-                file,
-                preview,
-                durationSeconds || getTimelineDuration()
-              )
-            }
-            onVideoDurationChange={setSelectedVideoDurationSeconds}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          <section ref={livePreviewSectionRef} className="space-y-4">
-            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-sm font-semibold text-slate-200">
-                  Preview
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="px-3 py-4 sm:px-4">
-                {selectedTool?.category === "Picture AI" ? (
-                  <PicturePreviewPanel
-                    mediaFiles={mediaFiles}
-                    imagePreviews={imagePreviews}
-                    currentIndex={currentIndex}
-                    setCurrentIndex={setCurrentIndex}
-                    facebookCaption={facebookCaption}
-                  />
-                ) : (
-                  <PreviewPanel
-                    mediaFiles={mediaFiles}
-                    imagePreviews={imagePreviews}
-                    currentIndex={currentIndex}
-                    setCurrentIndex={setCurrentIndex}
-                    isPlaying={isPlaying}
-                    setIsPlaying={setIsPlaying}
-                    facebookCaption={facebookCaption}
-                    sceneDurations={sceneDurations}
-                    onDeleteScene={handleDeleteScene}
-                    onDuplicateScene={handleDuplicateScene}
-                    onUpdateSceneDuration={handleUpdateSceneDuration}
-                  />
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-sm font-semibold text-slate-200">
-                  Export & Download
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="px-3 py-4 sm:px-4">
-  <ExportPanel
-    isRecording={isRecording}
-    isExporting={isExporting}
-    exportStatus={exportStatus}
-    exportPrimaryLabel={
-      selectedTool?.category === "Picture AI"
-        ? "Download Image"
-        : "Download Media"
-    }
-    onExportPrimary={handleExportPrimaryMedia}
-    onOpenFacebook={openFacebookAfterExport}
-    onInitializeFFmpeg={initializeFFmpeg}
-    onExportSilentMp4={handleExportSilentMp4}
-    onExportNarratedMp4={handleExportNarratedMp4}
-  />
-</CardContent>
-            </Card>
-
-            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Review your content before downloading or sharing.
+          {facebookCaption && (
+            <div className="absolute bottom-20 left-2 right-2">
+              <div className="rounded-xl bg-black/45 px-2 py-2 backdrop-blur-md">
+                <p className="line-clamp-4 whitespace-pre-wrap text-[11px] font-semibold leading-4 text-white drop-shadow-lg">
+                  {facebookCaption}
+                </p>
+              </div>
             </div>
-          </section>
-        </div>
+          )}
 
+          {totalScenes > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={prevSlide}
+                className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={nextSlide}
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          )}
+
+          <div className="absolute bottom-3 left-2 right-2 rounded-2xl bg-black/70 p-2 backdrop-blur">
+            <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-white">
+              <span>{formatTime(previewTime)}</span>
+              <span>{formatTime(selectedDuration)}</span>
+            </div>
+
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/25">
+              <div
+                className="h-full rounded-full bg-white transition-all"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-extrabold text-black transition hover:scale-[1.02]"
+            >
+              {isPlaying ? (
+                <>
+                  <Pause className="h-3.5 w-3.5" />
+                  Pause Preview
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  Play Preview
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
