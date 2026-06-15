@@ -89,7 +89,7 @@ type DynamicToolWorkspaceProps = {
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
   onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
 };
 
@@ -524,7 +524,7 @@ function VideoTemplatePanel({
   setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const [localVideoType, setLocalVideoType] = useState("Trending Reel");
@@ -854,7 +854,7 @@ function LifeEventVideoPanel({
   setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const isTribute = tool === "Obituary / Tribute Studio";
@@ -1234,6 +1234,7 @@ function CinematicPlaceholderPanel({
   setVideoCreativeType,
   setVideoOutputFormat,
   onAddEnhancedPhotoToTimeline,
+  onVideoDurationChange,
 }: {
   tool: string;
   selectedCreatorFont: string;
@@ -1242,7 +1243,8 @@ function CinematicPlaceholderPanel({
   setVideoPrompt?: (value: string) => void;
   setVideoCreativeType?: (value: string) => void;
   setVideoOutputFormat?: (value: string) => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+  onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const [cinematicMotionStyle, setCinematicMotionStyle] = useState(
     tool === "Photo to Video"
@@ -1266,6 +1268,8 @@ function CinematicPlaceholderPanel({
   const [cinematicPreview, setCinematicPreview] = useState("");
   const [stagedCinematicFile, setStagedCinematicFile] = useState<File | null>(null);
   const [stagedCinematicFileName, setStagedCinematicFileName] = useState("");
+  const [selectedCinematicDuration, setSelectedCinematicDuration] =
+    useState("10 Seconds");
 
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
 
@@ -1333,6 +1337,7 @@ function CinematicPlaceholderPanel({
       `Mood: ${cinematicMood}`,
       `Language: ${cinematicLanguage}`,
       `Output format: ${cinematicOutputFormat}`,
+      `Video duration: ${selectedCinematicDuration}`,
       `Aspect ratio: ${cinematicAspectRatio}`,
       `Cinematic text preset: ${cinematicTextPreset}`,
       `Selected font: ${selectedCreatorFont}`,
@@ -1367,7 +1372,11 @@ function CinematicPlaceholderPanel({
     }
 
     const preview = URL.createObjectURL(stagedCinematicFile);
-    onAddEnhancedPhotoToTimeline(stagedCinematicFile, preview);
+    onAddEnhancedPhotoToTimeline(
+      stagedCinematicFile,
+      preview,
+      getDurationSecondsFromLabel(selectedCinematicDuration)
+    );
     return true;
   };
 
@@ -1483,11 +1492,15 @@ function CinematicPlaceholderPanel({
       setVideoOutputFormat?.(cinematicOutputFormat);
 
       if (onAddEnhancedPhotoToTimeline) {
-        onAddEnhancedPhotoToTimeline(file, preview);
+        onAddEnhancedPhotoToTimeline(
+          file,
+          preview,
+          getDurationSecondsFromLabel(selectedCinematicDuration)
+        );
       }
 
       setCinematicStatus(
-        `${tool} generated. Uploaded media and preview cover have been added to the timeline. Preview it, then use Export / Download Media.`
+        `${tool} ${selectedCinematicDuration} generated. Uploaded media and preview cover have been added to the timeline. Preview it, then use Export / Download Media.`
       );
     }, "image/png");
   };
@@ -1501,6 +1514,15 @@ function CinematicPlaceholderPanel({
       />
 
       <div className="mt-5 space-y-5">
+        <VideoPricingCard
+          tool={tool}
+          selectedDuration={selectedCinematicDuration}
+          onDurationChange={(duration) => {
+            setSelectedCinematicDuration(duration);
+            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
+          }}
+        />
+
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
           AI video workspace ready — upload media, choose style, then generate.
         </div>
@@ -1673,7 +1695,7 @@ function CinematicPlaceholderPanel({
               setVideoCreativeType?.(cinematicMotionStyle);
               setVideoOutputFormat?.(cinematicOutputFormat);
               setCinematicStatus(
-                `${tool} video settings saved with ${cinematicTextPreset} text style. Click Generate to add uploaded media to preview/timeline, then export from the main Export section.`
+                `${tool} ${selectedCinematicDuration} video settings saved with ${cinematicTextPreset} text style. Click Generate to add uploaded media to preview/timeline, then export from the main Export section.`
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
@@ -3473,6 +3495,7 @@ export default function DynamicToolWorkspace({
         setVideoCreativeType={setVideoCreativeType}
         setVideoOutputFormat={setVideoOutputFormat}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+        onVideoDurationChange={onVideoDurationChange}
       />
     );
   }
