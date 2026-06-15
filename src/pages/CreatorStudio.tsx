@@ -7,7 +7,8 @@ import AiToolLauncher, {
   AiToolSelection,
 } from "@/components/creator/AiToolLauncher";
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
-import PreviewPanel from "@/components/creator/PreviewPanel";
+import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
+import VideoPreviewPanel from "@/components/creator/VideoPreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
 import { generateVoice } from "@/lib/voice";
@@ -1009,26 +1010,34 @@ export default function CreatorStudio() {
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-                <PreviewPanel
-                  mediaFiles={mediaFiles}
-                  imagePreviews={imagePreviews}
-                  currentIndex={currentIndex}
-                  setCurrentIndex={setCurrentIndex}
-                  isPlaying={isPlaying}
-                  setIsPlaying={setIsPlaying}
-                  facebookCaption={facebookCaption}
-                  sceneDurations={sceneDurations}
-                  previewMode={
-                    selectedTool?.category === "Picture AI"
-                      ? "image"
-                      : selectedTool?.category === "Cinematic AI"
+                {selectedTool?.category === "Picture AI" ? (
+                  <PicturePreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    facebookCaption={facebookCaption}
+                  />
+                ) : (
+                  <VideoPreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                    facebookCaption={facebookCaption}
+                    sceneDurations={sceneDurations}
+                    previewMode={
+                      selectedTool?.category === "Cinematic AI"
                         ? "cinematic"
                         : "video"
-                  }
-                  onDeleteScene={handleDeleteScene}
-                  onDuplicateScene={handleDuplicateScene}
-                  onUpdateSceneDuration={handleUpdateSceneDuration}
-                />
+                    }
+                    onDeleteScene={handleDeleteScene}
+                    onDuplicateScene={handleDuplicateScene}
+                    onUpdateSceneDuration={handleUpdateSceneDuration}
+                  />
+                )}
               </CardContent>
             </Card>
 
