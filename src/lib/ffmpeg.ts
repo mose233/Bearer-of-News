@@ -1,5 +1,4 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { toBlobURL } from "@ffmpeg/util";
 
 let ffmpeg: FFmpeg | null = null;
 let loadingPromise: Promise<FFmpeg> | null = null;
@@ -9,29 +8,31 @@ export const loadFFmpeg = async () => {
   if (loadingPromise) return loadingPromise;
 
   loadingPromise = (async () => {
-    const instance = new FFmpeg();
+    try {
+      const instance = new FFmpeg();
 
-    const baseURL =
-      "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+      const baseURL = "/ffmpeg";
 
-    console.log("Loading FFmpeg from:", baseURL);
+      console.log("Loading FFmpeg from:", baseURL);
 
-    await instance.load({
-      coreURL: await toBlobURL(
-        `${baseURL}/ffmpeg-core.js`,
-        "text/javascript"
-      ),
-      wasmURL: await toBlobURL(
-        `${baseURL}/ffmpeg-core.wasm`,
-        "application/wasm"
-      ),
-    });
+      await instance.load({
+        coreURL: `${baseURL}/ffmpeg-core.js`,
+        wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+        workerURL: `${baseURL}/ffmpeg-core.worker.js`,
+      });
 
-    ffmpeg = instance;
+      console.log("FFmpeg loaded successfully");
 
-    console.log("FFmpeg loaded successfully");
+      ffmpeg = instance;
+      return instance;
+    } catch (error) {
+      console.error("FFmpeg load failed:", error);
 
-    return instance;
+      loadingPromise = null;
+      ffmpeg = null;
+
+      throw error;
+    }
   })();
 
   return loadingPromise;
