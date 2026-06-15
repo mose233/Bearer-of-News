@@ -1265,7 +1265,6 @@ function CinematicPlaceholderPanel({
   const [cinematicTextPreset, setCinematicTextPreset] = useState("Hollywood");
   const [cinematicScript, setCinematicScript] = useState("");
   const [cinematicStatus, setCinematicStatus] = useState("");
-  const [cinematicPreview, setCinematicPreview] = useState("");
   const [stagedCinematicFile, setStagedCinematicFile] = useState<File | null>(null);
   const [stagedCinematicFileName, setStagedCinematicFileName] = useState("");
   const [selectedCinematicDuration, setSelectedCinematicDuration] =
@@ -1486,7 +1485,6 @@ function CinematicPlaceholderPanel({
       });
       const preview = URL.createObjectURL(blob);
 
-      setCinematicPreview(preview);
       setVideoPrompt?.(buildCinematicPrompt());
       setVideoCreativeType?.(cinematicMotionStyle);
       setVideoOutputFormat?.(cinematicOutputFormat);
