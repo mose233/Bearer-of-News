@@ -79,9 +79,13 @@ export default function PreviewPanel({
 
     const interval = window.setInterval(() => {
       setPreviewTime((previous) => {
-        if (previous >= selectedDuration) return 0;
-        return Math.min(previous + 0.25, selectedDuration);
-      });
+  if (previous >= selectedDuration) {
+    setIsPlaying(false);
+    return selectedDuration;
+  }
+
+  return Math.min(previous + 0.25, selectedDuration);
+});
     }, 250);
 
     return () => window.clearInterval(interval);
