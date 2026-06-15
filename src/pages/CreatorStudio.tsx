@@ -10,8 +10,7 @@ import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
-import { loadFFmpeg } from "@/lib/ffmpeg";
-import { generateVoice, tryGenerateVoice } from "@/lib/voice";
+import { generateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 import {
@@ -24,13 +23,7 @@ import {
   generateCreatorContent,
 } from "@/lib/creator/templates";
 
-import {
-  exportFinalMixedMp4,
-  exportNarratedMp4,
-  exportPhotoMusicVideoMp4,
-  exportSilentMp4,
-  ImagePreviewItem,
-} from "@/lib/creator/videoExport";
+import { ImagePreviewItem } from "@/lib/creator/videoExport";
 
 export default function CreatorStudio() {
   const [videoPrompt, setVideoPrompt] = useState("");
@@ -180,8 +173,8 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-  return selectedVideoDurationSeconds || 10;
-};
+    return selectedVideoDurationSeconds || 10;
+  };
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
@@ -336,38 +329,9 @@ export default function CreatorStudio() {
   };
 
   const handleExportPhotoMusicVideo = async () => {
-    try {
-      if (!photoMusicImageFile || !photoMusicImagePreview) {
-        alert("Please upload a photo first.");
-        return;
-      }
-
-      if (!photoMusicAudioFile) {
-        alert("Please upload a song first.");
-        return;
-      }
-
-      setIsExportingPhotoMusic(true);
-      setExportStatus("Rendering photo music video MP4...");
-
-      const videoBlob = await exportPhotoMusicVideoMp4({
-        imageFile: photoMusicImageFile,
-        imagePreview: photoMusicImagePreview,
-        audioFile: photoMusicAudioFile,
-        durationSeconds: getTimelineDuration(),
-        musicVolume: 0.9,
-      });
-
-      saveAs(videoBlob, "photo-music-video.mp4");
-
-      alert("Photo music video exported successfully. Download your MP4 and share it on social media.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to export photo music video.");
-    } finally {
-      setIsExportingPhotoMusic(false);
-      setExportStatus("");
-    }
+    alert(
+      "Video download is temporarily disabled while backend rendering is being connected. You can still preview your media and download images."
+    );
   };
 
   const handleDancingPhotoUpload = (
@@ -725,45 +689,10 @@ export default function CreatorStudio() {
   };
 
   const initializeFFmpeg = async () => {
-    try {
-      setIsExporting(true);
-      setExportStatus("Loading FFmpeg engine...");
-
-      const ffmpeg = await loadFFmpeg();
-
-      console.log("FFmpeg engine ready:", ffmpeg);
-
-      setExportStatus("FFmpeg ready.");
-
-      setTimeout(() => {
-        setExportStatus("");
-      }, 2000);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to load FFmpeg.");
-      setExportStatus("");
-    } finally {
-      setIsExporting(false);
-    }
+    alert(
+      "FFmpeg browser export has been removed for now. Video rendering will be handled by backend AI/rendering services later."
+    );
   };
-
-  const showGeneratedVideoInPreview = (videoBlob: Blob, fileName: string) => {
-    const videoFile = new File([videoBlob], fileName, {
-      type: videoBlob.type || "video/mp4",
-    });
-
-    const videoPreview = URL.createObjectURL(videoBlob);
-
-    mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
-
-    setMediaFiles([videoFile]);
-    setMediaPreviews([videoPreview]);
-    setSceneDurations([selectedVideoDurationSeconds]);
-    setCurrentIndex(0);
-
-    scrollToLivePreview();
-  };
-
 
   const handleExportPrimaryMedia = async () => {
     if (selectedTool?.category === "Picture AI") {
@@ -797,210 +726,38 @@ export default function CreatorStudio() {
       return;
     }
 
-    if (aiVoiceBlob) {
-      await handleExportFinalMixedMp4();
+    const currentFile = mediaFiles[currentIndex];
+
+    if (!currentFile) {
+      alert("Please upload or generate media first.");
       return;
     }
 
-    await handleExportSilentMp4();
+    saveAs(currentFile, currentFile.name || "xnewsapp-media");
   };
 
   const handleExportSilentMp4 = async () => {
-    try {
-      if (mediaItems.length === 0) {
-        alert("Please upload or generate images/videos first.");
-        return;
-      }
-
-      setIsRecording(true);
-      setExportStatus("Rendering silent MP4...");
-
-      const videoBlob = await exportSilentMp4(
-        mediaItems,
-        getTimelineDuration()
-      );
-
-      showGeneratedVideoInPreview(
-        videoBlob,
-        `xnewsapp-${getTimelineDuration()}s-silent-video.mp4`
-      );
-
-      saveAs(videoBlob, "creator-studio-silent-video.mp4");
-
-      alert(
-        "Silent MP4 exported successfully. Download your MP4 and share it on social media."
-      );
-    } catch (error) {
-      console.error(error);
-      alert("Failed to export silent MP4.");
-    } finally {
-      setIsRecording(false);
-      setExportStatus("");
-    }
+    alert(
+      "MP4 export is temporarily disabled while backend rendering is being connected. Use Download Media for now."
+    );
   };
 
   const handleExportNarratedMp4 = async () => {
-    try {
-      if (mediaItems.length === 0) {
-        alert("Please upload or generate images/videos first.");
-        return;
-      }
-
-      if (!aiVoiceBlob) {
-        alert("Please generate AI voice first.");
-        return;
-      }
-
-      setIsRecording(true);
-      setIsExporting(true);
-      setExportStatus("Mixing narration into video...");
-
-      const videoBlob = await exportNarratedMp4({
-        imagePreviews,
-        durationSeconds: getTimelineDuration(),
-        voiceBlob: aiVoiceBlob,
-        voiceVolume,
-      });
-
-      showGeneratedVideoInPreview(
-        videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-narrated-video.mp4`
-      );
-
-      saveAs(videoBlob, "creator-studio-narrated-video.mp4");
-
-      alert("Narrated MP4 exported successfully. Download your MP4 and share it on social media.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to export narrated MP4.");
-    } finally {
-      setIsRecording(false);
-      setIsExporting(false);
-      setExportStatus("");
-    }
+    alert(
+      "Narrated MP4 export is temporarily disabled while backend rendering is being connected."
+    );
   };
 
   const handleExportFinalMixedMp4 = async () => {
-    try {
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
-        return;
-      }
-
-      if (!aiVoiceBlob) {
-        alert("Please generate AI voice first.");
-        return;
-      }
-
-      setIsRecording(true);
-      setIsExporting(true);
-      setExportStatus("Mixing voice + background music...");
-
-      const videoBlob = await exportFinalMixedMp4({
-        imagePreviews,
-        durationSeconds: selectedVideoDurationSeconds,
-        voiceBlob: aiVoiceBlob,
-        voiceVolume,
-        backgroundMusic,
-        musicVolume,
-      });
-
-      showGeneratedVideoInPreview(
-        videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-final-video.mp4`
-      );
-
-      saveAs(videoBlob, "creator-studio-final-video.mp4");
-
-      alert("Final MP4 exported successfully. Download your MP4 and share it on social media.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to export final mixed MP4.");
-    } finally {
-      setIsRecording(false);
-      setIsExporting(false);
-      setExportStatus("");
-    }
+    alert(
+      "Final mixed MP4 export is temporarily disabled while backend rendering is being connected."
+    );
   };
 
   const handleGenerateCompleteVideo = async () => {
-    try {
-      if (!videoPrompt.trim()) {
-        alert("Please write a video prompt first.");
-        return;
-      }
-
-      if (imagePreviews.length === 0) {
-        alert("Please upload or generate images first.");
-        return;
-      }
-
-      setIsRecording(true);
-      setIsExporting(true);
-      setExportStatus("Preparing complete AI video...");
-
-      const generated = generateCreatorContent(contentType, videoPrompt);
-
-      setFacebookCaption(generated.caption);
-      setVoiceText(generated.voice);
-
-      setExportStatus("Generating AI narration...");
-
-      const voiceResult = await tryGenerateVoice(generated.voice);
-
-      if (!voiceResult.ok || !voiceResult.blob) {
-        alert(
-          "AI voice API unavailable. Exporting video without generated AI voice."
-        );
-
-        setExportStatus("Exporting silent fallback MP4...");
-
-        const videoBlob = await exportSilentMp4(
-          mediaItems,
-          selectedVideoDurationSeconds
-        );
-
-        showGeneratedVideoInPreview(
-          videoBlob,
-          `xnewsapp-${selectedVideoDurationSeconds}s-complete-video-no-ai-voice.mp4`
-        );
-
-        saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
-
-        return;
-      }
-
-      const voiceBlob = voiceResult.blob;
-
-      setAiVoiceBlob(voiceBlob);
-
-      setExportStatus("Rendering final MP4...");
-
-      const videoBlob = await exportFinalMixedMp4({
-        imagePreviews,
-        durationSeconds: selectedVideoDurationSeconds,
-        voiceBlob,
-        voiceVolume,
-        backgroundMusic,
-        musicVolume,
-      });
-
-      showGeneratedVideoInPreview(
-        videoBlob,
-        `xnewsapp-${selectedVideoDurationSeconds}s-complete-ai-video.mp4`
-      );
-
-      saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
-
-      alert("Video generated successfully. Download your MP4 and share it on social media.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate complete AI video.");
-    } finally {
-      setIsRecording(false);
-      setIsExporting(false);
-      setExportStatus("");
-    }
+    alert(
+      "Complete AI video export is temporarily disabled while backend rendering is being connected. You can still prepare scenes, preview, and download uploaded/generated media."
+    );
   };
 
   const handleDownloadGeneratedImage = async () => {
@@ -1152,7 +909,7 @@ export default function CreatorStudio() {
     exportPrimaryLabel={
       selectedTool?.category === "Picture AI"
         ? "Download Image"
-        : "Export / Download Media"
+        : "Download Media"
     }
     onExportPrimary={handleExportPrimaryMedia}
     onOpenFacebook={openFacebookAfterExport}
