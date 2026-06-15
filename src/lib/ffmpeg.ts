@@ -13,19 +13,29 @@ export const loadFFmpeg = async () => {
       const instance = new FFmpeg();
 
       const baseURL =
-        "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
+        "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
 
       console.log("Loading FFmpeg from:", baseURL);
 
+      const coreURL = await toBlobURL(
+        `${baseURL}/ffmpeg-core.js`,
+        "text/javascript"
+      );
+
+      const wasmURL = await toBlobURL(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm"
+      );
+
+      const workerURL = await toBlobURL(
+        `${baseURL}/ffmpeg-core.worker.js`,
+        "text/javascript"
+      );
+
       await instance.load({
-        coreURL: await toBlobURL(
-          `${baseURL}/ffmpeg-core.js`,
-          "text/javascript"
-        ),
-        wasmURL: await toBlobURL(
-          `${baseURL}/ffmpeg-core.wasm`,
-          "application/wasm"
-        ),
+        coreURL,
+        wasmURL,
+        workerURL,
       });
 
       console.log("FFmpeg loaded successfully");
