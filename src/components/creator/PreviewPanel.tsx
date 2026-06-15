@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Play,
   Pause,
@@ -27,6 +27,17 @@ type PreviewPanelProps = {
   onUpdateSceneDuration?: (index: number, duration: number) => void;
 };
 
+function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
+
+  return `${minutes}:${remainingSeconds}`;
+}
+
 export default function PreviewPanel({
   mediaFiles,
   imagePreviews,
@@ -37,30 +48,48 @@ export default function PreviewPanel({
   facebookCaption,
   sceneDurations = [],
   previewMode = "image",
-  onUpdateSceneDuration,
 }: PreviewPanelProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [videoRealDuration, setVideoRealDuration] = useState(0);
+
   const totalScenes = Math.max(mediaFiles.length, imagePreviews.length);
 
   const safeCurrentIndex =
     totalScenes > 0 ? Math.min(Math.max(currentIndex, 0), totalScenes - 1) : 0;
 
-  const currentDuration = sceneDurations[safeCurrentIndex] || 10;
+  const selectedDuration = sceneDurations[safeCurrentIndex] || 10;
 
+  const currentFile = mediaFiles[safeCurrentIndex] || mediaFiles[0];
   const currentPreview = imagePreviews[safeCurrentIndex];
-  const currentFile =
-    currentPreview?.file || mediaFiles[safeCurrentIndex] || mediaFiles[0];
 
   const previewUrl = useMemo(() => {
+    if (currentFile) return URL.createObjectURL(currentFile);
     if (currentPreview?.preview) return currentPreview.preview;
-    if (!currentFile) return "";
-    return URL.createObjectURL(currentFile);
+    return "";
   }, [currentFile, currentPreview?.preview]);
+
+  useEffect(() => {
+    setVideoCurrentTime(0);
+    setVideoRealDuration(0);
+
+    return () => {
+      if (previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const isCurrentVideo = currentFile?.type?.startsWith("video/");
   const isCurrentImage =
     currentFile?.type?.startsWith("image/") || Boolean(currentPreview?.preview);
 
   const shouldAnimatePreview = previewMode !== "image" && isCurrentImage;
+  const displayDuration = videoRealDuration || selectedDuration;
+  const progressPercent =
+    displayDuration > 0
+      ? Math.min((videoCurrentTime / displayDuration) * 100, 100)
+      : 0;
 
   const nextSlide = () => {
     if (totalScenes === 0) return;
@@ -70,6 +99,21 @@ export default function PreviewPanel({
   const prevSlide = () => {
     if (totalScenes === 0) return;
     setCurrentIndex((prev) => (prev === 0 ? totalScenes - 1 : prev - 1));
+  };
+
+  const toggleVideoPlayback = () => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    if (video.paused) {
+      video.play().catch(() => {});
+      setIsPlaying(true);
+      return;
+    }
+
+    video.pause();
+    setIsPlaying(false);
   };
 
   if (mediaFiles.length === 0 && imagePreviews.length === 0) {
@@ -93,17 +137,66 @@ export default function PreviewPanel({
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black p-1.5 shadow-creator">
         <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
           {isCurrentVideo && previewUrl ? (
-            <video
-  key={previewUrl}
-  src={previewUrl}
-  controls
-  autoPlay
-  muted
-  loop
-  playsInline
-  preload="auto"
-  className="h-full w-full rounded-xl bg-black object-contain"
-/>
+            <>
+              <video
+                ref={videoRef}
+                key={previewUrl}
+                src={previewUrl}
+                controls
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                onLoadedMetadata={(event) => {
+                  const video = event.currentTarget;
+                  setVideoRealDuration(video.duration || 0);
+                  video.play().catch(() => {});
+                }}
+                onTimeUpdate={(event) => {
+                  setVideoCurrentTime(event.currentTarget.currentTime || 0);
+                }}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+                className="absolute inset-0 h-full w-full rounded-xl bg-black object-contain"
+              />
+
+              <div className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/60 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                {safeCurrentIndex + 1} / {totalScenes}
+              </div>
+
+              <div className="absolute bottom-3 left-2 right-2 rounded-2xl bg-black/65 p-2 backdrop-blur">
+                <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-white">
+                  <span>{formatTime(videoCurrentTime)}</span>
+                  <span>{formatTime(displayDuration)}</span>
+                </div>
+
+                <div className="h-1.5 overflow-hidden rounded-full bg-white/25">
+                  <div
+                    className="h-full rounded-full bg-white transition-all"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={toggleVideoPlayback}
+                  className="pointer-events-auto mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-white text-xs font-extrabold text-black transition hover:scale-[1.02]"
+                >
+                  {isPlaying ? (
+                    <>
+                      <Pause className="h-3.5 w-3.5" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3.5 w-3.5" />
+                      Play
+                    </>
+                  )}
+                </button>
+              </div>
+            </>
           ) : isCurrentImage && previewUrl ? (
             <img
               src={previewUrl}
@@ -120,12 +213,14 @@ export default function PreviewPanel({
           )}
 
           {!isCurrentVideo && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/15" />
+            <>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/15" />
+
+              <div className="absolute left-2 top-2 rounded-full bg-black/50 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                {safeCurrentIndex + 1} / {totalScenes}
+              </div>
+            </>
           )}
-
-      
-
-          
 
           {facebookCaption && !isCurrentVideo && (
             <div className="absolute bottom-12 left-2 right-2">
@@ -172,8 +267,6 @@ export default function PreviewPanel({
           )}
         </div>
       </div>
-
-    
     </div>
   );
 }
