@@ -1669,18 +1669,7 @@ function CinematicPlaceholderPanel({
           </div>
         )}
 
-        {cinematicPreview && (
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
-            <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
-              Cinematic Preview
-            </div>
-            <img
-              src={cinematicPreview}
-              alt="Cinematic mock draft preview"
-              className="max-h-[420px] w-full rounded-2xl object-cover"
-            />
-          </div>
-        )}
+
 
         <div className="flex flex-wrap gap-3">
           <PrimaryGenerateButton
