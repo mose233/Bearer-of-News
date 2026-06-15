@@ -89,7 +89,7 @@ export default function PreviewPanel({
     }, 250);
 
     return () => window.clearInterval(interval);
-  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo]);
+  }, [isPlaying, previewUrl, selectedDuration, isCurrentVideo, setIsPlaying]);
 
   const progressPercent =
     selectedDuration > 0
