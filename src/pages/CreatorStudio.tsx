@@ -24,7 +24,7 @@ import {
   generateCreatorContent,
 } from "@/lib/creator/templates";
 
-import { ImagePreviewItem, exportMediaMp4 } from "@/lib/creator/videoExport";
+import { ImagePreviewItem } from "@/lib/creator/videoExport";
 
 export default function CreatorStudio() {
   const [videoPrompt, setVideoPrompt] = useState("");
@@ -178,6 +178,103 @@ export default function CreatorStudio() {
   };
 
 
+  const createAnimatedPreviewVideo = async (
+    imageUrl: string,
+    durationSeconds: number
+  ) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 720;
+    canvas.height = 1280;
+
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      throw new Error("Could not create video canvas.");
+    }
+
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = imageUrl;
+    });
+
+    const stream = canvas.captureStream(30);
+    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+      ? "video/webm;codecs=vp9"
+      : "video/webm";
+
+    const recorder = new MediaRecorder(stream, {
+      mimeType,
+    });
+
+    const chunks: Blob[] = [];
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+
+    const finished = new Promise<Blob>((resolve) => {
+      recorder.onstop = () => {
+        resolve(
+          new Blob(chunks, {
+            type: "video/webm",
+          })
+        );
+      };
+    });
+
+    const startTime = performance.now();
+    const durationMs = Math.max(durationSeconds, 1) * 1000;
+
+    recorder.start();
+
+    const drawFrame = () => {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / durationMs, 1);
+      const scale = 1 + progress * 0.12;
+
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const imageRatio = image.width / image.height;
+      const canvasRatio = canvas.width / canvas.height;
+
+      let drawWidth = canvas.width;
+      let drawHeight = canvas.height;
+
+      if (imageRatio > canvasRatio) {
+        drawHeight = canvas.height * scale;
+        drawWidth = drawHeight * imageRatio;
+      } else {
+        drawWidth = canvas.width * scale;
+        drawHeight = drawWidth / imageRatio;
+      }
+
+      const moveX = -canvas.width * 0.03 * progress;
+      const moveY = -canvas.height * 0.03 * progress;
+
+      const x = (canvas.width - drawWidth) / 2 + moveX;
+      const y = (canvas.height - drawHeight) / 2 + moveY;
+
+      ctx.drawImage(image, x, y, drawWidth, drawHeight);
+
+      if (progress < 1) {
+        requestAnimationFrame(drawFrame);
+        return;
+      }
+
+      recorder.stop();
+    };
+
+    drawFrame();
+
+    return finished;
+  };
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
@@ -745,45 +842,27 @@ export default function CreatorStudio() {
     if (currentFile.type.startsWith("image/")) {
       try {
         setIsExporting(true);
-        setExportStatus("Creating MP4 video download...");
+        setExportStatus("Creating preview video download...");
 
-        const videoBlob = await exportMediaMp4(
-          [
-            {
-              file: currentFile,
-              preview: currentPreview,
-            },
-          ],
+        const videoBlob = await createAnimatedPreviewVideo(
+          currentPreview,
           getTimelineDuration()
         );
 
         saveAs(
           videoBlob,
-          `xnewsapp-video-${getTimelineDuration()}s.mp4`
+          `xnewsapp-preview-${getTimelineDuration()}s.webm`
         );
         return;
       } catch (error) {
-  console.error("MP4 export error:", error);
-
-  alert(
-    "Unable to create MP4 video. The image/video is still available and can be downloaded directly."
-  );
-
-  if (currentFile) {
-    saveAs(
-      currentFile,
-      currentFile.name ||
-        (currentFile.type.startsWith("image/")
-          ? "xnewsapp-image.png"
-          : "xnewsapp-video.mp4")
-    );
-  }
-
-  return;
-} finally {
-  setIsExporting(false);
-  setExportStatus("");
-}
+        console.error(error);
+        alert("Failed to create video download. Downloading image instead.");
+        saveAs(currentFile, currentFile.name || "xnewsapp-image.png");
+        return;
+      } finally {
+        setIsExporting(false);
+        setExportStatus("");
+      }
     }
 
     saveAs(currentFile, currentFile.name || "xnewsapp-media");
