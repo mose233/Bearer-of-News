@@ -69,6 +69,58 @@ export default function PhotoMusicVideoPanel({
         Create Facebook-ready music videos from your photos and audio.
       </p>
 
+      <details className="mt-4 rounded-2xl border border-violet-400/20 bg-violet-500/10 p-4">
+        <summary className="cursor-pointer list-none select-none">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-extrabold text-violet-200">
+                🎬 CINEMATIC AI
+              </div>
+
+              <div className="mt-1 text-lg font-bold text-white">
+                10 Seconds ........ $0.70
+              </div>
+            </div>
+
+            <span className="text-lg font-extrabold text-violet-200">
+              Tap to View Prices ▼
+            </span>
+          </div>
+        </summary>
+
+        <div className="mt-4 space-y-2 text-sm font-semibold text-white">
+          <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+            <span>10 Seconds</span>
+            <span>$0.70</span>
+          </div>
+
+          <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+            <span>20 Seconds</span>
+            <span>$1.20</span>
+          </div>
+
+          <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+            <span>30 Seconds</span>
+            <span>$1.70</span>
+          </div>
+
+          <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+            <span>40 Seconds</span>
+            <span>$2.20</span>
+          </div>
+
+          <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+            <span>50 Seconds</span>
+            <span>$2.70</span>
+          </div>
+
+          <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+            <span>60 Seconds</span>
+            <span>$3.20</span>
+          </div>
+        </div>
+      </details>
+
       <div className="mt-5 space-y-5">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
@@ -134,49 +186,7 @@ export default function PhotoMusicVideoPanel({
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              1. Video Type
-            </span>
-
-            <select
-              value={photoMusicStyle}
-              onChange={(e) => setPhotoMusicStyle(e.target.value)}
-              className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-            >
-              {videoTypes.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-extrabold">
-              2. Output Format
-            </span>
-
-            <select
-              className="w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30"
-              defaultValue="Facebook Reel"
-            >
-              {outputFormats.map((format) => (
-                <option key={format}>{format}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <button
-          type="button"
-          onClick={onExportPhotoMusicVideo}
-          disabled={isExportingPhotoMusic}
-          className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 disabled:opacity-60 md:w-auto"
-        >
-          {isExportingPhotoMusic
-            ? "Generating Complete AI Video..."
-            : "Generate Complete AI Video"}
-        </button>
+        {/* Keep the rest of your existing file unchanged */}
       </div>
     </div>
   );
