@@ -855,11 +855,29 @@ export default function CreatorStudio() {
         );
         return;
       } catch (error) {
-        console.error(error);
-        alert("Failed to create video download. Downloading image instead.");
-        saveAs(currentFile, currentFile.name || "xnewsapp-image.png");
-        return;
-      } finally {
+  console.error("Preview video creation failed:", error);
+
+  try {
+    if (currentPreview) {
+      const response = await fetch(currentPreview);
+      const blob = await response.blob();
+
+      saveAs(
+        blob,
+        currentFile.name.replace(/\.[^/.]+$/, "") + ".png"
+      );
+    } else {
+      saveAs(currentFile, currentFile.name || "xnewsapp-image.png");
+    }
+  } catch (downloadError) {
+    console.error("Fallback image download failed:", downloadError);
+    alert(
+      "Video preview export failed. Please try again or regenerate the media."
+    );
+  }
+
+  return;
+} finally {
         setIsExporting(false);
         setExportStatus("");
       }
