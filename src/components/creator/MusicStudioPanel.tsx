@@ -500,15 +500,67 @@ export default function MusicStudioPanel({
   return (
     <div className="rounded-[1.5rem] border border-white/10 bg-[#111827] p-5 text-white shadow-creator">
       <div>
-        <div className="flex items-center gap-2">
-          <Music className="h-5 w-5 text-cyan-300" />
-          <h3 className="text-lg font-extrabold">{config.title}</h3>
+  <div className="flex items-center gap-2">
+    <Music className="h-5 w-5 text-cyan-300" />
+    <h3 className="text-lg font-extrabold">{config.title}</h3>
+  </div>
+
+  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+    {config.description}
+  </p>
+
+  <details className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+    <summary className="cursor-pointer list-none select-none">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-sm font-extrabold text-cyan-200">
+            🎵 AI MUSIC VIDEO STUDIO
+          </div>
+
+          <div className="mt-1 text-lg font-bold text-white">
+            Starting at $0.70
+          </div>
         </div>
 
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          {config.description}
-        </p>
+        <span className="text-lg font-extrabold text-cyan-200">
+          Tap to View Prices ▼
+        </span>
       </div>
+    </summary>
+
+    <div className="mt-4 space-y-2 text-sm font-semibold text-white">
+      <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+        <span>10 Seconds</span>
+        <span>$0.70</span>
+      </div>
+
+      <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+        <span>20 Seconds</span>
+        <span>$1.20</span>
+      </div>
+
+      <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+        <span>30 Seconds</span>
+        <span>$1.70</span>
+      </div>
+
+      <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+        <span>40 Seconds</span>
+        <span>$2.20</span>
+      </div>
+
+      <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+        <span>50 Seconds</span>
+        <span>$2.70</span>
+      </div>
+
+      <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
+        <span>60 Seconds</span>
+        <span>$3.20</span>
+      </div>
+    </div>
+  </details>
+</div>
 
       <div className="mt-5 space-y-5">
         <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
