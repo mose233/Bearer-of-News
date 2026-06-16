@@ -850,9 +850,9 @@ export default function CreatorStudio() {
         );
 
         saveAs(
-          videoBlob,
-          `xnewsapp-preview-${getTimelineDuration()}s.webm`
-        );
+  videoBlob,
+  `xnewsapp-cinematic-preview-${Date.now()}.webm`
+);
         return;
       } catch (error) {
   console.error("Preview video creation failed:", error);
