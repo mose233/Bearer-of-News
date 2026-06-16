@@ -36,9 +36,47 @@ export default function DancingPhotoPanel({
           </h3>
         </div>
 
-        <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-          Turn your photo into a fun AI dancing creative.
-        </p>
+       <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
+  Turn your photo into a fun AI dancing creative.
+</p>
+
+<div className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+  <h4 className="text-sm font-extrabold text-cyan-200">
+    Cinematic AI Pricing
+  </h4>
+
+  <div className="mt-3 space-y-1 text-sm font-semibold text-white">
+    <div className="flex justify-between">
+      <span>10 Seconds</span>
+      <span>$0.70</span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>20 Seconds</span>
+      <span>$1.20</span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>30 Seconds</span>
+      <span>$1.70</span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>40 Seconds</span>
+      <span>$2.20</span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>50 Seconds</span>
+      <span>$2.70</span>
+    </div>
+
+    <div className="flex justify-between border-t border-cyan-400/20 pt-2">
+      <span>60 Seconds</span>
+      <span>$3.20</span>
+    </div>
+  </div>
+</div>
       </div>
 
       <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-900/50 px-5 py-8 text-center transition hover:border-cyan-400/50 hover:bg-slate-900/80">
