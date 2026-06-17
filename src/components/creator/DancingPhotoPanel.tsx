@@ -1,4 +1,4 @@
-import { ImagePlus, Music2, Sparkles, Wand2 } from "lucide-react";  
+import { ImagePlus, Music2, Sparkles, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,61 +36,9 @@ export default function DancingPhotoPanel({
           </h3>
         </div>
 
-       <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-  Turn your photo into a fun AI dancing creative.
-</p>
-
-<details className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
-  <summary className="cursor-pointer list-none select-none">
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="text-sm font-extrabold text-cyan-200">
-          🎬 CINEMATIC AI
-        </div>
-
-        <div className="mt-1 text-lg font-bold text-white">
-          10 Seconds ........ $0.70
-        </div>
-      </div>
-
-      <span className="text-lg font-extrabold text-cyan-200">
-        Tap to View Prices ▼
-      </span>
-    </div>
-  </summary>
-
-  <div className="mt-4 space-y-2 text-sm font-semibold text-white">
-    <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
-      <span>10 Seconds</span>
-      <span>$0.70</span>
-    </div>
-
-    <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
-      <span>20 Seconds</span>
-      <span>$1.20</span>
-    </div>
-
-    <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
-      <span>30 Seconds</span>
-      <span>$1.70</span>
-    </div>
-
-    <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
-      <span>40 Seconds</span>
-      <span>$2.20</span>
-    </div>
-
-    <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
-      <span>50 Seconds</span>
-      <span>$2.70</span>
-    </div>
-
-    <div className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3">
-      <span>60 Seconds</span>
-      <span>$3.20</span>
-    </div>
-  </div>
-</details>
+        <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
+          Turn your photo into a fun AI dancing creative.
+        </p>
       </div>
 
       <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-900/50 px-5 py-8 text-center transition hover:border-cyan-400/50 hover:bg-slate-900/80">
