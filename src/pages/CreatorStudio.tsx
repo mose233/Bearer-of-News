@@ -8,10 +8,10 @@ import AiToolLauncher, {
 } from "@/components/creator/AiToolLauncher";
 import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
-import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
-import { generateVoice } from "@/lib/voice";
+import { loadFFmpeg } from "@/lib/ffmpeg";
+import { generateVoice, tryGenerateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 import {
@@ -24,7 +24,13 @@ import {
   generateCreatorContent,
 } from "@/lib/creator/templates";
 
-import { ImagePreviewItem } from "@/lib/creator/videoExport";
+import {
+  exportFinalMixedMp4,
+  exportNarratedMp4,
+  exportPhotoMusicVideoMp4,
+  exportSilentMp4,
+  ImagePreviewItem,
+} from "@/lib/creator/videoExport";
 
 export default function CreatorStudio() {
   const [videoPrompt, setVideoPrompt] = useState("");
@@ -174,107 +180,8 @@ export default function CreatorStudio() {
   };
 
   const getTimelineDuration = () => {
-    return selectedVideoDurationSeconds || 10;
-  };
-
-
-  const createAnimatedPreviewVideo = async (
-    imageUrl: string,
-    durationSeconds: number
-  ) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 720;
-    canvas.height = 1280;
-
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      throw new Error("Could not create video canvas.");
-    }
-
-    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = imageUrl;
-    });
-
-    const stream = canvas.captureStream(30);
-    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-      ? "video/webm;codecs=vp9"
-      : "video/webm";
-
-    const recorder = new MediaRecorder(stream, {
-      mimeType,
-    });
-
-    const chunks: Blob[] = [];
-
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
-      }
-    };
-
-    const finished = new Promise<Blob>((resolve) => {
-      recorder.onstop = () => {
-        resolve(
-          new Blob(chunks, {
-            type: "video/webm",
-          })
-        );
-      };
-    });
-
-    const startTime = performance.now();
-    const durationMs = Math.max(durationSeconds, 1) * 1000;
-
-    recorder.start();
-
-    const drawFrame = () => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / durationMs, 1);
-      const scale = 1 + progress * 0.12;
-
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const imageRatio = image.width / image.height;
-      const canvasRatio = canvas.width / canvas.height;
-
-      let drawWidth = canvas.width;
-      let drawHeight = canvas.height;
-
-      if (imageRatio > canvasRatio) {
-        drawHeight = canvas.height * scale;
-        drawWidth = drawHeight * imageRatio;
-      } else {
-        drawWidth = canvas.width * scale;
-        drawHeight = drawWidth / imageRatio;
-      }
-
-      const moveX = -canvas.width * 0.03 * progress;
-      const moveY = -canvas.height * 0.03 * progress;
-
-      const x = (canvas.width - drawWidth) / 2 + moveX;
-      const y = (canvas.height - drawHeight) / 2 + moveY;
-
-      ctx.drawImage(image, x, y, drawWidth, drawHeight);
-
-      if (progress < 1) {
-        requestAnimationFrame(drawFrame);
-        return;
-      }
-
-      recorder.stop();
-    };
-
-    drawFrame();
-
-    return finished;
-  };
+  return selectedVideoDurationSeconds || 10;
+};
 
   const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
     const nextIndex = mediaFiles.length;
@@ -429,9 +336,38 @@ export default function CreatorStudio() {
   };
 
   const handleExportPhotoMusicVideo = async () => {
-    alert(
-      "Video download is temporarily disabled while backend rendering is being connected. You can still preview your media and download images."
-    );
+    try {
+      if (!photoMusicImageFile || !photoMusicImagePreview) {
+        alert("Please upload a photo first.");
+        return;
+      }
+
+      if (!photoMusicAudioFile) {
+        alert("Please upload a song first.");
+        return;
+      }
+
+      setIsExportingPhotoMusic(true);
+      setExportStatus("Rendering photo music video MP4...");
+
+      const videoBlob = await exportPhotoMusicVideoMp4({
+        imageFile: photoMusicImageFile,
+        imagePreview: photoMusicImagePreview,
+        audioFile: photoMusicAudioFile,
+        durationSeconds: getTimelineDuration(),
+        musicVolume: 0.9,
+      });
+
+      saveAs(videoBlob, "photo-music-video.mp4");
+
+      alert("Photo music video exported successfully. Download your MP4 and share it on social media.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export photo music video.");
+    } finally {
+      setIsExportingPhotoMusic(false);
+      setExportStatus("");
+    }
   };
 
   const handleDancingPhotoUpload = (
@@ -789,10 +725,45 @@ export default function CreatorStudio() {
   };
 
   const initializeFFmpeg = async () => {
-    alert(
-      "FFmpeg browser export has been removed for now. Video rendering will be handled by backend AI/rendering services later."
-    );
+    try {
+      setIsExporting(true);
+      setExportStatus("Loading FFmpeg engine...");
+
+      const ffmpeg = await loadFFmpeg();
+
+      console.log("FFmpeg engine ready:", ffmpeg);
+
+      setExportStatus("FFmpeg ready.");
+
+      setTimeout(() => {
+        setExportStatus("");
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load FFmpeg.");
+      setExportStatus("");
+    } finally {
+      setIsExporting(false);
+    }
   };
+
+  const showGeneratedVideoInPreview = (videoBlob: Blob, fileName: string) => {
+    const videoFile = new File([videoBlob], fileName, {
+      type: videoBlob.type || "video/mp4",
+    });
+
+    const videoPreview = URL.createObjectURL(videoBlob);
+
+    mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
+
+    setMediaFiles([videoFile]);
+    setMediaPreviews([videoPreview]);
+    setSceneDurations([selectedVideoDurationSeconds]);
+    setCurrentIndex(0);
+
+    scrollToLivePreview();
+  };
+
 
   const handleExportPrimaryMedia = async () => {
     if (selectedTool?.category === "Picture AI") {
@@ -826,70 +797,208 @@ export default function CreatorStudio() {
       return;
     }
 
-    const currentFile = mediaFiles[currentIndex];
-    const currentPreview = mediaPreviews[currentIndex];
-
-    if (!currentFile || !currentPreview) {
-      alert("Please upload or generate media first.");
+    if (aiVoiceBlob) {
+      await handleExportFinalMixedMp4();
       return;
     }
 
-    if (currentFile.type.startsWith("video/")) {
-      saveAs(currentFile, currentFile.name || "xnewsapp-video.mp4");
-      return;
-    }
-
-    if (currentFile.type.startsWith("image/")) {
-      try {
-        setIsExporting(true);
-        setExportStatus("Creating preview video download...");
-
-        const videoBlob = await createAnimatedPreviewVideo(
-          currentPreview,
-          getTimelineDuration()
-        );
-
-        saveAs(
-          videoBlob,
-          `xnewsapp-preview-${getTimelineDuration()}s.webm`
-        );
-        return;
-      } catch (error) {
-        console.error(error);
-        alert("Failed to create video download. Downloading image instead.");
-        saveAs(currentFile, currentFile.name || "xnewsapp-image.png");
-        return;
-      } finally {
-        setIsExporting(false);
-        setExportStatus("");
-      }
-    }
-
-    saveAs(currentFile, currentFile.name || "xnewsapp-media");
+    await handleExportSilentMp4();
   };
 
   const handleExportSilentMp4 = async () => {
-    alert(
-      "MP4 export is temporarily disabled while backend rendering is being connected. Use Download Media for now."
-    );
+    try {
+      if (mediaItems.length === 0) {
+        alert("Please upload or generate images/videos first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setExportStatus("Rendering silent MP4...");
+
+      const videoBlob = await exportSilentMp4(
+        mediaItems,
+        selectedVideoDurationSeconds
+      );
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-silent-video.mp4`
+      );
+
+      saveAs(videoBlob, "creator-studio-silent-video.mp4");
+
+      alert("Silent MP4 exported successfully. Download your MP4 and share it on social media.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export silent MP4.");
+    } finally {
+      setIsRecording(false);
+      setExportStatus("");
+    }
   };
 
   const handleExportNarratedMp4 = async () => {
-    alert(
-      "Narrated MP4 export is temporarily disabled while backend rendering is being connected."
-    );
+    try {
+      if (mediaItems.length === 0) {
+        alert("Please upload or generate images/videos first.");
+        return;
+      }
+
+      if (!aiVoiceBlob) {
+        alert("Please generate AI voice first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setIsExporting(true);
+      setExportStatus("Mixing narration into video...");
+
+      const videoBlob = await exportNarratedMp4({
+        imagePreviews,
+        durationSeconds: getTimelineDuration(),
+        voiceBlob: aiVoiceBlob,
+        voiceVolume,
+      });
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-narrated-video.mp4`
+      );
+
+      saveAs(videoBlob, "creator-studio-narrated-video.mp4");
+
+      alert("Narrated MP4 exported successfully. Download your MP4 and share it on social media.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export narrated MP4.");
+    } finally {
+      setIsRecording(false);
+      setIsExporting(false);
+      setExportStatus("");
+    }
   };
 
   const handleExportFinalMixedMp4 = async () => {
-    alert(
-      "Final mixed MP4 export is temporarily disabled while backend rendering is being connected."
-    );
+    try {
+      if (imagePreviews.length === 0) {
+        alert("Please upload or generate images first.");
+        return;
+      }
+
+      if (!aiVoiceBlob) {
+        alert("Please generate AI voice first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setIsExporting(true);
+      setExportStatus("Mixing voice + background music...");
+
+      const videoBlob = await exportFinalMixedMp4({
+        imagePreviews,
+        durationSeconds: selectedVideoDurationSeconds,
+        voiceBlob: aiVoiceBlob,
+        voiceVolume,
+        backgroundMusic,
+        musicVolume,
+      });
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-final-video.mp4`
+      );
+
+      saveAs(videoBlob, "creator-studio-final-video.mp4");
+
+      alert("Final MP4 exported successfully. Download your MP4 and share it on social media.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to export final mixed MP4.");
+    } finally {
+      setIsRecording(false);
+      setIsExporting(false);
+      setExportStatus("");
+    }
   };
 
   const handleGenerateCompleteVideo = async () => {
-    alert(
-      "Complete AI video export is temporarily disabled while backend rendering is being connected. You can still prepare scenes, preview, and download uploaded/generated media."
-    );
+    try {
+      if (!videoPrompt.trim()) {
+        alert("Please write a video prompt first.");
+        return;
+      }
+
+      if (imagePreviews.length === 0) {
+        alert("Please upload or generate images first.");
+        return;
+      }
+
+      setIsRecording(true);
+      setIsExporting(true);
+      setExportStatus("Preparing complete AI video...");
+
+      const generated = generateCreatorContent(contentType, videoPrompt);
+
+      setFacebookCaption(generated.caption);
+      setVoiceText(generated.voice);
+
+      setExportStatus("Generating AI narration...");
+
+      const voiceResult = await tryGenerateVoice(generated.voice);
+
+      if (!voiceResult.ok || !voiceResult.blob) {
+        alert(
+          "AI voice API unavailable. Exporting video without generated AI voice."
+        );
+
+        setExportStatus("Exporting silent fallback MP4...");
+
+        const videoBlob = await exportSilentMp4(
+          mediaItems,
+          selectedVideoDurationSeconds
+        );
+
+        showGeneratedVideoInPreview(
+          videoBlob,
+          `xnewsapp-${selectedVideoDurationSeconds}s-complete-video-no-ai-voice.mp4`
+        );
+
+        saveAs(videoBlob, "creator-studio-complete-video-no-ai-voice.mp4");
+
+        return;
+      }
+
+      const voiceBlob = voiceResult.blob;
+
+      setAiVoiceBlob(voiceBlob);
+
+      setExportStatus("Rendering final MP4...");
+
+      const videoBlob = await exportFinalMixedMp4({
+        imagePreviews,
+        durationSeconds: selectedVideoDurationSeconds,
+        voiceBlob,
+        voiceVolume,
+        backgroundMusic,
+        musicVolume,
+      });
+
+      showGeneratedVideoInPreview(
+        videoBlob,
+        `xnewsapp-${selectedVideoDurationSeconds}s-complete-ai-video.mp4`
+      );
+
+      saveAs(videoBlob, "creator-studio-complete-ai-video.mp4");
+
+      alert("Video generated successfully. Download your MP4 and share it on social media.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate complete AI video.");
+    } finally {
+      setIsRecording(false);
+      setIsExporting(false);
+      setExportStatus("");
+    }
   };
 
   const handleDownloadGeneratedImage = async () => {
@@ -989,12 +1098,8 @@ export default function CreatorStudio() {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-              addSceneToTimeline(
-                file,
-                preview,
-                durationSeconds || getTimelineDuration()
-              )
+            onAddEnhancedPhotoToTimeline={(file, preview) =>
+              addSceneToTimeline(file, preview, getTimelineDuration())
             }
             onVideoDurationChange={setSelectedVideoDurationSeconds}
           />
@@ -1010,29 +1115,18 @@ export default function CreatorStudio() {
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-                {selectedTool?.category === "Picture AI" ? (
-                  <PicturePreviewPanel
-                    mediaFiles={mediaFiles}
-                    imagePreviews={imagePreviews}
-                    currentIndex={currentIndex}
-                    setCurrentIndex={setCurrentIndex}
-                    facebookCaption={facebookCaption}
-                  />
-                ) : (
-                  <PreviewPanel
-                    mediaFiles={mediaFiles}
-                    imagePreviews={imagePreviews}
-                    currentIndex={currentIndex}
-                    setCurrentIndex={setCurrentIndex}
-                    isPlaying={isPlaying}
-                    setIsPlaying={setIsPlaying}
-                    facebookCaption={facebookCaption}
-                    sceneDurations={sceneDurations}
-                    onDeleteScene={handleDeleteScene}
-                    onDuplicateScene={handleDuplicateScene}
-                    onUpdateSceneDuration={handleUpdateSceneDuration}
-                  />
-                )}
+                <PreviewPanel
+                  mediaFiles={mediaFiles}
+                  imagePreviews={imagePreviews}
+                  currentIndex={currentIndex}
+                  setCurrentIndex={setCurrentIndex}
+                  isPlaying={isPlaying}
+                  setIsPlaying={setIsPlaying}
+                  facebookCaption={facebookCaption}
+                  sceneDurations={sceneDurations}
+                  onDeleteScene={handleDeleteScene}
+                  onDuplicateScene={handleDuplicateScene}
+                />
               </CardContent>
             </Card>
 
@@ -1051,7 +1145,7 @@ export default function CreatorStudio() {
     exportPrimaryLabel={
       selectedTool?.category === "Picture AI"
         ? "Download Image"
-        : "Download Media"
+        : "Export / Download Media"
     }
     onExportPrimary={handleExportPrimaryMedia}
     onOpenFacebook={openFacebookAfterExport}
