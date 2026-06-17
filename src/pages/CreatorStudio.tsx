@@ -874,7 +874,11 @@ export default function CreatorStudio() {
     saveAs(currentFile, currentFile.name || "xnewsapp-media");
   };
 
-  const videoBlob = await exportSilentMp4(...)
+  const handleExportSilentMp4 = async () => {
+    alert(
+      "MP4 export is temporarily disabled..."
+    );
+};
 
   const handleExportNarratedMp4 = async () => {
     alert(
