@@ -75,8 +75,30 @@ const musicStyles = [
   "Background Music",
 ];
 
-const durations = ["15 sec", "30 sec", "60 sec", "120 sec", "Full Song"];
-
+const durations = [
+  "10 sec",
+  "20 sec",
+  "30 sec",
+  "40 sec",
+  "50 sec",
+  "60 sec",
+  "2 min",
+  "3 min",
+  "4 min",
+  "Full Song (5 min max)",
+];
+const musicPricing: Record<string, string> = {
+  "10 sec": "$0.05",
+  "20 sec": "$0.10",
+  "30 sec": "$0.15",
+  "40 sec": "$0.20",
+  "50 sec": "$0.25",
+  "60 sec": "$0.30",
+  "2 min": "$0.60",
+  "3 min": "$0.90",
+  "4 min": "$1.20",
+  "Full Song (5 min max)": "$1.50",
+};
 function SelectField({
   label,
   value,
@@ -509,7 +531,37 @@ export default function MusicStudioPanel({
           {config.description}
         </p>
       </div>
+<details className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+  <summary className="cursor-pointer list-none select-none">
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="text-sm font-extrabold text-cyan-200">
+          🎵 MUSIC AI
+        </div>
 
+        <div className="mt-1 text-lg font-bold text-white">
+          {songDuration} ........ {musicPricing[songDuration] ?? "$0.05"}
+        </div>
+      </div>
+
+      <span className="text-lg font-extrabold text-cyan-200">
+        Tap to View Prices ▼
+      </span>
+    </div>
+  </summary>
+
+  <div className="mt-4 space-y-2">
+    {Object.entries(musicPricing).map(([duration, price]) => (
+      <div
+        key={duration}
+        className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3 text-sm font-semibold text-white"
+      >
+        <span>{duration}</span>
+        <span>{price}</span>
+      </div>
+    ))}
+  </div>
+</details>
       <div className="mt-5 space-y-5">
         <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
           <h4 className="text-sm font-extrabold text-white">
