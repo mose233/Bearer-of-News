@@ -24,7 +24,13 @@ import {
   generateCreatorContent,
 } from "@/lib/creator/templates";
 
-import { ImagePreviewItem } from "@/lib/creator/videoExport";
+import {
+  ImagePreviewItem,
+  exportSilentMp4,
+  exportNarratedMp4,
+  exportFinalMixedMp4,
+  exportPhotoMusicVideoMp4,
+} from "@/lib/creator/videoExport";
 
 export default function CreatorStudio() {
   const [videoPrompt, setVideoPrompt] = useState("");
