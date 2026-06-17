@@ -302,15 +302,16 @@ const ordinaryVideoPrices = [
   ["60 Seconds", "$3.20"],
 ];
 
-const premiumVideoPrices = [
-  const musicVideoStudioPrices = [
+const musicVideoStudioPrices = [
   ["10 Seconds", "$0.70"],
   ["20 Seconds", "$1.20"],
   ["30 Seconds", "$1.70"],
   ["40 Seconds", "$2.20"],
   ["50 Seconds", "$2.70"],
   ["60 Seconds", "$3.20"],
-];
+
+
+const premiumVideoPrices = [
   ["10 Seconds", "$0.72"],
   ["20 Seconds", "$1.22"],
   ["30 Seconds", "$1.72"],
@@ -324,10 +325,6 @@ function getVideoPricingLabel(tool: string) {
     return "🎵 AI Music Video Studio";
   }
 
-  return premiumVideoTools.includes(tool)
-    ? "🎬 Premium Video AI"
-    : "🎬 Ordinary Video AI";
-}
   return premiumVideoTools.includes(tool)
     ? "🎬 Premium Video AI"
     : "🎬 Ordinary Video AI";
