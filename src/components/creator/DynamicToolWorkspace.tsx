@@ -716,6 +716,8 @@ function VideoTemplatePanel({
       />
 
       <div className="mt-5 space-y-5">
+        const [selectedVideoDuration, setSelectedVideoDuration] =
+  useState("10 Seconds");
         <VideoPricingCard
           tool={tool}
           selectedDuration={selectedVideoDuration}
