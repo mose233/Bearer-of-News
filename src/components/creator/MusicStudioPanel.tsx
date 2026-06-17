@@ -539,9 +539,9 @@ export default function MusicStudioPanel({
           🎵 MUSIC AI
         </div>
 
-        <div className="mt-1 text-lg font-bold text-white">
-          {songDuration} ........ {musicPricing[songDuration] ?? "$0.05"}
-        </div>
+        <div className="mt-1 text-sm font-bold text-white">
+  {songDuration} ........ {musicPricing[songDuration] ?? "$0.05"}
+</div>
       </div>
 
       <span className="text-lg font-extrabold text-cyan-200">
@@ -551,16 +551,22 @@ export default function MusicStudioPanel({
   </summary>
 
   <div className="mt-4 space-y-2">
-    {Object.entries(musicPricing).map(([duration, price]) => (
-      <div
-        key={duration}
-        className="flex justify-between rounded-xl bg-slate-900/40 px-4 py-3 text-sm font-semibold text-white"
-      >
-        <span>{duration}</span>
-        <span>{price}</span>
-      </div>
-    ))}
-  </div>
+  {Object.entries(musicPricing).map(([duration, price]) => (
+    <button
+      key={duration}
+      type="button"
+      onClick={() => setSongDuration(duration)}
+      className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
+        songDuration === duration
+          ? "bg-cyan-500 text-black"
+          : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
+      }`}
+    >
+      <span>{duration}</span>
+      <span>{price}</span>
+    </button>
+  ))}
+</div>
 </details>
       <div className="mt-5 space-y-5">
         <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
