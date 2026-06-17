@@ -89,7 +89,7 @@ type DynamicToolWorkspaceProps = {
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
   onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
 };
 
@@ -293,15 +293,6 @@ const premiumVideoTools = [
   "Story Generator",
 ];
 
-const ordinaryVideoPrices = [
-  ["10 Seconds", "$0.70"],
-  ["20 Seconds", "$1.20"],
-  ["30 Seconds", "$1.70"],
-  ["40 Seconds", "$2.20"],
-  ["50 Seconds", "$2.70"],
-  ["60 Seconds", "$3.20"],
-];
-
 const musicVideoStudioPrices = [
   ["10 Seconds", "$0.70"],
   ["20 Seconds", "$1.20"],
@@ -309,7 +300,7 @@ const musicVideoStudioPrices = [
   ["40 Seconds", "$2.20"],
   ["50 Seconds", "$2.70"],
   ["60 Seconds", "$3.20"],
-
+];
 
 const premiumVideoPrices = [
   ["10 Seconds", "$0.72"],
@@ -321,23 +312,17 @@ const premiumVideoPrices = [
 ];
 
 function getVideoPricingLabel(tool: string) {
-  if (tool === "AI Music Video Studio") {
-    return "🎵 AI Music Video Studio";
-  }
-
+  if (tool === "AI Music Video Studio") return "🎵 AI Music Video Studio";
   return premiumVideoTools.includes(tool)
     ? "🎬 Premium Video AI"
     : "🎬 Ordinary Video AI";
 }
 
 function getVideoPricingList(tool: string) {
-  if (tool === "AI Music Video Studio") {
-    return musicVideoStudioPrices;
-  }
-
+  if (tool === "AI Music Video Studio") return musicVideoStudioPrices;
   return premiumVideoTools.includes(tool)
     ? premiumVideoPrices
-    : ordinaryVideoPrices;
+    : musicVideoStudioPrices;
 }
 
 function getDurationSecondsFromLabel(duration: string) {
@@ -541,7 +526,7 @@ function VideoTemplatePanel({
   setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const [localVideoType, setLocalVideoType] = useState("Trending Reel");
@@ -871,7 +856,7 @@ function LifeEventVideoPanel({
   setSelectedCreatorFont: (value: string) => void;
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
 }) {
   const isTribute = tool === "Obituary / Tribute Studio";
@@ -1251,7 +1236,6 @@ function CinematicPlaceholderPanel({
   setVideoCreativeType,
   setVideoOutputFormat,
   onAddEnhancedPhotoToTimeline,
-  onVideoDurationChange,
 }: {
   tool: string;
   selectedCreatorFont: string;
@@ -1260,8 +1244,7 @@ function CinematicPlaceholderPanel({
   setVideoPrompt?: (value: string) => void;
   setVideoCreativeType?: (value: string) => void;
   setVideoOutputFormat?: (value: string) => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
-  onVideoDurationChange?: (durationSeconds: number) => void;
+  onAddEnhancedPhotoToTimeline?: (file: File, preview: string) => void;
 }) {
   const [cinematicMotionStyle, setCinematicMotionStyle] = useState(
     tool === "Photo to Video"
@@ -1282,10 +1265,9 @@ function CinematicPlaceholderPanel({
   const [cinematicTextPreset, setCinematicTextPreset] = useState("Hollywood");
   const [cinematicScript, setCinematicScript] = useState("");
   const [cinematicStatus, setCinematicStatus] = useState("");
+  const [cinematicPreview, setCinematicPreview] = useState("");
   const [stagedCinematicFile, setStagedCinematicFile] = useState<File | null>(null);
   const [stagedCinematicFileName, setStagedCinematicFileName] = useState("");
-  const [selectedCinematicDuration, setSelectedCinematicDuration] =
-    useState("10 Seconds");
 
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
 
@@ -1353,7 +1335,6 @@ function CinematicPlaceholderPanel({
       `Mood: ${cinematicMood}`,
       `Language: ${cinematicLanguage}`,
       `Output format: ${cinematicOutputFormat}`,
-      `Video duration: ${selectedCinematicDuration}`,
       `Aspect ratio: ${cinematicAspectRatio}`,
       `Cinematic text preset: ${cinematicTextPreset}`,
       `Selected font: ${selectedCreatorFont}`,
@@ -1388,11 +1369,7 @@ function CinematicPlaceholderPanel({
     }
 
     const preview = URL.createObjectURL(stagedCinematicFile);
-    onAddEnhancedPhotoToTimeline(
-      stagedCinematicFile,
-      preview,
-      getDurationSecondsFromLabel(selectedCinematicDuration)
-    );
+    onAddEnhancedPhotoToTimeline(stagedCinematicFile, preview);
     return true;
   };
 
@@ -1502,20 +1479,17 @@ function CinematicPlaceholderPanel({
       });
       const preview = URL.createObjectURL(blob);
 
+      setCinematicPreview(preview);
       setVideoPrompt?.(buildCinematicPrompt());
       setVideoCreativeType?.(cinematicMotionStyle);
       setVideoOutputFormat?.(cinematicOutputFormat);
 
       if (onAddEnhancedPhotoToTimeline) {
-        onAddEnhancedPhotoToTimeline(
-          file,
-          preview,
-          getDurationSecondsFromLabel(selectedCinematicDuration)
-        );
+        onAddEnhancedPhotoToTimeline(file, preview);
       }
 
       setCinematicStatus(
-        `${tool} ${selectedCinematicDuration} generated. Uploaded media and preview cover have been added to the timeline. Preview it, then use Export / Download Media.`
+        `${tool} generated. Uploaded media and preview cover have been added to the timeline. Preview it, then use Export / Download Media.`
       );
     }, "image/png");
   };
@@ -1529,15 +1503,6 @@ function CinematicPlaceholderPanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard
-          tool={tool}
-          selectedDuration={selectedCinematicDuration}
-          onDurationChange={(duration) => {
-            setSelectedCinematicDuration(duration);
-            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
-          }}
-        />
-
         <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
           AI video workspace ready — upload media, choose style, then generate.
         </div>
@@ -1684,7 +1649,18 @@ function CinematicPlaceholderPanel({
           </div>
         )}
 
-
+        {cinematicPreview && (
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
+            <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
+              Cinematic Preview
+            </div>
+            <img
+              src={cinematicPreview}
+              alt="Cinematic mock draft preview"
+              className="max-h-[420px] w-full rounded-2xl object-cover"
+            />
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3">
           <PrimaryGenerateButton
@@ -1699,7 +1675,7 @@ function CinematicPlaceholderPanel({
               setVideoCreativeType?.(cinematicMotionStyle);
               setVideoOutputFormat?.(cinematicOutputFormat);
               setCinematicStatus(
-                `${tool} ${selectedCinematicDuration} video settings saved with ${cinematicTextPreset} text style. Click Generate to add uploaded media to preview/timeline, then export from the main Export section.`
+                `${tool} video settings saved with ${cinematicTextPreset} text style. Click Generate to add uploaded media to preview/timeline, then export from the main Export section.`
               );
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
@@ -1781,7 +1757,7 @@ export default function DynamicToolWorkspace({
   const [songLyrics, setSongLyrics] = useState("");
   const [songStyle, setSongStyle] = useState("Gengetone");
   const [songLanguage, setSongLanguage] = useState("Swahili");
-  const [songDuration, setSongDuration] = useState("10 sec");
+  const [songDuration, setSongDuration] = useState("30 sec");
   const [songPreviewReady, setSongPreviewReady] = useState(false);
   const [songStatus, setSongStatus] = useState("");
 
@@ -3499,7 +3475,6 @@ export default function DynamicToolWorkspace({
         setVideoCreativeType={setVideoCreativeType}
         setVideoOutputFormat={setVideoOutputFormat}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
-        onVideoDurationChange={onVideoDurationChange}
       />
     );
   }
