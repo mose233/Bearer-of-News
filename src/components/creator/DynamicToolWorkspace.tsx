@@ -1764,7 +1764,7 @@ export default function DynamicToolWorkspace({
   const [songLyrics, setSongLyrics] = useState("");
   const [songStyle, setSongStyle] = useState("Gengetone");
   const [songLanguage, setSongLanguage] = useState("Swahili");
-  const [songDuration, setSongDuration] = useState("30 sec");
+  const [songDuration, setSongDuration] = useState("10 sec");
   const [songPreviewReady, setSongPreviewReady] = useState(false);
   const [songStatus, setSongStatus] = useState("");
 
