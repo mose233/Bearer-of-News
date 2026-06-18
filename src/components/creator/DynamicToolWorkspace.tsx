@@ -697,32 +697,40 @@ function VideoTemplatePanel({
     }, 80);
   };
 
-  return (
-    <div className={boxClass}>
-      <ToolHeader
-        title={tool}
-        icon={
-          isNews ? (
-            <Newspaper className="h-5 w-5 text-violet-300" />
-          ) : isBusiness ? (
-            <Megaphone className="h-5 w-5 text-violet-300" />
-          ) : (
-            <Captions className="h-5 w-5 text-violet-300" />
-          )
-        }
-        description="Create videos with photos, captions, music, voice and export."
-      />
+ <ToolHeader
+  title={tool}
+  icon={
+    isNews ? (
+      <Newspaper className="h-5 w-5 text-violet-300" />
+    ) : isBusiness ? (
+      <Megaphone className="h-5 w-5 text-violet-300" />
+    ) : (
+      <Captions className="h-5 w-5 text-violet-300" />
+    )
+  }
+  description="Create videos with photos, captions, music, voice and export."
+/>
 
-      <div className="mt-5 space-y-5">
-        
+<div className="mt-5 space-y-5">
 
-        <UploadMediaBox
-          title="1. Upload Photos or Videos"
-          description="Photos or videos for your project."
-          accept="image/*,video/*"
-          multiple
-          onChange={handleStageVideoMedia}
-        />
+  <VideoPricingCard
+    tool={tool}
+    selectedDuration={selectedVideoDuration}
+    onDurationChange={(duration) => {
+      setSelectedVideoDuration(duration);
+      onVideoDurationChange?.(
+        getDurationSecondsFromLabel(duration)
+      );
+    }}
+  />
+
+  <UploadMediaBox
+    title="1. Upload Photos or Videos"
+    description="Photos or videos for your project."
+    accept="image/*,video/*"
+    multiple
+    onChange={handleStageVideoMedia}
+  />
 
         {stagedVideoFileNames.length > 0 && (
           <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
