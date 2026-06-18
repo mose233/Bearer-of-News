@@ -617,14 +617,7 @@ function VideoTemplatePanel({
       <div className="mt-5 space-y-5">
         const [selectedVideoDuration, setSelectedVideoDuration] =
   useState("10 Seconds");
-        <VideoPricingCard
-          tool={tool}
-          selectedDuration={selectedVideoDuration}
-          onDurationChange={(duration) => {
-            setSelectedVideoDuration(duration);
-            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
-          }}
-        />
+        <PricingPanel pricing={videoPricing} />
 
         <UploadMediaBox
           title="1. Upload Photos or Videos"
