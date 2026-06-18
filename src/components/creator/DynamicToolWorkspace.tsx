@@ -617,7 +617,22 @@ function VideoTemplatePanel({
       <div className="mt-5 space-y-5">
         const [selectedVideoDuration, setSelectedVideoDuration] =
   useState("10 Seconds");
-        <PricingPanel pricing={videoPricing} />
+        <PricingPanel
+  pricing={
+    tool.includes("Cinematic") ||
+    tool.includes("Talking Avatar") ||
+    tool.includes("Singing Animation") ||
+    tool.includes("Dance Animation") ||
+    tool.includes("Lip Sync") ||
+    tool.includes("AI Music Video") ||
+    tool.includes("Story-to-Video") ||
+    tool.includes("Movie Scene") ||
+    tool.includes("Trailer") ||
+    tool.includes("Documentary")
+      ? cinematicPricing
+      : videoPricing
+  }
+/>
 
         <UploadMediaBox
           title="1. Upload Photos or Videos"
