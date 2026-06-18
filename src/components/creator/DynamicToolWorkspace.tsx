@@ -697,40 +697,39 @@ function VideoTemplatePanel({
     }, 80);
   };
 
- <ToolHeader
-  title={tool}
-  icon={
-    isNews ? (
-      <Newspaper className="h-5 w-5 text-violet-300" />
-    ) : isBusiness ? (
-      <Megaphone className="h-5 w-5 text-violet-300" />
-    ) : (
-      <Captions className="h-5 w-5 text-violet-300" />
-    )
-  }
-  description="Create videos with photos, captions, music, voice and export."
-/>
+  return (
+    <div className={boxClass}>
+      <ToolHeader
+        title={tool}
+        icon={
+          isNews ? (
+            <Newspaper className="h-5 w-5 text-violet-300" />
+          ) : isBusiness ? (
+            <Megaphone className="h-5 w-5 text-violet-300" />
+          ) : (
+            <Captions className="h-5 w-5 text-violet-300" />
+          )
+        }
+        description="Create videos with photos, captions, music, voice and export."
+      />
 
-<div className="mt-5 space-y-5">
+      <div className="mt-5 space-y-5">
+        <VideoPricingCard
+          tool={tool}
+          selectedDuration={selectedVideoDuration}
+          onDurationChange={(duration) => {
+            setSelectedVideoDuration(duration);
+            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
+          }}
+        />
 
-  <VideoPricingCard
-    tool={tool}
-    selectedDuration={selectedVideoDuration}
-    onDurationChange={(duration) => {
-      setSelectedVideoDuration(duration);
-      onVideoDurationChange?.(
-        getDurationSecondsFromLabel(duration)
-      );
-    }}
-  />
-
-  <UploadMediaBox
-    title="1. Upload Photos or Videos"
-    description="Photos or videos for your project."
-    accept="image/*,video/*"
-    multiple
-    onChange={handleStageVideoMedia}
-  />
+        <UploadMediaBox
+          title="1. Upload Photos or Videos"
+          description="Photos or videos for your project."
+          accept="image/*,video/*"
+          multiple
+          onChange={handleStageVideoMedia}
+        />
 
         {stagedVideoFileNames.length > 0 && (
           <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
@@ -3220,24 +3219,259 @@ export default function DynamicToolWorkspace({
     return <AIVideoStudioPanel />;
   }
 
- 
-
-  if (category === "Cinematic AI") {
+  if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
-      <CinematicPlaceholderPanel
-        tool={tool}
-        selectedCreatorFont={selectedCreatorFont}
-        setSelectedCreatorFont={setSelectedCreatorFont}
-        onMediaUpload={onMediaUpload}
-        setVideoPrompt={setVideoPrompt}
-        setVideoCreativeType={setVideoCreativeType}
-        setVideoOutputFormat={setVideoOutputFormat}
-        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
-        onVideoDurationChange={onVideoDurationChange}
+      <DancingPhotoPanel
+        dancingPhotoPreview={dancingPhotoPreview}
+        danceStyle={danceStyle}
+        isGeneratingDance={isGeneratingDance}
+        danceResultMessage={danceResultMessage}
+        setDanceStyle={setDanceStyle}
+        onPhotoUpload={onDancingPhotoUpload}
+        onGenerateDance={onGenerateDance}
       />
     );
   }
 
+  if (category === "Cinematic AI" && tool === "AI Music Video Studio") {
+  return (
+    <div className={boxClass}>
+      <ToolHeader
+        title="AI Music Video Studio"
+        icon={<Music className="h-5 w-5 text-violet-300" />}
+        description="Create music videos using your song, uploaded audio, visuals, captions, and social-ready formats."
+      />
+
+      <div className="mt-5 space-y-5">
+
+        {/* AUDIO SOURCE */}
+        <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+          <h4 className="text-sm font-extrabold text-white">
+            1. Audio Source
+          </h4>
+
+          <p className="mt-1 text-xs leading-5 text-slate-300">
+            Use a song from AI Song Studio or upload your own audio.
+          </p>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={handleUseSongStudioSong}
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10"
+            >
+              Use AI Song Studio Song
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                openMusicVideoAudioPicker(
+                  "MP3 Upload",
+                  "audio/mpeg,.mp3"
+                )
+              }
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10"
+            >
+              Upload MP3
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                openMusicVideoAudioPicker(
+                  "WAV Upload",
+                  "audio/wav,.wav"
+                )
+              }
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10"
+            >
+              Upload WAV
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                openMusicVideoAudioPicker(
+                  "Audio Upload",
+                  "audio/*"
+                )
+              }
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10"
+            >
+              Upload Audio File
+            </button>
+          </div>
+
+          <Input
+            ref={musicVideoAudioInputRef}
+            type="file"
+            accept={musicVideoAudioAccept}
+            className="hidden"
+            onChange={handleMusicVideoAudioUpload}
+          />
+
+          <div className="mt-4 rounded-2xl border border-white/10 bg-[#0B1020] p-3 text-xs font-semibold text-slate-300">
+            <span className="block font-extrabold text-white">
+              Selected Audio
+            </span>
+
+            {musicVideoAudioName ? (
+              <>
+                {musicVideoAudioName}
+                {musicVideoAudioSource
+                  ? ` • ${musicVideoAudioSource}`
+                  : ""}
+              </>
+            ) : (
+              <>No audio selected.</>
+            )}
+          </div>
+        </div>
+
+        {/* STYLE OPTIONS */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <SelectField
+            label="2. Music Video Type"
+            value={musicVideoStyle}
+            options={[
+              "Performance",
+              "Lyrics Video",
+              "Dance Video",
+              "Story Video",
+              "Concert Video",
+              "Anime Video",
+              "Visualizer",
+            ]}
+            onChange={setMusicVideoStyle}
+          />
+
+          <SelectField
+            label="3. Theme"
+            value={musicVideoTheme}
+            options={[
+              "Love",
+              "Gospel",
+              "Motivation",
+              "Birthday",
+              "Wedding",
+              "Business",
+              "TikTok Viral",
+              "Street Life",
+              "Success Story",
+            ]}
+            onChange={setMusicVideoTheme}
+          />
+
+          <SelectField
+            label="4. Visual Mood"
+            value={musicVideoMood}
+            options={[
+              "Energetic",
+              "Cinematic",
+              "Luxury",
+              "Romantic",
+              "Dark Mood",
+              "Colorful",
+              "Street",
+              "Minimal",
+            ]}
+            onChange={setMusicVideoMood}
+          />
+
+          <SelectField
+            label="5. Output Format"
+            value={musicVideoOutputFormat}
+            options={[
+              "Facebook Reel",
+              "TikTok",
+              "Instagram Reel",
+              "WhatsApp Status",
+              "YouTube Shorts",
+            ]}
+            onChange={setMusicVideoOutputFormat}
+          />
+        </div>
+
+        {/* VISUALS */}
+        <UploadMediaBox
+          title="6. Upload Images (Optional)"
+          description="Upload photos that will appear in the music video."
+          accept="image/*"
+          multiple
+          onChange={onMediaUpload}
+        />
+
+        {/* STORYBOARD */}
+        <label className="block">
+          <span className="mb-2 block text-sm font-extrabold">
+            7. Lyrics / Visual Storyboard
+          </span>
+
+          <textarea
+            value={musicVideoVisualPrompt}
+            onChange={(e) =>
+              setMusicVideoVisualPrompt(e.target.value)
+            }
+            className={textareaClass}
+            placeholder="Example: Nairobi nightlife, dancers, colorful lights, beat synced transitions, luxury cars, fast captions."
+          />
+        </label>
+
+        <TextFontStudio
+          tool="AI Music Video Studio"
+          selectedFont={selectedCreatorFont}
+          onFontChange={setSelectedCreatorFont}
+        />
+
+        {musicVideoDraftStatus && (
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold text-emerald-100">
+            {musicVideoDraftStatus}
+          </div>
+        )}
+
+        {musicVideoDraftPreview && (
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
+            <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
+              Draft Preview
+            </div>
+
+            <img
+              src={musicVideoDraftPreview}
+              alt="Music Video Draft"
+              className="max-h-[420px] w-full rounded-2xl object-cover"
+            />
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3">
+          <PrimaryGenerateButton
+            label="Generate Music Video Draft"
+            onClick={handleGenerateMusicVideoDraft}
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              setVideoPrompt?.(buildMusicVideoPrompt());
+              setVideoCreativeType?.(musicVideoStyle);
+              setVideoOutputFormat?.(musicVideoOutputFormat);
+
+              setMusicVideoDraftStatus(
+                "Music video video settings saved. Add media, preview the draft, then use Export / Download Media."
+              );
+            }}
+            className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
+          >
+            Save Music Video Workflow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+  
   return (
     <div className={boxClass}>
       <ToolHeader
