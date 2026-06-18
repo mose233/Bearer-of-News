@@ -898,14 +898,7 @@ function LifeEventVideoPanel({
       />
 
       <div className="mt-5 space-y-5">
-        <VideoPricingCard
-          tool={tool}
-          selectedDuration={selectedVideoDuration}
-          onDurationChange={(duration) => {
-            setSelectedVideoDuration(duration);
-            onVideoDurationChange?.(getDurationSecondsFromLabel(duration));
-          }}
-        />
+       <PricingPanel pricing={videoPricing} />
 
         <UploadMediaBox
           title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
