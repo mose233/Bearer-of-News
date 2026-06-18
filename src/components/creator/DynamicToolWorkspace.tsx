@@ -3471,7 +3471,22 @@ export default function DynamicToolWorkspace({
   );
 }
 
-  
+  if (category === "Cinematic AI") {
+    return (
+      <CinematicPlaceholderPanel
+        tool={tool}
+        selectedCreatorFont={selectedCreatorFont}
+        setSelectedCreatorFont={setSelectedCreatorFont}
+        onMediaUpload={onMediaUpload}
+        setVideoPrompt={setVideoPrompt}
+        setVideoCreativeType={setVideoCreativeType}
+        setVideoOutputFormat={setVideoOutputFormat}
+        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+        onVideoDurationChange={onVideoDurationChange}
+      />
+    );
+  }
+
   return (
     <div className={boxClass}>
       <ToolHeader
