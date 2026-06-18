@@ -128,9 +128,9 @@ const categories: AiToolCategory[] = [
     tools: [
       "Talking Avatar",
       "Singing Animation",
-      "Dance Animation",
+      
       "Lip Sync Video",
-      "AI Music Video Studio",
+      
       "Photo to Video",
       "Image to Video",
       "AI News Presenter",
