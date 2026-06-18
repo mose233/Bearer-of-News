@@ -714,45 +714,7 @@ function VideoTemplatePanel({
       />
 
       <div className="mt-5 space-y-5">
-        <details className="rounded-2xl border border-amber-500/20 bg-amber-500/10">
-  <summary className="cursor-pointer px-4 py-3 text-sm font-bold text-amber-200">
-    💰 Premium Motion Pricing
-  </summary>
-
-  <div className="space-y-2 border-t border-amber-500/20 px-4 py-3">
-    {[
-      ["10 Seconds", "$0.72"],
-      ["20 Seconds", "$1.22"],
-      ["30 Seconds", "$1.72"],
-      ["40 Seconds", "$2.22"],
-      ["50 Seconds", "$2.72"],
-      ["60 Seconds", "$3.22"],
-    ].map(([duration, price]) => (
-      <button
-        key={duration}
-        type="button"
-        onClick={() => {
-          setSelectedCinematicDuration(duration);
-          onVideoDurationChange?.(
-            getDurationSecondsFromLabel(duration)
-          );
-        }}
-        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 transition ${
-          selectedCinematicDuration === duration
-            ? "bg-amber-500/20 border border-amber-400 text-amber-200"
-            : "bg-white/5 hover:bg-white/10 text-slate-200"
-        }`}
-      >
-        <span>{duration}</span>
-        <span className="font-bold">{price}</span>
-      </button>
-    ))}
-
-    <p className="pt-2 text-xs text-slate-400">
-      Prices shown are per AI generation request.
-    </p>
-  </div>
-</details>
+        
 
         <UploadMediaBox
           title="1. Upload Photos or Videos"
