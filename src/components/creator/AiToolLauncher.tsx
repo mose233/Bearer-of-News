@@ -67,6 +67,8 @@ const categories: AiToolCategory[] = [
       "Graduation Video",
       "Baby Shower Video",
       "Photo Music Video",
+      "AI Music Video Studio",
+      "Dance Animation",
       "WhatsApp Status Maker",
       "Facebook Reel Maker",
       "TikTok Video Maker",
