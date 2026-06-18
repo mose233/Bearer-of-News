@@ -1,3 +1,11 @@
+import PricingPanel from "@/components/creator/PricingPanel";
+
+import {
+  picturePricing,
+  videoPricing,
+  musicPricing,
+  cinematicPricing,
+} from "@/lib/pricing";
 import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
