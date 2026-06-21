@@ -552,20 +552,30 @@ export default function MusicStudioPanel({
 
   <div className="mt-4 space-y-2">
   {Object.entries(musicPricing).map(([duration, price]) => (
-    <button
-      key={duration}
-      type="button"
-      onClick={() => setSongDuration(duration)}
-      className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
-        songDuration === duration
-          ? "bg-cyan-500 text-black"
-          : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
-      }`}
-    >
-      <span>{duration}</span>
-      <span>{price}</span>
-    </button>
-  ))}
+  <button
+    key={duration}
+    type="button"
+    onClick={(e) => {
+      setSongDuration(duration);
+
+      const details = e.currentTarget.closest(
+        "details"
+      ) as HTMLDetailsElement | null;
+
+      if (details) {
+        details.open = false;
+      }
+    }}
+    className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
+      songDuration === duration
+        ? "bg-cyan-500 text-black"
+        : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
+    }`}
+  >
+    <span>{duration}</span>
+    <span>{price}</span>
+  </button>
+))}
 </div>
 </details>
       <div className="mt-5 space-y-5">
