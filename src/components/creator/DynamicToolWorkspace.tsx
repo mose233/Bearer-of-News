@@ -3197,24 +3197,12 @@ export default function DynamicToolWorkspace({
   }
 
   if (category === "Video AI") {
-    return (
-      <VideoTemplatePanel
-        tool={tool}
-        videoPrompt={videoPrompt}
-        setVideoPrompt={setVideoPrompt}
-        videoCreativeType={videoCreativeType}
-        setVideoCreativeType={setVideoCreativeType}
-        videoOutputFormat={videoOutputFormat}
-        setVideoOutputFormat={setVideoOutputFormat}
-        selectedCreatorFont={selectedCreatorFont}
-        setSelectedCreatorFont={setSelectedCreatorFont}
-        onMediaUpload={onMediaUpload}
-        onGenerateCompleteVideo={onGenerateCompleteVideo}
-        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
-        onVideoDurationChange={onVideoDurationChange}
-      />
-    );
-  }
+  return (
+    <VideoWorkspace
+      tool={tool}
+    />
+  );
+}
 
   if (category === "Cinematic AI" && tool === "Text to Video") {
     return <AIVideoStudioPanel />;
