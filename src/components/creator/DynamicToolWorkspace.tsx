@@ -3202,25 +3202,13 @@ if (tool === "Photo Music Video") {
   return (
     <VideoWorkspace
       tool={tool}
-
-      photoMusicImagePreview={photoMusicImagePreview}
-      photoMusicAudioName={photoMusicAudioName}
-      photoMusicStyle={photoMusicStyle}
-      isExportingPhotoMusic={isExportingPhotoMusic}
-
-      setPhotoMusicStyle={setPhotoMusicStyle}
-
-      onPhotoUpload={onPhotoMusicPhotoUpload}
-      onAudioUpload={onPhotoMusicAudioUpload}
-      onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
-      onExportPhotoMusicVideo={onExportPhotoMusicVideo}
     />
   );
 }
-
+ 
   if (category === "Cinematic AI" && tool === "Text to Video") {
     return <AIVideoStudioPanel />;
-  }
+  } 
 
   if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
