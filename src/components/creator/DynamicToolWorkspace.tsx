@@ -3158,8 +3158,7 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  /*
-if (tool === "Photo Music Video") {
+ if (tool === "Photo Music Video") {
   return (
     <PhotoMusicVideoPanel
       photoMusicImagePreview={photoMusicImagePreview}
@@ -3174,8 +3173,6 @@ if (tool === "Photo Music Video") {
     />
   );
 }
-*/
-
   if (
     category === "Video AI" &&
     ["AI Greeting Video Studio", "Obituary / Tribute Studio"].includes(tool)
