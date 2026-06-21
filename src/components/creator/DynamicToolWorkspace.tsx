@@ -1,3 +1,4 @@
+import VideoWorkspace from "./VideoWorkspace";
 import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
