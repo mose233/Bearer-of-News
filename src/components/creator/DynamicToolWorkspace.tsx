@@ -3198,10 +3198,22 @@ if (tool === "Photo Music Video") {
     );
   }
 
-  if (category === "Video AI") {
+ if (category === "Video AI") {
   return (
     <VideoWorkspace
       tool={tool}
+
+      photoMusicImagePreview={photoMusicImagePreview}
+      photoMusicAudioName={photoMusicAudioName}
+      photoMusicStyle={photoMusicStyle}
+      isExportingPhotoMusic={isExportingPhotoMusic}
+
+      setPhotoMusicStyle={setPhotoMusicStyle}
+
+      onPhotoUpload={onPhotoMusicPhotoUpload}
+      onAudioUpload={onPhotoMusicAudioUpload}
+      onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
+      onExportPhotoMusicVideo={onExportPhotoMusicVideo}
     />
   );
 }
