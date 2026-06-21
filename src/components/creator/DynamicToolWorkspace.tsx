@@ -1,4 +1,3 @@
-import VideoWorkspace from "./VideoWorkspace";
 import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
@@ -3158,21 +3157,22 @@ export default function DynamicToolWorkspace({
     );
   }
 
- if (tool === "Photo Music Video") {
-  return (
-    <PhotoMusicVideoPanel
-      photoMusicImagePreview={photoMusicImagePreview}
-      photoMusicAudioName={photoMusicAudioName}
-      photoMusicStyle={photoMusicStyle}
-      isExportingPhotoMusic={isExportingPhotoMusic}
-      setPhotoMusicStyle={setPhotoMusicStyle}
-      onPhotoUpload={onPhotoMusicPhotoUpload}
-      onAudioUpload={onPhotoMusicAudioUpload}
-      onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
-      onExportPhotoMusicVideo={onExportPhotoMusicVideo}
-    />
-  );
-}
+  if (tool === "Photo Music Video") {
+    return (
+      <PhotoMusicVideoPanel
+        photoMusicImagePreview={photoMusicImagePreview}
+        photoMusicAudioName={photoMusicAudioName}
+        photoMusicStyle={photoMusicStyle}
+        isExportingPhotoMusic={isExportingPhotoMusic}
+        setPhotoMusicStyle={setPhotoMusicStyle}
+        onPhotoUpload={onPhotoMusicPhotoUpload}
+        onAudioUpload={onPhotoMusicAudioUpload}
+        onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
+        onExportPhotoMusicVideo={onExportPhotoMusicVideo}
+      />
+    );
+  }
+
   if (
     category === "Video AI" &&
     ["AI Greeting Video Studio", "Obituary / Tribute Studio"].includes(tool)
@@ -3195,17 +3195,29 @@ export default function DynamicToolWorkspace({
     );
   }
 
- if (category === "Video AI") {
-  return (
-    <VideoWorkspace
-      tool={tool}
-    />
-  );
-}
- 
+  if (category === "Video AI") {
+    return (
+      <VideoTemplatePanel
+        tool={tool}
+        videoPrompt={videoPrompt}
+        setVideoPrompt={setVideoPrompt}
+        videoCreativeType={videoCreativeType}
+        setVideoCreativeType={setVideoCreativeType}
+        videoOutputFormat={videoOutputFormat}
+        setVideoOutputFormat={setVideoOutputFormat}
+        selectedCreatorFont={selectedCreatorFont}
+        setSelectedCreatorFont={setSelectedCreatorFont}
+        onMediaUpload={onMediaUpload}
+        onGenerateCompleteVideo={onGenerateCompleteVideo}
+        onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+        onVideoDurationChange={onVideoDurationChange}
+      />
+    );
+  }
+
   if (category === "Cinematic AI" && tool === "Text to Video") {
     return <AIVideoStudioPanel />;
-  } 
+  }
 
   if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
