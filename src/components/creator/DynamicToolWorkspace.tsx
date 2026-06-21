@@ -3158,21 +3158,23 @@ export default function DynamicToolWorkspace({
     );
   }
 
-  if (tool === "Photo Music Video") {
-    return (
-      <PhotoMusicVideoPanel
-        photoMusicImagePreview={photoMusicImagePreview}
-        photoMusicAudioName={photoMusicAudioName}
-        photoMusicStyle={photoMusicStyle}
-        isExportingPhotoMusic={isExportingPhotoMusic}
-        setPhotoMusicStyle={setPhotoMusicStyle}
-        onPhotoUpload={onPhotoMusicPhotoUpload}
-        onAudioUpload={onPhotoMusicAudioUpload}
-        onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
-        onExportPhotoMusicVideo={onExportPhotoMusicVideo}
-      />
-    );
-  }
+  /*
+if (tool === "Photo Music Video") {
+  return (
+    <PhotoMusicVideoPanel
+      photoMusicImagePreview={photoMusicImagePreview}
+      photoMusicAudioName={photoMusicAudioName}
+      photoMusicStyle={photoMusicStyle}
+      isExportingPhotoMusic={isExportingPhotoMusic}
+      setPhotoMusicStyle={setPhotoMusicStyle}
+      onPhotoUpload={onPhotoMusicPhotoUpload}
+      onAudioUpload={onPhotoMusicAudioUpload}
+      onAddPhotoSceneToTimeline={onAddPhotoMusicSceneToTimeline}
+      onExportPhotoMusicVideo={onExportPhotoMusicVideo}
+    />
+  );
+}
+*/
 
   if (
     category === "Video AI" &&
