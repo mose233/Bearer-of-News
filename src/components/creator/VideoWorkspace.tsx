@@ -1,3 +1,4 @@
+import PhotoMusicVideoPanel from "./PhotoMusicVideoPanel";
 import PricingPanel from "./PricingPanel";
 import { videoPricing } from "@/lib/pricing";
 type VideoWorkspaceProps = {
