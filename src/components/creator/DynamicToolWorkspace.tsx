@@ -282,6 +282,7 @@ const tributeMusicStyles = [
 ];
 
 const premiumVideoTools = [
+  // Premium Video AI
   "AI Greeting Video Studio",
   "Business Promo Video",
   "Product Ad Generator",
@@ -291,6 +292,30 @@ const premiumVideoTools = [
   "News Summary Video",
   "Educational Explainer Video",
   "Story Generator",
+
+  // Cinematic AI
+  "Talking Avatar",
+  "Singing Animation",
+  "Dance Animation",
+  "Lip Sync Video",
+  "AI Music Video Studio",
+  "Photo to Video",
+  "Image to Video",
+  "AI News Presenter",
+  "AI Spokesperson",
+  "Virtual Influencer",
+  "Story-to-Video Generator",
+  "Short Film Generator",
+  "Movie Scene Generator",
+  "Trailer Generator",
+  "Text to Video",
+  "Wedding Cinematic Film",
+  "Travel Cinematic Film",
+  "Real Estate Cinematic Tour",
+  "Product Commercial Generator",
+  "Church Sermon Cinematic",
+  "Motivational Cinematic Video",
+  "Documentary Generator",
 ];
 
 const ordinaryVideoPrices = [
