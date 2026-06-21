@@ -2,6 +2,8 @@ import React from "react";
 import { ImagePlus, Music } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import PricingPanel from "./PricingPanel";
+import { videoPricing } from "@/lib/pricing";
 
 type PhotoMusicVideoPanelProps = {
   photoMusicImagePreview: string;
@@ -70,6 +72,10 @@ export default function PhotoMusicVideoPanel({
       </p>
 
       <div className="mt-5 space-y-5">
+        <PricingPanel
+  pricing={videoPricing}
+  defaultOpen={false}
+/>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
             <h4 className="text-sm font-extrabold text-white">
