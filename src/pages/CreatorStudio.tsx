@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { saveAs } from "file-saver";
+import { ExportManager } from "@/lib/creator/ExportManager";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -228,7 +228,7 @@ export default function CreatorStudio() {
       recorder.onstop = () => {
         resolve(
           new Blob(chunks, {
-            type: "video/webm",
+            type: mimeType,
           })
         );
       };
@@ -774,7 +774,7 @@ export default function CreatorStudio() {
 
       setAiVoiceBlob(audioBlob);
 
-      saveAs(audioBlob, "creator-studio-voiceover.mp3");
+      await ExportManager.exportVoice(audioBlob);
 
       alert("AI voice generated successfully!");
     } catch (error) {
@@ -814,7 +814,7 @@ export default function CreatorStudio() {
         const response = await fetch(currentPreview);
         const blob = await response.blob();
 
-        saveAs(blob, currentFile.name || "xnewsapp-image.png");
+        await ExportManager.exportImage(blob);
         return;
       }
 
@@ -824,7 +824,7 @@ export default function CreatorStudio() {
         const response = await fetch(fallbackPreview.preview);
         const blob = await response.blob();
 
-        saveAs(blob, fallbackPreview.file.name || "xnewsapp-image.png");
+        await ExportManager.exportImage(blob);
         return;
       }
 
@@ -841,7 +841,7 @@ export default function CreatorStudio() {
     }
 
     if (currentFile.type.startsWith("video/")) {
-      saveAs(currentFile, currentFile.name || "xnewsapp-video.mp4");
+      await ExportManager.exportVideo(currentFile);
       return;
     }
 
@@ -855,15 +855,12 @@ export default function CreatorStudio() {
           getTimelineDuration()
         );
 
-        saveAs(
-          videoBlob,
-          `xnewsapp-preview-${getTimelineDuration()}s.webm`
-        );
+        await ExportManager.exportCinematic(videoBlob);
         return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-        saveAs(currentFile, currentFile.name || "xnewsapp-image.png");
+        await ExportManager.exportImage(currentFile);
         return;
       } finally {
         setIsExporting(false);
@@ -871,7 +868,7 @@ export default function CreatorStudio() {
       }
     }
 
-    saveAs(currentFile, currentFile.name || "xnewsapp-media");
+    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
   };
 
   const handleExportSilentMp4 = async () => {
@@ -900,18 +897,16 @@ export default function CreatorStudio() {
 
   const handleDownloadGeneratedImage = async () => {
     if (generatedImageFile) {
-      saveAs(generatedImageFile, "xnewsapp-ai-image.png");
+      await ExportManager.exportImage(generatedImageFile);
       return;
     }
-
     if (!generatedImagePreview) {
       alert("Please generate an image first.");
       return;
     }
-
     const response = await fetch(generatedImagePreview);
     const blob = await response.blob();
-    saveAs(blob, "xnewsapp-ai-image.png");
+    await ExportManager.exportImage(blob);
   };
 
   return (
