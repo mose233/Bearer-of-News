@@ -561,31 +561,28 @@ export default function CreatorStudio() {
     alert("AI image added to video timeline.");
   };
 
-  const handleDeleteScene = (index: number) => {
-    const previewToDelete = mediaPreviews[index];
+ const handleDeleteScene = (index: number) => {
+  const previewToDelete = mediaPreviews[index];
 
-    if (previewToDelete) {
-      URL.revokeObjectURL(previewToDelete);
-    }
+  if (previewToDelete) {
+    URL.revokeObjectURL(previewToDelete);
+  }
 
-    const nextFiles = mediaFiles.filter((_, itemIndex) => itemIndex !== index);
-    const nextPreviews = mediaPreviews.filter(
-      (_, itemIndex) => itemIndex !== index
-    );
-    const nextDurations = sceneDurations.filter(
-      (_, itemIndex) => itemIndex !== index
-    );
+  const next = deleteScene(
+    {
+      mediaFiles,
+      mediaPreviews,
+      sceneDurations,
+      currentIndex,
+    },
+    index
+  );
 
-    setMediaFiles(nextFiles);
-    setMediaPreviews(nextPreviews);
-    setSceneDurations(nextDurations);
-
-    setCurrentIndex((prev) => {
-      if (nextFiles.length === 0) return 0;
-      if (prev >= nextFiles.length) return nextFiles.length - 1;
-      return prev;
-    });
-  };
+  setMediaFiles(next.mediaFiles);
+  setMediaPreviews(next.mediaPreviews);
+  setSceneDurations(next.sceneDurations);
+  setCurrentIndex(next.currentIndex);
+};
 
   const handleDuplicateScene = (index: number) => {
     const fileToCopy = mediaFiles[index];
