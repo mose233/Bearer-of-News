@@ -6,7 +6,7 @@ import {
 } from "./DeviceManager";
 import { ExportFile, ExportOptions } from "./ExportTypes";
 
-const DOWNLOAD_REVOKE_DELAY = 5000;
+const DOWNLOAD_REVOKE_DELAY = 15000;
 
 function createDownloadLink(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -15,15 +15,29 @@ function createDownloadLink(blob: Blob, filename: string) {
 
   anchor.href = url;
   anchor.download = filename;
+  anchor.target = "_self";
   anchor.rel = "noopener";
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);
 
-  anchor.click();
+  try {
+    anchor.dispatchEvent(
+      new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+  } catch {
+    anchor.click();
+  }
 
   window.setTimeout(() => {
-    document.body.removeChild(anchor);
+    if (document.body.contains(anchor)) {
+      document.body.removeChild(anchor);
+    }
+
     URL.revokeObjectURL(url);
   }, DOWNLOAD_REVOKE_DELAY);
 }
@@ -76,10 +90,14 @@ export async function downloadMedia(
           : false;
 
       if (!shared) {
-        createDownloadLink(blob, filename);
+        try {
+          saveAs(blob, filename);
+        } catch {
+          createDownloadLink(blob, filename);
+        }
       }
 
-      return;
+      return true;
     }
 
     /*
@@ -92,21 +110,28 @@ export async function downloadMedia(
           : false;
 
       if (!shared) {
-        createDownloadLink(blob, filename);
+        try {
+          saveAs(blob, filename);
+        } catch {
+          createDownloadLink(blob, filename);
+        }
       }
 
-      return;
+      return true;
     }
 
     /*
      * Desktop
      */
     saveAs(blob, filename);
+
+    return true;
   } catch (error) {
     console.error("Download failed.", error);
 
     try {
       createDownloadLink(blob, filename);
+      return true;
     } catch (fallbackError) {
       console.error("Fallback download failed.", fallbackError);
       throw fallbackError;
