@@ -836,12 +836,7 @@ alert(`${plan.length} scene plan generated successfully.`);
   }
 };
 
-  const handleExportNarratedMp4 = async () => {
-    alert(
-      "Narrated MP4 export is temporarily disabled while backend rendering is being connected."
-    );
-  };
-
+  
   const handleExportNarratedMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
