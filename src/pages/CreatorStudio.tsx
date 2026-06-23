@@ -971,20 +971,21 @@ export default function CreatorStudio() {
 
               <CardContent className="px-3 py-4 sm:px-4">
   <ExportPanel
-    isRecording={isRecording}
-    isExporting={isExporting}
-    exportStatus={exportStatus}
-    exportPrimaryLabel={
-      selectedTool?.category === "Picture AI"
-        ? "Download Image"
-        : "Download Media"
-    }
-    onExportPrimary={handleExportPrimaryMedia}
-    onOpenFacebook={openFacebookAfterExport}
-    onInitializeFFmpeg={initializeFFmpeg}
-    onExportSilentMp4={handleExportSilentMp4}
-    onExportNarratedMp4={handleExportNarratedMp4}
-  />
+  isRecording={isRecording}
+  isExporting={isExporting}
+  exportStatus={exportStatus}
+  exportPrimaryLabel={
+    selectedTool?.category === "Picture AI"
+      ? "Download Image"
+      : "Download Media"
+  }
+  onExportPrimary={handleExportPrimaryMedia}
+  onOpenFacebook={openFacebookAfterExport}
+  onInitializeFFmpeg={initializeFFmpeg}
+  onExportSilentMp4={handleExportSilentMp4}
+  onExportNarratedMp4={handleExportNarratedMp4}
+  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+/>
 </CardContent>
             </Card>
 
