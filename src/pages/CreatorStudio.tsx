@@ -585,31 +585,21 @@ export default function CreatorStudio() {
 };
 
   const handleDuplicateScene = (index: number) => {
-    const fileToCopy = mediaFiles[index];
-    const previewToCopy = mediaPreviews[index];
+  const next = duplicateScene(
+    {
+      mediaFiles,
+      mediaPreviews,
+      sceneDurations,
+      currentIndex,
+    },
+    index
+  );
 
-    if (!fileToCopy || !previewToCopy) return;
-
-    setMediaFiles((prev) => [
-      ...prev.slice(0, index + 1),
-      fileToCopy,
-      ...prev.slice(index + 1),
-    ]);
-
-    setMediaPreviews((prev) => [
-      ...prev.slice(0, index + 1),
-      previewToCopy,
-      ...prev.slice(index + 1),
-    ]);
-
-    setSceneDurations((prev) => [
-      ...prev.slice(0, index + 1),
-      prev[index] || selectedVideoDurationSeconds || 10,
-      ...prev.slice(index + 1),
-    ]);
-
-    setCurrentIndex(index + 1);
-  };
+  setMediaFiles(next.mediaFiles);
+  setMediaPreviews(next.mediaPreviews);
+  setSceneDurations(next.sceneDurations);
+  setCurrentIndex(next.currentIndex);
+};
 
   const handleUpdateSceneDuration = (index: number, duration: number) => {
     const safeDuration = Math.min(Math.max(duration || 1, 1), 60);
