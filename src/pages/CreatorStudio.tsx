@@ -24,7 +24,12 @@ import {
   CreatorContentType,
   generateCreatorContent,
 } from "@/lib/creator/templates";
-
+import {
+  addScene,
+  deleteScene,
+  duplicateScene,
+  updateSceneDuration,
+} from "@/lib/creator/TimelineManager";
 import {
   ImagePreviewItem,
   exportSilentMp4,
