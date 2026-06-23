@@ -1,3 +1,5 @@
+import { generateVoice } from "@/lib/voice";
+import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ExportManager } from "@/lib/creator/ExportManager";
@@ -695,7 +697,10 @@ export default function CreatorStudio() {
 
       setAiVoiceBlob(audioBlob);
 
-      await ExportManager.exportVoice(audioBlob);
+      await exportVoice({
+  blob: audioBlob,
+  filename: "xnewsapp-ai-voice",
+});
 
       alert("AI voice generated successfully!");
     } catch (error) {
