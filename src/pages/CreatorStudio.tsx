@@ -510,7 +510,10 @@ export default function CreatorStudio() {
 
       setIsGeneratingImage(true);
 
-      const result = await generateSceneImage(scene.prompt, "1024x1024");
+      const result = await generateSingleScene(
+  scene.prompt,
+  "1024x1024"
+);
 
       addSceneToTimeline(result.file, result.previewUrl, scene.duration);
 
