@@ -536,7 +536,10 @@ export default function CreatorStudio() {
       setIsGeneratingImage(true);
 
       for (const scene of multiScenePlan) {
-        const result = await generateSceneImage(scene.prompt, "1024x1024");
+        const result = await generateSingleScene(
+  scene.prompt,
+  "1024x1024"
+);
 
         setMediaFiles((prev) => [...prev, result.file]);
         setMediaPreviews((prev) => [...prev, result.previewUrl]);
