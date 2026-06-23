@@ -1030,7 +1030,7 @@ alert(`${plan.length} scene plan generated successfully.`);
   onInitializeFFmpeg={initializeFFmpeg}
   onExportSilentMp4={handleExportSilentMp4}
   onExportNarratedMp4={handleExportNarratedMp4}
-  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+  onExportFinalMixedMp4={handleExportNarratedMp4}
 />
 </CardContent>
             </Card>
