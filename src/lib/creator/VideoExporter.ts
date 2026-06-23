@@ -102,3 +102,30 @@ function getExtension(type: string) {
 
   return "bin";
 }
+export async function exportSilentMp4(options: VideoExportOptions) {
+  await exportVideo({
+    ...options,
+    defaultName: "xnewsapp-silent-video",
+  });
+}
+
+export async function exportNarratedMp4(options: VideoExportOptions) {
+  await exportVideo({
+    ...options,
+    defaultName: "xnewsapp-narrated-video",
+  });
+}
+
+export async function exportFinalMixedMp4(options: VideoExportOptions) {
+  await exportVideo({
+    ...options,
+    defaultName: "xnewsapp-final-video",
+  });
+}
+
+export async function exportPhotoMusicVideoMp4(options: VideoExportOptions) {
+  await exportVideo({
+    ...options,
+    defaultName: "xnewsapp-photo-music-video",
+  });
+}
