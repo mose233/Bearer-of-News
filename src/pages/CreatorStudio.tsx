@@ -14,12 +14,14 @@ import PreviewPanel from "@/components/creator/PreviewPanel";
 import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
-import { generateSceneImage } from "@/lib/creator/imageGeneration";
-import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 import {
-  generateMultiScenePlan,
-  MultiScenePlan,
-} from "@/lib/creator/multiSceneGenerator";
+  generateSingleScene,
+  createScenePlan,
+} from "@/lib/creator/AISceneManager";
+
+import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
+
+import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 
 import {
   CreatorContentType,
