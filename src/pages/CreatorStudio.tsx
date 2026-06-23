@@ -601,15 +601,23 @@ export default function CreatorStudio() {
   setCurrentIndex(next.currentIndex);
 };
 
-  const handleUpdateSceneDuration = (index: number, duration: number) => {
-    const safeDuration = Math.min(Math.max(duration || 1, 1), 60);
+  const handleUpdateSceneDuration = (
+  index: number,
+  duration: number
+) => {
+  const next = updateSceneDuration(
+    {
+      mediaFiles,
+      mediaPreviews,
+      sceneDurations,
+      currentIndex,
+    },
+    index,
+    duration
+  );
 
-    setSceneDurations((prev) => {
-      const next = [...prev];
-      next[index] = safeDuration;
-      return next;
-    });
-  };
+  setSceneDurations(next.sceneDurations);
+};
 
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
