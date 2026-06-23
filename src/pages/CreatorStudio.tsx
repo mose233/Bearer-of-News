@@ -763,7 +763,53 @@ alert(`${plan.length} scene plan generated successfully.`);
       "FFmpeg browser export has been removed for now. Video rendering will be handled by backend AI/rendering services later."
     );
   };
+const resetCurrentProject = () => {
+  // Release preview URLs
+  revokePreviews(mediaPreviews);
 
+  if (generatedImagePreview) {
+    URL.revokeObjectURL(generatedImagePreview);
+  }
+
+  if (photoMusicImagePreview) {
+    URL.revokeObjectURL(photoMusicImagePreview);
+  }
+
+  if (dancingPhotoPreview) {
+    URL.revokeObjectURL(dancingPhotoPreview);
+  }
+
+  // Clear timeline
+  setMediaFiles([]);
+  setMediaPreviews([]);
+  setSceneDurations([]);
+
+  // Clear generated AI image
+  setGeneratedImageFile(null);
+  setGeneratedImagePreview("");
+
+  // Clear Picture AI
+  setPictureFile(null);
+  setPicturePreview("");
+  setPictureFileName("");
+
+  // Clear Photo Music
+  setPhotoMusicImageFile(null);
+  setPhotoMusicImagePreview("");
+  setPhotoMusicAudioFile(null);
+  setPhotoMusicAudioName("");
+
+  // Clear Dancing Photo
+  setDancingPhotoFile(null);
+  setDancingPhotoPreview("");
+
+  // Reset player
+  setCurrentIndex(0);
+  setIsPlaying(false);
+
+  // Clear export state
+  setExportStatus("");
+};
   const handleExportPrimaryMedia = async () => {
     if (selectedTool?.category === "Picture AI") {
       if (generatedImageFile || generatedImagePreview) {
