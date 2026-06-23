@@ -130,7 +130,7 @@ export default function CreatorStudio() {
 
   useEffect(() => {
     return () => {
-      mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
+      revokePreviews(mediaPreviews);
 
       if (musicPreview) URL.revokeObjectURL(musicPreview);
       if (generatedImagePreview) URL.revokeObjectURL(generatedImagePreview);
