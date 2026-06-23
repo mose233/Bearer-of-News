@@ -192,16 +192,30 @@ export default function CreatorStudio() {
 
   
 
-  const addSceneToTimeline = (file: File, preview: string, duration = getTimelineDuration()) => {
-    const nextIndex = mediaFiles.length;
+ const addSceneToTimeline = (
+  file: File,
+  preview: string,
+  duration = getTimelineDuration()
+) => {
+  const next = addScene(
+    {
+      mediaFiles,
+      mediaPreviews,
+      sceneDurations,
+      currentIndex,
+    },
+    file,
+    preview,
+    duration
+  );
 
-    setMediaFiles((prev) => [...prev, file]);
-    setMediaPreviews((prev) => [...prev, preview]);
-    setSceneDurations((prev) => [...prev, duration]);
-    setCurrentIndex(nextIndex);
+  setMediaFiles(next.mediaFiles);
+  setMediaPreviews(next.mediaPreviews);
+  setSceneDurations(next.sceneDurations);
+  setCurrentIndex(next.currentIndex);
 
-    scrollToLivePreview();
-  };
+  scrollToLivePreview();
+};
 
   const handleGenerateScript = () => {
     if (!videoPrompt.trim()) {
