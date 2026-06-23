@@ -19,7 +19,8 @@ import {
   createScenePlan,
 } from "@/lib/creator/AISceneManager";
 
-import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
+import { DanceStyle } from "@/lib/ai/videoProviders";
+import { createDanceVideo } from "@/lib/creator/DanceManager";
 
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 
@@ -400,11 +401,11 @@ export default function CreatorStudio() {
       setIsGeneratingDance(true);
       setExportStatus("Generating mock dancing video...");
 
-      const result = await generateDancingVideo({
-        imageFile: dancingPhotoFile,
-        imagePreview: dancingPhotoPreview,
-        danceStyle,
-      });
+     const result = await createDanceVideo(
+  dancingPhotoFile,
+  dancingPhotoPreview,
+  danceStyle
+);
 
       setDanceResultMessage(result.message);
 
