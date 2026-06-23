@@ -337,25 +337,23 @@ export default function CreatorStudio() {
   };
 
   const handlePhotoMusicAudioUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    setPhotoMusicAudioFile(file);
-    setPhotoMusicAudioName(file.name);
-    setBackgroundMusic(file);
+  setPhotoMusicAudioFile(file);
+  setPhotoMusicAudioName(file.name);
+  setBackgroundMusic(file);
 
-    if (musicPreview) {
-      URL.revokeObjectURL(musicPreview);
-    }
+  revokeMusicPreview(musicPreview);
 
-    const preview = URL.createObjectURL(file);
+  const preview = createMusicPreview(file);
 
-    setMusicPreview(preview);
-    setIsMusicPlaying(false);
-  };
+  setMusicPreview(preview);
+  setIsMusicPlaying(false);
+};
 
   const handleAddPhotoMusicSceneToTimeline = () => {
     if (!photoMusicImageFile || !photoMusicImagePreview) {
