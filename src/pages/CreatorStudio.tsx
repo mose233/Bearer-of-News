@@ -485,14 +485,19 @@ export default function CreatorStudio() {
       setGeneratedImageFile(null);
       setGeneratedImagePreview("");
 
-      const plan = createScenePlan(
+     const plan = createScenePlan(
   prompt,
   getTimelineDuration()
 );
 
-      setMultiScenePlan(plan);
+if (plan.length === 0) {
+  alert("No scenes could be generated.");
+  return;
+}
 
-      alert("4-scene plan generated.");
+setMultiScenePlan(plan);
+
+alert(`${plan.length} scene plan generated successfully.`);
     } catch (error) {
       console.error(error);
       alert("Failed to generate scene plan.");
