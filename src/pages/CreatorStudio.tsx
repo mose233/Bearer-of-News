@@ -29,6 +29,7 @@ import {
   deleteScene,
   duplicateScene,
   updateSceneDuration,
+  buildImagePreviewItems,
 } from "@/lib/creator/TimelineManager";
 import {
   ImagePreviewItem,
@@ -112,14 +113,8 @@ export default function CreatorStudio() {
   };
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
-    return mediaFiles
-      .map((file, index) => ({
-        file,
-        preview: mediaPreviews[index],
-      }))
-      .filter((item) => item.file.type.startsWith("image/"));
-  }, [mediaFiles, mediaPreviews]);
-
+  return buildImagePreviewItems(mediaFiles, mediaPreviews);
+}, [mediaFiles, mediaPreviews]);
   const mediaItems: ImagePreviewItem[] = useMemo(() => {
     return mediaFiles
       .map((file, index) => ({
