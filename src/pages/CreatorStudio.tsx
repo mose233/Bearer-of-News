@@ -660,23 +660,24 @@ alert(`${plan.length} scene plan generated successfully.`);
 };
 
   const toggleMusic = () => {
-    if (!audioRef.current) return;
+  if (!audioRef.current) return;
 
-    if (isMusicPlaying) {
-      stopAudio(audioRef.current);
-setIsMusicPlaying(false);
-return;
+  if (isMusicPlaying) {
+    stopAudio(audioRef.current);
+    setIsMusicPlaying(false);
+    return;
+  }
 
-    audioRef.current.volume = musicVolume;
+  audioRef.current.volume = musicVolume;
 
-    audioRef.current
-      .play()
-      .then(() => setIsMusicPlaying(true))
-      .catch((error) => {
-        console.error(error);
-        alert("Failed to play background music.");
-      });
-  };
+  audioRef.current
+    .play()
+    .then(() => setIsMusicPlaying(true))
+    .catch((error) => {
+      console.error(error);
+      alert("Failed to play background music.");
+    });
+};
 
   const startVoiceover = () => {
     if (!voiceText.trim()) {
