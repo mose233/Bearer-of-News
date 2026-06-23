@@ -285,7 +285,10 @@ export default function CreatorStudio() {
           `Generating scene image ${index + 1} of ${plan.length}...`
         );
 
-        const result = await generateSceneImage(scene.prompt, "1024x1024");
+        const result = await generateSingleScene(
+  prompt,
+  "1024x1024"
+);
 
         generatedFiles.push(result.file);
         generatedPreviews.push(result.previewUrl);
