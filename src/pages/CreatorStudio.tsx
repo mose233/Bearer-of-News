@@ -39,6 +39,11 @@ import {
   revokePreviews,
 } from "@/lib/creator/MediaManager";
 import {
+  createMusicPreview,
+  revokeMusicPreview,
+  stopAudio,
+} from "@/lib/creator/MusicManager";
+import {
   ImagePreviewItem,
   exportSilentMp4,
   exportNarratedMp4,
