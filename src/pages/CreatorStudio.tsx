@@ -643,21 +643,21 @@ alert(`${plan.length} scene plan generated successfully.`);
   setSceneDurations(next.sceneDurations);
 };
 
-  const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleMusicUpload = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    if (musicPreview) {
-      URL.revokeObjectURL(musicPreview);
-    }
+  revokeMusicPreview(musicPreview);
 
-    const preview = URL.createObjectURL(file);
+  const preview = createMusicPreview(file);
 
-    setBackgroundMusic(file);
-    setMusicPreview(preview);
-    setIsMusicPlaying(false);
-  };
+  setBackgroundMusic(file);
+  setMusicPreview(preview);
+  setIsMusicPlaying(false);
+};
 
   const toggleMusic = () => {
     if (!audioRef.current) return;
