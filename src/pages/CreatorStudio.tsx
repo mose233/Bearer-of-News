@@ -14,7 +14,6 @@ import PreviewPanel from "@/components/creator/PreviewPanel";
 import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
 
-import { generateVoice } from "@/lib/voice";
 import { generateSceneImage } from "@/lib/creator/imageGeneration";
 import { generateDancingVideo, DanceStyle } from "@/lib/ai/videoProviders";
 import {
