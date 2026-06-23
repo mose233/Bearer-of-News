@@ -663,10 +663,9 @@ alert(`${plan.length} scene plan generated successfully.`);
     if (!audioRef.current) return;
 
     if (isMusicPlaying) {
-      audioRef.current.pause();
-      setIsMusicPlaying(false);
-      return;
-    }
+      stopAudio(audioRef.current);
+setIsMusicPlaying(false);
+return;
 
     audioRef.current.volume = musicVolume;
 
