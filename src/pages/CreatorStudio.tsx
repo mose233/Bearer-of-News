@@ -485,7 +485,7 @@ export default function CreatorStudio() {
       setGeneratedImageFile(null);
       setGeneratedImagePreview("");
 
-      const plan = generateMultiScenePlan(
+      const plan = createScenePlan(
   prompt,
   getTimelineDuration()
 );
