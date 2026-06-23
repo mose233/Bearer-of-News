@@ -816,10 +816,24 @@ alert(`${plan.length} scene plan generated successfully.`);
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
   };
 
-  const handleExportSilentMp4 = async () => {
-    alert(
-      "MP4 export is temporarily disabled..."
-    );
+ const handleExportSilentMp4 = async () => {
+  if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
+    alert("Please upload or generate media first.");
+    return;
+  }
+
+  setIsExporting(true);
+  setExportStatus("Exporting silent MP4...");
+
+  try {
+    await exportSilentMp4({
+      file: mediaFiles[currentIndex],
+      preview: mediaPreviews[currentIndex],
+    });
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+  }
 };
 
   const handleExportNarratedMp4 = async () => {
