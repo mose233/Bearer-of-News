@@ -879,7 +879,42 @@ alert(`${plan.length} scene plan generated successfully.`);
     const blob = await response.blob();
     await ExportManager.exportImage(blob);
   };
+const handleExportNarratedMp4 = async () => {
+  if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
+    alert("Please upload or generate media first.");
+    return;
+  }
 
+  setIsExporting(true);
+  setExportStatus("Exporting narrated MP4...");
+
+  try {
+    await exportNarratedMp4({
+      file: mediaFiles[currentIndex],
+      preview: mediaPreviews[currentIndex],
+    });
+  } catch (error) {
+    console.error(error);
+    alert("Unable to export narrated MP4.");
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+  }
+};
+
+// 👇 ADD THIS IMMEDIATELY BELOW
+
+const handleExportFinalMixedMp4 = async () => {
+  await handleExportNarratedMp4();
+};
+
+// 👇 Then your next function continues here
+
+const handleGenerateCompleteVideo = async () => {
+  alert(
+    "Complete AI video export is temporarily disabled while backend rendering is being connected. You can still prepare scenes, preview, and download uploaded/generated media."
+  );
+};
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
