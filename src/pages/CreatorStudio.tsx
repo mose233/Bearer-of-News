@@ -32,6 +32,10 @@ import {
   buildImagePreviewItems,
 } from "@/lib/creator/TimelineManager";
 import {
+  createUploadedMedia,
+  revokePreviews,
+} from "@/lib/creator/MediaManager";
+import {
   ImagePreviewItem,
   exportSilentMp4,
   exportNarratedMp4,
@@ -412,19 +416,22 @@ export default function CreatorStudio() {
   };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const files = Array.from(e.target.files || []);
 
-    if (files.length === 0) return;
+  if (files.length === 0) return;
 
-    mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
+  revokePreviews(mediaPreviews);
 
-    const previews = files.map((file) => URL.createObjectURL(file));
+  const uploaded = createUploadedMedia(
+    files,
+    getTimelineDuration()
+  );
 
-    setMediaFiles(files);
-    setMediaPreviews(previews);
-    setSceneDurations(files.map(() => getTimelineDuration()));
-    setCurrentIndex(0);
-  };
+  setMediaFiles(uploaded.files);
+  setMediaPreviews(uploaded.previews);
+  setSceneDurations(uploaded.durations);
+  setCurrentIndex(0);
+};
 
   const handleGenerateImage = async () => {
     try {
