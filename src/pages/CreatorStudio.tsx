@@ -368,10 +368,29 @@ export default function CreatorStudio() {
   };
 
   const handleExportPhotoMusicVideo = async () => {
-    alert(
-      "Video download is temporarily disabled while backend rendering is being connected. You can still preview your media and download images."
-    );
-  };
+  if (!photoMusicImageFile && !photoMusicImagePreview) {
+    alert("Please upload a photo first.");
+    return;
+  }
+
+  setIsExporting(true);
+  setExportStatus("Exporting photo music video...");
+
+  try {
+    await exportPhotoMusicVideoMp4({
+      file: photoMusicImageFile,
+      preview: photoMusicImagePreview,
+    });
+
+    alert("Photo music video exported successfully.");
+  } catch (error) {
+    console.error(error);
+    alert("Unable to export photo music video.");
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+  }
+};
 
   const handleDancingPhotoUpload = (
     e: React.ChangeEvent<HTMLInputElement>
