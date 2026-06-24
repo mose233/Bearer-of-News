@@ -880,26 +880,11 @@ const resetCurrentProject = () => {
     }
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-        } finally {
-    setTimeout(() => {
-      revokePreviews(mediaPreviews);
-
-      setMediaFiles([]);
-      setMediaPreviews([]);
-      setCurrentIndex(0);
-
-      setGeneratedImageFile(null);
-      setGeneratedImagePreview("");
-
-      setPhotoMusicImageFile(null);
-      setPhotoMusicImagePreview("");
-
-      setDancingPhotoFile(null);
-      setDancingPhotoPreview("");
-
-      setExportStatus("");
-    }, 1000);
-  }
+      } finally {
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
+}
   };
 
  const handleExportSilentMp4 = async () => {
