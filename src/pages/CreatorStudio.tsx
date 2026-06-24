@@ -911,7 +911,9 @@ const resetCurrentProject = () => {
   }
 };
   
-  const handleExportNarratedMp4 = async () => {
+  
+
+ const handleExportNarratedMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
     return;
@@ -931,28 +933,12 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
+
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
   }
 };
-
-  const handleGenerateCompleteVideo = async () => {
-    alert(
-      "Complete AI video export is temporarily disabled while backend rendering is being connected. You can still prepare scenes, preview, and download uploaded/generated media."
-    );
-  };
-
-  const handleDownloadGeneratedImage = async () => {
-    if (generatedImageFile) {
-      await ExportManager.exportImage(generatedImageFile);
-      return;
-    }
-    if (!generatedImagePreview) {
-      alert("Please generate an image first.");
-      return;
-    }
-    const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
-    await ExportManager.exportImage(blob);
-  };
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
