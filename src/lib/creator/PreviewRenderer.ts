@@ -35,17 +35,28 @@ export async function renderPreviewVideo({
     image.onerror = reject;
   });
 
-  const mimeType = MediaRecorder.isTypeSupported(
-    "video/webm;codecs=vp9"
-  )
-    ? "video/webm;codecs=vp9"
-    : "video/webm";
+  const mimeType =
+  MediaRecorder.isTypeSupported("video/webm")
+    ? "video/webm"
+    : "";
 
   const stream = canvas.captureStream(fps);
+if (!stream) {
+  throw new Error("Unable to create video stream.");
+}
+ let recorder: MediaRecorder;
 
-  const recorder = new MediaRecorder(stream, {
+try {
+  recorder = new MediaRecorder(stream, {
     mimeType,
   });
+} catch (error) {
+  console.error("MediaRecorder failed", error);
+
+  throw new Error(
+    "This browser does not support video preview export."
+  );
+}
 
   const chunks: Blob[] = [];
 
