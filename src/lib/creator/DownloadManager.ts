@@ -73,12 +73,18 @@ export async function downloadMedia(
   exportFile: ExportFile,
   options: ExportOptions = {}
 ) {
+
+  console.log("DOWNLOAD START", {
+    filename: exportFile.filename,
+    size: exportFile.blob?.size,
+    type: exportFile.blob?.type,
+  });
+
   const { blob, filename } = exportFile;
 
   if (!blob || blob.size === 0) {
     throw new Error("Export produced an empty file.");
   }
-
   try {
     /*
      * Android
