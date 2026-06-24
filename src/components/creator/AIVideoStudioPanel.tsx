@@ -312,7 +312,10 @@ export default function AIVideoStudioPanel() {
   <div className="mt-2 grid gap-2">
     <button
       type="button"
-      onClick={() => setDuration("10 sec")}
+      onClick={() => {
+  setDuration("10 sec");
+  setShowPricing(false);
+}}
       className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
     >
       <span>10 Seconds</span>
@@ -321,7 +324,10 @@ export default function AIVideoStudioPanel() {
 
     <button
       type="button"
-      onClick={() => setDuration("20 sec")}
+      onClick={() => {
+  setDuration("20 sec");
+  setShowPricing(false);
+}}
       className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
     >
       <span>20 Seconds</span>
@@ -330,7 +336,10 @@ export default function AIVideoStudioPanel() {
 
     <button
       type="button"
-      onClick={() => setDuration("30 sec")}
+      onClick={() => {
+  setDuration("30 sec");
+  setShowPricing(false);
+}}
       className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
     >
       <span>30 Seconds</span>
@@ -339,7 +348,10 @@ export default function AIVideoStudioPanel() {
 
     <button
       type="button"
-      onClick={() => setDuration("40 sec")}
+      onClick={() => {
+  setDuration("40 sec");
+  setShowPricing(false);
+}}
       className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
     >
       <span>40 Seconds</span>
@@ -348,7 +360,10 @@ export default function AIVideoStudioPanel() {
 
     <button
       type="button"
-      onClick={() => setDuration("50 sec")}
+      onClick={() => {
+  setDuration("50 sec");
+  setShowPricing(false);
+}}
       className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
     >
       <span>50 Seconds</span>
@@ -357,7 +372,10 @@ export default function AIVideoStudioPanel() {
 
     <button
       type="button"
-      onClick={() => setDuration("60 sec")}
+      onClick={() => {
+  setDuration("60 sec");
+  setShowPricing(false);
+}}
       className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
     >
       <span>60 Seconds</span>
