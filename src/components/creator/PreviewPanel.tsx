@@ -72,20 +72,14 @@ export default function PreviewPanel({
 
 useEffect(() => {
   setPreviewTime(0);
+  setIsPlaying(true);
 
   const video = videoRef.current;
 
   if (video) {
     video.pause();
     video.currentTime = 0;
-
     video.load();
-
-    const playPromise = video.play();
-
-    if (playPromise) {
-      playPromise.catch(() => {});
-    }
   }
 }, [safeCurrentIndex, previewUrl, selectedDuration]);
 
