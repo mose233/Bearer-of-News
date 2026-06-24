@@ -902,10 +902,13 @@ const resetCurrentProject = () => {
       preview: mediaPreviews[currentIndex],
     });
   } finally {
-    setIsExporting(false);
-    setExportStatus("");
-  }
-};
+  setIsExporting(false);
+  setExportStatus("");
+
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
+}
 
   
   const handleExportNarratedMp4 = async () => {
