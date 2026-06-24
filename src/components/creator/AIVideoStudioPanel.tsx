@@ -139,6 +139,7 @@ export default function AIVideoStudioPanel() {
   const [style, setStyle] = useState("Gen Z Viral");
   const [language, setLanguage] = useState("Swahili");
   const [ratio, setRatio] = useState("9:16 TikTok/Reels");
+  const [duration, setDuration] = useState("30 sec");
   const [showPricing, setShowPricing] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
