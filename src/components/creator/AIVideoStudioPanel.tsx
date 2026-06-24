@@ -303,13 +303,75 @@ export default function AIVideoStudioPanel() {
               </div>
             </div>
 
-            <TextFontStudio
-              tool="AI Music Video Studio"
-              selectedFont={selectedCreatorFont}
-              onFontChange={setSelectedCreatorFont}
-            />
+<div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+  <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
+    🎬 Cinematic AI Pricing
+  </div>
 
-            <div className="space-y-2">
+  <div className="mt-2 grid gap-2">
+    <button
+      type="button"
+      onClick={() => setDuration("10 sec")}
+      className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
+    >
+      <span>10 Seconds</span>
+      <span>$0.72</span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setDuration("20 sec")}
+      className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
+    >
+      <span>20 Seconds</span>
+      <span>$1.22</span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setDuration("30 sec")}
+      className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
+    >
+      <span>30 Seconds</span>
+      <span>$1.72</span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setDuration("40 sec")}
+      className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
+    >
+      <span>40 Seconds</span>
+      <span>$2.22</span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setDuration("50 sec")}
+      className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
+    >
+      <span>50 Seconds</span>
+      <span>$2.72</span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setDuration("60 sec")}
+      className="flex justify-between rounded-xl px-3 py-2 text-xs font-bold hover:bg-white/10"
+    >
+      <span>60 Seconds</span>
+      <span>$3.22</span>
+    </button>
+  </div>
+</div>
+
+<TextFontStudio
+  tool="AI Music Video Studio"
+  selectedFont={selectedCreatorFont}
+  onFontChange={setSelectedCreatorFont}
+/>
+
+<div className="space-y-2">
               <label className="text-xs font-bold text-slate-300">
                 AI engine
               </label>
