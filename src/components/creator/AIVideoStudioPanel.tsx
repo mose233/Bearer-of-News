@@ -139,7 +139,7 @@ export default function AIVideoStudioPanel() {
   const [style, setStyle] = useState("Gen Z Viral");
   const [language, setLanguage] = useState("Swahili");
   const [ratio, setRatio] = useState("9:16 TikTok/Reels");
-  const [duration, setDuration] = useState("30 sec");
+  const [showPricing, setShowPricing] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
@@ -303,6 +303,7 @@ export default function AIVideoStudioPanel() {
               </div>
             </div>
 
+{showPricing && (
 <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3">
   <div className="text-xs font-extrabold uppercase tracking-wide text-emerald-300">
     🎬 Cinematic AI Pricing
@@ -364,7 +365,16 @@ export default function AIVideoStudioPanel() {
     </button>
   </div>
 </div>
-
+)}
+            {!showPricing && (
+  <button
+    type="button"
+    onClick={() => setShowPricing(true)}
+    className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-200"
+  >
+    Duration: {duration} ▼
+  </button>
+)}
 <TextFontStudio
   tool="AI Music Video Studio"
   selectedFont={selectedCreatorFont}
