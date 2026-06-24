@@ -9,9 +9,9 @@ export interface PreviewRenderOptions {
 export async function renderPreviewVideo({
   imageUrl,
   duration,
-  fps = 30,
-  width = 1080,
-  height = 1920,
+  fps = 12,
+  width = 540,
+  height = 960,
 }: PreviewRenderOptions): Promise<Blob> {
   const canvas = document.createElement("canvas");
 
@@ -80,8 +80,8 @@ try {
   });
 
   recorder.start();
-
-  const totalFrames = duration * fps;
+const safeDuration = Math.min(duration, 15);
+const totalFrames = safeDuration * fps;
 
   for (let frame = 0; frame < totalFrames; frame++) {
     const progress = frame / totalFrames;
