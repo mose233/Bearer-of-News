@@ -811,6 +811,7 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleExportPrimaryMedia = async () => {
+    try {
     if (selectedTool?.category === "Picture AI") {
       if (generatedImageFile || generatedImagePreview) {
         await handleDownloadGeneratedImage();
@@ -879,6 +880,26 @@ const resetCurrentProject = () => {
     }
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
+        } finally {
+    setTimeout(() => {
+      revokePreviews(mediaPreviews);
+
+      setMediaFiles([]);
+      setMediaPreviews([]);
+      setCurrentIndex(0);
+
+      setGeneratedImageFile(null);
+      setGeneratedImagePreview("");
+
+      setPhotoMusicImageFile(null);
+      setPhotoMusicImagePreview("");
+
+      setDancingPhotoFile(null);
+      setDancingPhotoPreview("");
+
+      setExportStatus("");
+    }, 1000);
+  }
   };
 
  const handleExportSilentMp4 = async () => {
