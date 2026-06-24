@@ -70,14 +70,24 @@ export default function PreviewPanel({
   const isCurrentImage =
     currentFile?.type?.startsWith("image/") || Boolean(currentPreview?.preview);
 
-  useEffect(() => {
-    setPreviewTime(0);
+useEffect(() => {
+  setPreviewTime(0);
 
-    const video = videoRef.current;
-    if (video) {
-      video.currentTime = 0;
+  const video = videoRef.current;
+
+  if (video) {
+    video.pause();
+    video.currentTime = 0;
+
+    video.load();
+
+    const playPromise = video.play();
+
+    if (playPromise) {
+      playPromise.catch(() => {});
     }
-  }, [safeCurrentIndex, previewUrl, selectedDuration]);
+  }
+}, [safeCurrentIndex, previewUrl, selectedDuration]);
 
   useEffect(() => {
     if (!isPlaying) return;
