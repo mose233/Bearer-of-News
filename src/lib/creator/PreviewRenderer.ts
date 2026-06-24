@@ -35,10 +35,12 @@ export async function renderPreviewVideo({
     image.onerror = reject;
   });
 
-  const mimeType =
-  MediaRecorder.isTypeSupported("video/webm")
-    ? "video/webm"
-    : "";
+  let mimeType = "video/webm";
+
+if (!MediaRecorder.isTypeSupported(mimeType)) {
+  console.warn("video/webm not supported. Using browser default.");
+  mimeType = "";
+}
 
   const stream = canvas.captureStream(fps);
 if (!stream) {
@@ -47,9 +49,10 @@ if (!stream) {
  let recorder: MediaRecorder;
 
 try {
-  recorder = new MediaRecorder(stream, {
-    mimeType,
-  });
+ recorder =
+  mimeType !== ""
+    ? new MediaRecorder(stream, { mimeType })
+    : new MediaRecorder(stream);
 } catch (error) {
   console.error("MediaRecorder failed", error);
 
