@@ -90,21 +90,17 @@ export async function downloadMedia(
      * Android
      */
     if (isAndroid()) {
-      const shared =
-        options.shareOnMobile === true
-          ? await shareBlob(blob, filename)
-          : false;
+  const shared =
+    options.shareOnMobile === true
+      ? await shareBlob(blob, filename)
+      : false;
 
-      if (!shared) {
-        try {
-          saveAs(blob, filename);
-        } catch {
-          createDownloadLink(blob, filename);
-        }
-      }
+  if (!shared) {
+    createDownloadLink(blob, filename);
+  }
 
-      return true;
-    }
+  return true;
+}
 
     /*
      * iPhone / iPad
