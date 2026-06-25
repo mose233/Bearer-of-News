@@ -87,36 +87,31 @@ export async function downloadMedia(
 
   try {
     /*
-     * Android
-     */
-    if (isAndroid()) {
-      const shared =
-        options.shareOnMobile === true
-          ? await shareBlob(blob, filename)
-          : false;
+ * Android
+ */
+if (isAndroid()) {
+  const shared =
+    options.shareOnMobile === true
+      ? await shareBlob(blob, filename)
+      : false;
 
-      if (!shared) {
-        console.log("ANDROID: Starting download", {
-          filename,
-          size: blob.size,
-          type: blob.type,
-        });
+  if (!shared) {
+    console.log("ANDROID: Starting native download", {
+      filename,
+      size: blob.size,
+      type: blob.type,
+    });
 
-        try {
-          saveAs(blob, filename);
+    // Bypass file-saver on Android.
+    // It has inconsistent behavior across Chrome/WebView versions,
+    // especially after repeated downloads.
+    createDownloadLink(blob, filename);
 
-          console.log("ANDROID: saveAs() returned successfully");
-        } catch (error) {
-          console.error("ANDROID: saveAs() threw an error", error);
+    console.log("ANDROID: Native download link created");
+  }
 
-          createDownloadLink(blob, filename);
-        }
-
-        console.log("ANDROID: Leaving downloadMedia()");
-      }
-
-      return true;
-    }
+  return true;
+}
 
     /*
      * iPhone / iPad
