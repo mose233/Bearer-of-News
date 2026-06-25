@@ -97,10 +97,20 @@ export async function downloadMedia(
 
       if (!shared) {
         try {
-          saveAs(blob, filename);
-        } catch {
-          createDownloadLink(blob, filename);
-        }
+  console.log("ANDROID: About to call saveAs()", {
+    filename,
+    size: blob.size,
+    type: blob.type,
+  });
+
+  saveAs(blob, filename);
+
+  console.log("ANDROID: saveAs() finished");
+} catch (error) {
+  console.error("ANDROID: saveAs() failed", error);
+
+  createDownloadLink(blob, filename);
+}
       }
 
       return true;
