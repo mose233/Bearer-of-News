@@ -916,28 +916,7 @@ const resetCurrentProject = () => {
   }
 };
 
- await ExportManager.exportCustom(
-  currentFile,
-  currentFile.name || "xnewsapp-media"
-);
-  } finally {
-    setIsExporting(false);
-    setExportStatus("");
-
-    if (isAndroid()) {
-      // Give Android Download Manager enough time to save the file.
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 10000);
-    } else {
-      // Desktop stays exactly as before.
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 1000);
-    }
-  }
-};
-
+ 
 const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
