@@ -811,6 +811,17 @@ const resetCurrentProject = () => {
   // Clear export state
   setExportStatus("");
 };
+  const scheduleProjectReset = () => {
+  // Cancel any previous pending reset
+  if (resetTimeoutRef.current !== null) {
+    window.clearTimeout(resetTimeoutRef.current);
+  }
+
+  resetTimeoutRef.current = window.setTimeout(() => {
+    resetCurrentProject();
+    resetTimeoutRef.current = null;
+  }, isAndroid() ? 10000 : 1000);
+};
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
     await ExportManager.exportImage(generatedImageFile);
