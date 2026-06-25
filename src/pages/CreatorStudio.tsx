@@ -933,19 +933,11 @@ const handleExportSilentMp4 = async () => {
       preview: mediaPreviews[currentIndex],
     });
   } finally {
-    setIsExporting(false);
-    setExportStatus("");
+  setIsExporting(false);
+  setExportStatus("");
 
-    if (isAndroid()) {
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 10000);
-    } else {
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 1000);
-    }
-  }
+  scheduleProjectReset();
+}
 };
 
 const handleExportNarratedMp4 = async () => {
@@ -966,19 +958,11 @@ const handleExportNarratedMp4 = async () => {
     console.error(error);
     alert("Unable to export narrated MP4.");
   } finally {
-    setIsExporting(false);
-    setExportStatus("");
+  setIsExporting(false);
+  setExportStatus("");
 
-    if (isAndroid()) {
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 10000);
-    } else {
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 1000);
-    }
-  }
+  scheduleProjectReset();
+}
 };
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
