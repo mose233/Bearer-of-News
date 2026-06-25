@@ -117,20 +117,10 @@ export async function downloadMedia(
 
       if (!shared) {
         try {
-  console.log("ANDROID: About to call saveAs()", {
-    filename,
-    size: blob.size,
-    type: blob.type,
-  });
-
-  saveAs(blob, filename);
-
-  console.log("ANDROID: saveAs() finished");
-} catch (error) {
-  console.error("ANDROID: saveAs() failed", error);
-
-  createDownloadLink(blob, filename);
-}
+          saveAs(blob, filename);
+        } catch {
+          createDownloadLink(blob, filename);
+        }
       }
 
       return true;
@@ -187,4 +177,3 @@ export async function downloadAudio(
     mimeType: "audio/mpeg",
   });
 }
-
