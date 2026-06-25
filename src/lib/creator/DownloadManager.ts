@@ -15,7 +15,7 @@ function createDownloadLink(blob: Blob, filename: string) {
 
   anchor.href = url;
   anchor.download = filename;
-  anchor.target = "_self";
+  anchor.target = "";
   anchor.rel = "noopener";
   anchor.style.display = "none";
 
