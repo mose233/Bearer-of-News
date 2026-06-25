@@ -828,7 +828,7 @@ const resetCurrentProject = () => {
   await ExportManager.exportImage(blob);
 };
   const handleExportPrimaryMedia = async () => {
-    try {
+  try {
     if (selectedTool?.category === "Picture AI") {
       if (generatedImageFile || generatedImagePreview) {
         await handleDownloadGeneratedImage();
@@ -879,15 +879,16 @@ const resetCurrentProject = () => {
         setExportStatus("Creating preview video download...");
 
         const videoBlob = await renderPreviewVideo({
-  imageUrl: currentPreview,
-  duration: getTimelineDuration(),
-});
+          imageUrl: currentPreview,
+          duration: getTimelineDuration(),
+        });
 
         await ExportManager.exportCinematic(videoBlob);
         return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
+
         await ExportManager.exportImage(currentFile);
         return;
       } finally {
@@ -896,20 +897,24 @@ const resetCurrentProject = () => {
       }
     }
 
-    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-      } finally {
- if (isAndroid()) {
-  // Give Android Download Manager enough time to save the file.
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 10000); // 10 seconds
-} else {
-  // Desktop stays exactly as before.
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-  };
+    await ExportManager.exportCustom(
+      currentFile,
+      currentFile.name || "xnewsapp-media"
+    );
+  } finally {
+    if (isAndroid()) {
+      // Give Android Download Manager enough time to save the file.
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 10000);
+    } else {
+      // Desktop stays exactly as before.
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 1000);
+    }
+  }
+};
 
  await ExportManager.exportCustom(
   currentFile,
