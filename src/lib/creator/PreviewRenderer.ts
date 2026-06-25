@@ -110,19 +110,7 @@ const totalFrames = safeDuration * fps;
     );
   }
 
-recorder.stop();
+  recorder.stop();
 
-const blob = await finished;
-
-// Stop the canvas capture stream
-stream.getTracks().forEach((track) => track.stop());
-
-// Release the image
-image.src = "";
-
-// Clear the canvas
-ctx.clearRect(0, 0, width, height);
-canvas.width = 1;
-canvas.height = 1;
-
-return blob;
+  return finished;
+}
