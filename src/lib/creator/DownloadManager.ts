@@ -15,12 +15,12 @@ function createDownloadLink(blob: Blob, filename: string) {
 
   anchor.href = url;
   anchor.download = filename;
-  anchor.target = "";
+  
   anchor.rel = "noopener";
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);
-
+anchor.click();
   try {
     anchor.dispatchEvent(
       new MouseEvent("click", {
