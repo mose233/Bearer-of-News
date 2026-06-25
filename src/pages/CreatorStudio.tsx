@@ -911,7 +911,29 @@ const resetCurrentProject = () => {
 }
   };
 
- const handleExportSilentMp4 = async () => {
+ await ExportManager.exportCustom(
+  currentFile,
+  currentFile.name || "xnewsapp-media"
+);
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+
+    if (isAndroid()) {
+      // Give Android Download Manager enough time to save the file.
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 10000);
+    } else {
+      // Desktop stays exactly as before.
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 1000);
+    }
+  }
+};
+
+const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
     return;
@@ -926,22 +948,22 @@ const resetCurrentProject = () => {
       preview: mediaPreviews[currentIndex],
     });
   } finally {
-    if (isAndroid()) {
-  // Give Android Download Manager enough time to save the file.
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 10000); // 10 seconds
-} else {
-  // Desktop stays exactly as before.
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-};
-  
-  
+    setIsExporting(false);
+    setExportStatus("");
 
- const handleExportNarratedMp4 = async () => {
+    if (isAndroid()) {
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 10000);
+    } else {
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 1000);
+    }
+  }
+};
+
+const handleExportNarratedMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
     return;
@@ -959,19 +981,20 @@ const resetCurrentProject = () => {
     console.error(error);
     alert("Unable to export narrated MP4.");
   } finally {
-    if (isAndroid()) {
-  // Give Android Download Manager enough time to save the file.
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 10000); // 10 seconds
-} else {
-  // Desktop stays exactly as before.
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-};
+    setIsExporting(false);
+    setExportStatus("");
 
+    if (isAndroid()) {
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 10000);
+    } else {
+      setTimeout(() => {
+        resetCurrentProject();
+      }, 1000);
+    }
+  }
+};
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
