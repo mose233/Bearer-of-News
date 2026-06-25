@@ -913,18 +913,8 @@ const resetCurrentProject = () => {
       currentFile.name || "xnewsapp-media"
     );
   } finally {
-    if (isAndroid()) {
-      // Give Android Download Manager enough time to save the file.
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 10000);
-    } else {
-      // Desktop stays exactly as before.
-      setTimeout(() => {
-        resetCurrentProject();
-      }, 1000);
-    }
-  }
+  scheduleProjectReset();
+}
 };
 
  
