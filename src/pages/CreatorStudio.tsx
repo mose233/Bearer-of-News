@@ -114,7 +114,7 @@ export default function CreatorStudio() {
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
-
+const resetTimeoutRef = useRef<number | null>(null);
   const handleSelectTool = (tool: AiToolSelection) => {
     setSelectedTool(tool);
 
