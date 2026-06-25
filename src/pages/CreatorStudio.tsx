@@ -1,3 +1,4 @@
+import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
@@ -897,6 +898,13 @@ const resetCurrentProject = () => {
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
       } finally {
+ if (isAndroid()) {
+  // Give Android Download Manager enough time to save the file.
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 10000); // 10 seconds
+} else {
+  // Desktop stays exactly as before.
   setTimeout(() => {
     resetCurrentProject();
   }, 1000);
@@ -918,13 +926,17 @@ const resetCurrentProject = () => {
       preview: mediaPreviews[currentIndex],
     });
   } finally {
-    setIsExporting(false);
-    setExportStatus("");
-
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
-  }
+    if (isAndroid()) {
+  // Give Android Download Manager enough time to save the file.
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 10000); // 10 seconds
+} else {
+  // Desktop stays exactly as before.
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
+}
 };
   
   
@@ -947,13 +959,17 @@ const resetCurrentProject = () => {
     console.error(error);
     alert("Unable to export narrated MP4.");
   } finally {
-    setIsExporting(false);
-    setExportStatus("");
-
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
-  }
+    if (isAndroid()) {
+  // Give Android Download Manager enough time to save the file.
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 10000); // 10 seconds
+} else {
+  // Desktop stays exactly as before.
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
+}
 };
 
   return (
