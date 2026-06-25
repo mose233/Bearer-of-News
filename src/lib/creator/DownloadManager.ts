@@ -73,7 +73,6 @@ export async function downloadMedia(
   exportFile: ExportFile,
   options: ExportOptions = {}
 ) {
-
   console.log("DOWNLOAD START", {
     filename: exportFile.filename,
     size: exportFile.blob?.size,
@@ -85,6 +84,7 @@ export async function downloadMedia(
   if (!blob || blob.size === 0) {
     throw new Error("Export produced an empty file.");
   }
+
   try {
     /*
      * Android
@@ -96,11 +96,23 @@ export async function downloadMedia(
           : false;
 
       if (!shared) {
+        console.log("ANDROID: Starting download", {
+          filename,
+          size: blob.size,
+          type: blob.type,
+        });
+
         try {
           saveAs(blob, filename);
-        } catch {
+
+          console.log("ANDROID: saveAs() returned successfully");
+        } catch (error) {
+          console.error("ANDROID: saveAs() threw an error", error);
+
           createDownloadLink(blob, filename);
         }
+
+        console.log("ANDROID: Leaving downloadMedia()");
       }
 
       return true;
