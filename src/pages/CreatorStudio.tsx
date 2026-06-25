@@ -899,7 +899,7 @@ const resetCurrentProject = () => {
       } finally {
   setTimeout(() => {
     resetCurrentProject();
-  }, 1000);
+  }, 10000);
 }
   };
 
@@ -923,7 +923,7 @@ const resetCurrentProject = () => {
 
     setTimeout(() => {
       resetCurrentProject();
-    }, 1000);
+    }, 10000);
   }
 };
   
@@ -952,7 +952,7 @@ const resetCurrentProject = () => {
 
     setTimeout(() => {
       resetCurrentProject();
-    }, 1000);
+    }, 10000);
   }
 };
 
