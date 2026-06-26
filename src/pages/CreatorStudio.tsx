@@ -77,16 +77,17 @@ export default function CreatorStudio() {
   const [musicVolume, setMusicVolume] = useState(0.18);
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
-  const [sceneDurations, setSceneDurations] = useState<number[]>([]);
+const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+const [sceneDurations, setSceneDurations] = useState<number[]>([]);
 
-  const [aiImagePrompt, setAiImagePrompt] = useState("");
-  const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(
-    null
-  );
-  const [generatedImagePreview, setGeneratedImagePreview] = useState("");
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [multiScenePlan, setMultiScenePlan] = useState<MultiScenePlan[]>([]);
+const [aiImagePrompt, setAiImagePrompt] = useState("");
+
+// const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(null);
+
+// const [generatedImagePreview, setGeneratedImagePreview] = useState("");
+
+const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+const [multiScenePlan, setMultiScenePlan] = useState<MultiScenePlan[]>([]);
 
   const [photoMusicImageFile, setPhotoMusicImageFile] =
     useState<File | null>(null);
