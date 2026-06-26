@@ -812,20 +812,24 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
+  let blob: Blob | null = null;
+
   if (generatedImageFile) {
-    await ExportManager.exportImage(generatedImageFile);
-    return;
+    blob = generatedImageFile;
+  } else if (generatedImagePreview) {
+    const response = await fetch(generatedImagePreview);
+    blob = await response.blob();
   }
 
-  if (!generatedImagePreview) {
+  if (!blob) {
     alert("Please generate an image first.");
     return;
   }
 
-  const response = await fetch(generatedImagePreview);
-  const blob = await response.blob();
-
-  await ExportManager.exportImage(blob);
+  await ExportEngine.export({
+    type: "image",
+    blob,
+  });
 };
   const handleExportPrimaryMedia = async () => {
     try {
