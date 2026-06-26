@@ -1,4 +1,3 @@
-import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
@@ -114,7 +113,7 @@ export default function CreatorStudio() {
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
-const resetTimeoutRef = useRef<number | null>(null);
+
   const handleSelectTool = (tool: AiToolSelection) => {
     setSelectedTool(tool);
 
@@ -811,17 +810,6 @@ const resetCurrentProject = () => {
   // Clear export state
   setExportStatus("");
 };
-  const scheduleProjectReset = () => {
-  // Cancel any previous pending reset
-  if (resetTimeoutRef.current !== null) {
-    window.clearTimeout(resetTimeoutRef.current);
-  }
-
-  resetTimeoutRef.current = window.setTimeout(() => {
-    resetCurrentProject();
-    resetTimeoutRef.current = null;
-  }, isAndroid() ? 10000 : 1000);
-};
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
     await ExportManager.exportImage(generatedImageFile);
@@ -838,10 +826,8 @@ const resetCurrentProject = () => {
 
   await ExportManager.exportImage(blob);
 };
-     const handleExportPrimaryMedia = async () => {
-  console.log("========== DOWNLOAD BUTTON CLICKED ==========");
-
-  try {
+  const handleExportPrimaryMedia = async () => {
+    try {
     if (selectedTool?.category === "Picture AI") {
       if (generatedImageFile || generatedImagePreview) {
         await handleDownloadGeneratedImage();
@@ -892,16 +878,15 @@ const resetCurrentProject = () => {
         setExportStatus("Creating preview video download...");
 
         const videoBlob = await renderPreviewVideo({
-          imageUrl: currentPreview,
-          duration: getTimelineDuration(),
-        });
+  imageUrl: currentPreview,
+  duration: getTimelineDuration(),
+});
 
         await ExportManager.exportCinematic(videoBlob);
         return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-
         await ExportManager.exportImage(currentFile);
         return;
       } finally {
@@ -910,18 +895,15 @@ const resetCurrentProject = () => {
       }
     }
 
-    await ExportManager.exportCustom(
-      currentFile,
-      currentFile.name || "xnewsapp-media"
-    );
-  } finally {
-  setIsExporting(false);
-  setExportStatus("");
+    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
+      } finally {
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
 }
-};
+  };
 
- 
-const handleExportSilentMp4 = async () => {
+ const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
     return;
@@ -936,12 +918,18 @@ const handleExportSilentMp4 = async () => {
       preview: mediaPreviews[currentIndex],
     });
   } finally {
-  setIsExporting(false);
-  setExportStatus("");
-}
-};
+    setIsExporting(false);
+    setExportStatus("");
 
-const handleExportNarratedMp4 = async () => {
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
+};
+  
+  
+
+ const handleExportNarratedMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
     return;
@@ -959,10 +947,15 @@ const handleExportNarratedMp4 = async () => {
     console.error(error);
     alert("Unable to export narrated MP4.");
   } finally {
-  setIsExporting(false);
-  setExportStatus("");
-}
+    setIsExporting(false);
+    setExportStatus("");
+
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
 };
+
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
