@@ -834,35 +834,32 @@ const resetCurrentProject = () => {
   const handleExportPrimaryMedia = async () => {
     try {
     if (selectedTool?.category === "Picture AI") {
-      if (generatedImageFile || generatedImagePreview) {
-        await handleDownloadGeneratedImage();
-        return;
-      }
+  let blob: Blob | null = null;
 
-      const currentPreview = mediaPreviews[currentIndex];
-      const currentFile = mediaFiles[currentIndex];
+  if (generatedImageFile) {
+    blob = generatedImageFile;
+  } else if (
+    mediaFiles[currentIndex] &&
+    mediaFiles[currentIndex].type.startsWith("image/")
+  ) {
+    blob = mediaFiles[currentIndex];
+  } else if (mediaPreviews[currentIndex]) {
+    const response = await fetch(mediaPreviews[currentIndex]);
+    blob = await response.blob();
+  }
 
-      if (currentPreview && currentFile?.type.startsWith("image/")) {
-        const response = await fetch(currentPreview);
-        const blob = await response.blob();
+  if (!blob) {
+    alert("Please generate or add an image first.");
+    return;
+  }
 
-        await ExportManager.exportImage(blob);
-        return;
-      }
+  await ExportEngine.export({
+    type: "image",
+    blob,
+  });
 
-      if (imagePreviews.length > 0) {
-        const fallbackPreview = imagePreviews[0];
-
-        const response = await fetch(fallbackPreview.preview);
-        const blob = await response.blob();
-
-        await ExportManager.exportImage(blob);
-        return;
-      }
-
-      alert("Please generate or add an image first.");
-      return;
-    }
+  return;
+}
 
     const currentFile = mediaFiles[currentIndex];
     const currentPreview = mediaPreviews[currentIndex];
