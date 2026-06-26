@@ -591,15 +591,12 @@ alert(`${plan.length} scene plan generated successfully.`);
       alert("Please generate an AI scene image first.");
       return;
     }
-
+    
     addSceneToTimeline(
       generatedImageFile,
       generatedImagePreview,
       selectedVideoDurationSeconds
     );
-
-    setGeneratedImageFile(null);
-    setGeneratedImagePreview("");
 
     alert("AI image added to video timeline.");
   };
