@@ -936,8 +936,6 @@ const handleExportSilentMp4 = async () => {
   } finally {
   setIsExporting(false);
   setExportStatus("");
-
-  scheduleProjectReset();
 }
 };
 
@@ -961,8 +959,6 @@ const handleExportNarratedMp4 = async () => {
   } finally {
   setIsExporting(false);
   setExportStatus("");
-
-  scheduleProjectReset();
 }
 };
   return (
