@@ -73,19 +73,28 @@ console.log("EXPORT PANEL", {
         </div>
       )}
 
-      <Button
-        type="button"
-        onClick={onExportPrimary}
-        disabled={busy}
-        className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
-      >
-        {busy ? (
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-        ) : (
-          <Download className="mr-2 h-5 w-5" />
-        )}
-        {exportPrimaryLabel || "Export / Download Media"}
-      </Button>
+     <Button
+  type="button"
+  onClick={() => {
+    console.log("DOWNLOAD BUTTON PRESSED", {
+      busy,
+      isRecording,
+      isExporting,
+    });
+
+    onExportPrimary();
+  }}
+  disabled={busy}
+  className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
+>
+  {busy ? (
+    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+  ) : (
+    <Download className="mr-2 h-5 w-5" />
+  )}
+
+  {exportPrimaryLabel || "Export / Download Media"} {busy ? "(BUSY)" : "(READY)"}
+</Button>
 
       <div className="grid grid-cols-2 gap-3">
         <Button
