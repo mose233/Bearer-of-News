@@ -832,34 +832,35 @@ const resetCurrentProject = () => {
   });
 };
   const handleExportPrimaryMedia = async () => {
-    try {
+  try {
+    // Picture AI
     if (selectedTool?.category === "Picture AI") {
-  let blob: Blob | null = null;
+      let blob: Blob | null = null;
 
-  if (generatedImageFile) {
-    blob = generatedImageFile;
-  } else if (
-    mediaFiles[currentIndex] &&
-    mediaFiles[currentIndex].type.startsWith("image/")
-  ) {
-    blob = mediaFiles[currentIndex];
-  } else if (mediaPreviews[currentIndex]) {
-    const response = await fetch(mediaPreviews[currentIndex]);
-    blob = await response.blob();
-  }
+      if (generatedImageFile) {
+        blob = generatedImageFile;
+      } else if (
+        mediaFiles[currentIndex] &&
+        mediaFiles[currentIndex].type.startsWith("image/")
+      ) {
+        blob = mediaFiles[currentIndex];
+      } else if (mediaPreviews[currentIndex]) {
+        const response = await fetch(mediaPreviews[currentIndex]);
+        blob = await response.blob();
+      }
 
-  if (!blob) {
-    alert("Please generate or add an image first.");
-    return;
-  }
+      if (!blob) {
+        alert("Please generate or add an image first.");
+        return;
+      }
 
-  await ExportEngine.export({
-    type: "image",
-    blob,
-  });
+      await ExportEngine.export({
+        type: "image",
+        blob,
+      });
 
-  return;
-}
+      return;
+    }
 
     const currentFile = mediaFiles[currentIndex];
     const currentPreview = mediaPreviews[currentIndex];
@@ -875,35 +876,37 @@ const resetCurrentProject = () => {
     }
 
     if (currentFile.type.startsWith("image/")) {
-      try {
-        setIsExporting(true);
-        setExportStatus("Creating preview video download...");
+      setIsExporting(true);
+      setExportStatus("Creating preview video download...");
 
+      try {
         const videoBlob = await renderPreviewVideo({
-  imageUrl: currentPreview,
-  duration: getTimelineDuration(),
-});
+          imageUrl: currentPreview,
+          duration: getTimelineDuration(),
+        });
 
         await ExportManager.exportCinematic(videoBlob);
-        return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
+
         await ExportManager.exportImage(currentFile);
-        return;
-      } finally {
-        setIsExporting(false);
-        setExportStatus("");
       }
+
+      return;
     }
 
-    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-      } finally {
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-  };
+    await ExportManager.exportCustom(
+      currentFile,
+      currentFile.name || "xnewsapp-media"
+    );
+  } finally {
+    // ONLY unlock the UI.
+    // DO NOT destroy the project here.
+    setIsExporting(false);
+    setExportStatus("");
+  }
+};
 
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
@@ -922,13 +925,8 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
-
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
   }
 };
-  
   
 
  const handleExportNarratedMp4 = async () => {
@@ -951,10 +949,6 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
-
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
   }
 };
 
