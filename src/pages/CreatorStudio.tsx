@@ -913,7 +913,8 @@ const resetCurrentProject = () => {
       currentFile.name || "xnewsapp-media"
     );
   } finally {
-  scheduleProjectReset();
+  setIsExporting(false);
+  setExportStatus("");
 }
 };
 
