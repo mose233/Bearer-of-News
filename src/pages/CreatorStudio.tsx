@@ -838,7 +838,9 @@ const resetCurrentProject = () => {
 
   await ExportManager.exportImage(blob);
 };
-  const handleExportPrimaryMedia = async () => {
+     const handleExportPrimaryMedia = async () => {
+  console.log("========== DOWNLOAD BUTTON CLICKED ==========");
+
   try {
     if (selectedTool?.category === "Picture AI") {
       if (generatedImageFile || generatedImagePreview) {
