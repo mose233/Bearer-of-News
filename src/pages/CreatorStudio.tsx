@@ -82,9 +82,8 @@ const [sceneDurations, setSceneDurations] = useState<number[]>([]);
 
 const [aiImagePrompt, setAiImagePrompt] = useState("");
 
-// const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(null);
-
-// const [generatedImagePreview, setGeneratedImagePreview] = useState("");
+const [generatedImageFile, setGeneratedImageFile] = useState<File | null>(null);
+const [generatedImagePreview, setGeneratedImagePreview] = useState("");
 
 const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 const [multiScenePlan, setMultiScenePlan] = useState<MultiScenePlan[]>([]);
