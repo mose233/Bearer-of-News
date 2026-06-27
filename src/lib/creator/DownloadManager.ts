@@ -12,17 +12,26 @@ function createDownloadLink(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
 
   const anchor = document.createElement("a");
+
   anchor.href = url;
   anchor.download = filename;
+  
   anchor.rel = "noopener";
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);
-
-  // Android is much more reliable with ONE click only.
-  requestAnimationFrame(() => {
+anchor.click();
+  try {
+    anchor.dispatchEvent(
+      new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+  } catch {
     anchor.click();
-  });
+  }
 
   window.setTimeout(() => {
     if (document.body.contains(anchor)) {
@@ -78,38 +87,31 @@ export async function downloadMedia(
 
   try {
     /*
-     * Android
-     */
-    if (isAndroid()) {
-      const shared =
-        options.shareOnMobile === true
-          ? await shareBlob(blob, filename)
-          : false;
+ * Android
+ */
+if (isAndroid()) {
+  const shared =
+    options.shareOnMobile === true
+      ? await shareBlob(blob, filename)
+      : false;
 
-      if (!shared) {
-        console.log("ANDROID: Starting native download", {
-          filename,
-          size: blob.size,
-          type: blob.type,
-        });
+  if (!shared) {
+    console.log("ANDROID: Starting native download", {
+      filename,
+      size: blob.size,
+      type: blob.type,
+    });
 
-        // Allow rendering to complete first.
-        await new Promise((resolve) =>
-          requestAnimationFrame(resolve)
-        );
+    // Bypass file-saver on Android.
+    // It has inconsistent behavior across Chrome/WebView versions,
+    // especially after repeated downloads.
+    createDownloadLink(blob, filename);
 
-        createDownloadLink(blob, filename);
+    console.log("ANDROID: Native download link created");
+  }
 
-        // Give Chrome enough time to register the download.
-        await new Promise((resolve) =>
-          setTimeout(resolve, 600)
-        );
-
-        console.log("ANDROID: Download triggered");
-      }
-
-      return true;
-    }
+  return true;
+}
 
     /*
      * iPhone / iPad
@@ -135,6 +137,7 @@ export async function downloadMedia(
      * Desktop
      */
     saveAs(blob, filename);
+
     return true;
   } catch (error) {
     console.error("Download failed.", error);
