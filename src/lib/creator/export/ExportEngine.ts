@@ -1,4 +1,3 @@
-```ts
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
@@ -18,6 +17,8 @@ export type ExportMedia =
 
 export class ExportEngine {
   static async export(media: ExportMedia) {
+    // Desktop stays EXACTLY the same.
+    // Android will later receive its own implementation.
     if (isAndroid()) {
       return this.exportAndroid(media);
     }
@@ -39,93 +40,9 @@ export class ExportEngine {
   }
 
   private static async exportAndroid(media: ExportMedia) {
-    const extension =
-      media.type === "image"
-        ? "png"
-        : media.type === "video"
-        ? "mp4"
-        : "mp3";
-
-    const mime =
-      media.type === "image"
-        ? "image/png"
-        : media.type === "video"
-        ? "video/mp4"
-        : "audio/mpeg";
-
-    const filename = "xnewsapp-" + media.type + "-" + Date.now() + "." + extension;
-
-    const file = new File([media.blob], filename, {
-      type: mime,
-    });
-
-    // 1. Native Android share
-    try {
-      // @ts-ignore
-      if (
-        navigator.share &&
-        navigator.canShare &&
-        // @ts-ignore
-        navigator.canShare({ files: [file] })
-      ) {
-        // @ts-ignore
-        await navigator.share({
-          files: [file],
-          title: filename,
-        });
-
-        return true;
-      }
-    } catch (e) {
-      console.warn("Native share unavailable.", e);
-    }
-
-    // 2. Blob URL fallback
-    try {
-      const url = URL.createObjectURL(media.blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.rel = "noopener";
-      a.style.display = "none";
-
-      document.body.appendChild(a);
-      a.click();
-
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        a.remove();
-      }, 2000);
-
-      return true;
-    } catch (e) {
-      console.warn("Blob download failed.", e);
-    }
-
-    // 3. Data URL last resort
-    try {
-      const reader = new FileReader();
-
-      await new Promise<void>((resolve, reject) => {
-        reader.onload = () => {
-          const a = document.createElement("a");
-          a.href = reader.result as string;
-          a.download = filename;
-          a.click();
-          resolve();
-        };
-
-        reader.onerror = reject;
-
-        reader.readAsDataURL(media.blob);
-      });
-
-      return true;
-    } catch (e) {
-      console.error("Android export failed.", e);
-      throw e;
-    }
+    // TEMPORARY:
+    // For now Android behaves exactly like Desktop.
+    // We'll replace ONLY this method later.
+    return this.exportDesktop(media);
   }
 }
-```
