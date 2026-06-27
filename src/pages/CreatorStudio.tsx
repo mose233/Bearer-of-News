@@ -462,44 +462,35 @@ export default function CreatorStudio() {
   setCurrentIndex(0);
 };
 
-  const resetGenerationState = () => {
-  if (generatedImagePreview) {
-    URL.revokeObjectURL(generatedImagePreview);
-  }
+  const handleGenerateImage = async () => {
+    try {
+      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
-  setGeneratedImageFile(null);
-  setGeneratedImagePreview("");
-  setMultiScenePlan([]);
-  setCurrentIndex(0);
-};
+      if (!prompt) {
+        alert("Please write an AI image prompt first.");
+        return;
+      }
 
-const handleGenerateImage = async () => {
-  try {
-    const prompt = aiImagePrompt.trim() || videoPrompt.trim();
+      setIsGeneratingImage(true);
+      setMultiScenePlan([]);
 
-    if (!prompt) {
-      alert("Please write an AI image prompt first.");
-      return;
+      const result = await generateSceneImage(prompt, "1024x1024");
+
+      if (generatedImagePreview) {
+        URL.revokeObjectURL(generatedImagePreview);
+      }
+
+      setGeneratedImageFile(result.file);
+      setGeneratedImagePreview(result.previewUrl);
+
+      alert("AI scene image generated successfully.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate AI scene image.");
+    } finally {
+      setIsGeneratingImage(false);
     }
-
-    // Clear the previous generation before creating a new one.
-    resetGenerationState();
-
-    setIsGeneratingImage(true);
-
-    const result = await generateSceneImage(prompt, "1024x1024");
-
-    setGeneratedImageFile(result.file);
-    setGeneratedImagePreview(result.previewUrl);
-
-    alert("AI scene image generated successfully.");
-  } catch (error) {
-    console.error(error);
-    alert("Failed to generate AI scene image.");
-  } finally {
-    setIsGeneratingImage(false);
-  }
-};
+  };
 
   const handleGenerateMultiScenePlan = () => {
     try {
