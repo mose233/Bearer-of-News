@@ -1,4 +1,4 @@
-import { AndroidExportFile } from "./AndroidTypes";
+import { AndroidExportFile, AndroidExportOptions } from "./AndroidTypes";
 import { shareFile } from "./AndroidShareManager";
 
 const DOWNLOAD_REVOKE_DELAY = 15000;
@@ -14,7 +14,6 @@ function createDownloadLink(blob: Blob, filename: string) {
 
   document.body.appendChild(anchor);
 
-  // Android: one click only
   requestAnimationFrame(() => {
     anchor.click();
   });
@@ -29,7 +28,8 @@ function createDownloadLink(blob: Blob, filename: string) {
 }
 
 export async function downloadAndroidMedia(
-  exportFile: AndroidExportFile
+  exportFile: AndroidExportFile,
+  options: AndroidExportOptions = {}
 ): Promise<boolean> {
   const { blob, filename } = exportFile;
 
@@ -37,7 +37,10 @@ export async function downloadAndroidMedia(
     throw new Error("Export produced an empty file.");
   }
 
-  const shared = await shareFile(blob, filename);
+  const shared =
+    options.shareOnMobile === true
+      ? await shareFile(blob, filename)
+      : false;
 
   if (!shared) {
     await new Promise((resolve) =>
