@@ -811,32 +811,20 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
-  console.log("generatedImageFile:", generatedImageFile);
-  console.log("generatedImagePreview:", generatedImagePreview);
-
   if (generatedImageFile) {
-    console.log("Downloading from generatedImageFile");
     await ExportManager.exportImage(generatedImageFile);
     return;
   }
 
-  if (generatedImagePreview) {
-    console.log("Downloading from generatedImagePreview");
-
-    const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
-
-    await ExportManager.exportImage(blob);
+  if (!generatedImagePreview) {
+    alert("Please generate an image first.");
     return;
   }
 
-  console.log("NO GENERATED IMAGE FOUND");
+  const response = await fetch(generatedImagePreview);
+  const blob = await response.blob();
 
-  console.log("mediaFiles:", mediaFiles);
-  console.log("mediaPreviews:", mediaPreviews);
-  console.log("currentIndex:", currentIndex);
-
-  alert("Please generate an image first.");
+  await ExportManager.exportImage(blob);
 };
   const handleExportPrimaryMedia = async () => {
     try {
