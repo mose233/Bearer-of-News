@@ -51,7 +51,7 @@ console.log("EXPORT PANEL", {
 <p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
   Download your media, then share it anywhere.
 </p>
-
+</div>
       {exportStatus && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
           <div className="flex items-center gap-3">
