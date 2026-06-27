@@ -53,7 +53,7 @@ export class ExportEngine {
         ? "video/mp4"
         : "audio/mpeg";
 
-    const filename = `xnewsapp-${media.type}-${Date.now()}.${extension}`;
+    const filename = "xnewsapp-" + media.type + "-" + Date.now() + "." + extension;
 
     const file = new File([media.blob], filename, {
       type: mime,
