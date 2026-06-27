@@ -819,32 +819,32 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
-  const file = generatedImageFile || mediaFiles[0];
+  if (generatedImageFile) {
+    await ExportManager.exportImage(generatedImageFile);
+  } else if (generatedImagePreview) {
+    const response = await fetch(generatedImagePreview);
+    const blob = await response.blob();
 
-  if (!file) {
+    await ExportManager.exportImage(blob);
+  } else {
     alert("Please generate an image first.");
     return;
   }
 
-  await ExportManager.exportImage(file);
+  // Android only
+  if (isAndroid()) {
+    const restart = window.confirm(
+      "Image downloaded successfully.\n\nTap OK to refresh XNewsApp and create another image."
+    );
 
-  // Android cleanup
-  setTimeout(() => {
-    revokePreviews(mediaPreviews);
+    if (restart) {
+      resetCurrentProject();
 
-    if (generatedImagePreview) {
-      URL.revokeObjectURL(generatedImagePreview);
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
-
-    setGeneratedImageFile(null);
-    setGeneratedImagePreview("");
-
-    setMediaFiles([]);
-    setMediaPreviews([]);
-    setSceneDurations([]);
-
-    setCurrentIndex(0);
-  }, 1000);
+  }
 };
   const handleExportPrimaryMedia = async () => {
     try {
