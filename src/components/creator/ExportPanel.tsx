@@ -3,7 +3,6 @@ import {
   Facebook,
   Film,
   Loader2,
-  Settings2,
   Volume2,
   MessageCircle,
 } from "lucide-react";
@@ -145,20 +144,7 @@ console.log("EXPORT PANEL", {
 </summary>
 
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onInitializeFFmpeg}
-              disabled={isExporting}
-              className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {isExporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
-              )}
-              {isExporting ? "Loading..." : "Initialize FFmpeg"}
-            </Button>
+            
 
             <Button
               type="button"
