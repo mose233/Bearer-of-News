@@ -810,27 +810,21 @@ const resetCurrentProject = () => {
   // Clear export state
   setExportStatus("");
 };
- const handleDownloadGeneratedImage = async () => {
-  try {
-    if (generatedImageFile) {
-      await ExportManager.exportImage(generatedImageFile);
-      return;
-    }
-
-    if (!generatedImagePreview) {
-      alert("Please generate an image first.");
-      return;
-    }
-
-    const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
-
-    await ExportManager.exportImage(blob);
-  } finally {
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
+  const handleDownloadGeneratedImage = async () => {
+  if (generatedImageFile) {
+    await ExportManager.exportImage(generatedImageFile);
+    return;
   }
+
+  if (!generatedImagePreview) {
+    alert("Please generate an image first.");
+    return;
+  }
+
+  const response = await fetch(generatedImagePreview);
+  const blob = await response.blob();
+
+  await ExportManager.exportImage(blob);
 };
   const handleExportPrimaryMedia = async () => {
     try {
