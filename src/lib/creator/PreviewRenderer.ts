@@ -88,22 +88,47 @@ const totalFrames = safeDuration * fps;
 
     ctx.clearRect(0, 0, width, height);
 
-    // Gentle zoom animation
-    const zoom = 1 + progress * 0.15;
+    // ---------- Professional image layout ----------
 
-    const drawWidth = width * zoom;
-    const drawHeight = height * zoom;
+// Black background
+ctx.fillStyle = "#000";
+ctx.fillRect(0, 0, width, height);
 
-    const offsetX = (width - drawWidth) / 2;
-    const offsetY = (height - drawHeight) / 2;
+// Calculate proper aspect ratio
+const imageRatio = image.width / image.height;
+const canvasRatio = width / height;
 
-    ctx.drawImage(
-      image,
-      offsetX,
-      offsetY,
-      drawWidth,
-      drawHeight
-    );
+let baseWidth: number;
+let baseHeight: number;
+
+if (imageRatio > canvasRatio) {
+  // Landscape image
+  baseWidth = width;
+  baseHeight = width / imageRatio;
+} else {
+  // Portrait image
+  baseHeight = height;
+  baseWidth = height * imageRatio;
+}
+
+// Smooth cinematic zoom
+const zoom = 1 + progress * 0.02;
+
+const drawWidth = baseWidth * zoom;
+const drawHeight = baseHeight * zoom;
+
+// Center image
+const offsetX = (width - drawWidth) / 2;
+const offsetY = (height - drawHeight) / 2;
+
+// Draw image without distortion
+ctx.drawImage(
+  image,
+  offsetX,
+  offsetY,
+  drawWidth,
+  drawHeight
+);
 
     await new Promise((r) =>
       setTimeout(r, 1000 / fps)
