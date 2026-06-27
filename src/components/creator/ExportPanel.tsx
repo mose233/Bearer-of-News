@@ -141,8 +141,8 @@ console.log("EXPORT PANEL", {
 
         <details className="col-span-2 rounded-2xl border border-white/10 bg-white/5 p-3">
           <summary className="cursor-pointer text-sm font-bold text-slate-200">
-            Advanced export
-          </summary>
+  Video Export Options
+</summary>
 
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Button
