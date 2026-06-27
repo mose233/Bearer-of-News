@@ -820,20 +820,32 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
-  if (generatedImageFile) {
-    await ExportManager.exportImage(generatedImageFile);
-    return;
-  }
+  const file = generatedImageFile || mediaFiles[0];
 
-  if (!generatedImagePreview) {
+  if (!file) {
     alert("Please generate an image first.");
     return;
   }
 
-  const response = await fetch(generatedImagePreview);
-  const blob = await response.blob();
+  await ExportManager.exportImage(file);
 
-  await ExportManager.exportImage(blob);
+  // Android cleanup
+  setTimeout(() => {
+    revokePreviews(mediaPreviews);
+
+    if (generatedImagePreview) {
+      URL.revokeObjectURL(generatedImagePreview);
+    }
+
+    setGeneratedImageFile(null);
+    setGeneratedImagePreview("");
+
+    setMediaFiles([]);
+    setMediaPreviews([]);
+    setSceneDurations([]);
+
+    setCurrentIndex(0);
+  }, 1000);
 };
   const handleExportPrimaryMedia = async () => {
     try {
