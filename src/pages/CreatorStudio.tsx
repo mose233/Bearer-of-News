@@ -798,9 +798,7 @@ const resetCurrentProject = () => {
   setGeneratedImagePreview("");
 
   // Clear Picture AI
-  setPictureFile(null);
-  setPicturePreview("");
-  setPictureFileName("");
+ 
 
   // Clear Photo Music
   setPhotoMusicImageFile(null);
