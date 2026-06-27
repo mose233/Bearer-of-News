@@ -3,6 +3,7 @@ import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ExportManager } from "@/lib/creator/ExportManager";
+import { isAndroid } from "@/lib/creator/DeviceManager";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
