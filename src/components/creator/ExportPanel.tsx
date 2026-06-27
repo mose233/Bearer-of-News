@@ -45,21 +45,13 @@ console.log("EXPORT PANEL", {
   return (
     <div className="space-y-4 text-white">
       <div>
-        <h3 className="text-base font-extrabold text-white">
-          Export & Download
-        </h3>
+       <h3 className="text-base font-extrabold text-white">
+  Download & Share
+</h3>
 
-        <p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-          Download your finished media, then post it anywhere.
-        </p>
-      </div>
-
-      <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
-        <p className="font-extrabold">Export first, then share</p>
-        <p className="mt-1 text-blue-100/90">
-          Save the file to your phone or laptop, then open your social app and upload it.
-        </p>
-      </div>
+<p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+  Download your media, then share it anywhere.
+</p>
 
       {exportStatus && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
