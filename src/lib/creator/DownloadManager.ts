@@ -86,21 +86,21 @@ export async function downloadMedia(
   }
 
   try {
-   /*
- * Android
- */
-if (isAndroid()) {
-  return downloadAndroidMedia(
-    {
-      blob,
-      filename,
-      mimeType: blob.type,
-    },
-    {
-      shareOnMobile: options.shareOnMobile,
-    }
-  );
-}
+  /*
+   * Android
+   */
+  if (isAndroid()) {
+    return downloadAndroidMedia(
+      {
+        blob,
+        filename,
+        mimeType: blob.type,
+      },
+      {
+        shareOnMobile: options.shareOnMobile,
+      }
+    );
+  }
 
     /*
      * iPhone / iPad
