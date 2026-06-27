@@ -42,7 +42,7 @@ export async function downloadAndroidMedia(
       ? await shareFile(blob, filename)
       : false;
 
-  if (!shared) {
+   if (!shared) {
     await new Promise((resolve) =>
       requestAnimationFrame(resolve)
     );
