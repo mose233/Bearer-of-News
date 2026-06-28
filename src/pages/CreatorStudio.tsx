@@ -818,6 +818,21 @@ const resetCurrentProject = () => {
   // Clear export state
   setExportStatus("");
 };
+  const clearPictureAiWorkspace = () => {
+  if (generatedImagePreview) {
+    URL.revokeObjectURL(generatedImagePreview);
+  }
+
+  setGeneratedImageFile(null);
+  setGeneratedImagePreview("");
+
+  setMediaFiles([]);
+  setMediaPreviews([]);
+  setCurrentIndex(0);
+
+  setMultiScenePlan([]);
+  setSceneDurations([]);
+};
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
     await ExportManager.exportImage(generatedImageFile);
