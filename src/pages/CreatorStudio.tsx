@@ -852,13 +852,17 @@ const resetCurrentProject = () => {
       const currentPreview = mediaPreviews[currentIndex];
       const currentFile = mediaFiles[currentIndex];
 
-      if (currentPreview && currentFile?.type.startsWith("image/")) {
-        const response = await fetch(currentPreview);
-        const blob = await response.blob();
+     if (currentPreview && currentFile?.type.startsWith("image/")) {
+  const response = await fetch(currentPreview);
+  const blob = await response.blob();
 
-        await ExportManager.exportImage(blob);
-        return;
-      }
+  await ExportManager.exportImage(blob);
+
+  alert("Image downloaded successfully.");
+  clearPictureAiWorkspace();
+
+  return;
+}
 
       if (imagePreviews.length > 0) {
         const fallbackPreview = imagePreviews[0];
