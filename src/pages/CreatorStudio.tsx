@@ -829,10 +829,10 @@ const resetCurrentProject = () => {
 
     clearPictureAiWorkspace();
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+   workspaceSectionRef.current?.scrollIntoView({
+  behavior: "smooth",
+  block: "start",
+});
 
     return;
   }
@@ -847,11 +847,10 @@ const resetCurrentProject = () => {
 
     clearPictureAiWorkspace();
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-
+    workspaceSectionRef.current?.scrollIntoView({
+  behavior: "smooth",
+  block: "start",
+});
     return;
   }
 
