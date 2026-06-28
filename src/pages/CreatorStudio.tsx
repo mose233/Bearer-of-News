@@ -840,43 +840,7 @@ const resetCurrentProject = () => {
 
   alert("Please generate an image first.");
 };
-  const handleDownloadGeneratedImage = async () => {
- if (generatedImageFile) {
-    await ExportManager.exportImage(generatedImageFile);
-
-    clearPictureAiWorkspace();
-    return;
-}
-    if (generatedImagePreview) {
-  URL.revokeObjectURL(generatedImagePreview);
-}
-
-revokePreviews(mediaPreviews);
-
-setGeneratedImageFile(null);
-setGeneratedImagePreview("");
-
-setMediaFiles([]);
-setMediaPreviews([]);
-
-setCurrentIndex(0);
-  } else if (generatedImagePreview) {
-    const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
-
-    await ExportManager.exportImage(blob);
-
-    clearPictureAiWorkspace();
-    return;
-} else {
-    alert("Please generate an image first.");
-    return;
-  }
-
-  alert("Image downloaded successfully.");
-
-clearPictureAiWorkspace();
-};
+  
   const handleExportPrimaryMedia = async () => {
     try {
     if (selectedTool?.category === "Picture AI") {
