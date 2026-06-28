@@ -3,6 +3,7 @@ import {
   Facebook,
   Film,
   Loader2,
+  Settings2,
   Volume2,
   MessageCircle,
 } from "lucide-react";
@@ -44,14 +45,22 @@ console.log("EXPORT PANEL", {
   return (
     <div className="space-y-4 text-white">
       <div>
-       <h3 className="text-base font-extrabold text-white">
-  Download & Share
-</h3>
+        <h3 className="text-base font-extrabold text-white">
+          Export & Download
+        </h3>
 
-<p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-  Download your media, then share it anywhere.
-</p>
-</div>
+        <p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+          Download your finished media, then post it anywhere.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
+        <p className="font-extrabold">Export first, then share</p>
+        <p className="mt-1 text-blue-100/90">
+          Save the file to your phone or laptop, then open your social app and upload it.
+        </p>
+      </div>
+
       {exportStatus && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
           <div className="flex items-center gap-3">
@@ -64,28 +73,19 @@ console.log("EXPORT PANEL", {
         </div>
       )}
 
-     <Button
-  type="button"
-  onClick={() => {
-    console.log("DOWNLOAD BUTTON PRESSED", {
-      busy,
-      isRecording,
-      isExporting,
-    });
-
-    onExportPrimary();
-  }}
-  disabled={busy}
-  className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
->
-  {busy ? (
-    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-  ) : (
-    <Download className="mr-2 h-5 w-5" />
-  )}
-
-  {exportPrimaryLabel || "Download Media"}
-</Button>
+      <Button
+        type="button"
+        onClick={onExportPrimary}
+        disabled={busy}
+        className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
+      >
+        {busy ? (
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        ) : (
+          <Download className="mr-2 h-5 w-5" />
+        )}
+        {exportPrimaryLabel || "Export / Download Media"}
+      </Button>
 
       <div className="grid grid-cols-2 gap-3">
         <Button
@@ -140,11 +140,24 @@ console.log("EXPORT PANEL", {
 
         <details className="col-span-2 rounded-2xl border border-white/10 bg-white/5 p-3">
           <summary className="cursor-pointer text-sm font-bold text-slate-200">
-  Video Export Options
-</summary>
+            Advanced export
+          </summary>
 
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onInitializeFFmpeg}
+              disabled={isExporting}
+              className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
+            >
+              {isExporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
+              )}
+              {isExporting ? "Loading..." : "Initialize FFmpeg"}
+            </Button>
 
             <Button
               type="button"
