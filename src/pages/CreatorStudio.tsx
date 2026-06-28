@@ -846,20 +846,9 @@ const resetCurrentProject = () => {
     return;
   }
 
-  // Android only
-  if (isAndroid()) {
-    const restart = window.confirm(
-      "Image downloaded successfully.\n\nTap OK to refresh XNewsApp and create another image."
-    );
+  alert("Image downloaded successfully.");
 
-    if (restart) {
-      resetCurrentProject();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    }
-  }
+clearPictureAiWorkspace();
 };
   const handleExportPrimaryMedia = async () => {
     try {
