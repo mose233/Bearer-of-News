@@ -1766,7 +1766,6 @@ export default function DynamicToolWorkspace({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
-  onClearEnhancedPhoto,
 }: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
@@ -2047,18 +2046,6 @@ export default function DynamicToolWorkspace({
     onAddEnhancedPhotoToTimeline(pictureFile, picturePreview);
     alert("Enhanced photo added to timeline.");
   };
-  const clearEnhancedPhotoWorkspace = () => {
-  if (picturePreview) {
-    URL.revokeObjectURL(picturePreview);
-  }
-
-  setPictureFile(null);
-  setPicturePreview("");
-  setPictureFileName("");
-  setHasPreviewedEnhancement(false);
-
-  onClearEnhancedPhoto?.();
-};
 
   const buildSongPrompt = () => {
     return [
