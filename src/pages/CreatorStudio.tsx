@@ -836,6 +836,19 @@ const resetCurrentProject = () => {
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
     await ExportManager.exportImage(generatedImageFile);
+    if (generatedImagePreview) {
+  URL.revokeObjectURL(generatedImagePreview);
+}
+
+revokePreviews(mediaPreviews);
+
+setGeneratedImageFile(null);
+setGeneratedImagePreview("");
+
+setMediaFiles([]);
+setMediaPreviews([]);
+
+setCurrentIndex(0);
   } else if (generatedImagePreview) {
     const response = await fetch(generatedImagePreview);
     const blob = await response.blob();
