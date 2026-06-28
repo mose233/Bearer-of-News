@@ -88,11 +88,16 @@ export async function downloadMedia(
   try {
   /*
  * Android
- * Use the same download pipeline as Desktop.
+ * Use the exact same download pipeline as Desktop.
  */
 if (isAndroid()) {
-  saveAs(blob, filename);
-  return true;
+  try {
+    saveAs(blob, filename);
+    return true;
+  } catch {
+    createDownloadLink(blob, filename);
+    return true;
+  }
 }
 
     /*
