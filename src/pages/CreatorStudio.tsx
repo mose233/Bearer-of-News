@@ -482,13 +482,7 @@ export default function CreatorStudio() {
         URL.revokeObjectURL(generatedImagePreview);
       }
 
-      // Clear previous timeline
-revokePreviews(mediaPreviews);
-
-setMediaFiles([result.file]);
-setMediaPreviews([result.previewUrl]);
-setSceneDurations([selectedVideoDurationSeconds]);
-setCurrentIndex(0);
+     
 
 // Keep Picture AI state
 setGeneratedImageFile(result.file);
