@@ -818,24 +818,27 @@ const resetCurrentProject = () => {
   // Clear export state
   setExportStatus("");
 };
-  const clearPictureAiWorkspace = () => {
-  revokePreviews(mediaPreviews);
+  const handleDownloadGeneratedImage = async () => {
+  if (generatedImageFile) {
+    await ExportManager.exportImage(generatedImageFile);
 
-  if (generatedImagePreview) {
-    URL.revokeObjectURL(generatedImagePreview);
+    alert("Image downloaded successfully.");
+    clearPictureAiWorkspace();
+    return;
   }
 
-  setGeneratedImageFile(null);
-  setGeneratedImagePreview("");
+  if (generatedImagePreview) {
+    const response = await fetch(generatedImagePreview);
+    const blob = await response.blob();
 
-  setMediaFiles([]);
-  setMediaPreviews([]);
-  setSceneDurations([]);
+    await ExportManager.exportImage(blob);
 
-  setCurrentIndex(0);
-  setIsPlaying(false);
+    alert("Image downloaded successfully.");
+    clearPictureAiWorkspace();
+    return;
+  }
 
-  setMultiScenePlan([]);
+  alert("Please generate an image first.");
 };
   const handleDownloadGeneratedImage = async () => {
  if (generatedImageFile) {
