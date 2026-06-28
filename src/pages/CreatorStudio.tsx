@@ -1,9 +1,9 @@
+import { ExportEngine } from "@/lib/creator/export/ExportEngine";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ExportManager } from "@/lib/creator/ExportManager";
-import { isAndroid } from "@/lib/creator/DeviceManager";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -77,7 +77,6 @@ export default function CreatorStudio() {
   const [musicVolume, setMusicVolume] = useState(0.18);
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [workspaceKey, setWorkspaceKey] = useState(0);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [sceneDurations, setSceneDurations] = useState<number[]>([]);
 
@@ -482,11 +481,8 @@ export default function CreatorStudio() {
         URL.revokeObjectURL(generatedImagePreview);
       }
 
-     
-
-// Keep Picture AI state
-setGeneratedImageFile(result.file);
-setGeneratedImagePreview(result.previewUrl);
+      setGeneratedImageFile(result.file);
+      setGeneratedImagePreview(result.previewUrl);
 
       alert("AI scene image generated successfully.");
     } catch (error) {
@@ -591,30 +587,22 @@ alert(`${plan.length} scene plan generated successfully.`);
   };
 
   const handleAddGeneratedImage = () => {
-  if (!generatedImageFile || !generatedImagePreview) {
-    alert("Please generate an AI scene image first.");
-    return;
-  }
+    if (!generatedImageFile || !generatedImagePreview) {
+      alert("Please generate an AI scene image first.");
+      return;
+    }
 
-  // Clear previous timeline
-  revokePreviews(mediaPreviews);
+    addSceneToTimeline(
+      generatedImageFile,
+      generatedImagePreview,
+      selectedVideoDurationSeconds
+    );
 
-  setMediaFiles([]);
-  setMediaPreviews([]);
-  setSceneDurations([]);
+    setGeneratedImageFile(null);
+    setGeneratedImagePreview("");
 
-  // Add the generated image as the only scene
-  addSceneToTimeline(
-    generatedImageFile,
-    generatedImagePreview,
-    selectedVideoDurationSeconds
-  );
-
-  setGeneratedImageFile(null);
-  setGeneratedImagePreview("");
-
-  alert("AI image added to video timeline.");
-};
+    alert("AI image added to video timeline.");
+  };
 
  const handleDeleteScene = (index: number) => {
   const previewToDelete = mediaPreviews[index];
@@ -802,7 +790,9 @@ const resetCurrentProject = () => {
   setGeneratedImagePreview("");
 
   // Clear Picture AI
- 
+  setPictureFile(null);
+  setPicturePreview("");
+  setPictureFileName("");
 
   // Clear Photo Music
   setPhotoMusicImageFile(null);
@@ -822,79 +812,53 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
+  let blob: Blob | null = null;
+
   if (generatedImageFile) {
-    await ExportManager.exportImage(generatedImageFile);
-
-    alert("Image downloaded successfully.");
-
-    clearPictureAiWorkspace();
-
-   workspaceSectionRef.current?.scrollIntoView({
-  behavior: "smooth",
-  block: "start",
-});
-
-    return;
-  }
-
-  if (generatedImagePreview) {
+    blob = generatedImageFile;
+  } else if (generatedImagePreview) {
     const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
+    blob = await response.blob();
+  }
 
-    await ExportManager.exportImage(blob);
-
-    alert("Image downloaded successfully.");
-
-    clearPictureAiWorkspace();
-
-    workspaceSectionRef.current?.scrollIntoView({
-  behavior: "smooth",
-  block: "start",
-});
+  if (!blob) {
+    alert("Please generate an image first.");
     return;
   }
 
-  alert("Please generate an image first.");
+  await ExportEngine.export({
+    type: "image",
+    blob,
+  });
 };
-  
   const handleExportPrimaryMedia = async () => {
-    try {
+  try {
+    // Picture AI
     if (selectedTool?.category === "Picture AI") {
-      if (generatedImageFile || generatedImagePreview) {
-        await handleDownloadGeneratedImage();
+      let blob: Blob | null = null;
+
+      if (generatedImageFile) {
+        blob = generatedImageFile;
+      } else if (
+        mediaFiles[currentIndex] &&
+        mediaFiles[currentIndex].type.startsWith("image/")
+      ) {
+        blob = mediaFiles[currentIndex];
+      } else if (mediaPreviews[currentIndex]) {
+        const response = await fetch(mediaPreviews[currentIndex]);
+        blob = await response.blob();
+      }
+
+      if (!blob) {
+        alert("Please generate or add an image first.");
         return;
       }
 
-      const currentPreview = mediaPreviews[currentIndex];
-      const currentFile = mediaFiles[currentIndex];
+      await ExportEngine.export({
+        type: "image",
+        blob,
+      });
 
-     if (currentPreview && currentFile?.type.startsWith("image/")) {
-  const response = await fetch(currentPreview);
-  const blob = await response.blob();
-
-  await ExportManager.exportImage(blob);
-
-  alert("Image downloaded successfully.");
-  clearPictureAiWorkspace();
-
-  return;
-}
-
-      if (imagePreviews.length > 0) {
-  const fallbackPreview = imagePreviews[0];
-
-  const response = await fetch(fallbackPreview.preview);
-  const blob = await response.blob();
-
-  await ExportManager.exportImage(blob);
-
-  alert("Image downloaded successfully.");
-  clearPictureAiWorkspace();
-
-  return;
-}
-
-      alert("Please generate or add an image first.");
       return;
     }
 
@@ -912,35 +876,37 @@ const resetCurrentProject = () => {
     }
 
     if (currentFile.type.startsWith("image/")) {
-      try {
-        setIsExporting(true);
-        setExportStatus("Creating preview video download...");
+      setIsExporting(true);
+      setExportStatus("Creating preview video download...");
 
+      try {
         const videoBlob = await renderPreviewVideo({
-  imageUrl: currentPreview,
-  duration: getTimelineDuration(),
-});
+          imageUrl: currentPreview,
+          duration: getTimelineDuration(),
+        });
 
         await ExportManager.exportCinematic(videoBlob);
-        return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
+
         await ExportManager.exportImage(currentFile);
-        return;
-      } finally {
-        setIsExporting(false);
-        setExportStatus("");
       }
+
+      return;
     }
 
-    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-      } finally {
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-  };
+    await ExportManager.exportCustom(
+      currentFile,
+      currentFile.name || "xnewsapp-media"
+    );
+  } finally {
+    // ONLY unlock the UI.
+    // DO NOT destroy the project here.
+    setIsExporting(false);
+    setExportStatus("");
+  }
+};
 
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
@@ -959,13 +925,8 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
-
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
   }
 };
-  
   
 
  const handleExportNarratedMp4 = async () => {
@@ -988,10 +949,6 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
-
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
   }
 };
 
@@ -1019,11 +976,7 @@ const resetCurrentProject = () => {
           />
         </div>
 
-        <div
-  key={workspaceKey}
-  ref={workspaceSectionRef}
-  className="mb-5 scroll-mt-4"
->
+        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
           <DynamicToolWorkspace
             selectedTool={selectedTool}
             speechRate={speechRate}
