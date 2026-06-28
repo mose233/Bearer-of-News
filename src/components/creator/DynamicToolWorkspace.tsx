@@ -2047,6 +2047,18 @@ export default function DynamicToolWorkspace({
     onAddEnhancedPhotoToTimeline(pictureFile, picturePreview);
     alert("Enhanced photo added to timeline.");
   };
+  const clearEnhancedPhotoWorkspace = () => {
+  if (picturePreview) {
+    URL.revokeObjectURL(picturePreview);
+  }
+
+  setPictureFile(null);
+  setPicturePreview("");
+  setPictureFileName("");
+  setHasPreviewedEnhancement(false);
+
+  onClearEnhancedPhoto?.();
+};
 
   const buildSongPrompt = () => {
     return [
