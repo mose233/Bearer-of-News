@@ -900,10 +900,12 @@ const resetCurrentProject = () => {
     }
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-      } finally {
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
+     } finally {
+  if (!isAndroid()) {
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
 }
   };
 
