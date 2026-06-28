@@ -77,6 +77,7 @@ export default function CreatorStudio() {
   const [musicVolume, setMusicVolume] = useState(0.18);
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [workspaceKey, setWorkspaceKey] = useState(0);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [sceneDurations, setSceneDurations] = useState<number[]>([]);
 
