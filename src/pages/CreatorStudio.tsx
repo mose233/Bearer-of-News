@@ -591,22 +591,30 @@ alert(`${plan.length} scene plan generated successfully.`);
   };
 
   const handleAddGeneratedImage = () => {
-    if (!generatedImageFile || !generatedImagePreview) {
-      alert("Please generate an AI scene image first.");
-      return;
-    }
+  if (!generatedImageFile || !generatedImagePreview) {
+    alert("Please generate an AI scene image first.");
+    return;
+  }
 
-    addSceneToTimeline(
-      generatedImageFile,
-      generatedImagePreview,
-      selectedVideoDurationSeconds
-    );
+  // Clear previous timeline
+  revokePreviews(mediaPreviews);
 
-    setGeneratedImageFile(null);
-    setGeneratedImagePreview("");
+  setMediaFiles([]);
+  setMediaPreviews([]);
+  setSceneDurations([]);
 
-    alert("AI image added to video timeline.");
-  };
+  // Add the generated image as the only scene
+  addSceneToTimeline(
+    generatedImageFile,
+    generatedImagePreview,
+    selectedVideoDurationSeconds
+  );
+
+  setGeneratedImageFile(null);
+  setGeneratedImagePreview("");
+
+  alert("AI image added to video timeline.");
+};
 
  const handleDeleteScene = (index: number) => {
   const previewToDelete = mediaPreviews[index];
