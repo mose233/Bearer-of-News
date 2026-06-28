@@ -865,14 +865,18 @@ const resetCurrentProject = () => {
 }
 
       if (imagePreviews.length > 0) {
-        const fallbackPreview = imagePreviews[0];
+  const fallbackPreview = imagePreviews[0];
 
-        const response = await fetch(fallbackPreview.preview);
-        const blob = await response.blob();
+  const response = await fetch(fallbackPreview.preview);
+  const blob = await response.blob();
 
-        await ExportManager.exportImage(blob);
-        return;
-      }
+  await ExportManager.exportImage(blob);
+
+  alert("Image downloaded successfully.");
+  clearPictureAiWorkspace();
+
+  return;
+}
 
       alert("Please generate or add an image first.");
       return;
