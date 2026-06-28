@@ -1119,7 +1119,7 @@ const resetCurrentProject = () => {
             <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
               Review your content before downloading or sharing.
             </div>
-            {downloadComplete && (
+            {isAndroid() && downloadComplete && (
   <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
     <p className="mb-3 font-semibold text-emerald-300">
       ✅ Download complete.
