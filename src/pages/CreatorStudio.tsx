@@ -838,8 +838,12 @@ const resetCurrentProject = () => {
   setMultiScenePlan([]);
 };
   const handleDownloadGeneratedImage = async () => {
-  if (generatedImageFile) {
+ if (generatedImageFile) {
     await ExportManager.exportImage(generatedImageFile);
+
+    clearPictureAiWorkspace();
+    return;
+}
     if (generatedImagePreview) {
   URL.revokeObjectURL(generatedImagePreview);
 }
@@ -858,7 +862,10 @@ setCurrentIndex(0);
     const blob = await response.blob();
 
     await ExportManager.exportImage(blob);
-  } else {
+
+    clearPictureAiWorkspace();
+    return;
+} else {
     alert("Please generate an image first.");
     return;
   }
