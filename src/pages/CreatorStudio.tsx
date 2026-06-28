@@ -814,6 +814,7 @@ const resetCurrentProject = () => {
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
     await ExportManager.exportImage(generatedImageFile);
+    setDownloadComplete(true);
     return;
   }
 
