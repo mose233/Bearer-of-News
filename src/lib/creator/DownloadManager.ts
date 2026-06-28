@@ -87,20 +87,13 @@ export async function downloadMedia(
 
   try {
   /*
-   * Android
-   */
-  if (isAndroid()) {
-    return downloadAndroidMedia(
-      {
-        blob,
-        filename,
-        mimeType: blob.type,
-      },
-      {
-        shareOnMobile: options.shareOnMobile,
-      }
-    );
-  }
+ * Android
+ * Use the same download pipeline as Desktop.
+ */
+if (isAndroid()) {
+  saveAs(blob, filename);
+  return true;
+}
 
     /*
      * iPhone / iPad
