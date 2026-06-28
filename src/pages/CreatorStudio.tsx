@@ -826,7 +826,14 @@ const resetCurrentProject = () => {
     await ExportManager.exportImage(generatedImageFile);
 
     alert("Image downloaded successfully.");
+
     clearPictureAiWorkspace();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
     return;
   }
 
@@ -837,7 +844,14 @@ const resetCurrentProject = () => {
     await ExportManager.exportImage(blob);
 
     alert("Image downloaded successfully.");
+
     clearPictureAiWorkspace();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
     return;
   }
 
