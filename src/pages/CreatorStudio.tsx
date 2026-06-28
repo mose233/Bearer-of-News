@@ -819,6 +819,8 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const clearPictureAiWorkspace = () => {
+  revokePreviews(mediaPreviews);
+
   if (generatedImagePreview) {
     URL.revokeObjectURL(generatedImagePreview);
   }
@@ -828,10 +830,12 @@ const resetCurrentProject = () => {
 
   setMediaFiles([]);
   setMediaPreviews([]);
+  setSceneDurations([]);
+
   setCurrentIndex(0);
+  setIsPlaying(false);
 
   setMultiScenePlan([]);
-  setSceneDurations([]);
 };
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
