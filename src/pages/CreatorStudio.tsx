@@ -1,4 +1,3 @@
-import { ExportEngine } from "@/lib/creator/export/ExportEngine";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
@@ -812,53 +811,51 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
-  let blob: Blob | null = null;
-
   if (generatedImageFile) {
-    blob = generatedImageFile;
-  } else if (generatedImagePreview) {
-    const response = await fetch(generatedImagePreview);
-    blob = await response.blob();
+    await ExportManager.exportImage(generatedImageFile);
+    return;
   }
 
-  if (!blob) {
+  if (!generatedImagePreview) {
     alert("Please generate an image first.");
     return;
   }
 
-  await ExportEngine.export({
-    type: "image",
-    blob,
-  });
+  const response = await fetch(generatedImagePreview);
+  const blob = await response.blob();
+
+  await ExportManager.exportImage(blob);
 };
   const handleExportPrimaryMedia = async () => {
-  try {
-    // Picture AI
+    try {
     if (selectedTool?.category === "Picture AI") {
-      let blob: Blob | null = null;
-
-      if (generatedImageFile) {
-        blob = generatedImageFile;
-      } else if (
-        mediaFiles[currentIndex] &&
-        mediaFiles[currentIndex].type.startsWith("image/")
-      ) {
-        blob = mediaFiles[currentIndex];
-      } else if (mediaPreviews[currentIndex]) {
-        const response = await fetch(mediaPreviews[currentIndex]);
-        blob = await response.blob();
-      }
-
-      if (!blob) {
-        alert("Please generate or add an image first.");
+      if (generatedImageFile || generatedImagePreview) {
+        await handleDownloadGeneratedImage();
         return;
       }
 
-      await ExportEngine.export({
-        type: "image",
-        blob,
-      });
+      const currentPreview = mediaPreviews[currentIndex];
+      const currentFile = mediaFiles[currentIndex];
 
+      if (currentPreview && currentFile?.type.startsWith("image/")) {
+        const response = await fetch(currentPreview);
+        const blob = await response.blob();
+
+        await ExportManager.exportImage(blob);
+        return;
+      }
+
+      if (imagePreviews.length > 0) {
+        const fallbackPreview = imagePreviews[0];
+
+        const response = await fetch(fallbackPreview.preview);
+        const blob = await response.blob();
+
+        await ExportManager.exportImage(blob);
+        return;
+      }
+
+      alert("Please generate or add an image first.");
       return;
     }
 
@@ -876,37 +873,35 @@ const resetCurrentProject = () => {
     }
 
     if (currentFile.type.startsWith("image/")) {
-      setIsExporting(true);
-      setExportStatus("Creating preview video download...");
-
       try {
+        setIsExporting(true);
+        setExportStatus("Creating preview video download...");
+
         const videoBlob = await renderPreviewVideo({
-          imageUrl: currentPreview,
-          duration: getTimelineDuration(),
-        });
+  imageUrl: currentPreview,
+  duration: getTimelineDuration(),
+});
 
         await ExportManager.exportCinematic(videoBlob);
+        return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-
         await ExportManager.exportImage(currentFile);
+        return;
+      } finally {
+        setIsExporting(false);
+        setExportStatus("");
       }
-
-      return;
     }
 
-    await ExportManager.exportCustom(
-      currentFile,
-      currentFile.name || "xnewsapp-media"
-    );
-  } finally {
-    // ONLY unlock the UI.
-    // DO NOT destroy the project here.
-    setIsExporting(false);
-    setExportStatus("");
-  }
-};
+    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
+      } finally {
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
+}
+  };
 
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
@@ -925,8 +920,13 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
+
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
   }
 };
+  
   
 
  const handleExportNarratedMp4 = async () => {
@@ -949,6 +949,10 @@ const resetCurrentProject = () => {
   } finally {
     setIsExporting(false);
     setExportStatus("");
+
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
   }
 };
 
