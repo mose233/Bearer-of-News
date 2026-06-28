@@ -827,6 +827,7 @@ const resetCurrentProject = () => {
   const blob = await response.blob();
 
   await ExportManager.exportImage(blob);
+    setDownloadComplete(true);
 };
   const handleExportPrimaryMedia = async () => {
     try {
