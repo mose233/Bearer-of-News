@@ -68,6 +68,7 @@ export default function CreatorStudio() {
   const [isRecording, setIsRecording] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
+  const [downloadComplete, setDownloadComplete] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
