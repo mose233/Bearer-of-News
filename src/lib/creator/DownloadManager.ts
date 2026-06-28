@@ -5,7 +5,7 @@ import {
   supportsNativeShare,
 } from "./DeviceManager";
 import { ExportFile, ExportOptions } from "./ExportTypes";
-import { downloadAndroidMedia } from "./android/AndroidDownloadManager";
+
 const DOWNLOAD_REVOKE_DELAY = 15000;
 
 function createDownloadLink(blob: Blob, filename: string) {
@@ -86,18 +86,31 @@ export async function downloadMedia(
   }
 
   try {
-  /*
+    /*
  * Android
- * Use the exact same download pipeline as Desktop.
  */
 if (isAndroid()) {
-  try {
-    saveAs(blob, filename);
-    return true;
-  } catch {
+  const shared =
+    options.shareOnMobile === true
+      ? await shareBlob(blob, filename)
+      : false;
+
+  if (!shared) {
+    console.log("ANDROID: Starting native download", {
+      filename,
+      size: blob.size,
+      type: blob.type,
+    });
+
+    // Bypass file-saver on Android.
+    // It has inconsistent behavior across Chrome/WebView versions,
+    // especially after repeated downloads.
     createDownloadLink(blob, filename);
-    return true;
+
+    console.log("ANDROID: Native download link created");
   }
+
+  return true;
 }
 
     /*
