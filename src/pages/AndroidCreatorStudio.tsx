@@ -114,18 +114,22 @@ export default function AndroidCreatorStudio() {
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
-  const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
+const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSelectTool = (tool: AiToolSelection) => {
-    setSelectedTool(tool);
+useEffect(() => {
+  alert("AndroidCreatorStudio is running");
+}, []);
 
-    window.setTimeout(() => {
-      workspaceSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 120);
-  };
+const handleSelectTool = (tool: AiToolSelection) => {
+  setSelectedTool(tool);
+
+  window.setTimeout(() => {
+    workspaceSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 120);
+};
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
