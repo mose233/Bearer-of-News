@@ -1762,19 +1762,6 @@ export default function DynamicToolWorkspace({
   setVideoCreativeType,
   videoOutputFormat = "Facebook Reel",
   setVideoOutputFormat,
-  onPrepareTextToVideoPrompt,
-aiImagePrompt = "",
-setAiImagePrompt,
-isGeneratingImage,
-generatedImagePreview,
-multiScenePlan,
-onGenerateImage,
-onGenerateMultiScenePlan,
-onAddGeneratedImage,
-onGenerateSceneFromPlan,
-onGenerateAllScenesFromPlan,
-onPublishToFacebook,
-onDownloadGeneratedImage,
   onMediaUpload,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
@@ -3153,23 +3140,9 @@ onDownloadGeneratedImage,
 
         <div className="mt-5 flex flex-wrap gap-3">
           <Button
-  type="button"
-  disabled={!picturePreview}
-        onClick={() => {
-  console.log("1");
-  console.log("2", onGenerateImage);
-
-  if (onGenerateImage) {
-    console.log("3");
-    onGenerateImage();
-  }
-
-  console.log("4");
-
-  setHasPreviewedEnhancement(true);
-
-  console.log("5");
-}}
+            type="button"
+            disabled={!picturePreview}
+            onClick={() => setHasPreviewedEnhancement(true)}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
