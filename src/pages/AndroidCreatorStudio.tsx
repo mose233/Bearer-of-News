@@ -1046,7 +1046,13 @@ const resetCurrentProject = () => {
             isGeneratingImage={isGeneratingImage}
             generatedImagePreview={generatedImagePreview}
             multiScenePlan={multiScenePlan}
-            onGenerateImage={handleGenerateImage}
+            onGenerateImage={async () => {
+  await handleGenerateImage();
+
+  alert(
+    `After generation:\nFile=${generatedImageFile ? "YES" : "NO"}\nPreview=${generatedImagePreview ? "YES" : "NO"}`
+  );
+}}
             onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
             onAddGeneratedImage={handleAddGeneratedImage}
             onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
