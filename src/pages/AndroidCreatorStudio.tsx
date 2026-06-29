@@ -848,6 +848,9 @@ const resetCurrentProject = () => {
 
       const currentPreview = mediaPreviews[currentIndex];
       const currentFile = mediaFiles[currentIndex];
+      alert(
+  `Current Preview: ${currentPreview ? "YES" : "NO"} | Current File: ${currentFile ? "YES" : "NO"}`
+);
 
       if (currentPreview && currentFile?.type.startsWith("image/")) {
         const response = await fetch(currentPreview);
