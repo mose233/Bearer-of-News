@@ -482,8 +482,14 @@ export default function CreatorStudio() {
         URL.revokeObjectURL(generatedImagePreview);
       }
 
-      setGeneratedImageFile(result.file);
-      setGeneratedImagePreview(result.previewUrl);
+      alert(
+  `Generated:
+File=${result.file ? "YES" : "NO"}
+Preview=${result.previewUrl ? "YES" : "NO"}`
+);
+
+setGeneratedImageFile(result.file);
+setGeneratedImagePreview(result.previewUrl);
 
       alert("AI scene image generated successfully.");
     } catch (error) {
