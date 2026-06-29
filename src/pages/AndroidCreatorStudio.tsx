@@ -837,12 +837,10 @@ const resetCurrentProject = () => {
   const handleExportPrimaryMedia = async () => {
     try {
     if (selectedTool?.category === "Picture AI") {
-  alert("Picture AI branch");
-
-  alert(
-    `File: ${generatedImageFile ? "YES" : "NO"} | Preview: ${generatedImagePreview ? "YES" : "NO"}`
-  );
-
+  if (generatedImageFile || generatedImagePreview) {
+    await handleDownloadGeneratedImage();
+    return;
+  }
   if (generatedImageFile || generatedImagePreview) {
     await handleDownloadGeneratedImage();
     return;
