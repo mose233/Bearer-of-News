@@ -3143,17 +3143,19 @@ export default function DynamicToolWorkspace({
   type="button"
   disabled={!picturePreview}
         onClick={() => {
-  alert("Generate button clicked");
-
-  alert(
-    `onGenerateImage is ${onGenerateImage ? "DEFINED" : "UNDEFINED"}`
-  );
+  console.log("1");
+  console.log("2", onGenerateImage);
 
   if (onGenerateImage) {
+    console.log("3");
     onGenerateImage();
   }
 
+  console.log("4");
+
   setHasPreviewedEnhancement(true);
+
+  console.log("5");
 }}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
