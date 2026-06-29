@@ -906,13 +906,15 @@ const resetCurrentProject = () => {
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
      } finally {
-  if (!isAndroid()) {
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
+  if (isAndroid()) {
+    setDownloadComplete(true);
+    return;
   }
+
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
 }
-  };
 
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
