@@ -16,6 +16,7 @@ import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
 import ContentReview from "./pages/ContentReview";
 import CreatorStudio from "./pages/CreatorStudio";
+import AndroidCreatorStudio from "./pages/AndroidCreatorStudio";
 import Analytics from "./pages/Analytics";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -84,13 +85,17 @@ const App = () => {
                 />
 
                 <Route
-                  path="/content-review/:id"
-                  element={
-                    <ProtectedRoute>
-                      <ContentReview />
-                    </ProtectedRoute>
-                  }
-                />
+  path="/creator-studio"
+  element={
+    <ProtectedRoute>
+      {navigator.userAgent.toLowerCase().includes("android") ? (
+        <AndroidCreatorStudio />
+      ) : (
+        <CreatorStudio />
+      )}
+    </ProtectedRoute>
+  }
+/>
 
                 <Route
                   path="/creator-studio"
