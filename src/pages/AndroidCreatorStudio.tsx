@@ -53,7 +53,7 @@ import {
   exportPhotoMusicVideoMp4,
 } from "@/lib/creator/videoExport";
 
-export default function CreatorStudio() {
+export default function AndroidCreatorStudio() {
   const [videoPrompt, setVideoPrompt] = useState("");
   const [facebookCaption, setFacebookCaption] = useState("");
   const [contentType, setContentType] =
