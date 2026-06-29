@@ -839,7 +839,9 @@ const resetCurrentProject = () => {
     if (selectedTool?.category === "Picture AI") {
       alert("Picture AI branch");
       if (generatedImageFile || generatedImagePreview) {
-        alert("Generated image found");
+        alert(
+  `File: ${generatedImageFile ? "YES" : "NO"} | Preview: ${generatedImagePreview ? "YES" : "NO"}`
+);
         await handleDownloadGeneratedImage();
         return;
       }
