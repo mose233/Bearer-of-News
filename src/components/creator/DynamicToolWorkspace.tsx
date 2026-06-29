@@ -3140,10 +3140,16 @@ export default function DynamicToolWorkspace({
 
         <div className="mt-5 flex flex-wrap gap-3">
           <Button
-            type="button"
-            disabled={!picturePreview}
-            onClick={() => {
+  type="button"
+  disabled={!picturePreview}
+         onClick={() => {
+  alert("Generate button clicked");
+
   setHasPreviewedEnhancement(true);
+
+  alert(
+    `onGenerateImage is ${onGenerateImage ? "DEFINED" : "UNDEFINED"}`
+  );
 
   if (onGenerateImage) {
     onGenerateImage();
