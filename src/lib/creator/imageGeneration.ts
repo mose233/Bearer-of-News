@@ -192,6 +192,7 @@ async function drawMockScene({
   );
 
   const blob = await canvasToBlob(canvas);
+  alert("canvasToBlob succeeded");
   const previewUrl = URL.createObjectURL(blob);
 
   const file = new File([blob], `mock-ai-scene-${sceneNumber}-${Date.now()}.png`, {
