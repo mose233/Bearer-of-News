@@ -915,6 +915,7 @@ const resetCurrentProject = () => {
     resetCurrentProject();
   }, 1000);
 }
+    };
 
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
