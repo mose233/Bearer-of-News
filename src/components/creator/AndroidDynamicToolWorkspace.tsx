@@ -3157,7 +3157,7 @@ onDownloadGeneratedImage,
         <div className="mt-5 flex flex-wrap gap-3">
           <Button
             type="button"
-            disabled={!picturePreview}
+            disabled={false}
             onClick={() => {
   setHasPreviewedEnhancement(true);
 
