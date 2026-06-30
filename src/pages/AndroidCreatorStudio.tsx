@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AiToolLauncher, {
   AiToolSelection,
 } from "@/components/creator/AiToolLauncher";
-import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
+import AndroidDynamicToolWorkspace from "@/components/creator/AndroidDynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
