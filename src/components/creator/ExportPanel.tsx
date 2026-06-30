@@ -72,7 +72,7 @@ console.log("EXPORT PANEL", {
           </div>
         </div>
       )}
-console.log("DOWNLOAD BUTTON DISABLED:", busy);
+
       <Button
         type="button"
         onClick={onExportPrimary}
