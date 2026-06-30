@@ -470,6 +470,10 @@ const handleSelectTool = (tool: AiToolSelection) => {
 
   const handleGenerateImage = async () => {
     try {
+      if (isAndroid()) {
+  setAndroidGenerationId((id) => id + 1);
+  setAndroidDownloadComplete(false);
+}
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
       if (!prompt) {
