@@ -296,10 +296,11 @@ const handleSelectTool = (tool: AiToolSelection) => {
           `Generating scene image ${index + 1} of ${plan.length}...`
         );
 
-        const result = await generateSingleScene(
-  prompt,
-  "1024x1024"
-);
+        alert("Before generateSceneImage");
+
+const result = await generateSceneImage(prompt, "1024x1024");
+
+alert("After generateSceneImage");
 
         generatedFiles.push(result.file);
         generatedPreviews.push(result.previewUrl);
