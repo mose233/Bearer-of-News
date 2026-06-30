@@ -861,6 +861,7 @@ const resetCurrentProject = () => {
   }
 };
   const handleExportPrimaryMedia = async () => {
+    alert("handleExportPrimaryMedia reached");
     try {
       if (isAndroid()) {
   setAndroidDownloadComplete(false);
