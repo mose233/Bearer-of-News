@@ -483,7 +483,13 @@ const handleSelectTool = (tool: AiToolSelection) => {
 
       setIsGeneratingImage(true);
       setMultiScenePlan([]);
+      
+if (generatedImagePreview) {
+  URL.revokeObjectURL(generatedImagePreview);
+}
 
+setGeneratedImageFile(null);
+setGeneratedImagePreview("");
       const result = await generateSceneImage(prompt, "1024x1024");
 
       if (generatedImagePreview) {
