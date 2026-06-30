@@ -489,15 +489,7 @@ setGeneratedImageFile(null);
 setGeneratedImagePreview("");
       setDownloadComplete(false);
 setIsAndroidDownloading(false);
-      let result;
-
-try {
-  result = await generateSceneImage(prompt, "1024x1024");
-  alert("generateSceneImage() finished successfully");
-} catch (err) {
-  alert("generateSceneImage() threw an error");
-  throw err;
-}
+      const result = await generateSceneImage(prompt, "1024x1024");
 
       if (generatedImagePreview) {
         URL.revokeObjectURL(generatedImagePreview);
