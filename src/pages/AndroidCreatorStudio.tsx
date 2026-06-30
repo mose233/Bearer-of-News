@@ -505,14 +505,25 @@ try {
         URL.revokeObjectURL(generatedImagePreview);
       }
 
-      setGeneratedImageFile(result.file);
-      setGeneratedImagePreview(result.previewUrl);
-      setMediaFiles([result.file]);
+     alert("1");
+setGeneratedImageFile(result.file);
+
+alert("2");
+setGeneratedImagePreview(result.previewUrl);
+
+alert("3");
+setMediaFiles([result.file]);
+
+alert("4");
 setMediaPreviews([result.previewUrl]);
+
+alert("5");
 setSceneDurations([selectedVideoDurationSeconds]);
+
+alert("6");
 setCurrentIndex(0);
 
-      alert("AI scene image generated successfully.");
+alert("7");
     } catch (error) {
       console.error(error);
       alert("Failed to generate AI scene image.");
