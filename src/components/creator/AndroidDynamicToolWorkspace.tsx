@@ -26,7 +26,7 @@ import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 import { getFontByName } from "@/lib/creator/fontLibrary";
 
-type DynamicToolWorkspaceProps = {
+type AndroidDynamicToolWorkspaceProps = {
   selectedTool: AiToolSelection | null;
 
   speechRate: number;
@@ -1779,7 +1779,7 @@ onDownloadGeneratedImage,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
-}: DynamicToolWorkspaceProps) {
+}: AndroidDynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
   const [picturePreview, setPicturePreview] = useState("");
