@@ -512,12 +512,8 @@ setCurrentIndex(0);
 alert("AI scene image generated successfully.");
    } catch (error) {
   console.error(error);
-
-  if (error instanceof Error) {
-    alert(error.message);
-  } else {
-    alert(String(error));
-  }
+  alert("Failed to generate AI scene image.");
+}
 }finally {
       setIsGeneratingImage(false);
     }
