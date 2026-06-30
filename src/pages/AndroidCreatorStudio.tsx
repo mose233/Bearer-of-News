@@ -836,6 +836,10 @@ const resetCurrentProject = () => {
 };
   const handleExportPrimaryMedia = async () => {
     try {
+      if (isAndroid()) {
+  setIsAndroidDownloading(true);
+  setAndroidDownloadComplete(false);
+}
     if (selectedTool?.category === "Picture AI") {
   if (generatedImageFile || generatedImagePreview) {
     await handleDownloadGeneratedImage();
