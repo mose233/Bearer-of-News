@@ -510,10 +510,9 @@ setSceneDurations([selectedVideoDurationSeconds]);
 setCurrentIndex(0);
 
 alert("AI scene image generated successfully.");
-   } catch (error) {
+  } catch (error) {
   console.error(error);
   alert("Failed to generate AI scene image.");
-}
 }finally {
       setIsGeneratingImage(false);
     }
