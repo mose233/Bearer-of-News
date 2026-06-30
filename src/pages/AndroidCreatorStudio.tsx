@@ -995,7 +995,7 @@ const resetCurrentProject = () => {
         </div>
 
         <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
-          <DynamicToolWorkspace
+          <AndroidDynamicToolWorkspace
             selectedTool={selectedTool}
             speechRate={speechRate}
             setSpeechRate={setSpeechRate}
