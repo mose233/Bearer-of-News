@@ -1720,7 +1720,7 @@ function CinematicPlaceholderPanel({
   );
 }
 
-export default function AndroidDynamicToolWorkspace(
+export default function AndroidDynamicToolWorkspace({
   selectedTool,
   speechRate: _speechRate,
   setSpeechRate: _setSpeechRate,
