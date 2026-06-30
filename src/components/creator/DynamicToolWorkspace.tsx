@@ -1501,9 +1501,7 @@ function CinematicPlaceholderPanel({
         return;
       }
 
-      if (cinematicPreview) {
-        URL.revokeObjectURL(cinematicPreview);
-      }
+  
 
       const file = new File([blob], `xnewsapp-${tool.toLowerCase().replace(/\s+/g, "-")}-mock-draft.png`, {
         type: "image/png",
