@@ -563,6 +563,9 @@ function VideoTemplatePanel({
   const [selectedVideoDuration, setSelectedVideoDuration] = useState("10 Seconds");
   const [stagedVideoFiles, setStagedVideoFiles] = useState<File[]>([]);
   const [stagedVideoFileNames, setStagedVideoFileNames] = useState<string[]>([]);
+  const [isAndroidDownloading, setIsAndroidDownloading] = useState(false);
+const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
+const [androidGenerationId, setAndroidGenerationId] = useState(0);
 
   const isSocial = [
     "Facebook Reel Maker",
