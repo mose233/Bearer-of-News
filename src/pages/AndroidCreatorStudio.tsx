@@ -1069,33 +1069,28 @@ const resetCurrentProject = () => {
             setVideoOutputFormat={setVideoOutputFormat}
             onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
             aiImagePrompt={aiImagePrompt}
-            setAiImagePrompt={setAiImagePrompt}
-            isGeneratingImage={isGeneratingImage}
-            generatedImagePreview={generatedImagePreview}
-            multiScenePlan={multiScenePlan}
-            onGenerateImage={async () => {
-  await handleGenerateImage();
+setAiImagePrompt={setAiImagePrompt}
+isGeneratingImage={isGeneratingImage}
+generatedImagePreview={generatedImagePreview}
+multiScenePlan={multiScenePlan}
 
-  alert(
-    `After generation:\nFile=${generatedImageFile ? "YES" : "NO"}\nPreview=${generatedImagePreview ? "YES" : "NO"}`
-  );
-}}
-            onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
-            onAddGeneratedImage={handleAddGeneratedImage}
-            onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
-            onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
-            onMediaUpload={handleMediaUpload}
-            onPublishToFacebook={openFacebookAfterExport}
-            onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-              addSceneToTimeline(
-                file,
-                preview,
-                durationSeconds || getTimelineDuration()
-              )
-            }
-            onVideoDurationChange={setSelectedVideoDurationSeconds}
-          />
+onGenerateImage={handleGenerateImage}
+onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
+onAddGeneratedImage={handleAddGeneratedImage}
+onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
+onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
+onMediaUpload={handleMediaUpload}
+onPublishToFacebook={openFacebookAfterExport}
+onDownloadGeneratedImage={handleDownloadGeneratedImage}
+onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+  addSceneToTimeline(
+    file,
+    preview,
+    durationSeconds || getTimelineDuration()
+  )
+}
+onVideoDurationChange={setSelectedVideoDurationSeconds}
+                  />
         </div>
 
         <div className="grid grid-cols-1 gap-4">
