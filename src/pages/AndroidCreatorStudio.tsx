@@ -70,6 +70,8 @@ export default function AndroidCreatorStudio() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
   const [downloadComplete, setDownloadComplete] = useState(false);
+  const [isAndroidDownloading, setIsAndroidDownloading] = useState(false);
+const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
