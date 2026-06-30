@@ -834,10 +834,15 @@ const resetCurrentProject = () => {
 
   try {
     if (generatedImageFile) {
-      await ExportManager.exportImage(generatedImageFile);
-      setDownloadComplete(true);
-      return;
-    }
+  await ExportManager.exportImage(generatedImageFile);
+
+  if (isAndroid()) {
+    setAndroidDownloadComplete(true);
+  }
+
+  setDownloadComplete(true);
+  return;
+}
 
     if (!generatedImagePreview) {
       alert("Please generate an image first.");
@@ -848,7 +853,12 @@ const resetCurrentProject = () => {
     const blob = await response.blob();
 
     await ExportManager.exportImage(blob);
-    setDownloadComplete(true);
+
+if (isAndroid()) {
+  setAndroidDownloadComplete(true);
+}
+
+setDownloadComplete(true);
   } finally {
     setIsAndroidDownloading(false);
   }
