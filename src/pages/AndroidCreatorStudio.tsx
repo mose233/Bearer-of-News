@@ -936,7 +936,6 @@ const resetCurrentProject = () => {
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
      } finally {
   if (isAndroid()) {
-  setIsAndroidDownloading(false);
   setAndroidDownloadComplete(true);
   setDownloadComplete(true);
   return;
