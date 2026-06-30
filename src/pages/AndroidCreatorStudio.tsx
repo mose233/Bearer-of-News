@@ -490,6 +490,8 @@ if (generatedImagePreview) {
 
 setGeneratedImageFile(null);
 setGeneratedImagePreview("");
+      setDownloadComplete(false);
+setIsAndroidDownloading(false);
       const result = await generateSceneImage(prompt, "1024x1024");
 
       if (generatedImagePreview) {
