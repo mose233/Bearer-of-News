@@ -833,22 +833,32 @@ const resetCurrentProject = () => {
   setExportStatus("");
 };
   const handleDownloadGeneratedImage = async () => {
-  if (generatedImageFile) {
-    await ExportManager.exportImage(generatedImageFile);
-    setDownloadComplete(true);
+  if (isAndroidDownloading) {
     return;
   }
 
-  if (!generatedImagePreview) {
-    alert("Please generate an image first.");
-    return;
-  }
+  setIsAndroidDownloading(true);
 
-  const response = await fetch(generatedImagePreview);
-  const blob = await response.blob();
+  try {
+    if (generatedImageFile) {
+      await ExportManager.exportImage(generatedImageFile);
+      setDownloadComplete(true);
+      return;
+    }
 
-  await ExportManager.exportImage(blob);
+    if (!generatedImagePreview) {
+      alert("Please generate an image first.");
+      return;
+    }
+
+    const response = await fetch(generatedImagePreview);
+    const blob = await response.blob();
+
+    await ExportManager.exportImage(blob);
     setDownloadComplete(true);
+  } finally {
+    setIsAndroidDownloading(false);
+  }
 };
   const handleExportPrimaryMedia = async () => {
     try {
