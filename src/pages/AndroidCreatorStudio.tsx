@@ -502,7 +502,7 @@ setMediaPreviews([result.previewUrl]);
 setSceneDurations([selectedVideoDurationSeconds]);
 setCurrentIndex(0);
 
-alert("AI scene image generated successfully.");
+
   } catch (error) {
   console.error(error);
   alert("Failed to generate AI scene image.");
