@@ -33,6 +33,10 @@ export default function ExportPanel({
   onExportNarratedMp4,
 }: ExportPanelProps) {
   const busy = isRecording || isExporting;
+   alert(
+  `ExportPanel\nRecording: ${isRecording}\nExporting: ${isExporting}\nBusy: ${busy}`
+);
+
 
   const openExternal = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
