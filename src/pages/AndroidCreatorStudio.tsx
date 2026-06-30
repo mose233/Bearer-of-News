@@ -117,7 +117,6 @@ export default function AndroidCreatorStudio() {
 const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
 
 useEffect(() => {
-  alert("AndroidCreatorStudio is running");
 }, []);
 
 const handleSelectTool = (tool: AiToolSelection) => {
