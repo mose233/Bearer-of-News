@@ -830,6 +830,7 @@ setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
 };
   const handleDownloadGeneratedImage = async () => {
+    alert("DOWNLOAD HANDLER STARTED");
   if (isAndroidDownloading) {
     return;
   }
