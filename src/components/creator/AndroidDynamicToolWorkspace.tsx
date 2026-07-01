@@ -3144,12 +3144,7 @@ export default function DynamicToolWorkspace({
             disabled={false}
             onClick={() => {
   setHasPreviewedEnhancement(true);
-
   onGenerateImage?.();
-
-  setTimeout(() => {
-    handleAddEnhancedPhotoToTimeline();
-  }, 300);
 }}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
