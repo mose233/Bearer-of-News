@@ -18,6 +18,7 @@ export type ExportMedia =
 
 export class ExportEngine {
   static async export(media: ExportMedia) {
+    console.log("EXPORT ENGINE CALLED", media.type);
     // Desktop stays EXACTLY the same.
     // Android will later receive its own implementation.
     if (isAndroid()) {
