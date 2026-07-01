@@ -830,45 +830,7 @@ setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
 };
   const handleDownloadGeneratedImage = async () => {
-    alert("DOWNLOAD HANDLER STARTED");
-  if (isAndroidDownloading) {
-    return;
-  }
-
-  setIsAndroidDownloading(true);
-
-  try {
-    if (generatedImagePreview) {
-  const response = await fetch(generatedImagePreview);
-  const blob = await response.blob();
-
-  await ExportManager.exportImage(blob);
-
-  if (isAndroid()) {
-    setAndroidDownloadComplete(true);
-  }
-
-  setDownloadComplete(true);
-  return;
-}
-    if (!generatedImagePreview) {
-      alert("Please generate an image first.");
-      return;
-    }
-
-    const response = await fetch(generatedImagePreview);
-    const blob = await response.blob();
-
-    await ExportManager.exportImage(blob);
-
-if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-}
-
-setDownloadComplete(true);
-  } finally {
-    setIsAndroidDownloading(false);
-  }
+  return handleExportPrimaryMedia();
 };
   const handleExportPrimaryMedia = async () => {
     alert("EXPORT STARTED");
