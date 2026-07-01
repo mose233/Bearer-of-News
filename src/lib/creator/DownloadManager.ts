@@ -86,7 +86,7 @@ export async function downloadMedia(
   }
 
   try {
-    /*
+   /*
  * Android
  */
 if (isAndroid()) {
@@ -96,23 +96,11 @@ if (isAndroid()) {
       : false;
 
   if (!shared) {
-    console.log("ANDROID: Starting native download", {
-      filename,
-      size: blob.size,
-      type: blob.type,
-    });
-
-    // Bypass file-saver on Android.
-    // It has inconsistent behavior across Chrome/WebView versions,
-    // especially after repeated downloads.
     createDownloadLink(blob, filename);
-
-    console.log("ANDROID: Native download link created");
   }
 
   return true;
 }
-
     /*
      * iPhone / iPad
      */
