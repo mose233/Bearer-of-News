@@ -870,11 +870,13 @@ setDownloadComplete(true);
   }
 };
   const handleExportPrimaryMedia = async () => {
+    alert("EXPORT STARTED");
     try {
       if (isAndroid()) {
   setAndroidDownloadComplete(false);
 }
     if (selectedTool?.category === "Picture AI") {
+      alert("PICTURE AI EXPORT");
   if (generatedImageFile || generatedImagePreview) {
     await handleDownloadGeneratedImage();
     return;
