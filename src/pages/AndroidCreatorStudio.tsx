@@ -877,40 +877,21 @@ setDownloadComplete(true);
   setAndroidDownloadComplete(false);
 }
     if (selectedTool?.category === "Picture AI") {
-      alert("PICTURE AI EXPORT");
-  alert(
-  `File=${generatedImageFile ? "YES" : "NO"} Preview=${generatedImagePreview ? "YES" : "NO"}`
-);
-
-if (generatedImageFile || generatedImagePreview) {
-    await handleDownloadGeneratedImage();
-    return;
-  }
-  
-      const currentPreview = mediaPreviews[currentIndex];
       const currentFile = mediaFiles[currentIndex];
-    
 
-      if (currentPreview && currentFile?.type.startsWith("image/")) {
-        const response = await fetch(currentPreview);
-        const blob = await response.blob();
+if (!currentFile) {
+  alert("Please generate an image first.");
+  return;
+}
 
-        await ExportManager.exportImage(blob);
-        return;
-      }
+await ExportManager.exportImage(currentFile);
 
-      if (imagePreviews.length > 0) {
-        const fallbackPreview = imagePreviews[0];
+if (isAndroid()) {
+  setAndroidDownloadComplete(true);
+}
 
-        const response = await fetch(fallbackPreview.preview);
-        const blob = await response.blob();
-
-        await ExportManager.exportImage(blob);
-        return;
-      }
-
-      alert("Please generate or add an image first.");
-      return;
+setDownloadComplete(true);
+return;
     }
 
     const currentFile = mediaFiles[currentIndex];
