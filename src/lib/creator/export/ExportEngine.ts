@@ -41,9 +41,26 @@ export class ExportEngine {
   }
 
   private static async exportAndroid(media: ExportMedia) {
-    // TEMPORARY:
-    // For now Android behaves exactly like Desktop.
-    // We'll replace ONLY this method later.
-    return this.exportDesktop(media);
+  let filename = "";
+
+  switch (media.type) {
+    case "image":
+      filename = `xnewsapp-image-${Date.now()}.png`;
+      break;
+
+    case "video":
+      filename = `xnewsapp-video-${Date.now()}.mp4`;
+      break;
+
+    case "audio":
+      filename = `xnewsapp-audio-${Date.now()}.mp3`;
+      break;
   }
+
+  return downloadAndroidMedia({
+    blob: media.blob,
+    filename,
+    mimeType: media.blob.type,
+  });
 }
+  } 
