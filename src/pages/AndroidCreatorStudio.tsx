@@ -837,8 +837,11 @@ setIsGeneratingImage(false);
   setIsAndroidDownloading(true);
 
   try {
-    if (generatedImageFile) {
-  await ExportManager.exportImage(generatedImageFile);
+    if (generatedImagePreview) {
+  const response = await fetch(generatedImagePreview);
+  const blob = await response.blob();
+
+  await ExportManager.exportImage(blob);
 
   if (isAndroid()) {
     setAndroidDownloadComplete(true);
@@ -847,7 +850,6 @@ setIsGeneratingImage(false);
   setDownloadComplete(true);
   return;
 }
-
     if (!generatedImagePreview) {
       alert("Please generate an image first.");
       return;
