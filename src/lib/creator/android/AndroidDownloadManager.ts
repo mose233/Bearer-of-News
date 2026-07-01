@@ -14,10 +14,7 @@ function createDownloadLink(blob: Blob, filename: string) {
 
   document.body.appendChild(anchor);
 
-  requestAnimationFrame(() => {
-    anchor.click();
-  });
-
+  anchor.click();
   window.setTimeout(() => {
     if (document.body.contains(anchor)) {
       document.body.removeChild(anchor);
