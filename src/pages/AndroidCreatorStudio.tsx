@@ -824,6 +824,10 @@ const resetCurrentProject = () => {
 
   // Clear export state
   setExportStatus("");
+  setDownloadComplete(false);
+setAndroidDownloadComplete(false);
+setIsAndroidDownloading(false);
+setIsGeneratingImage(false);
 };
   const handleDownloadGeneratedImage = async () => {
   if (isAndroidDownloading) {
