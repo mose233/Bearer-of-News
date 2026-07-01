@@ -3024,7 +3024,8 @@ onDownloadGeneratedImage,
 
        {picturePreview && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
+            {!isAndroid() && (
+  <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
                 Original
               </div>
@@ -3039,8 +3040,10 @@ onDownloadGeneratedImage,
                 </p>
               )}
             </div>
+            )}
 
-            <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
+           {!isAndroid() && (
+  <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
               <div className="mb-2 flex items-center justify-between gap-3">
                 <span className="text-xs font-extrabold uppercase tracking-wide text-pink-200">
                   Enhanced Preview
