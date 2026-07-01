@@ -497,7 +497,11 @@ setMediaFiles([result.file]);
 setMediaPreviews([result.previewUrl]);
 setSceneDurations([selectedVideoDurationSeconds]);
 setCurrentIndex(0);
-
+      addSceneToTimeline(
+  result.file,
+  result.previewUrl,
+  selectedVideoDurationSeconds
+);
 
   } catch (error) {
   console.error(error);
