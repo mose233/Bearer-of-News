@@ -854,15 +854,7 @@ if (isAndroid()) {
 setDownloadComplete(true);
 return;
     }
-alert(
-  `Index=${currentIndex}
-Files=${mediaFiles.length}
-Previews=${mediaPreviews.length}`
-);
     const currentFile = mediaFiles[currentIndex];
-      alert(
-  `Current File=${currentFile ? "YES" : "NO"}`
-);
     const currentPreview = mediaPreviews[currentIndex];
 
     if (!currentFile || !currentPreview) {
