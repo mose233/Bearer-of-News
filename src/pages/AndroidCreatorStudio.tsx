@@ -833,7 +833,6 @@ setIsGeneratingImage(false);
   return handleExportPrimaryMedia();
 };
   const handleExportPrimaryMedia = async () => {
-    alert("EXPORT STARTED");
     try {
       if (isAndroid()) {
   setAndroidDownloadComplete(false);
