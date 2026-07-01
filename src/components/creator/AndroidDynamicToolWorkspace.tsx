@@ -26,7 +26,7 @@ import { DanceStyle } from "@/lib/ai/videoProviders";
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 import { getFontByName } from "@/lib/creator/fontLibrary";
 
-type AndroidDynamicToolWorkspaceProps = {
+type DynamicToolWorkspaceProps = {
   selectedTool: AiToolSelection | null;
 
   speechRate: number;
@@ -563,9 +563,6 @@ function VideoTemplatePanel({
   const [selectedVideoDuration, setSelectedVideoDuration] = useState("10 Seconds");
   const [stagedVideoFiles, setStagedVideoFiles] = useState<File[]>([]);
   const [stagedVideoFileNames, setStagedVideoFileNames] = useState<string[]>([]);
-  const [isAndroidDownloading, setIsAndroidDownloading] = useState(false);
-const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
-const [androidGenerationId, setAndroidGenerationId] = useState(0);
 
   const isSocial = [
     "Facebook Reel Maker",
@@ -1723,7 +1720,7 @@ function CinematicPlaceholderPanel({
   );
 }
 
-export default function AndroidDynamicToolWorkspace({
+export default function DynamicToolWorkspace({
   selectedTool,
   speechRate: _speechRate,
   setSpeechRate: _setSpeechRate,
@@ -1761,19 +1758,6 @@ export default function AndroidDynamicToolWorkspace({
   onGenerateDance,
   videoPrompt = "",
   setVideoPrompt,
-  onPrepareTextToVideoPrompt,
-aiImagePrompt = "",
-setAiImagePrompt,
-isGeneratingImage,
-generatedImagePreview,
-multiScenePlan,
-onGenerateImage,
-onGenerateMultiScenePlan,
-onAddGeneratedImage,
-onGenerateSceneFromPlan,
-onGenerateAllScenesFromPlan,
-onPublishToFacebook,
-onDownloadGeneratedImage,
   videoCreativeType = "General",
   setVideoCreativeType,
   videoOutputFormat = "Facebook Reel",
@@ -1782,7 +1766,7 @@ onDownloadGeneratedImage,
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
-}: AndroidDynamicToolWorkspaceProps) {
+}: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
   const [picturePreview, setPicturePreview] = useState("");
@@ -3022,9 +3006,9 @@ onDownloadGeneratedImage,
           />
         )}
 
-       {picturePreview && (
+        {picturePreview && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
-           <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
+            <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
                 Original
               </div>
@@ -3039,10 +3023,8 @@ onDownloadGeneratedImage,
                 </p>
               )}
             </div>
-            )}
 
-           {!isAndroid() && (
-  <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
+            <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
               <div className="mb-2 flex items-center justify-between gap-3">
                 <span className="text-xs font-extrabold uppercase tracking-wide text-pink-200">
                   Enhanced Preview
@@ -3159,12 +3141,8 @@ onDownloadGeneratedImage,
         <div className="mt-5 flex flex-wrap gap-3">
           <Button
             type="button"
-            disabled={false}
-            onClick={() => {
-  setHasPreviewedEnhancement(true);
-
-  onGenerateImage?.();
-}}
+            disabled={!picturePreview}
+            onClick={() => setHasPreviewedEnhancement(true)}
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
