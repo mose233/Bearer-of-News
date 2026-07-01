@@ -499,11 +499,6 @@ addSceneToTimeline(
   result.previewUrl,
   selectedVideoDurationSeconds
 );
-      addSceneToTimeline(
-  result.file,
-  result.previewUrl,
-  selectedVideoDurationSeconds
-);
 
   } catch (error) {
   console.error(error);
