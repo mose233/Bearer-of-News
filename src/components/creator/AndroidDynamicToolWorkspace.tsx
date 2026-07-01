@@ -3022,7 +3022,7 @@ onDownloadGeneratedImage,
           />
         )}
 
-        {picturePreview && (
+        {!isAndroid() && picturePreview && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
