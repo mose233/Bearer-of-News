@@ -878,7 +878,11 @@ setDownloadComplete(true);
 }
     if (selectedTool?.category === "Picture AI") {
       alert("PICTURE AI EXPORT");
-  if (generatedImageFile || generatedImagePreview) {
+  alert(
+  `File=${generatedImageFile ? "YES" : "NO"} Preview=${generatedImagePreview ? "YES" : "NO"}`
+);
+
+if (generatedImageFile || generatedImagePreview) {
     await handleDownloadGeneratedImage();
     return;
   }
