@@ -493,10 +493,12 @@ setGeneratedImagePreview("");
 
     setGeneratedImageFile(result.file);
 setGeneratedImagePreview(result.previewUrl);
-setMediaFiles([result.file]);
-setMediaPreviews([result.previewUrl]);
-setSceneDurations([selectedVideoDurationSeconds]);
-setCurrentIndex(0);
+
+addSceneToTimeline(
+  result.file,
+  result.previewUrl,
+  selectedVideoDurationSeconds
+);
       addSceneToTimeline(
   result.file,
   result.previewUrl,
