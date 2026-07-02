@@ -888,12 +888,12 @@ if (selectedTool?.category === "Picture AI") {
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-        alert("Starting Android export");
+        
         await ExportEngine.export({
   type: "image",
   blob: currentFile,
 });
-        alert("Android export finished");
+        
         return;
       } finally {
         setIsExporting(false);
