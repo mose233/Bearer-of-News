@@ -1125,15 +1125,13 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
       ✅ Download complete.
     </p>
 
-    <p className="mb-4 text-sm text-slate-300">
-      Tap below to start a new creation.
-    </p>
+    <button
+      onClick={() => {
+        window.location.replace(window.location.href);
+      }}
+      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
+    >
+      Refresh Creator Studio
+    </button>
   </div>
 )}
-          </section>
-        </div>
-
-      </div>
-    </main>
-  );
-}
