@@ -18,8 +18,7 @@ export type ExportMedia =
 
 export class ExportEngine {
   static async export(media: ExportMedia) {
-    alert("ExportEngine called");
-    
+   
     if (isAndroid()) {
       return this.exportAndroid(media);
     }
