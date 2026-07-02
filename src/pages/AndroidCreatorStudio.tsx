@@ -844,7 +844,9 @@ if (!currentFile) {
   alert("Please generate an image first.");
   return;
 }
-
+alert(
+  `Downloading: ${currentFile.name}\nSize: ${currentFile.size}`
+);
 await ExportManager.exportImage(currentFile);
 
 if (isAndroid()) {
