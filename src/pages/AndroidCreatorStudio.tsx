@@ -1129,11 +1129,9 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
       Tap below to start a new creation.
     </p>
 
-    <button
-      onClick={() => {
-        setDownloadComplete(false);
-        resetCurrentProject();
-      }}
+    onClick={() => {
+  window.location.reload();
+}}
       className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
     >
       Click to Generate Again
