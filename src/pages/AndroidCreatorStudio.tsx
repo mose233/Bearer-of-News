@@ -1104,6 +1104,9 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
+                <p style={{ color: "red", fontWeight: "bold" }}>
+  ExportPanel Rendered
+</p>
   <ExportPanel
   isRecording={isRecording}
   isExporting={isExporting}
