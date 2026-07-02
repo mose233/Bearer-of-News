@@ -21,17 +21,6 @@ function createDownloadLink(blob: Blob, filename: string) {
 
   document.body.appendChild(anchor);
 anchor.click();
-  try {
-    anchor.dispatchEvent(
-      new MouseEvent("click", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-      })
-    );
-  } catch {
-    anchor.click();
-  }
 
   window.setTimeout(() => {
     if (document.body.contains(anchor)) {
