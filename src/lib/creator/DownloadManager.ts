@@ -85,7 +85,11 @@ if (isAndroid()) {
       : false;
 
   if (!shared) {
-    createDownloadLink(blob, filename);
+    const freshBlob = new Blob([blob], {
+      type: blob.type,
+    });
+
+    createDownloadLink(freshBlob, filename);
   }
 
   return true;
