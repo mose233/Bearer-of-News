@@ -831,31 +831,29 @@ setAndroidDownloadComplete(false);
 setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
 };
-  const handleDownloadGeneratedImage = async () => {
-  return handleExportPrimaryMedia();
-};
-  const handleExportPrimaryMedia = async () => {
-    try {
-  
-if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-}
-if (selectedTool?.category === "Picture AI") {
-  const currentFile = mediaFiles[currentIndex];
+ const handleExportPrimaryMedia = async () => {
+  try {
+    if (selectedTool?.category === "Picture AI") {
+      const currentFile = mediaFiles[currentIndex];
 
-  if (!currentFile) {
-    alert("Please generate an image first.");
-    return;
-  }
+      if (!currentFile) {
+        alert("Please generate an image first.");
+        return;
+      }
 
-  await ExportEngine.export({
-    type: "image",
-    blob: currentFile,
-  });
+      await ExportEngine.export({
+        type: "image",
+        blob: currentFile,
+      });
 
-  setDownloadComplete(true);
-  return;
-}
+      if (isAndroid()) {
+        setAndroidDownloadComplete(true);
+      }
+
+      setDownloadComplete(true);
+      return;
+    }
+
     const currentFile = mediaFiles[currentIndex];
     const currentPreview = mediaPreviews[currentIndex];
 
@@ -875,21 +873,21 @@ if (selectedTool?.category === "Picture AI") {
         setExportStatus("Creating preview video download...");
 
         const videoBlob = await renderPreviewVideo({
-  imageUrl: currentPreview,
-  duration: getTimelineDuration(),
-});
+          imageUrl: currentPreview,
+          duration: getTimelineDuration(),
+        });
 
         await ExportManager.exportCinematic(videoBlob);
         return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-        
+
         await ExportEngine.export({
-  type: "image",
-  blob: currentFile,
-});
-        
+          type: "image",
+          blob: currentFile,
+        });
+
         return;
       } finally {
         setIsExporting(false);
@@ -897,20 +895,22 @@ if (selectedTool?.category === "Picture AI") {
       }
     }
 
-    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-     } finally {
-  if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-  setDownloadComplete(true);
-  return;
-}
+    await ExportManager.exportCustom(
+      currentFile,
+      currentFile.name || "xnewsapp-media"
+    );
+  } finally {
+    if (isAndroid()) {
+      setAndroidDownloadComplete(true);
+      setDownloadComplete(true);
+      return;
+    }
 
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-    };
-
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
+};
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
