@@ -836,10 +836,7 @@ setIsGeneratingImage(false);
 };
   const handleExportPrimaryMedia = async () => {
     try {
-      if (isAndroid()) {
-  setAndroidDownloadComplete(false);
-}
-
+  
 if (isAndroid()) {
   setAndroidDownloadComplete(true);
 }
