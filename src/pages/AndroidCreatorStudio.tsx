@@ -491,15 +491,10 @@ setGeneratedImagePreview("");
 
       const result = await generateSceneImage(prompt, "1024x1024");
 
-    setGeneratedImageFile(result.file);
+   setGeneratedImageFile(result.file);
 setGeneratedImagePreview(result.previewUrl);
 
 addSceneToTimeline(
-  result.file,
-  result.previewUrl,
-  selectedVideoDurationSeconds
-);
-      addSceneToTimeline(
   result.file,
   result.previewUrl,
   selectedVideoDurationSeconds
