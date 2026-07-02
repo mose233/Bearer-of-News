@@ -842,10 +842,12 @@ setIsGeneratingImage(false);
     if (selectedTool?.category === "Picture AI") {
       const currentFile = generatedImageFile;
 
-if (!currentFile) {
+if (!generatedImageFile) {
   alert("Please generate an image first.");
   return;
 }
+
+const currentFile = generatedImageFile;
 
 await ExportEngine.export({
   type: "image",
