@@ -1135,3 +1135,9 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
     </button>
   </div>
 )}
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}
