@@ -840,7 +840,7 @@ setIsGeneratingImage(false);
   setAndroidDownloadComplete(false);
 }
     if (selectedTool?.category === "Picture AI") {
-      const currentFile = mediaFiles[currentIndex];
+      const currentFile = generatedImageFile;
 
 if (!currentFile) {
   alert("Please generate an image first.");
