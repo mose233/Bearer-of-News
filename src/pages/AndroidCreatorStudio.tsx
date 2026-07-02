@@ -853,10 +853,6 @@ if (selectedTool?.category === "Picture AI") {
     blob: currentFile,
   });
 
-  if (isAndroid()) {
-    setAndroidDownloadComplete(true);
-  }
-
   setDownloadComplete(true);
   return;
 }
