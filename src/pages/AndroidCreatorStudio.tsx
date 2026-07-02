@@ -847,7 +847,10 @@ if (!currentFile) {
   return;
 }
 
-await ExportManager.exportImage(currentFile);
+await ExportEngine.export({
+  type: "image",
+  blob: currentFile,
+});
 
 if (isAndroid()) {
   setAndroidDownloadComplete(true);
