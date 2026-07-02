@@ -839,25 +839,23 @@ setIsGeneratingImage(false);
       if (isAndroid()) {
   setAndroidDownloadComplete(false);
 }
-    if (selectedTool?.category === "Picture AI") {
-      const currentFile = generatedImageFile;
-
-if (!generatedImageFile) {
-  alert("Please generate an image first.");
-  return;
-}
-
-const currentFile = generatedImageFile;
-
-await ExportEngine.export({
-  type: "image",
-  blob: currentFile,
-});
 
 if (isAndroid()) {
   setAndroidDownloadComplete(true);
 }
+if (selectedTool?.category === "Picture AI") {
 
+  if (!generatedImageFile) {
+    alert("Please generate an image first.");
+    return;
+  }
+
+  const currentFile = generatedImageFile;
+
+  await ExportEngine.export({
+    type: "image",
+    blob: currentFile,
+  });
 setDownloadComplete(true);
 return;
     }
