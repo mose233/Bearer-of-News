@@ -1,4 +1,3 @@
-import { ExportEngine } from "@/lib/creator/export/ExportEngine";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -500,6 +499,11 @@ addSceneToTimeline(
   result.previewUrl,
   selectedVideoDurationSeconds
 );
+      addSceneToTimeline(
+  result.file,
+  result.previewUrl,
+  selectedVideoDurationSeconds
+);
 
   } catch (error) {
   console.error(error);
@@ -559,8 +563,7 @@ alert(`${plan.length} scene plan generated successfully.`);
   scene.prompt,
   "1024x1024"
 );
-
-      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
+addSceneToTimeline(result.file, result.previewUrl, scene.duration);
 
       alert(`Scene ${index + 1} added to timeline.`);
     } catch (error) {
@@ -831,29 +834,31 @@ setAndroidDownloadComplete(false);
 setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
 };
- const handleExportPrimaryMedia = async () => {
-  try {
+  const handleDownloadGeneratedImage = async () => {
+  return handleExportPrimaryMedia();
+};
+  const handleExportPrimaryMedia = async () => {
+    try {
+      if (isAndroid()) {
+  setAndroidDownloadComplete(false);
+}
     if (selectedTool?.category === "Picture AI") {
       const currentFile = mediaFiles[currentIndex];
 
-      if (!currentFile) {
-        alert("Please generate an image first.");
-        return;
-      }
+if (!currentFile) {
+  alert("Please generate an image first.");
+  return;
+}
 
-      await ExportEngine.export({
-        type: "image",
-        blob: currentFile,
-      });
+await ExportManager.exportImage(currentFile);
 
-      if (isAndroid()) {
-        setAndroidDownloadComplete(true);
-      }
+if (isAndroid()) {
+  setAndroidDownloadComplete(true);
+}
 
-      setDownloadComplete(true);
-      return;
+setDownloadComplete(true);
+return;
     }
-
     const currentFile = mediaFiles[currentIndex];
     const currentPreview = mediaPreviews[currentIndex];
 
@@ -873,21 +878,16 @@ setIsGeneratingImage(false);
         setExportStatus("Creating preview video download...");
 
         const videoBlob = await renderPreviewVideo({
-          imageUrl: currentPreview,
-          duration: getTimelineDuration(),
-        });
+  imageUrl: currentPreview,
+  duration: getTimelineDuration(),
+});
 
         await ExportManager.exportCinematic(videoBlob);
         return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-
-        await ExportEngine.export({
-          type: "image",
-          blob: currentFile,
-        });
-
+        await ExportManager.exportImage(currentFile);
         return;
       } finally {
         setIsExporting(false);
@@ -895,22 +895,20 @@ setIsGeneratingImage(false);
       }
     }
 
-    await ExportManager.exportCustom(
-      currentFile,
-      currentFile.name || "xnewsapp-media"
-    );
-  } finally {
-    if (isAndroid()) {
-      setAndroidDownloadComplete(true);
-      setDownloadComplete(true);
-      return;
-    }
+    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
+     } finally {
+  if (isAndroid()) {
+  setAndroidDownloadComplete(true);
+  setDownloadComplete(true);
+  return;
+}
 
-    setTimeout(() => {
-      resetCurrentProject();
-    }, 1000);
-  }
-};
+  setTimeout(() => {
+    resetCurrentProject();
+  }, 1000);
+}
+    };
+
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
