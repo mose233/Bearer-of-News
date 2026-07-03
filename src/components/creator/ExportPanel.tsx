@@ -19,6 +19,7 @@ type ExportPanelProps = {
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
   onExportNarratedMp4: () => void;
+  onRestartProject: () => void;
 };
 
 export default function ExportPanel({
@@ -31,6 +32,7 @@ export default function ExportPanel({
   onInitializeFFmpeg,
   onExportSilentMp4,
   onExportNarratedMp4,
+  onRestartProject,
 }: ExportPanelProps) {
   const busy = isRecording || isExporting;
   
