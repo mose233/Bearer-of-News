@@ -173,10 +173,6 @@ export default function AiToolLauncher({
           <h2 className="text-base font-extrabold tracking-tight text-white sm:text-lg">
             Choose a tool
           </h2>
-
-          <p className="mt-1 text-xs font-medium text-slate-400">
-            Pick what you want to create.
-          </p>
         </div>
 
         {selectedTool && (
