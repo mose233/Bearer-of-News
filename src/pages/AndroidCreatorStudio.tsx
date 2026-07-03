@@ -971,9 +971,6 @@ return;
             Create AI videos, images and music
           </h1>
 
-          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-            Choose a tool, create your media, then export and download.
-          </p>
         </header>
 
         <div className="mb-5">
