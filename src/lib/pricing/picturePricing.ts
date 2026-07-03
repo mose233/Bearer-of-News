@@ -7,7 +7,7 @@ export const picturePricing: PricingCategory = {
   items: [
     {
       label: "Basic Picture AI (Per Image)",
-      price: 0.05,
+      price: 0.07,
     },
   ],
 };
