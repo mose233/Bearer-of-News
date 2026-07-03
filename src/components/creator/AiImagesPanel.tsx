@@ -72,17 +72,6 @@ export default function AiImagesPanel({
           Generate 4-Scene Plan
         </Button>
 
-        {generatedImagePreview && !hasMultiScenePlan && (
-          <Button
-            type="button"
-            onClick={onAddGeneratedImage}
-            className="h-12 rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white hover:bg-cyan-700"
-          >
-            <ImagePlus className="mr-2 h-5 w-5" />
-            Add Image to Video
-          </Button>
-        )}
-
         {hasMultiScenePlan && (
           <Button
             type="button"
