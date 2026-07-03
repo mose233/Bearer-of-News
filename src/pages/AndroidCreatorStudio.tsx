@@ -1102,6 +1102,7 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
   onExportSilentMp4={handleExportSilentMp4}
   onExportNarratedMp4={handleExportNarratedMp4}
   onExportFinalMixedMp4={handleExportNarratedMp4}
+    onRestartProject={handleRestartProject}
 />
                
 </CardContent>
