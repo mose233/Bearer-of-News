@@ -114,16 +114,6 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 />
-
-                <Route
-                  path="/analytics"
-                  element={
-                    <ProtectedRoute>
-                      <Analytics />
-                    </ProtectedRoute>
-                  }
-                />
-
                 <Route path="/about" element={<About />} />
                 <Route path="/download" element={<Download />} />
 
