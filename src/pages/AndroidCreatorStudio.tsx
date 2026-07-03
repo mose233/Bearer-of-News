@@ -958,7 +958,17 @@ return;
     }, 1000);
   }
 };
+const handleRestartProject = () => {
+  resetCurrentProject();
 
+  setGeneratedImageFile(null);
+  setGeneratedImagePreview("");
+
+  setDownloadComplete(false);
+
+  setIsExporting(false);
+  setExportStatus("");
+};
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
