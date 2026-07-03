@@ -1851,7 +1851,7 @@ export default function DynamicToolWorkspace({
   ];
 
   const getCurrentPicturePrice = () =>
-    premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
+    premiumPictureTools.includes(tool) ? "$0.10" : "$0.07";
 
   const confirmPictureGeneration = () =>
     window.confirm(
