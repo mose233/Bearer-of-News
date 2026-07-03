@@ -1108,26 +1108,11 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
 />
                
 </CardContent>
-            </Card>
-            {isAndroid() && downloadComplete && (
-  <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-    <p className="mb-3 font-semibold text-emerald-300">
-      ✅ Download complete.
-    </p>
+</Card>
 
-    <button
-      onClick={() => {
-        window.location.replace(window.location.href);
-      }}
-      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
-    >
-      Refresh Creator Studio
-    </button>
-  </div>
-)}
-          </section>
-        </div>
-      </div>
-    </main>
-  );
+</section>
+</div>
+</div>
+</main>
+);
 }
