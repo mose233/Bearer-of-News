@@ -2516,7 +2516,7 @@ export default function DynamicToolWorkspace({
                 "AI Art Generator",
               ].includes(tool)
                 ? "$0.10"
-                : "$0.05"} per image
+                : "$0.07"} per image
             </p>
 
            
