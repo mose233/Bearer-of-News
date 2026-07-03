@@ -54,13 +54,6 @@ console.log("EXPORT PANEL", {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-xs font-semibold leading-5 text-blue-100">
-        <p className="font-extrabold">Export first, then share</p>
-        <p className="mt-1 text-blue-100/90">
-          Save the file to your phone or laptop, then open your social app and upload it.
-        </p>
-      </div>
-
       {exportStatus && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
           <div className="flex items-center gap-3">
