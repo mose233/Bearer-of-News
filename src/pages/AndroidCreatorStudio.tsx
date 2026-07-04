@@ -828,6 +828,8 @@ const resetCurrentProject = () => {
 setAndroidDownloadComplete(false);
 setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
+  // Clear prompt
+setAiImagePrompt("");
 };
   const handleDownloadGeneratedImage = async () => {
   return handleExportPrimaryMedia();
