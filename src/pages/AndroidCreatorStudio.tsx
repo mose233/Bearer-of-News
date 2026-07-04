@@ -835,8 +835,7 @@ setAiImagePrompt("");
   return handleExportPrimaryMedia();
 };
   const handleExportPrimaryMedia = async () => {
-    alert("1. Download button pressed");
-    try {
+  try {
       if (isAndroid()) {
   setAndroidDownloadComplete(false);
 }
@@ -847,14 +846,10 @@ if (!currentFile) {
   alert("Please generate an image first.");
   return;
 }
-      alert("2. Current file found");
 alert(
   `Downloading: ${currentFile.name}\nSize: ${currentFile.size}`
 );
-      alert("3. Calling ExportManager");
 await ExportManager.exportImage(currentFile);
-      alert("4. ExportManager finished");
-
 if (isAndroid()) {
   setAndroidDownloadComplete(true);
 }
