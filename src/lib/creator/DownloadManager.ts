@@ -97,14 +97,19 @@ if (isAndroid()) {
       ? await shareBlob(blob, filename)
       : false;
 
-  if (!shared) {
-    const freshBlob = new Blob([blob], {
-      type: blob.type,
-    });
+ if (!shared) {
+  const freshBlob = new Blob([blob], {
+    type: blob.type,
+  });
 
-    createDownloadLink(freshBlob, filename);
-  }
+  const url = URL.createObjectURL(freshBlob);
 
+  window.open(url, "_blank");
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 30000);
+}
   return true;
 }
     /*
