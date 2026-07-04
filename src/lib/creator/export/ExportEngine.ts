@@ -1,6 +1,6 @@
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { ExportManager } from "@/lib/creator/ExportManager";
-import { downloadAndroidMedia } from "@/lib/creator/android/AndroidDownloadManager";
+import AndroidDownloadService from "@/lib/creator/android/AndroidDownloadService";
 
 export type ExportMedia =
   | {
