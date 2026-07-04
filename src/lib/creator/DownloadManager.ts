@@ -1,3 +1,4 @@
+import AndroidDownloadService from "./android/AndroidDownloadService";
 import { saveAs } from "file-saver";
 import {
   isAndroid,
@@ -12,15 +13,15 @@ function createDownloadLink(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
 
   const anchor = document.createElement("a");
-
   anchor.href = url;
   anchor.download = filename;
-  
   anchor.rel = "noopener";
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);
-anchor.click();
+
+  anchor.click();
+
   try {
     anchor.dispatchEvent(
       new MouseEvent("click", {
@@ -86,21 +87,36 @@ export async function downloadMedia(
   }
 
   try {
-   /*
- * Android
- */
-if (isAndroid()) {
-  const shared =
-    options.shareOnMobile === true
-      ? await shareBlob(blob, filename)
-      : false;
+    /*
+     * Android
+     */
+    if (isAndroid()) {
 
-  if (!shared) {
-    createDownloadLink(blob, filename);
-  }
+      if (AndroidDownloadService.isAvailable()) {
+        switch (exportFile.mimeType) {
+          case "image/png":
+            return AndroidDownloadService.saveImage(blob, filename);
 
-  return true;
-}
+          case "video/mp4":
+            return AndroidDownloadService.saveVideo(blob, filename);
+
+          case "audio/mpeg":
+            return AndroidDownloadService.saveAudio(blob, filename);
+        }
+      }
+
+      const shared =
+        options.shareOnMobile === true
+          ? await shareBlob(blob, filename)
+          : false;
+
+      if (!shared) {
+        createDownloadLink(blob, filename);
+      }
+
+      return true;
+    }
+
     /*
      * iPhone / iPad
      */
