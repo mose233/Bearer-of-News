@@ -56,10 +56,13 @@ export class ExportEngine {
       break;
   }
 
-  return downloadAndroidMedia({
-    blob: media.blob,
-    filename,
-    mimeType: media.blob.type,
-  });
+  switch (media.type) {
+  case "image":
+    return AndroidDownloadService.saveImage(media.blob, filename);
+
+  case "video":
+    return AndroidDownloadService.saveVideo(media.blob, filename);
+
+  case "audio":
+    return AndroidDownloadService.saveAudio(media.blob, filename);
 }
-  } 
