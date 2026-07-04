@@ -20,7 +20,20 @@ function createDownloadLink(blob: Blob, filename: string) {
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);
-anchor.click();
+document.body.appendChild(anchor);
+
+// Give Android Chrome time to attach the element
+requestAnimationFrame(() => {
+  anchor.click();
+
+  window.setTimeout(() => {
+    if (document.body.contains(anchor)) {
+      document.body.removeChild(anchor);
+    }
+
+    URL.revokeObjectURL(url);
+  }, DOWNLOAD_REVOKE_DELAY);
+});
 
   window.setTimeout(() => {
     if (document.body.contains(anchor)) {
