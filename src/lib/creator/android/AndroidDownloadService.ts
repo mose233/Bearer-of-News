@@ -1,4 +1,6 @@
-import { Capacitor } from "@capacitor/core";
+const isAndroidPlatform = () =>
+  typeof navigator !== "undefined" &&
+  /Android/i.test(navigator.userAgent);
 
 export default class AndroidDownloadService {
   static isAvailable(): boolean {
