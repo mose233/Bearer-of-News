@@ -93,6 +93,9 @@ export async function downloadMedia(
  * Android
  */
 if (isAndroid()) {
+  if (AndroidDownloadService.isAvailable()) {
+  return AndroidDownloadService.saveImage(blob, filename);
+}
   const shared =
     options.shareOnMobile === true
       ? await shareBlob(blob, filename)
