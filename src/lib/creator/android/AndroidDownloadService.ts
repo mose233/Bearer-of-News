@@ -4,8 +4,8 @@ const isAndroidPlatform = () =>
 
 export default class AndroidDownloadService {
   static isAvailable(): boolean {
-    return Capacitor.getPlatform() === "android";
-  }
+  return isAndroidPlatform();
+}
 
   static async saveImage(
     blob: Blob,
