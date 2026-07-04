@@ -104,12 +104,18 @@ if (isAndroid()) {
 
   const url = URL.createObjectURL(freshBlob);
 
-  window.open(url, "_blank");
+const link = document.createElement("a");
+link.href = url;
+link.download = filename;
+link.target = "_self";
 
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 30000);
-}
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+
+setTimeout(() => {
+  URL.revokeObjectURL(url);
+}, 30000);
   return true;
 }
     /*
