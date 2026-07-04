@@ -13,36 +13,24 @@ function createDownloadLink(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
 
   const anchor = document.createElement("a");
-
   anchor.href = url;
   anchor.download = filename;
-  
   anchor.rel = "noopener";
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);
-document.body.appendChild(anchor);
 
-// Give Android Chrome time to attach the element
-requestAnimationFrame(() => {
-  anchor.click();
+  requestAnimationFrame(() => {
+    anchor.click();
 
-  window.setTimeout(() => {
     if (document.body.contains(anchor)) {
       document.body.removeChild(anchor);
     }
 
-    URL.revokeObjectURL(url);
-  }, DOWNLOAD_REVOKE_DELAY);
-});
-
-  window.setTimeout(() => {
-    if (document.body.contains(anchor)) {
-      document.body.removeChild(anchor);
-    }
-
-    URL.revokeObjectURL(url);
-  }, DOWNLOAD_REVOKE_DELAY);
+    window.setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, DOWNLOAD_REVOKE_DELAY);
+  });
 }
 
 async function shareBlob(blob: Blob, filename: string) {
@@ -89,40 +77,35 @@ export async function downloadMedia(
   }
 
   try {
-   /*
- * Android
- */
-if (isAndroid()) {
-  if (AndroidDownloadService.isAvailable()) {
-  return AndroidDownloadService.saveImage(blob, filename);
-}
-  const shared =
-    options.shareOnMobile === true
-      ? await shareBlob(blob, filename)
-      : false;
+    /*
+     * Android
+     */
+    if (isAndroid()) {
 
- if (!shared) {
-  const freshBlob = new Blob([blob], {
-    type: blob.type,
-  });
+      if (AndroidDownloadService.isAvailable()) {
+        return AndroidDownloadService.saveMedia(
+          blob,
+          filename,
+          exportFile.mimeType
+        );
+      }
 
-  const url = URL.createObjectURL(freshBlob);
+      const shared =
+        options.shareOnMobile === true
+          ? await shareBlob(blob, filename)
+          : false;
 
-const link = document.createElement("a");
-link.href = url;
-link.download = filename;
-link.target = "_self";
+      if (!shared) {
+        const freshBlob = new Blob([blob], {
+          type: blob.type,
+        });
 
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
+        createDownloadLink(freshBlob, filename);
+      }
 
-setTimeout(() => {
-  URL.revokeObjectURL(url);
-}, 30000);
-}
-  return true;
-}
+      return true;
+    }
+
     /*
      * iPhone / iPad
      */
