@@ -1,6 +1,5 @@
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { ExportManager } from "@/lib/creator/ExportManager";
-import AndroidDownloadService from "@/lib/creator/android/AndroidDownloadService";
 
 export type ExportMedia =
   | {
@@ -38,31 +37,8 @@ export class ExportEngine {
         return ExportManager.exportVoice(media.blob);
     }
   }
-
-  private static async exportAndroid(media: ExportMedia) {
-  let filename = "";
-
-  switch (media.type) {
-    case "image":
-      filename = `xnewsapp-image-${Date.now()}.png`;
-      break;
-
-    case "video":
-      filename = `xnewsapp-video-${Date.now()}.mp4`;
-      break;
-
-    case "audio":
-      filename = `xnewsapp-audio-${Date.now()}.mp3`;
-      break;
-  }
-
-  switch (media.type) {
-  case "image":
-    return AndroidDownloadService.saveImage(media.blob, filename);
-
-  case "video":
-    return AndroidDownloadService.saveVideo(media.blob, filename);
-
-  case "audio":
-    return AndroidDownloadService.saveAudio(media.blob, filename);
+private static async exportAndroid(media: ExportMedia) {
+  return this.exportDesktop(media);
 }
+}
+  
