@@ -81,14 +81,7 @@ console.log("EXPORT PANEL", {
         )}
         {exportPrimaryLabel || "Export / Download Media"}
       </Button>
-       <Button
-  type="button"
-  onClick={onRestartProject}
-  disabled={busy}
-  className="h-12 w-full rounded-3xl bg-emerald-600 font-extrabold text-white hover:bg-emerald-700 disabled:opacity-60"
->
-  ↻ Restart New Project
-</Button>
+       
       <div className="grid grid-cols-2 gap-3">
         <Button
           type="button"
