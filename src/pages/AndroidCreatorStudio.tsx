@@ -69,7 +69,6 @@ export default function AndroidCreatorStudio() {
   const [isRecording, setIsRecording] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
-  const [downloadComplete, setDownloadComplete] = useState(false);
   const [isAndroidDownloading, setIsAndroidDownloading] = useState(false);
 const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
 
