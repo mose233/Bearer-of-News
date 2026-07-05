@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -492,10 +491,15 @@ setGeneratedImagePreview("");
 
       const result = await generateSceneImage(prompt, "1024x1024");
 
-   setGeneratedImageFile(result.file);
+    setGeneratedImageFile(result.file);
 setGeneratedImagePreview(result.previewUrl);
 
 addSceneToTimeline(
+  result.file,
+  result.previewUrl,
+  selectedVideoDurationSeconds
+);
+      addSceneToTimeline(
   result.file,
   result.previewUrl,
   selectedVideoDurationSeconds
@@ -829,14 +833,12 @@ const resetCurrentProject = () => {
 setAndroidDownloadComplete(false);
 setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
-  // Clear prompt
-setAiImagePrompt("");
 };
   const handleDownloadGeneratedImage = async () => {
   return handleExportPrimaryMedia();
 };
   const handleExportPrimaryMedia = async () => {
-  try {
+    try {
       if (isAndroid()) {
   setAndroidDownloadComplete(false);
 }
@@ -847,10 +849,9 @@ if (!currentFile) {
   alert("Please generate an image first.");
   return;
 }
-alert(
-  `Downloading: ${currentFile.name}\nSize: ${currentFile.size}`
-);
+
 await ExportManager.exportImage(currentFile);
+
 if (isAndroid()) {
   setAndroidDownloadComplete(true);
 }
@@ -960,17 +961,7 @@ return;
     }, 1000);
   }
 };
-const handleRestartProject = () => {
-  resetCurrentProject();
 
-  setGeneratedImageFile(null);
-  setGeneratedImagePreview("");
-
-  setDownloadComplete(false);
-
-  setIsExporting(false);
-  setExportStatus("");
-};
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
@@ -983,6 +974,9 @@ const handleRestartProject = () => {
             Create AI videos, images and music
           </h1>
 
+          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+            Choose a tool, create your media, then export and download.
+          </p>
         </header>
 
         <div className="mb-5">
@@ -1098,7 +1092,13 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
             </Card>
 
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-            <CardContent className="px-3 py-4 sm:px-4">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Export & Download
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-3 py-4 sm:px-4">
   <ExportPanel
   isRecording={isRecording}
   isExporting={isExporting}
@@ -1115,20 +1115,38 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
   onExportNarratedMp4={handleExportNarratedMp4}
   onExportFinalMixedMp4={handleExportNarratedMp4}
 />
-   <Button
-  type="button"
-  onClick={handleRestartProject}
-  disabled={isExporting}
-  className="mt-4 h-12 w-full rounded-3xl bg-emerald-600 font-extrabold text-white hover:bg-emerald-700 disabled:opacity-60"
->
-  ↻ Restart New Project
-</Button>            
+               
 </CardContent>
-</Card>
+            </Card>
 
-</section>
-</div>
-</div>
-</main>
-);
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
+              Review your content before downloading or sharing.
+            </div>
+            {isAndroid() && downloadComplete && (
+  <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
+    <p className="mb-3 font-semibold text-emerald-300">
+      ✅ Download complete.
+    </p>
+
+    <p className="mb-4 text-sm text-slate-300">
+      Tap below to start a new creation.
+    </p>
+
+    <button
+      onClick={() => {
+        setDownloadComplete(false);
+        resetCurrentProject();
+      }}
+      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
+    >
+      Click to Generate Again
+    </button>
+  </div>
+)}
+          </section>
+        </div>
+
+      </div>
+    </main>
+  );
 }
