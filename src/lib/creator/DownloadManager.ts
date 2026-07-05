@@ -87,12 +87,9 @@ export async function downloadMedia(
 
   try {
     if (isAndroid()) {
-  const shared =
-    options.shareOnMobile === true
-      ? await shareBlob(blob, filename)
-      : false;
-
-  if (!shared) {
+  try {
+    saveAs(blob, filename);
+  } catch {
     createDownloadLink(blob, filename);
   }
 
