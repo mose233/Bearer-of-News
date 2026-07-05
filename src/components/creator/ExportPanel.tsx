@@ -19,7 +19,6 @@ type ExportPanelProps = {
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
   onExportNarratedMp4: () => void;
-  onRestartProject: () => void;
 };
 
 export default function ExportPanel({
