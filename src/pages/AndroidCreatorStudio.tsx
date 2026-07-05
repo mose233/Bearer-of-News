@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -1114,7 +1115,14 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
   onExportNarratedMp4={handleExportNarratedMp4}
   onExportFinalMixedMp4={handleExportNarratedMp4}
 />
-               
+   <Button
+  type="button"
+  onClick={handleRestartProject}
+  disabled={isExporting}
+  className="mt-4 h-12 w-full rounded-3xl bg-emerald-600 font-extrabold text-white hover:bg-emerald-700 disabled:opacity-60"
+>
+  ↻ Restart New Project
+</Button>            
 </CardContent>
 </Card>
 
