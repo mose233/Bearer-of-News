@@ -1,4 +1,3 @@
-import AndroidDownloadService from "./android/AndroidDownloadService";
 import { saveAs } from "file-saver";
 import {
   isAndroid,
@@ -87,36 +86,18 @@ export async function downloadMedia(
   }
 
   try {
-    /*
-     * Android
-     */
     if (isAndroid()) {
+  const shared =
+    options.shareOnMobile === true
+      ? await shareBlob(blob, filename)
+      : false;
 
-      if (AndroidDownloadService.isAvailable()) {
-        switch (exportFile.mimeType) {
-          case "image/png":
-            return AndroidDownloadService.saveImage(blob, filename);
+  if (!shared) {
+    createDownloadLink(blob, filename);
+  }
 
-          case "video/mp4":
-            return AndroidDownloadService.saveVideo(blob, filename);
-
-          case "audio/mpeg":
-            return AndroidDownloadService.saveAudio(blob, filename);
-        }
-      }
-
-      const shared =
-        options.shareOnMobile === true
-          ? await shareBlob(blob, filename)
-          : false;
-
-      if (!shared) {
-        createDownloadLink(blob, filename);
-      }
-
-      return true;
-    }
-
+  return true;
+}
     /*
      * iPhone / iPad
      */
