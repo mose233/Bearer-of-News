@@ -1053,7 +1053,6 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="px-3 py-4 sm:px-4">
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
