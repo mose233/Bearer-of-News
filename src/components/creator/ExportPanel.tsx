@@ -45,17 +45,7 @@ console.log("EXPORT PANEL", {
 });
   return (
     <div className="space-y-4 text-white">
-      <div>
-        <h3 className="text-base font-extrabold text-white">
-          Export & Download
-        </h3>
-
-        <p className="mt-1 text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-          Download your finished media, then post it anywhere.
-        </p>
-      </div>
-
-      {exportStatus && (
+       {exportStatus && (
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
           <div className="flex items-center gap-3">
             {busy && <Loader2 className="h-4 w-4 animate-spin text-cyan-200" />}
