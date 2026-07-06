@@ -31,7 +31,6 @@ export default function ExportPanel({
   onInitializeFFmpeg,
   onExportSilentMp4,
   onExportNarratedMp4,
-  onRestartProject,
 }: ExportPanelProps) {
   const busy = isRecording || isExporting;
   
@@ -122,57 +121,7 @@ console.log("EXPORT PANEL", {
           Messenger
         </Button>
 
-        <details className="col-span-2 rounded-2xl border border-white/10 bg-white/5 p-3">
-          <summary className="cursor-pointer text-sm font-bold text-slate-200">
-            Advanced export
-          </summary>
 
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onInitializeFFmpeg}
-              disabled={isExporting}
-              className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {isExporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Settings2 className="mr-2 h-4 w-4 text-violet-300" />
-              )}
-              {isExporting ? "Loading..." : "Initialize FFmpeg"}
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onExportSilentMp4}
-              disabled={isRecording}
-              className="h-12 rounded-2xl border-white/15 bg-slate-900/50 text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {isRecording ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Film className="mr-2 h-4 w-4 text-cyan-300" />
-              )}
-              {isRecording ? "Rendering..." : "Silent MP4"}
-            </Button>
-
-            <Button
-              type="button"
-              onClick={onExportNarratedMp4}
-              disabled={busy}
-              className="h-12 rounded-2xl bg-amber-500 font-bold text-white hover:bg-amber-600 disabled:opacity-60 sm:col-span-2"
-            >
-              {busy ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Volume2 className="mr-2 h-4 w-4" />
-              )}
-              Narrated MP4
-            </Button>
-          </div>
-        </details>
       </div>
     </div>
   );
