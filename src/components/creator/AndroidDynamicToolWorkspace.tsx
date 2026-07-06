@@ -1825,19 +1825,9 @@ export default function DynamicToolWorkspace({
   const [eventVenue, setEventVenue] = useState("");
   const [eventPhone, setEventPhone] = useState("");
 
-
   if (!selectedTool) {
-    return (
-      <div className={boxClass}>
-        <ToolHeader
-          title="Choose a tool to begin"
-          icon={<Sparkles className="h-5 w-5 text-violet-300" />}
-          description="Select a tool above to start creating."
-        />
-      </div>
-    );
+        return null;
   }
-
   const { category, tool } = selectedTool;
 
   const premiumPictureTools = [
