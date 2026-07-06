@@ -1086,12 +1086,6 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
             </Card>
 
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-sm font-semibold text-slate-200">
-                  Export & Download
-                </CardTitle>
-              </CardHeader>
-
               <CardContent className="px-3 py-4 sm:px-4">
   <ExportPanel
   isRecording={isRecording}
