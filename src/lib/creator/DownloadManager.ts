@@ -12,14 +12,26 @@ function createDownloadLink(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
 
   const anchor = document.createElement("a");
-anchor.href = url;
-anchor.download = filename;
-anchor.target = "_self";
-anchor.style.display = "none";
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.rel = "noopener";
+  anchor.style.display = "none";
 
-document.body.appendChild(anchor);
+  document.body.appendChild(anchor);
 
-anchor.click();
+  anchor.click();
+
+  try {
+    anchor.dispatchEvent(
+      new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+  } catch {
+    anchor.click();
+  }
 
   window.setTimeout(() => {
     if (document.body.contains(anchor)) {
