@@ -1125,9 +1125,6 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
     </Button>
   </div>
 )}
-            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Review your content before downloading or sharing.
-            </div>
           </section>
         </div>
 
