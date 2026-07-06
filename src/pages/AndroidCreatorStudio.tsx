@@ -1047,6 +1047,7 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
         <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardContent className="px-3 py-4 sm:px-4">
             
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
