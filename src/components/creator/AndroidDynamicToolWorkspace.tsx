@@ -2508,40 +2508,77 @@ export default function DynamicToolWorkspace({
           </div>
         </>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
-            <Upload className="mb-3 h-7 w-7 text-pink-300" />
-            <span className="text-sm font-extrabold">Upload Photo</span>
-            <span className="mt-1 text-xs font-medium text-slate-300">
-              Portrait, product, poster, flyer, social post, or creative image
-            </span>
-            <Input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                if (picturePreview) URL.revokeObjectURL(picturePreview);
-                setPictureFile(file);
-                setPicturePreview(URL.createObjectURL(file));
-                setPictureFileName(file.name);
-                setHasPreviewedEnhancement(false);
-              }}
-            />
-          </label>
+        <div className="mt-5 space-y-4">
 
-          <SelectField
-            label="Enhancement / Design Style"
-            value={enhancementStyle}
-            options={pictureStyleOptions}
-            onChange={(value) => {
-              setEnhancementStyle(value);
-              setHasPreviewedEnhancement(false);
-            }}
-          />
+  {/* Upload Photo */}
+  <label className="flex cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-5 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
+    <div>
+      <Upload className="mx-auto mb-2 h-6 w-6 text-pink-300" />
+      <span className="block text-sm font-extrabold">
+        Upload Photo
+      </span>
+      <span className="mt-1 block text-xs font-medium text-slate-300">
+        Portrait, product, poster, flyer, social post, or creative image
+      </span>
+
+      <Input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          if (picturePreview) {
+            URL.revokeObjectURL(picturePreview);
+          }
+
+          setPictureFile(file);
+          setPicturePreview(URL.createObjectURL(file));
+          setPictureFileName(file.name);
+          setHasPreviewedEnhancement(false);
+        }}
+      />
+    </div>
+  </label>
+
+  {/* Uploaded Photo Preview */}
+  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-3">
+    <h4 className="mb-3 text-sm font-bold text-white">
+      Uploaded Photo
+    </h4>
+
+    {picturePreview ? (
+      <>
+        <img
+          src={picturePreview}
+          alt="Uploaded"
+          className="h-56 w-full rounded-xl bg-black object-contain"
+        />
+
+        <div className="mt-3 flex items-center justify-center rounded-xl bg-emerald-500/10 py-2 text-sm font-semibold text-emerald-300">
+          ✓ Photo ready
         </div>
+      </>
+    ) : (
+      <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-400">
+        No photo selected
+      </div>
+    )}
+  </div>
 
+  {/* Enhancement Style */}
+  <SelectField
+    label="Enhancement / Design Style"
+    value={enhancementStyle}
+    options={pictureStyleOptions}
+    onChange={(value) => {
+      setEnhancementStyle(value);
+      setHasPreviewedEnhancement(false);
+    }}
+  />
+
+</div>
         <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/50 p-4">
           <h4 className="mb-4 text-sm font-extrabold text-white">
             Tool Settings
