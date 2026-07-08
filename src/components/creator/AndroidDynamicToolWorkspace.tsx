@@ -1545,10 +1545,6 @@ function CinematicPlaceholderPanel({
           }}
         />
 
-        <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs font-bold leading-5 text-amber-100">
-          AI video workspace ready — upload media, choose style, then generate.
-        </div>
-
         <UploadMediaBox
           title={uploadTitle}
           description={uploadDescription}
