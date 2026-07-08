@@ -1531,10 +1531,9 @@ function CinematicPlaceholderPanel({
   return (
     <div className={boxClass}>
       <ToolHeader
-        title={tool}
-        icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
-        description="Cinematic AI is the premium AI motion-video workspace. Upload source media, choose motion style, then generate a preview. fal.ai will power real motion later."
-      />
+  title={tool}
+  icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
+/>
 
       <div className="mt-5 space-y-5">
         <VideoPricingCard
