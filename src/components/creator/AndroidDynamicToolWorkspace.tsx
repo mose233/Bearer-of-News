@@ -2182,11 +2182,18 @@ export default function DynamicToolWorkspace({
     ].join("\n");
   };
 
-  const handleGenerateMusicVideoDraft = () => {
-    if (!musicVideoAudioName && !musicVideoAudioSource) {
-      alert("Please choose AI Song Studio Song or upload MP3/WAV/audio first.");
-      return;
-    }
+ const handleGenerateMusicVideoDraft = () => {
+  if (!FEATURE_FLAGS.AI_ENABLED) {
+    alert(
+      "🚧 Music AI is temporarily disabled while we integrate M-Pesa and fal.ai."
+    );
+    return;
+  }
+
+  if (!musicVideoAudioName && !musicVideoAudioSource) {
+    alert("Please choose AI Song Studio Song or upload MP3/WAV/audio first.");
+    return;
+  }
 
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
