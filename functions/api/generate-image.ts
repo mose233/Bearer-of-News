@@ -1,5 +1,6 @@
 type Env = {
-  OPENAI_API_KEY?: string;
+OPENAI_API_KEY?: string;
+AI_ENABLED?: string;
 };
 
 type GenerateImageRequest = {
