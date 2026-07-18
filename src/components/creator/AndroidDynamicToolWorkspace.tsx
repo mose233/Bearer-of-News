@@ -1000,31 +1000,38 @@ function LifeEventVideoPanel({
     return true;
   };
 
-  const handlePrepareDraft = (shouldGenerate = false) => {
-    const draftPrompt = buildLifeEventPrompt();
-
-    if (shouldGenerate) {
-      const addedMedia = addStagedLifeEventMediaToTimeline();
-
-      if (!addedMedia) return;
-    }
-
-    setVideoPrompt?.(draftPrompt);
-    setVideoCreativeType?.(isTribute ? "Memorial Tribute" : occasion);
-    setVideoOutputFormat?.(outputFormat);
-
+ const handlePrepareDraft = (shouldGenerate = false) => {
+  if (!FEATURE_FLAGS.AI_ENABLED) {
     setDraftStatus(
-      isTribute
-        ? `Tribute ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
-        : `Greeting ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+      "🚧 AI generation is temporarily disabled while we integrate M-Pesa and fal.ai."
     );
+    return;
+  }
 
-    if (shouldGenerate) {
-      window.setTimeout(() => {
-        onGenerateCompleteVideo?.();
-      }, 80);
-    }
-  };
+  const draftPrompt = buildLifeEventPrompt();
+
+  if (shouldGenerate) {
+    const addedMedia = addStagedLifeEventMediaToTimeline();
+
+    if (!addedMedia) return;
+  }
+
+  setVideoPrompt?.(draftPrompt);
+  setVideoCreativeType?.(isTribute ? "Memorial Tribute" : occasion);
+  setVideoOutputFormat?.(outputFormat);
+
+  setDraftStatus(
+    isTribute
+      ? `Tribute ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+      : `Greeting ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+  );
+
+  if (shouldGenerate) {
+    window.setTimeout(() => {
+      onGenerateCompleteVideo?.();
+    }, 80);
+  }
+};
 
   return (
     <div className={boxClass}>
