@@ -1037,23 +1037,38 @@ function LifeEventVideoPanel({
         />
 
         <UploadMediaBox
-          title={isTribute ? "1. Upload Tribute Photos" : "1. Upload Photos or Videos"}
-          description={
-            isTribute
-              ? "Photos for the memorial slideshow."
-              : "Photos or videos for the greeting video."
-          }
-          accept="image/*,video/*"
-          multiple
-          onChange={handleStageLifeEventMedia}
-        />
+  title={isTribute ? "Upload Tribute Photos" : "Upload Photos or Videos"}
+  description={
+    isTribute
+      ? "Tap to choose photos."
+      : "Tap to choose photos or videos."
+  }
+  accept="image/*,video/*"
+  multiple
+  onChange={handleStageLifeEventMedia}
+/>
 
-        {stagedLifeEventFileNames.length > 0 && (
-          <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
-            Uploaded and ready: {stagedLifeEventFileNames.join(", ")}. Click {isTribute ? "Generate Tribute Video" : "Generate Greeting Video"} to show it in preview.
-          </div>
-        )}
+<div className="rounded-2xl border border-white/10 bg-slate-950/60 p-3">
+  <h4 className="mb-3 text-sm font-bold text-white">
+    Uploaded Media
+  </h4>
 
+  {stagedLifeEventFileNames.length > 0 ? (
+    <>
+      <div className="rounded-xl border border-white/10 bg-slate-900/50 p-4 text-center text-sm text-slate-200">
+        📷 {stagedLifeEventFileNames.length} file(s) selected
+      </div>
+
+      <div className="mt-3 flex items-center justify-center rounded-xl bg-emerald-500/10 py-2 text-sm font-semibold text-emerald-300">
+        ✓ Media ready
+      </div>
+    </>
+  ) : (
+    <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-400">
+      No media selected
+    </div>
+  )}
+</div>
         {isTribute ? (
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block md:col-span-2">
