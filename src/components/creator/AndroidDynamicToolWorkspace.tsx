@@ -1941,6 +1941,12 @@ export default function DynamicToolWorkspace({
   };
 
   const generateQuoteImageFile = async () => {
+    if (!FEATURE_FLAGS.AI_ENABLED) {
+  alert(
+    "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
+  );
+  return;
+}
     if (!confirmPictureGeneration()) {
       return;
     }
