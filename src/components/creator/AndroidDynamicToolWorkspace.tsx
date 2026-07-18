@@ -2103,17 +2103,24 @@ export default function DynamicToolWorkspace({
     ].join("\n");
   };
 
-  const handleGenerateSong = () => {
-    if (!songLyrics.trim()) {
-      alert("Please write lyrics first.");
-      return;
-    }
-
-    setSongPreviewReady(true);
-    setSongStatus(
-      `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}.`
+ const handleGenerateSong = () => {
+  if (!FEATURE_FLAGS.AI_ENABLED) {
+    alert(
+      "🚧 Music AI is temporarily disabled while we integrate M-Pesa and fal.ai."
     );
-  };
+    return;
+  }
+
+  if (!songLyrics.trim()) {
+    alert("Please write lyrics first.");
+    return;
+  }
+
+  setSongPreviewReady(true);
+  setSongStatus(
+    `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}.`
+  );
+};
 
   const handleDownloadSongRequest = () => {
     if (!songPreviewReady) {
