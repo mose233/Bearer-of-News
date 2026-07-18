@@ -513,11 +513,28 @@ function PrimaryGenerateButton({
   label: string;
   onClick?: () => void;
 }) {
+  const aiEnabled = FEATURE_FLAGS.AI_ENABLED;
+
   return (
     <button
       type="button"
-      onClick={onClick || (() => alert("This workflow is ready for mock mode, but the generator is not connected yet."))}
-      className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
+      disabled={!aiEnabled}
+      onClick={() => {
+        if (!aiEnabled) return;
+
+        if (onClick) {
+          onClick();
+        } else {
+          alert(
+            "This workflow is ready for mock mode, but the generator is not connected yet."
+          );
+        }
+      }}
+      className={`h-12 w-full rounded-2xl px-5 text-sm font-extrabold transition md:w-auto ${
+        aiEnabled
+          ? "bg-violet-600 text-white hover:bg-violet-500"
+          : "cursor-not-allowed bg-slate-600 text-slate-300 opacity-60"
+      }`}
     >
       {label}
     </button>
