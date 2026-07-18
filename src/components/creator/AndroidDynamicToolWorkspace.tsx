@@ -1561,18 +1561,34 @@ function CinematicPlaceholderPanel({
         />
 
         <UploadMediaBox
-          title={uploadTitle}
-          description={uploadDescription}
-          accept="image/*,video/*"
-          multiple={false}
-          onChange={handleStageCinematicMedia}
-        />
+  title="Upload Source Media"
+  description="Tap to choose a photo or video."
+  accept="image/*,video/*"
+  multiple={false}
+  onChange={handleStageCinematicMedia}
+/>
 
-        {stagedCinematicFileName && (
-          <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
-            Uploaded and ready: {stagedCinematicFileName}. Click Generate {tool} to show it in preview.
-          </div>
-        )}
+<div className="rounded-2xl border border-white/10 bg-slate-950/60 p-3">
+  <h4 className="mb-3 text-sm font-bold text-white">
+    Uploaded Source Media
+  </h4>
+
+  {stagedCinematicFile ? (
+    <>
+      <div className="rounded-xl border border-white/10 bg-slate-900/50 p-4 text-center text-sm text-slate-200">
+        📷 {stagedCinematicFileName}
+      </div>
+
+      <div className="mt-3 flex items-center justify-center rounded-xl bg-emerald-500/10 py-2 text-sm font-semibold text-emerald-300">
+        ✓ Source media ready
+      </div>
+    </>
+  ) : (
+    <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-400">
+      No media selected
+    </div>
+  )}
+</div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <SelectField
