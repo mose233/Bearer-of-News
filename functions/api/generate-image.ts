@@ -18,6 +18,18 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+
+  if (context.env.AI_ENABLED !== "true") {
+    return jsonResponse(
+      {
+        ok: false,
+        stage: "disabled",
+        error: "Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai.",
+      },
+      503
+    );
+  }
+
   try {
     const apiKey = context.env.OPENAI_API_KEY;
 
