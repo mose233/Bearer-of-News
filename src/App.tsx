@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import LaunchingSoon from "./pages/LaunchingSoon";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -26,6 +27,9 @@ import FacebookCallback from "./pages/FacebookCallback";
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = "enockmose743@gmail.com";
 const App = () => {
+const { user } = useAuth();
+
+const isAdmin = user?.email === ADMIN_EMAIL;
   return (
     <ThemeProvider defaultTheme="light">
       <QueryClientProvider client={queryClient}>
