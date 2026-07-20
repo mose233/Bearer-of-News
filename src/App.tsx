@@ -15,8 +15,6 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
-import ContentReview from "./pages/ContentReview";
-import Analytics from "./pages/Analytics";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
