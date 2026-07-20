@@ -515,15 +515,7 @@ function PrimaryGenerateButton({
   return (
     <button
       type="button"
-      onClick={() => {
-        if (onClick) {
-          onClick();
-        } else {
-          alert(
-            "This workflow is ready for mock mode, but the generator is not connected yet."
-          );
-        }
-      }}
+      onClick={onClick || (() => alert("This workflow is ready for mock mode, but the generator is not connected yet."))}
       className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
     >
       {label}
@@ -990,32 +982,31 @@ function LifeEventVideoPanel({
     return true;
   };
 
- const handlePrepareDraft = (shouldGenerate = false) => {
+  const handlePrepareDraft = (shouldGenerate = false) => {
+    const draftPrompt = buildLifeEventPrompt();
 
-  const draftPrompt = buildLifeEventPrompt();
+    if (shouldGenerate) {
+      const addedMedia = addStagedLifeEventMediaToTimeline();
 
-  if (shouldGenerate) {
-    const addedMedia = addStagedLifeEventMediaToTimeline();
+      if (!addedMedia) return;
+    }
 
-    if (!addedMedia) return;
-  }
+    setVideoPrompt?.(draftPrompt);
+    setVideoCreativeType?.(isTribute ? "Memorial Tribute" : occasion);
+    setVideoOutputFormat?.(outputFormat);
 
-  setVideoPrompt?.(draftPrompt);
-  setVideoCreativeType?.(isTribute ? "Memorial Tribute" : occasion);
-  setVideoOutputFormat?.(outputFormat);
+    setDraftStatus(
+      isTribute
+        ? `Tribute ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+        : `Greeting ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
+    );
 
-  setDraftStatus(
-    isTribute
-      ? `Tribute ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
-      : `Greeting ${selectedVideoDuration} video prepared. ${stagedLifeEventFiles.length > 0 && shouldGenerate ? "Uploaded media has been added to the preview and timeline. " : ""}Preview the timeline, then export/download the MP4.`
-  );
-
-  if (shouldGenerate) {
-    window.setTimeout(() => {
-      onGenerateCompleteVideo?.();
-    }, 80);
-  }
-};
+    if (shouldGenerate) {
+      window.setTimeout(() => {
+        onGenerateCompleteVideo?.();
+      }, 80);
+    }
+  };
 
   return (
     <div className={boxClass}>
@@ -1570,34 +1561,18 @@ function CinematicPlaceholderPanel({
         />
 
         <UploadMediaBox
-  title="Upload Source Media"
-  description="Tap to choose a photo or video."
-  accept="image/*,video/*"
-  multiple={false}
-  onChange={handleStageCinematicMedia}
-/>
+          title={uploadTitle}
+          description={uploadDescription}
+          accept="image/*,video/*"
+          multiple={false}
+          onChange={handleStageCinematicMedia}
+        />
 
-<div className="rounded-2xl border border-white/10 bg-slate-950/60 p-3">
-  <h4 className="mb-3 text-sm font-bold text-white">
-    Uploaded Source Media
-  </h4>
-
-  {stagedCinematicFile ? (
-    <>
-      <div className="rounded-xl border border-white/10 bg-slate-900/50 p-4 text-center text-sm text-slate-200">
-        📷 {stagedCinematicFileName}
-      </div>
-
-      <div className="mt-3 flex items-center justify-center rounded-xl bg-emerald-500/10 py-2 text-sm font-semibold text-emerald-300">
-        ✓ Source media ready
-      </div>
-    </>
-  ) : (
-    <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-400">
-      No media selected
-    </div>
-  )}
-</div>
+        {stagedCinematicFileName && (
+          <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-3 text-xs font-bold leading-5 text-blue-100">
+            Uploaded and ready: {stagedCinematicFileName}. Click Generate {tool} to show it in preview.
+          </div>
+        )}
 
         <div className="grid gap-4 md:grid-cols-2">
           <SelectField
@@ -1925,12 +1900,6 @@ export default function DynamicToolWorkspace({
   };
 
   const generateQuoteImageFile = async () => {
-    if (!FEATURE_FLAGS.AI_ENABLED) {
-  alert(
-    "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
-  );
-  return;
-}
     if (!confirmPictureGeneration()) {
       return;
     }
@@ -2087,24 +2056,17 @@ export default function DynamicToolWorkspace({
     ].join("\n");
   };
 
- const handleGenerateSong = () => {
-  if (!FEATURE_FLAGS.AI_ENABLED) {
-    alert(
-      "🚧 Music AI is temporarily disabled while we integrate M-Pesa and fal.ai."
+  const handleGenerateSong = () => {
+    if (!songLyrics.trim()) {
+      alert("Please write lyrics first.");
+      return;
+    }
+
+    setSongPreviewReady(true);
+    setSongStatus(
+      `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}.`
     );
-    return;
-  }
-
-  if (!songLyrics.trim()) {
-    alert("Please write lyrics first.");
-    return;
-  }
-
-  setSongPreviewReady(true);
-  setSongStatus(
-    `${songStyle} song preview prepared in ${songLanguage} for ${songDuration}.`
-  );
-};
+  };
 
   const handleDownloadSongRequest = () => {
     if (!songPreviewReady) {
@@ -2173,18 +2135,11 @@ export default function DynamicToolWorkspace({
     ].join("\n");
   };
 
- const handleGenerateMusicVideoDraft = () => {
-  if (!FEATURE_FLAGS.AI_ENABLED) {
-    alert(
-      "🚧 Music AI is temporarily disabled while we integrate M-Pesa and fal.ai."
-    );
-    return;
-  }
-
-  if (!musicVideoAudioName && !musicVideoAudioSource) {
-    alert("Please choose AI Song Studio Song or upload MP3/WAV/audio first.");
-    return;
-  }
+  const handleGenerateMusicVideoDraft = () => {
+    if (!musicVideoAudioName && !musicVideoAudioSource) {
+      alert("Please choose AI Song Studio Song or upload MP3/WAV/audio first.");
+      return;
+    }
 
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
