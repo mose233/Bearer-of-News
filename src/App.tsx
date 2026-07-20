@@ -16,8 +16,6 @@ import Profile from "./pages/Profile";
 import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
 import ContentReview from "./pages/ContentReview";
-import CreatorStudio from "./pages/CreatorStudio";
-import AndroidCreatorStudio from "./pages/AndroidCreatorStudio";
 import Analytics from "./pages/Analytics";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -93,14 +91,14 @@ const App = () => {
     </ProtectedRoute>
   }
 />
-                <Route
-                  path="/content-studio"
-                  element={
-                    <ProtectedRoute>
-                      <CreatorStudio />
-                    </ProtectedRoute>
-                  }
-                />
+               <Route
+  path="/content-studio"
+  element={
+    <ProtectedRoute>
+      <LaunchingSoon />
+    </ProtectedRoute>
+  }
+/>
                 <Route path="/about" element={<About />} />
                 <Route path="/download" element={<Download />} />
 
