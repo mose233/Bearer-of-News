@@ -1,4 +1,4 @@
-import { FEATURE_FLAGS } from "@/config/featureFlags";
+import { ExportEngine } from "@/lib/creator/export/ExportEngine";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -72,7 +72,7 @@ export default function AndroidCreatorStudio() {
   const [exportStatus, setExportStatus] = useState("");
   const [downloadComplete, setDownloadComplete] = useState(false);
   const [isAndroidDownloading, setIsAndroidDownloading] = useState(false);
-  const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
+const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
@@ -467,11 +467,12 @@ const handleSelectTool = (tool: AiToolSelection) => {
   setCurrentIndex(0);
 };
 
- const handleGenerateImage = async () => { 
-  try {
-  if (isAndroid()) { 
-  setAndroidDownloadComplete(false); } 
-  const prompt = aiImagePrompt.trim() || videoPrompt.trim();
+  const handleGenerateImage = async () => {
+    try {
+      if (isAndroid()) {
+  setAndroidDownloadComplete(false);
+}
+      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
       if (!prompt) {
         alert("Please write an AI image prompt first.");
@@ -499,6 +500,7 @@ addSceneToTimeline(
   result.previewUrl,
   selectedVideoDurationSeconds
 );
+
   } catch (error) {
   console.error(error);
   alert("Failed to generate AI scene image.");
@@ -557,7 +559,8 @@ alert(`${plan.length} scene plan generated successfully.`);
   scene.prompt,
   "1024x1024"
 );
-addSceneToTimeline(result.file, result.previewUrl, scene.duration);
+
+      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
 
       alert(`Scene ${index + 1} added to timeline.`);
     } catch (error) {
@@ -828,31 +831,29 @@ setAndroidDownloadComplete(false);
 setIsAndroidDownloading(false);
 setIsGeneratingImage(false);
 };
-  const handleDownloadGeneratedImage = async () => {
-  return handleExportPrimaryMedia();
-};
-  const handleExportPrimaryMedia = async () => {
-    try {
-      if (isAndroid()) {
-  setAndroidDownloadComplete(false);
-}
+ const handleExportPrimaryMedia = async () => {
+  try {
     if (selectedTool?.category === "Picture AI") {
       const currentFile = mediaFiles[currentIndex];
 
-if (!currentFile) {
-  alert("Please generate an image first.");
-  return;
-}
+      if (!currentFile) {
+        alert("Please generate an image first.");
+        return;
+      }
 
-await ExportManager.exportImage(currentFile);
+      await ExportEngine.export({
+        type: "image",
+        blob: currentFile,
+      });
 
-if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-}
+      if (isAndroid()) {
+        setAndroidDownloadComplete(true);
+      }
 
-setDownloadComplete(true);
-return;
+      setDownloadComplete(true);
+      return;
     }
+
     const currentFile = mediaFiles[currentIndex];
     const currentPreview = mediaPreviews[currentIndex];
 
@@ -872,16 +873,21 @@ return;
         setExportStatus("Creating preview video download...");
 
         const videoBlob = await renderPreviewVideo({
-  imageUrl: currentPreview,
-  duration: getTimelineDuration(),
-});
+          imageUrl: currentPreview,
+          duration: getTimelineDuration(),
+        });
 
         await ExportManager.exportCinematic(videoBlob);
         return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
-        await ExportManager.exportImage(currentFile);
+
+        await ExportEngine.export({
+          type: "image",
+          blob: currentFile,
+        });
+
         return;
       } finally {
         setIsExporting(false);
@@ -889,20 +895,22 @@ return;
       }
     }
 
-    await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
-     } finally {
-  if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-  setDownloadComplete(true);
-  return;
-}
+    await ExportManager.exportCustom(
+      currentFile,
+      currentFile.name || "xnewsapp-media"
+    );
+  } finally {
+    if (isAndroid()) {
+      setAndroidDownloadComplete(true);
+      setDownloadComplete(true);
+      return;
+    }
 
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-    };
-
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
+};
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
@@ -967,7 +975,12 @@ return;
           <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
             Create AI videos, images and music
           </h1>
+
+          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+            Choose a tool, create your media, then export and download.
+          </p>
         </header>
+
         <div className="mb-5">
           <AiToolLauncher
             selectedTool={selectedTool}
@@ -1047,8 +1060,13 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
         <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Preview
+                </CardTitle>
+              </CardHeader>
+
               <CardContent className="px-3 py-4 sm:px-4">
-            
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
@@ -1076,6 +1094,12 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
             </Card>
 
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Export & Download
+                </CardTitle>
+              </CardHeader>
+
               <CardContent className="px-3 py-4 sm:px-4">
   <ExportPanel
   isRecording={isRecording}
@@ -1096,23 +1120,29 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
                
 </CardContent>
             </Card>
-{isAndroid() && downloadComplete && (
+
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
+              Review your content before downloading or sharing.
+            </div>
+            {isAndroid() && downloadComplete && (
   <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-    <p className="font-semibold text-emerald-300">
+    <p className="mb-3 font-semibold text-emerald-300">
       ✅ Download complete.
     </p>
 
-    <p className="mt-2 text-sm text-slate-300">
-      To create another image or video, refresh this page.
+    <p className="mb-4 text-sm text-slate-300">
+      Tap below to start a new creation.
     </p>
 
-    <Button
-      type="button"
-      onClick={() => window.location.reload()}
-      className="mt-4 w-full rounded-xl bg-cyan-600 text-white hover:bg-cyan-700"
+    <button
+      onClick={() => {
+        setDownloadComplete(false);
+        resetCurrentProject();
+      }}
+      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
     >
-      🔄 Refresh Page
-    </Button>
+      Click to Generate Again
+    </button>
   </div>
 )}
           </section>
