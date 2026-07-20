@@ -211,7 +211,6 @@ export async function generateSceneImage(
   prompt: string,
   size: GenerateImageSize = "1024x1024"
 ) {
- 
   const theme = sceneThemes[0];
 
   return drawMockScene({
@@ -228,12 +227,12 @@ export async function generateMultipleSceneImages(
   count = 4,
   size: GenerateImageSize = "1024x1024"
 ) {
-
   const cleanPrompt = prompt.trim();
 
   if (!cleanPrompt) {
     throw new Error("Prompt is required.");
   }
+
   const safeCount = Math.min(Math.max(count, 1), 8);
 
   const scenes: GeneratedSceneImage[] = [];
