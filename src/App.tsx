@@ -1,3 +1,4 @@
+import LaunchingSoon from "./pages/LaunchingSoon";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -84,15 +85,11 @@ const App = () => {
                   }
                 />
 
-                <Route
+               <Route
   path="/creator-studio"
   element={
     <ProtectedRoute>
-      {navigator.userAgent.toLowerCase().includes("android") ? (
-        <AndroidCreatorStudio />
-      ) : (
-        <CreatorStudio />
-      )}
+      <LaunchingSoon />
     </ProtectedRoute>
   }
 />
