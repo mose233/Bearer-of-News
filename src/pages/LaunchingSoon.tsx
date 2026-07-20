@@ -5,7 +5,7 @@ const LaunchingSoon = () => {
 
         <div className="mb-8">
           <h1 className="text-5xl font-bold tracking-tight">
-            🚀 XNewsApp
+            🚀 xnewsApp
           </h1>
 
           <p className="mt-4 text-2xl font-semibold">
