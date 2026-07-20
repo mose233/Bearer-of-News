@@ -24,7 +24,7 @@ import Download from "./pages/Download";
 import FacebookCallback from "./pages/FacebookCallback";
 
 const queryClient = new QueryClient();
-
+const ADMIN_EMAIL = "enockmose743@gmail.com";
 const App = () => {
   return (
     <ThemeProvider defaultTheme="light">
