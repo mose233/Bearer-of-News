@@ -96,16 +96,6 @@ const App = () => {
     </ProtectedRoute>
   }
 />
-
-                <Route
-                  path="/creator-studio"
-                  element={
-                    <ProtectedRoute>
-                      <CreatorStudio />
-                    </ProtectedRoute>
-                  }
-                />
-
                 <Route
                   path="/content-studio"
                   element={
