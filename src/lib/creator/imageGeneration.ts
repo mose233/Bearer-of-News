@@ -212,12 +212,8 @@ export async function generateSceneImage(
   prompt: string,
   size: GenerateImageSize = "1024x1024"
 ) {
-  if (!FEATURE_FLAGS.AI_ENABLED) {
-    throw new Error(
-      "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
-    );
-  }
-
+  alert("generateSceneImage() was called");
+throw new Error("STOP");
   const theme = sceneThemes[0];
 
   return drawMockScene({
