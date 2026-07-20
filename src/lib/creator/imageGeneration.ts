@@ -1,3 +1,4 @@
+import { FEATURE_FLAGS } from "@/config/featureFlags";
 export type GenerateImageSize = "1024x1024" | "1024x1536" | "1536x1024";
 
 export type GeneratedSceneImage = {
@@ -211,6 +212,12 @@ export async function generateSceneImage(
   prompt: string,
   size: GenerateImageSize = "1024x1024"
 ) {
+  if (!FEATURE_FLAGS.AI_ENABLED) {
+    throw new Error(
+      "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
+    );
+  }
+
   const theme = sceneThemes[0];
 
   return drawMockScene({
@@ -227,12 +234,17 @@ export async function generateMultipleSceneImages(
   count = 4,
   size: GenerateImageSize = "1024x1024"
 ) {
+  if (!FEATURE_FLAGS.AI_ENABLED) {
+    throw new Error(
+      "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
+    );
+  }
+
   const cleanPrompt = prompt.trim();
 
   if (!cleanPrompt) {
     throw new Error("Prompt is required.");
   }
-
   const safeCount = Math.min(Math.max(count, 1), 8);
 
   const scenes: GeneratedSceneImage[] = [];
