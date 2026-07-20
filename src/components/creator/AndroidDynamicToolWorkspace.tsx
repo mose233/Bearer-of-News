@@ -1,4 +1,3 @@
-import { FEATURE_FLAGS } from "@/config/featureFlags";
 import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
@@ -513,15 +512,10 @@ function PrimaryGenerateButton({
   label: string;
   onClick?: () => void;
 }) {
-  const aiEnabled = FEATURE_FLAGS.AI_ENABLED;
-
   return (
     <button
       type="button"
-      disabled={!aiEnabled}
       onClick={() => {
-        if (!aiEnabled) return;
-
         if (onClick) {
           onClick();
         } else {
@@ -530,11 +524,7 @@ function PrimaryGenerateButton({
           );
         }
       }}
-      className={`h-12 w-full rounded-2xl px-5 text-sm font-extrabold transition md:w-auto ${
-        aiEnabled
-          ? "bg-violet-600 text-white hover:bg-violet-500"
-          : "cursor-not-allowed bg-slate-600 text-slate-300 opacity-60"
-      }`}
+      className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
     >
       {label}
     </button>
@@ -1001,12 +991,6 @@ function LifeEventVideoPanel({
   };
 
  const handlePrepareDraft = (shouldGenerate = false) => {
-  if (!FEATURE_FLAGS.AI_ENABLED) {
-    setDraftStatus(
-      "🚧 AI generation is temporarily disabled while we integrate M-Pesa and fal.ai."
-    );
-    return;
-  }
 
   const draftPrompt = buildLifeEventPrompt();
 
