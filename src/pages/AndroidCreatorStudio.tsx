@@ -467,7 +467,6 @@ const handleSelectTool = (tool: AiToolSelection) => {
 };
 
   const handleGenerateImage = async () => {
-  alert("AndroidCreatorStudio handleGenerateImage");
   if (!FEATURE_FLAGS.AI_ENABLED) {
     alert(
       "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
