@@ -467,21 +467,11 @@ const handleSelectTool = (tool: AiToolSelection) => {
   setCurrentIndex(0);
 };
 
- const handleGenerateImage = async () => {
-  alert("THIS FUNCTION IS RUNNING");
-  return;
-
-  if (!FEATURE_FLAGS.AI_ENABLED) {
-    alert(
-      "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
-    );
-    return;
-  }
-    try {
-      if (isAndroid()) {
-  setAndroidDownloadComplete(false);
-}
-      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
+ const handleGenerateImage = async () => { 
+  try {
+  if (isAndroid()) { 
+  setAndroidDownloadComplete(false); } 
+  const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
       if (!prompt) {
         alert("Please write an AI image prompt first.");
