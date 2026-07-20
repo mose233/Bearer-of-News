@@ -1,4 +1,3 @@
-import { FEATURE_FLAGS } from "@/config/featureFlags";
 export type GenerateImageSize = "1024x1024" | "1024x1536" | "1536x1024";
 
 export type GeneratedSceneImage = {
