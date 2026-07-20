@@ -467,7 +467,10 @@ const handleSelectTool = (tool: AiToolSelection) => {
   setCurrentIndex(0);
 };
 
-  const handleGenerateImage = async () => {
+ const handleGenerateImage = async () => {
+  alert("THIS FUNCTION IS RUNNING");
+  return;
+
   if (!FEATURE_FLAGS.AI_ENABLED) {
     alert(
       "🚧 Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai."
