@@ -1,6 +1,6 @@
 /**
- * Global application status.
+ * Pre-launch mode.
  *
- * Turn this OFF (false) when M-Pesa and Visa integration is complete.
+ * Set to false when XNewsApp is ready for public launch.
  */
-export const MAINTENANCE_MODE = true;
+export const PRE_LAUNCH = true;
