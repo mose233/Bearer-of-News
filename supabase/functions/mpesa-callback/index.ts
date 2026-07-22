@@ -1,7 +1,12 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 serve(async (req) => {
-  // Safaricom callbacks use POST
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({
@@ -48,10 +53,10 @@ serve(async (req) => {
       ResultDesc,
     } = callback;
 
-    let receiptNumber = null;
-    let amount = null;
-    let phoneNumber = null;
-    let transactionDate = null;
+    let receiptNumber: string | null = null;
+    let amount: number | null = null;
+    let phoneNumber: string | null = null;
+    let transactionDate: string | null = null;
 
     const metadata = callback.CallbackMetadata?.Item ?? [];
 
@@ -62,15 +67,15 @@ serve(async (req) => {
           break;
 
         case "Amount":
-          amount = item.Value;
+          amount = Number(item.Value);
           break;
 
         case "PhoneNumber":
-          phoneNumber = item.Value;
+          phoneNumber = String(item.Value);
           break;
 
         case "TransactionDate":
-          transactionDate = item.Value;
+          transactionDate = String(item.Value);
           break;
       }
     }
@@ -90,11 +95,51 @@ serve(async (req) => {
     if (ResultCode === 0) {
       console.log("✅ PAYMENT SUCCESSFUL");
 
-      // Next step:
-      // Save payment to Supabase
-      // Trigger AI generation
+      const { error } = await supabase
+        .from("payments")
+        .upsert(
+          {
+            merchant_request_id: MerchantRequestID,
+            checkout_request_id: CheckoutRequestID,
+            mpesa_receipt_number: receiptNumber,
+            phone_number: phoneNumber,
+            amount,
+            transaction_date: transactionDate,
+            result_code: ResultCode,
+            result_desc: ResultDesc,
+            status: "paid",
+          },
+          {
+            onConflict: "checkout_request_id",
+          }
+        );
+
+      if (error) {
+        console.error("Database Error:", error);
+      } else {
+        console.log("✅ Payment saved to database");
+      }
     } else {
       console.log("❌ PAYMENT FAILED");
+
+      const { error } = await supabase
+        .from("payments")
+        .upsert(
+          {
+            merchant_request_id: MerchantRequestID,
+            checkout_request_id: CheckoutRequestID,
+            result_code: ResultCode,
+            result_desc: ResultDesc,
+            status: "failed",
+          },
+          {
+            onConflict: "checkout_request_id",
+          }
+        );
+
+      if (error) {
+        console.error("Database Error:", error);
+      }
     }
 
     return new Response(
@@ -114,10 +159,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Unknown error",
+        error: error instanceof Error ? error.message : "Unknown error",
       }),
       {
         status: 500,
