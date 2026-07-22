@@ -75,15 +75,7 @@ serve(async (req) => {
     const result = await response.json();
 
     if (!response.ok) {
-  return new Response(
-    JSON.stringify(result, null, 2),
-    {
-      status: response.status,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  return failure("DEBUG VERSION IS RUNNING", 500);
 }
 
     return success(result);
