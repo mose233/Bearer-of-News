@@ -75,8 +75,16 @@ serve(async (req) => {
     const result = await response.json();
 
     if (!response.ok) {
-      return failure(result.errorMessage ?? "STK Push failed.", response.status);
+  return new Response(
+    JSON.stringify(result, null, 2),
+    {
+      status: response.status,
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
+  );
+}
 
     return success(result);
   } catch (error) {
