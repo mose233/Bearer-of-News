@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { X } from "lucide-react";
 
 type PaymentModalProps = {
@@ -5,6 +6,7 @@ type PaymentModalProps = {
   price: string;
   onClose: () => void;
   onPaymentSuccess: () => void;
+  onMpesaPayment: (phoneNumber: string) => Promise<void>;
 };
 
 const paymentMethods = [
@@ -24,7 +26,9 @@ export default function PaymentModal({
   onPaymentSuccess,
 }: PaymentModalProps) {
   if (!open) return null;
-
+const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+const [phoneNumber, setPhoneNumber] = useState("");
+const [isProcessing, setIsProcessing] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950 p-5 text-white shadow-2xl">
