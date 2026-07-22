@@ -47,6 +47,32 @@ serve(async (req) => {
       `${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`
     );
 
+    // Debug information (does not expose secrets)
+    console.log("===== MPESA STK PUSH DEBUG =====");
+    console.log("Base URL:", MPESA_BASE_URL);
+    console.log("BusinessShortCode:", MPESA_SHORTCODE);
+    console.log("Timestamp:", timestamp);
+    console.log("Passkey Present:", MPESA_PASSKEY.length > 0);
+    console.log("PhoneNumber:", phoneNumber);
+    console.log("Amount:", amount);
+
+    const payload = {
+      BusinessShortCode: MPESA_SHORTCODE,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: "CustomerPayBillOnline",
+      Amount: Number(amount),
+      PartyA: phoneNumber,
+      PartyB: MPESA_SHORTCODE,
+      PhoneNumber: phoneNumber,
+      CallBackURL:
+        "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback",
+      AccountReference: accountReference,
+      TransactionDesc: transactionDesc,
+    };
+
+    console.log("Payload:", JSON.stringify(payload, null, 2));
+
     const response = await fetch(
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
       {
@@ -55,31 +81,40 @@ serve(async (req) => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          BusinessShortCode: MPESA_SHORTCODE,
-          Password: password,
-          Timestamp: timestamp,
-          TransactionType: "CustomerPayBillOnline",
-          Amount: Number(amount),
-          PartyA: phoneNumber,
-          PartyB: MPESA_SHORTCODE,
-          PhoneNumber: phoneNumber,
-          CallBackURL:
-            "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback",
-          AccountReference: accountReference,
-          TransactionDesc: transactionDesc,
-        }),
+        body: JSON.stringify(payload),
       }
     );
 
     const result = await response.json();
 
+    console.log("===== SAFARICOM RESPONSE =====");
+    console.log(JSON.stringify(result, null, 2));
+
     if (!response.ok) {
-  return failure("DEBUG VERSION IS RUNNING", 500);
-}
+      return new Response(
+        JSON.stringify(
+          {
+            success: false,
+            status: response.status,
+            safaricom: result,
+          },
+          null,
+          2
+        ),
+        {
+          status: response.status,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     return success(result);
   } catch (error) {
+    console.error("===== ERROR =====");
+    console.error(error);
+
     return failure(
       error instanceof Error ? error.message : "Unknown error",
       500
