@@ -24,6 +24,7 @@ export default function PaymentModal({
   price,
   onClose,
   onPaymentSuccess,
+  onMpesaPayment,
 }: PaymentModalProps) {
   if (!open) return null;
 const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -52,14 +53,52 @@ const [isProcessing, setIsProcessing] = useState(false);
 
         <div className="mt-4 max-h-[320px] overflow-y-auto space-y-3 pr-1">
           {paymentMethods.map((method) => (
-            <button
-              key={method}
-              onClick={onPaymentSuccess}
-              className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-left font-bold transition hover:bg-slate-800"
-            >
-              {method}
-            </button>
-          ))}
+  <button
+    key={method}
+    onClick={() => setSelectedMethod(method)}
+    className={`w-full rounded-2xl border px-4 py-3 text-left font-bold transition ${
+      selectedMethod === method
+        ? "border-cyan-400 bg-cyan-900/30"
+        : "border-white/10 bg-slate-900 hover:bg-slate-800"
+    }`}
+  >
+    {method}
+  </button>
+))}
+         {selectedMethod === "M-Pesa Kenya" && (
+  <div className="mt-5 space-y-4">
+    <input
+      type="tel"
+      placeholder="2547XXXXXXXX"
+      value={phoneNumber}
+      onChange={(e) => setPhoneNumber(e.target.value)}
+      className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none"
+    />
+
+    <button
+      disabled={isProcessing}
+      onClick={async () => {
+        if (!phoneNumber.trim()) {
+          alert("Please enter your M-Pesa phone number.");
+          return;
+        }
+
+        try {
+          setIsProcessing(true);
+
+          await onMpesaPayment(phoneNumber);
+
+          onPaymentSuccess();
+        } finally {
+          setIsProcessing(false);
+        }
+      }}
+      className="w-full rounded-xl bg-green-600 py-3 font-bold text-white hover:bg-green-700 disabled:opacity-60"
+    >
+      {isProcessing ? "Sending STK Push..." : "Send STK Push"}
+    </button>
+  </div>
+)}
         </div>
 
         <button
