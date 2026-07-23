@@ -1178,6 +1178,10 @@ const resetCurrentProject = () => {
           </section>
         </div>
 
+            </div> {/* closes grid */}
+
+      </div> {/* closes mx-auto */}
+
       <PaymentModal
         open={paymentOpen}
         price={paymentPrice}
@@ -1196,4 +1200,3 @@ const resetCurrentProject = () => {
     </main>
   );
 }
-
