@@ -1785,6 +1785,7 @@ export default function DynamicToolWorkspace({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  onRequestPayment,
 }: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
