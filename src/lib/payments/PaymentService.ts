@@ -20,6 +20,14 @@ export class PaymentService {
   static async sendMpesaSTKPush(
     request: MpesaPaymentRequest
   ): Promise<MpesaPaymentResponse> {
+    if (!request.phoneNumber?.trim()) {
+      throw new Error("Phone number is required.");
+    }
+
+    if (request.amount <= 0) {
+      throw new Error("Invalid payment amount.");
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke(
         "mpesa-stkpush",
@@ -30,6 +38,10 @@ export class PaymentService {
 
       if (error) {
         throw new Error(error.message);
+      }
+
+      if (!data) {
+        throw new Error("No response received from payment server.");
       }
 
       return data as MpesaPaymentResponse;
