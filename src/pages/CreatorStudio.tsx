@@ -148,8 +148,6 @@ const handleMpesaPayment = async (phoneNumber: string) => {
   console.log("STK Push Response:", data);
 
   alert("STK Push sent. Please complete payment on your phone.");
-
-  return data;
 };
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
@@ -1177,8 +1175,8 @@ const resetCurrentProject = () => {
     </button>
   </div>
 )}
-        </section>
-      </div>
+          </section>
+        </div>
 
       <PaymentModal
         open={paymentOpen}
@@ -1195,9 +1193,7 @@ const resetCurrentProject = () => {
         }}
         onMpesaPayment={handleMpesaPayment}
       />
-
-    </div>
-  </main>
-);
+    </main>
+  );
 }
 
