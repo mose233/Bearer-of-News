@@ -1,5 +1,5 @@
 import PaymentModal from "@/components/payments/PaymentModal";
-import { PaymentService } from "@/lib/payments/PaymentService";
+import { supabase } from "@/integrations/supabase/client";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -133,16 +133,21 @@ const [paymentComplete, setPaymentComplete] = useState(false);
     }, 120);
   };
 const handleMpesaPayment = async (phoneNumber: string) => {
-  const response = await PaymentService.sendMpesaSTKPush({
-    phoneNumber,
-    amount: 20,
+  const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
+    body: {
+      phoneNumber,
+      amount: 20,
+    },
   });
 
-  console.log("STK Push Response:", response);
+  if (error) {
+    alert(error.message);
+    throw error;
+  }
+
+  console.log("STK Push Response:", data);
 
   alert("STK Push sent. Please complete payment on your phone.");
-
-  return response;
 };
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
@@ -1079,24 +1084,70 @@ const resetCurrentProject = () => {
   setPendingGeneration(() => onSuccess);
   setPaymentOpen(true);
 }}
-/>
-  <CardContent className="px-3 py-4 sm:px-4">
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <section ref={livePreviewSectionRef} className="space-y-4">
+            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Preview
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-3 py-4 sm:px-4">
+                {selectedTool?.category === "Picture AI" ? (
+                  <PicturePreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    facebookCaption={facebookCaption}
+                  />
+                ) : (
+                  <PreviewPanel
+                    mediaFiles={mediaFiles}
+                    imagePreviews={imagePreviews}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                    facebookCaption={facebookCaption}
+                    sceneDurations={sceneDurations}
+                    onDeleteScene={handleDeleteScene}
+                    onDuplicateScene={handleDuplicateScene}
+                    onUpdateSceneDuration={handleUpdateSceneDuration}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Export & Download
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-3 py-4 sm:px-4">
   <ExportPanel
-    isRecording={isRecording}
-    isExporting={isExporting}
-    exportStatus={exportStatus}
-    exportPrimaryLabel={
-      selectedTool?.category === "Picture AI"
-        ? "Download Image"
-        : "Download Media"
-    }
-    onExportPrimary={handleExportPrimaryMedia}
-    onOpenFacebook={openFacebookAfterExport}
-    onInitializeFFmpeg={initializeFFmpeg}
-    onExportSilentMp4={handleExportSilentMp4}
-    onExportNarratedMp4={handleExportNarratedMp4}
-    onExportFinalMixedMp4={handleExportNarratedMp4}
-  />
+  isRecording={isRecording}
+  isExporting={isExporting}
+  exportStatus={exportStatus}
+  exportPrimaryLabel={
+    selectedTool?.category === "Picture AI"
+      ? "Download Image"
+      : "Download Media"
+  }
+  onExportPrimary={handleExportPrimaryMedia}
+  onOpenFacebook={openFacebookAfterExport}
+  onInitializeFFmpeg={initializeFFmpeg}
+  onExportSilentMp4={handleExportSilentMp4}
+  onExportNarratedMp4={handleExportNarratedMp4}
+  onExportFinalMixedMp4={handleExportNarratedMp4}
+/>
+               
 </CardContent>
             </Card>
 
