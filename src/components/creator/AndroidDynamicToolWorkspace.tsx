@@ -1844,6 +1844,17 @@ export default function DynamicToolWorkspace({
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
   const [eventPhone, setEventPhone] = useState("");
+  const requestGeneration = (
+  amount: string,
+  generate: () => void
+) => {
+  if (!onRequestPayment) {
+    generate();
+    return;
+  }
+
+  onRequestPayment(amount, generate);
+};
 
   if (!selectedTool) {
         return null;
