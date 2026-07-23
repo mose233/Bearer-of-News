@@ -133,14 +133,22 @@ const [paymentComplete, setPaymentComplete] = useState(false);
     }, 120);
   };
 const handleMpesaPayment = async (phoneNumber: string) => {
- const response = await PaymentService.sendMpesaSTKPush({
-  phoneNumber,
-  amount: 20,
-});
+  const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
+    body: {
+      phoneNumber,
+      amount: 20,
+    },
+  });
 
-console.log("STK Push Response:", response);
+  if (error) {
+    alert(error.message);
+    throw error;
+  }
 
-alert(response.CustomerMessage);
+  console.log("STK Push Response:", data);
+
+  alert("STK Push sent. Please complete payment on your phone.");
+};
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
 }, [mediaFiles, mediaPreviews]);
