@@ -1175,8 +1175,8 @@ const resetCurrentProject = () => {
     </button>
   </div>
 )}
-          </section>
-        </div>
+        </section>
+      </div>
 
       <PaymentModal
         open={paymentOpen}
@@ -1193,7 +1193,9 @@ const resetCurrentProject = () => {
         }}
         onMpesaPayment={handleMpesaPayment}
       />
-    </main>
-  );
+
+    </div>
+  </main>
+);
 }
 
