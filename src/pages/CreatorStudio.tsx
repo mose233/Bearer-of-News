@@ -1,5 +1,5 @@
 import PaymentModal from "@/components/payments/PaymentModal";
-import { supabase } from "@/integrations/supabase/client";
+import { PaymentService } from "@/lib/payments/PaymentService";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -133,22 +133,14 @@ const [paymentComplete, setPaymentComplete] = useState(false);
     }, 120);
   };
 const handleMpesaPayment = async (phoneNumber: string) => {
-  const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
-    body: {
-      phoneNumber,
-      amount: 20,
-    },
-  });
+ const response = await PaymentService.sendMpesaSTKPush({
+  phoneNumber,
+  amount: 20,
+});
 
-  if (error) {
-    alert(error.message);
-    throw error;
-  }
+console.log("STK Push Response:", response);
 
-  console.log("STK Push Response:", data);
-
-  alert("STK Push sent. Please complete payment on your phone.");
-};
+alert(response.CustomerMessage);
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
 }, [mediaFiles, mediaPreviews]);
