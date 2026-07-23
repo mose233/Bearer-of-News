@@ -1178,11 +1178,6 @@ const resetCurrentProject = () => {
           </section>
         </div>
 
-      </section>
-        </div>
-
-            </div>
-
       <PaymentModal
         open={paymentOpen}
         price={paymentPrice}
