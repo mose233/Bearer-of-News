@@ -839,13 +839,16 @@ function VideoTemplatePanel({
         )}
 
         <div className="flex flex-wrap gap-3">
-          <PrimaryGenerateButton
+         <PrimaryGenerateButton
   label="Generate Video"
-  onClick={() =>
-    requestGeneration("$0.70", handleGenerateVideoDraft)
-  }
+  onClick={() => {
+    if (requestGeneration) {
+      requestGeneration("$0.70", handleGenerateVideoDraft);
+    } else {
+      handleGenerateVideoDraft();
+    }
+  }}
 />
-
           <button
             type="button"
             onClick={() => {
