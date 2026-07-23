@@ -133,7 +133,7 @@ const [paymentComplete, setPaymentComplete] = useState(false);
     }, 120);
   };
 const handleMpesaPayment = async (phoneNumber: string) => {
-  const response = await PaymentService.sendMpesaSTKPush({
+ const response = await PaymentService.sendMpesaSTKPush({
   phoneNumber,
   amount: 20,
 });
