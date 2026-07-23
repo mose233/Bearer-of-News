@@ -3244,6 +3244,7 @@ export default function DynamicToolWorkspace({
         onGenerateCompleteVideo={onGenerateCompleteVideo}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
         onVideoDurationChange={onVideoDurationChange}
+        requestGeneration={requestGeneration}
       />
     );
   }
