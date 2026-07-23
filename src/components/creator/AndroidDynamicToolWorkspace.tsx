@@ -88,9 +88,18 @@ type DynamicToolWorkspaceProps = {
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
-  onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+   onGenerateCompleteVideo?: () => void;
+  onAddEnhancedPhotoToTimeline?: (
+    file: File,
+    preview: string,
+    durationSeconds?: number
+  ) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+
+  onRequestPayment?: (
+    amount: string,
+    onSuccess: () => void
+  ) => void;
 };
 
 const boxClass =
