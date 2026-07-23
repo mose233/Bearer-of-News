@@ -546,6 +546,7 @@ function VideoTemplatePanel({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  requestGeneration, 
 }: {
   tool: string;
   videoPrompt?: string;
