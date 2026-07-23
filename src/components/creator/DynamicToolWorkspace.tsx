@@ -95,6 +95,10 @@ type DynamicToolWorkspaceProps = {
     durationSeconds?: number
   ) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+  requestGeneration?: (
+  amount: string,
+  generate: () => void
+) => void;
   
   onRequestPayment?: (
     amount: string,
