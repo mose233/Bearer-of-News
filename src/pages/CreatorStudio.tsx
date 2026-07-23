@@ -117,6 +117,8 @@ export default function CreatorStudio() {
   const [paymentOpen, setPaymentOpen] = useState(false);
 const [paymentPrice, setPaymentPrice] = useState("KSh 20");
 const [paymentComplete, setPaymentComplete] = useState(false);
+  const [pendingGeneration, setPendingGeneration] =
+  useState<(() => void) | null>(null);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
