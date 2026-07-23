@@ -50,4 +50,42 @@ export class PaymentService {
       throw err;
     }
   }
+
+  /**
+   * Check whether an M-Pesa payment has been completed.
+   */
+  static async checkMpesaPayment(
+    checkoutRequestID: string
+  ): Promise<{ paid: boolean; message?: string }> {
+    if (!checkoutRequestID?.trim()) {
+      throw new Error("CheckoutRequestID is required.");
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "mpesa-status",
+        {
+          body: {
+            checkoutRequestID,
+          },
+        }
+      );
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data) {
+        throw new Error("No response received from payment status server.");
+      }
+
+      return data as {
+        paid: boolean;
+        message?: string;
+      };
+    } catch (err) {
+      console.error("Payment status check failed:", err);
+      throw err;
+    }
+  }
 }
