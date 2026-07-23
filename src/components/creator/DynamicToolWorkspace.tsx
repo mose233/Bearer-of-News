@@ -892,6 +892,10 @@ function LifeEventVideoPanel({
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+  requestGeneration?: (
+  amount: string,
+  generate: () => void
+) => void;
 }) {
   const isTribute = tool === "Obituary / Tribute Studio";
   const [occasion, setOccasion] = useState("Birthday");
