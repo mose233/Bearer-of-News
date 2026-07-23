@@ -141,6 +141,7 @@ const handleMpesaPayment = async (phoneNumber: string) => {
 console.log("STK Push Response:", response);
 
 alert(response.CustomerMessage);
+  };
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
 }, [mediaFiles, mediaPreviews]);
