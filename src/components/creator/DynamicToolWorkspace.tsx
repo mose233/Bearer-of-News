@@ -1850,11 +1850,16 @@ export default function DynamicToolWorkspace({
   amount: string,
   generate: () => void
 ) => {
+  console.log("requestGeneration called");
+  console.log("onRequestPayment =", onRequestPayment);
+
   if (!onRequestPayment) {
+    console.log("No payment handler. Generating directly.");
     generate();
     return;
   }
 
+  console.log("Opening payment...");
   onRequestPayment(amount, generate);
 };
 
