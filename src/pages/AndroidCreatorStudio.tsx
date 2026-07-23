@@ -1,3 +1,4 @@
+import PaymentModal from "@/components/payments/PaymentModal";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
