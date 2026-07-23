@@ -1173,7 +1173,7 @@ const resetCurrentProject = () => {
 
             </div> {/* closes grid */}
 
-     <PaymentModal
+   <PaymentModal
   open={paymentOpen}
   price={paymentPrice}
   onClose={() => setPaymentOpen(false)}
@@ -1187,3 +1187,7 @@ const resetCurrentProject = () => {
     }
   }}
 />
+
+</main>
+);
+}
