@@ -1939,11 +1939,8 @@ export default function DynamicToolWorkspace({
     return ["#7c2d12", "#f97316"];
   };
 
-  const generateQuoteImageFile = async () => {
-    if (!confirmPictureGeneration()) {
-      return;
-    }
-
+  const generateQuoteImageFile = () => {
+  confirmPictureGeneration(async () => {
 
     const cleanQuote = quoteText.trim();
 
@@ -2049,8 +2046,10 @@ export default function DynamicToolWorkspace({
     setQuotePreview(preview);
     setQuoteStatus(
       `${quoteOutputFormat} quote image created. Preview it, then add it to the timeline.`
-    );
-  };
+     );
+
+  });
+};
 
   const handleAddQuoteImageToTimeline = () => {
     if (!quoteFile || !quotePreview) {
