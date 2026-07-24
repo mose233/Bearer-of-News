@@ -1082,15 +1082,15 @@ const resetCurrentProject = () => {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-           onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-  addSceneToTimeline(
-    file,
-    preview,
-    durationSeconds || getTimelineDuration()
-  )
-}
-onVideoDurationChange={setSelectedVideoDurationSeconds}
-onRequestPayment={(amount, onSuccess) => {
+            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+              addSceneToTimeline(
+                file,
+                preview,
+                durationSeconds || getTimelineDuration()
+              )
+            }
+            onVideoDurationChange={setSelectedVideoDurationSeconds}
+            onRequestPayment={(amount, onSuccess) => {
   setPaymentPrice(amount);
   setPendingGeneration(() => onSuccess);
   setPaymentOpen(true);
