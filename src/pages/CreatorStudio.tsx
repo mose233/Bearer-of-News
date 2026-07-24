@@ -1184,10 +1184,10 @@ onRequestPayment={(amount, onSuccess) => {
     </button>
   </div>
 )}
-          </section>
-        </div>
+         </section>
+</div> {/* closes grid */}
 
-            </div> {/* closes mx-auto max-w-7xl */}
+</div> {/* closes mx-auto max-w-7xl */}
 
       <PaymentModal
         open={paymentOpen}
