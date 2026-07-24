@@ -69,8 +69,17 @@ export default function PaymentModal({
 
             onClose();
           }
-        } catch (err) {
-          console.error("Payment status check failed:", err);
+       catch (err: any) {
+  console.error("STK Push failed:", err);
+
+  alert(
+    err?.message ||
+    JSON.stringify(err) ||
+    "Failed to initiate M-Pesa payment."
+  );
+
+  setIsProcessing(false);
+}
         }
       }, 3000);
     } catch (err) {
