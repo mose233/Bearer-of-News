@@ -565,6 +565,10 @@ function VideoTemplatePanel({
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+  requestGeneration: (
+  amount: string,
+  generate: () => void
+) => void;
 }) {
   const [localVideoType, setLocalVideoType] = useState("Trending Reel");
   const [localVisualStyle, setLocalVisualStyle] = useState("Modern Social");
