@@ -1,5 +1,5 @@
 import PaymentModal from "@/components/payments/PaymentModal";
-import { PaymentService } from "@/lib/payments/PaymentService";
+import { supabase } from "@/integrations/supabase/client";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -133,15 +133,22 @@ const [paymentComplete, setPaymentComplete] = useState(false);
     }, 120);
   };
 const handleMpesaPayment = async (phoneNumber: string) => {
- const response = await PaymentService.sendMpesaSTKPush({
-  phoneNumber,
-  amount: 20,
-});
+  const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
+    body: {
+      phoneNumber,
+      amount: 20,
+    },
+  });
 
-console.log("STK Push Response:", response);
+  if (error) {
+    alert(error.message);
+    throw error;
+  }
 
-alert(response.CustomerMessage);
-  };
+  console.log("STK Push Response:", data);
+
+  alert("STK Push sent. Please complete payment on your phone.");
+};
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
 }, [mediaFiles, mediaPreviews]);
@@ -261,37 +268,20 @@ alert(response.CustomerMessage);
     alert("Script generated successfully.");
   };
 
- const handlePrepareTextToVideoPrompt = async () => {
-  console.log("Generate clicked");
-  console.log("paymentComplete:", paymentComplete);
+  const handlePrepareTextToVideoPrompt = async () => {
+    const prompt = videoPrompt.trim();
 
-  if (!paymentComplete) {
-    console.log("Opening Payment Modal");
+    if (!prompt) {
+      alert("Please write a video prompt first.");
+      return;
+    }
 
-    setPendingGeneration(() => handlePrepareTextToVideoPrompt);
-    setPaymentPrice("KSh 20");
-    setPaymentOpen(true);
-    return;
-  }
+    const enrichedPrompt = [
+      `Creative type: ${videoCreativeType}`,
+      `Output format: ${videoOutputFormat}`,
+      prompt,
+    ].join("\n");
 
-  console.log("Payment already completed, starting generation...");
-
-  const prompt = videoPrompt.trim();
-
-  if (!prompt) {
-    alert("Please write a video prompt first.");
-    return;
-  }
-
-  const enrichedPrompt = [
-    `Creative type: ${videoCreativeType}`,
-    `Output format: ${videoOutputFormat}`,
-    prompt,
-  ].join("\n");
-
-  // ...all the rest of your existing code...
-
-};
     try {
       setIsGeneratingImage(true);
       setExportStatus("Creating AI storyboard...");
@@ -1190,21 +1180,21 @@ const resetCurrentProject = () => {
 
             </div> {/* closes grid */}
 
-   <PaymentModal
-  open={paymentOpen}
-  price={paymentPrice}
-  onClose={() => setPaymentOpen(false)}
-  onPaymentSuccess={() => {
-    setPaymentOpen(false);
-    setPaymentComplete(true);
+      <PaymentModal
+        open={paymentOpen}
+        price={paymentPrice}
+        onClose={() => setPaymentOpen(false)}
+        onPaymentSuccess={() => {
+          setPaymentOpen(false);
+          setPaymentComplete(true);
 
-    if (pendingGeneration) {
-      pendingGeneration();
-      setPendingGeneration(null);
-    }
-  }}
-/>
-
-</main>
-);
+          if (pendingGeneration) {
+            pendingGeneration();
+            setPendingGeneration(null);
+          }
+        }}
+        onMpesaPayment={handleMpesaPayment}
+      />
+    </main>
+  );
 }
