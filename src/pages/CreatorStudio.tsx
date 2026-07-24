@@ -120,16 +120,6 @@ const [paymentComplete, setPaymentComplete] = useState(false);
   const [pendingGeneration, setPendingGeneration] =
   useState<(() => void) | null>(null);
 
-  const requestPaidGeneration = (
-  amount: string,
-  generate: () => void
-) => {
-  console.log("Opening payment for:", amount);
-
-  setPaymentPrice(amount);
-  setPendingGeneration(() => generate);
-  setPaymentOpen(true);
-};
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -1188,6 +1178,8 @@ const resetCurrentProject = () => {
           </section>
         </div>
 
+            </div> {/* closes grid */}
+
       <PaymentModal
         open={paymentOpen}
         price={paymentPrice}
@@ -1206,4 +1198,3 @@ const resetCurrentProject = () => {
     </main>
   );
 }
-
