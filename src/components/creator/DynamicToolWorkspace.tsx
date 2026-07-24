@@ -1894,12 +1894,11 @@ export default function DynamicToolWorkspace({
   const getCurrentPicturePrice = () =>
     premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
 
-  const confirmPictureGeneration = () =>
-    window.confirm(
-      `✨ Ready to Generate\n\nCreate your image for ${getCurrentPicturePrice()}`
-    );
-
-
+  const confirmPictureGeneration = (
+  generate: () => void
+) => {
+  requestGeneration(getCurrentPicturePrice(), generate);
+};
 
   const wrapCanvasText = (
     context: CanvasRenderingContext2D,
