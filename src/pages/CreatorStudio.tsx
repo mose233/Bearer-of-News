@@ -491,7 +491,6 @@ const handleMpesaPayment = async (phoneNumber: string) => {
   setSceneDurations(uploaded.durations);
   setCurrentIndex(0);
 };
-
   const performImageGeneration = async () => {
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
@@ -527,7 +526,11 @@ setGeneratedImagePreview(result.previewUrl);
       setIsGeneratingImage(false);
     }
   };
-
+const handleGenerateImage = () => {
+  requestPaidGeneration("KSh 20", () => {
+    performImageGeneration();
+  });
+};
   const handleGenerateMultiScenePlan = () => {
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
