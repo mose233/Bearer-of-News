@@ -52,36 +52,27 @@ export default function PaymentModal({
 
       const checkoutRequestID = response.CheckoutRequestID;
 
-      const interval = setInterval(async () => {
-        try {
-          const result = await PaymentService.checkMpesaPayment(
-            checkoutRequestID
-          );
+     const interval = setInterval(async () => {
+  try {
+    const result = await PaymentService.checkMpesaPayment(
+      checkoutRequestID
+    );
 
-          if (result.paid) {
-            clearInterval(interval);
+    if (result.paid) {
+      clearInterval(interval);
 
-            setStatusMessage("✅ Payment confirmed!");
+      setStatusMessage("✅ Payment confirmed!");
 
-            setIsProcessing(false);
+      setIsProcessing(false);
 
-            onPaymentSuccess();
+      onPaymentSuccess();
 
-            onClose();
-          }
-       catch (err: any) {
-  console.error("STK Push failed:", err);
-
-  alert(
-    err?.message ||
-    JSON.stringify(err) ||
-    "Failed to initiate M-Pesa payment."
-  );
-
-  setIsProcessing(false);
-}
-        }
-      }, 3000);
+      onClose();
+    }
+  } catch (err) {
+    console.error("Payment status check failed:", err);
+  }
+}, 3000);
     } catch (err) {
       console.error("STK Push failed:", err);
       alert("Failed to initiate M-Pesa payment.");
