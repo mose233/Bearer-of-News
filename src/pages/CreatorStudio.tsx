@@ -230,9 +230,6 @@ const handleMpesaPayment = async (phoneNumber: string) => {
     return selectedVideoDurationSeconds || 10;
   };
 
-
-  
-
  const addSceneToTimeline = (
   file: File,
   preview: string,
