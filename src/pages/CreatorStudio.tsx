@@ -527,8 +527,6 @@ setGeneratedImagePreview(result.previewUrl);
     }
   };
 const handleGenerateImage = () => {
-  alert("handleGenerateImage reached");
-
   requestPaidGeneration("KSh 20", () => {
     performImageGeneration();
   });
