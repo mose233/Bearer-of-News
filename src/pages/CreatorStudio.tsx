@@ -1187,7 +1187,7 @@ onRequestPayment={(amount, onSuccess) => {
           </section>
         </div>
 
-            </div> {/* closes grid */}
+            </div> {/* closes mx-auto max-w-7xl */}
 
       <PaymentModal
         open={paymentOpen}
