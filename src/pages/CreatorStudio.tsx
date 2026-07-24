@@ -1082,7 +1082,7 @@ const resetCurrentProject = () => {
             onMediaUpload={handleMediaUpload}
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
-            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+           onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
   addSceneToTimeline(
     file,
     preview,
@@ -1090,9 +1090,12 @@ const resetCurrentProject = () => {
   )
 }
 onVideoDurationChange={setSelectedVideoDurationSeconds}
-onRequestPayment={requestPaidGeneration}
+onRequestPayment={(amount, onSuccess) => {
+  setPaymentPrice(amount);
+  setPendingGeneration(() => onSuccess);
+  setPaymentOpen(true);
+}}
 />
-
 <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
