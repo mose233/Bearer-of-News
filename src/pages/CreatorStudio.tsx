@@ -1088,7 +1088,7 @@ const resetCurrentProject = () => {
               )
             }
             onVideoDurationChange={setSelectedVideoDurationSeconds}
-            onRequestPayment={(amount, onSuccess) => {
+            onRequestPayment={requestPaidGeneration}
   setPaymentPrice(amount);
   setPendingGeneration(() => onSuccess);
   setPaymentOpen(true);
