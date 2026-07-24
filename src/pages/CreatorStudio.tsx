@@ -261,27 +261,37 @@ alert(response.CustomerMessage);
     alert("Script generated successfully.");
   };
 
-  const handlePrepareTextToVideoPrompt = async () => { 
-  console.log("handlePrepareTextToVideoPrompt called");
+ const handlePrepareTextToVideoPrompt = async () => {
+  console.log("Generate clicked");
+  console.log("paymentComplete:", paymentComplete);
+
   if (!paymentComplete) {
+    console.log("Opening Payment Modal");
+
     setPendingGeneration(() => handlePrepareTextToVideoPrompt);
     setPaymentPrice("KSh 20");
     setPaymentOpen(true);
     return;
   }
 
+  console.log("Payment already completed, starting generation...");
+
   const prompt = videoPrompt.trim();
-    if (!prompt) {
-      alert("Please write a video prompt first.");
-      return;
-    }
 
-    const enrichedPrompt = [
-      `Creative type: ${videoCreativeType}`,
-      `Output format: ${videoOutputFormat}`,
-      prompt,
-    ].join("\n");
+  if (!prompt) {
+    alert("Please write a video prompt first.");
+    return;
+  }
 
+  const enrichedPrompt = [
+    `Creative type: ${videoCreativeType}`,
+    `Output format: ${videoOutputFormat}`,
+    prompt,
+  ].join("\n");
+
+  // ...all the rest of your existing code...
+
+};
     try {
       setIsGeneratingImage(true);
       setExportStatus("Creating AI storyboard...");
