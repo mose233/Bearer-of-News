@@ -119,17 +119,6 @@ const [paymentPrice, setPaymentPrice] = useState("KSh 20");
 const [paymentComplete, setPaymentComplete] = useState(false);
   const [pendingGeneration, setPendingGeneration] =
   useState<(() => void) | null>(null);
-  
-  const requestPaidGeneration = (
-  amount: string,
-  generate: () => void
-) => {
-  console.log("Opening payment for:", amount);
-
-  setPaymentPrice(amount);
-  setPendingGeneration(() => generate);
-  setPaymentOpen(true);
-};
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
@@ -1095,8 +1084,10 @@ const resetCurrentProject = () => {
   setPendingGeneration(() => onSuccess);
   setPaymentOpen(true);
 }}
-/>
-<div className="grid grid-cols-1 gap-4">
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
@@ -1187,8 +1178,6 @@ const resetCurrentProject = () => {
           </section>
         </div>
 
-            </div> {/* closes grid */}
-
       <PaymentModal
         open={paymentOpen}
         price={paymentPrice}
@@ -1207,3 +1196,4 @@ const resetCurrentProject = () => {
     </main>
   );
 }
+
