@@ -262,8 +262,14 @@ alert(response.CustomerMessage);
   };
 
   const handlePrepareTextToVideoPrompt = async () => {
-    const prompt = videoPrompt.trim();
+  if (!paymentComplete) {
+    setPendingGeneration(() => handlePrepareTextToVideoPrompt);
+    setPaymentPrice("KSh 20");
+    setPaymentOpen(true);
+    return;
+  }
 
+  const prompt = videoPrompt.trim();
     if (!prompt) {
       alert("Please write a video prompt first.");
       return;
