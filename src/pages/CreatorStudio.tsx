@@ -1093,7 +1093,7 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
 onRequestPayment={requestPaidGeneration}
 />
 
-        <div className="grid grid-cols-1 gap-4">
+<div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
