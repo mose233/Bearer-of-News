@@ -1941,7 +1941,7 @@ export default function DynamicToolWorkspace({
 
   const generateQuoteImageFile = () => {
   confirmPictureGeneration(async () => {
-
+  console.log("generateQuoteImageFile called");
     const cleanQuote = quoteText.trim();
 
     if (!cleanQuote) {
