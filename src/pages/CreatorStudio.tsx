@@ -492,7 +492,7 @@ const handleMpesaPayment = async (phoneNumber: string) => {
   setCurrentIndex(0);
 };
 
-  const handleGenerateImage = async () => {
+  const performImageGeneration = async () => {
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
