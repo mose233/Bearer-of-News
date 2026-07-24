@@ -261,7 +261,8 @@ alert(response.CustomerMessage);
     alert("Script generated successfully.");
   };
 
-  const handlePrepareTextToVideoPrompt = async () => {
+  const handlePrepareTextToVideoPrompt = async () => { 
+  console.log("handlePrepareTextToVideoPrompt called");
   if (!paymentComplete) {
     setPendingGeneration(() => handlePrepareTextToVideoPrompt);
     setPaymentPrice("KSh 20");
