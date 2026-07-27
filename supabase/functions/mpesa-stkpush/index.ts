@@ -25,14 +25,14 @@ function generateTimestamp(): string {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", {
       headers: corsHeaders,
     });
   }
 
-  // Only allow POST requests
+  // Only allow POST
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({
@@ -76,10 +76,7 @@ serve(async (req) => {
     );
 
     console.log("===== MPESA STK PUSH DEBUG =====");
-    console.log("Base URL:", MPESA_BASE_URL);
-    console.log("BusinessShortCode:", MPESA_SHORTCODE);
-    console.log("Timestamp:", timestamp);
-    console.log("PhoneNumber:", phoneNumber);
+    console.log("Phone:", phoneNumber);
     console.log("Amount:", amount);
 
     const payload = {
@@ -97,9 +94,6 @@ serve(async (req) => {
       TransactionDesc: transactionDesc,
     };
 
-    console.log("Payload:");
-    console.log(JSON.stringify(payload, null, 2));
-
     const response = await fetch(
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
       {
@@ -114,20 +108,9 @@ serve(async (req) => {
 
     const result = await response.json();
 
-    console.log("===== SAFARICOM RESPONSE =====");
-    console.log(JSON.stringify(result, null, 2));
-
     if (!response.ok) {
       return new Response(
-        JSON.stringify(
-          {
-            success: false,
-            status: response.status,
-            safaricom: result,
-          },
-          null,
-          2
-        ),
+        JSON.stringify(result),
         {
           status: response.status,
           headers: {
@@ -139,14 +122,13 @@ serve(async (req) => {
     }
 
     return success(result);
-  } catch (error) {
-    console.error("===== ERROR =====");
-    console.error(error);
+  } catch (err) {
+    console.error(err);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: err instanceof Error ? err.message : "Unknown error",
       }),
       {
         status: 500,
