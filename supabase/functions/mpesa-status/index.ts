@@ -1,6 +1,14 @@
 import { serve } from "https://deno.land/std/http/server.ts";
+import { corsHeaders } from "../_shared/response.ts";
 
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
+  }
+
   try {
     const { checkoutRequestID } = await req.json();
 
@@ -13,6 +21,7 @@ serve(async (req) => {
         {
           status: 400,
           headers: {
+            ...corsHeaders,
             "Content-Type": "application/json",
           },
         }
@@ -21,7 +30,7 @@ serve(async (req) => {
 
     // TODO:
     // Here we will later check whether the payment
-    // has been completed.
+    // has been completed with Safaricom.
 
     return new Response(
       JSON.stringify({
@@ -30,6 +39,7 @@ serve(async (req) => {
       }),
       {
         headers: {
+          ...corsHeaders,
           "Content-Type": "application/json",
         },
       }
@@ -43,6 +53,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: {
+          ...corsHeaders,
           "Content-Type": "application/json",
         },
       }
