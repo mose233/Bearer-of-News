@@ -1,4 +1,3 @@
-// TEST CHANGE
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { getAccessToken } from "../_shared/mpesa.ts";
 import {
@@ -26,30 +25,6 @@ function generateTimestamp(): string {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      headers: corsHeaders,
-    });
-  }
-
-  // Only allow POST
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: "Method Not Allowed",
-      }),
-      {
-        status: 405,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-  }
-
   try {
     const body = await req.json();
 
@@ -76,8 +51,13 @@ serve(async (req) => {
       `${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`
     );
 
+    // Debug information (does not expose secrets)
     console.log("===== MPESA STK PUSH DEBUG =====");
-    console.log("Phone:", phoneNumber);
+    console.log("Base URL:", MPESA_BASE_URL);
+    console.log("BusinessShortCode:", MPESA_SHORTCODE);
+    console.log("Timestamp:", timestamp);
+    console.log("Passkey Present:", MPESA_PASSKEY.length > 0);
+    console.log("PhoneNumber:", phoneNumber);
     console.log("Amount:", amount);
 
     const payload = {
@@ -95,6 +75,8 @@ serve(async (req) => {
       TransactionDesc: transactionDesc,
     };
 
+    console.log("Payload:", JSON.stringify(payload, null, 2));
+
     const response = await fetch(
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
       {
@@ -109,13 +91,23 @@ serve(async (req) => {
 
     const result = await response.json();
 
+    console.log("===== SAFARICOM RESPONSE =====");
+    console.log(JSON.stringify(result, null, 2));
+
     if (!response.ok) {
       return new Response(
-        JSON.stringify(result),
+        JSON.stringify(
+          {
+            success: false,
+            status: response.status,
+            safaricom: result,
+          },
+          null,
+          2
+        ),
         {
           status: response.status,
           headers: {
-            ...corsHeaders,
             "Content-Type": "application/json",
           },
         }
@@ -123,21 +115,13 @@ serve(async (req) => {
     }
 
     return success(result);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("===== ERROR =====");
+    console.error(error);
 
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: err instanceof Error ? err.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      }
+    return failure(
+      error instanceof Error ? error.message : "Unknown error",
+      500
     );
   }
 });
