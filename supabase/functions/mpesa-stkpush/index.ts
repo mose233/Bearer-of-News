@@ -24,7 +24,31 @@ function generateTimestamp(): string {
   return `${yyyy}${MM}${dd}${HH}${mm}${ss}`;
 }
 
-serve(async (req) => {
+ serve(async (req) => {
+  // Handle browser CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
+  }
+
+  // Only allow POST requests
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Method Not Allowed",
+      }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+
   try {
     const body = await req.json();
 
