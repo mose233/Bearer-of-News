@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/response.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -7,6 +8,13 @@ const supabase = createClient(
 );
 
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
+  }
+
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({
@@ -16,6 +24,7 @@ serve(async (req) => {
       {
         status: 405,
         headers: {
+          ...corsHeaders,
           "Content-Type": "application/json",
         },
       }
@@ -40,6 +49,7 @@ serve(async (req) => {
         {
           status: 400,
           headers: {
+            ...corsHeaders,
             "Content-Type": "application/json",
           },
         }
@@ -149,6 +159,7 @@ serve(async (req) => {
       {
         status: 200,
         headers: {
+          ...corsHeaders,
           "Content-Type": "application/json",
         },
       }
@@ -164,6 +175,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: {
+          ...corsHeaders,
           "Content-Type": "application/json",
         },
       }
