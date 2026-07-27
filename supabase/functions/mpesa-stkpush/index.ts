@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { getAccessToken } from "../_shared/mpesa.ts";
-import { success, failure } from "../_shared/response.ts";
+import { success, failure, corsHeaders } from "../_shared/response.ts";
 import {
   MPESA_BASE_URL,
   MPESA_SHORTCODE,
@@ -21,6 +21,11 @@ function generateTimestamp(): string {
 }
 
 serve(async (req) => {
+    if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
+  }
   try {
     const body = await req.json();
 
