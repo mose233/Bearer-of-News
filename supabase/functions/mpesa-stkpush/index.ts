@@ -21,11 +21,18 @@ function generateTimestamp(): string {
 }
 
 serve(async (req) => {
-    if (req.method === "OPTIONS") {
+  console.log("METHOD =", req.method);
+
+  if (req.method === "OPTIONS") {
+    console.log("OPTIONS RECEIVED");
+
     return new Response("ok", {
       headers: corsHeaders,
     });
   }
+
+  console.log("POST RECEIVED");
+
   try {
     const body = await req.json();
 
