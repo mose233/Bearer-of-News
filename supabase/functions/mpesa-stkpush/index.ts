@@ -96,24 +96,25 @@ serve(async (req) => {
     console.log(JSON.stringify(result, null, 2));
 
     if (!response.ok) {
-      return new Response(
-        JSON.stringify(
-          {
-            success: false,
-            status: response.status,
-            safaricom: result,
-          },
-          null,
-          2
-        ),
-        {
-          status: response.status,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  return new Response(
+    JSON.stringify(
+      {
+        success: false,
+        status: response.status,
+        safaricom: result,
+      },
+      null,
+      2
+    ),
+    {
+      status: response.status,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
     }
+  );
+}
 
     return success(result);
   } catch (error) {
