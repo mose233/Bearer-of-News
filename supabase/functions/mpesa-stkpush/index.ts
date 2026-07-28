@@ -24,25 +24,19 @@ const CALLBACK_URL =
 
 serve(async (req: Request): Promise<Response> => {
   try {
-    /**
-     * CORS Preflight
-     */
+    // CORS
     if (req.method === "OPTIONS") {
       return new Response("ok", {
         headers: corsHeaders,
       });
     }
 
-    /**
-     * Only POST is allowed
-     */
+    // Only POST
     if (req.method !== "POST") {
       return failure("Method Not Allowed", 405);
     }
 
-    /**
-     * Parse request body
-     */
+    // Read body
     let body: {
       phoneNumber?: string;
       amount?: number;
@@ -60,40 +54,21 @@ serve(async (req: Request): Promise<Response> => {
       return failure("phoneNumber is required.", 400);
     }
 
-    if (amount === undefined || amount === null) {
-      return failure("amount is required.", 400);
-    }
-
-    if (typeof amount !== "number") {
-      return failure("amount must be a number.", 400);
-    }
-
-    if (amount <= 0) {
+    if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
       return failure("amount must be greater than zero.", 400);
     }
 
-    /**
-     * Normalize Kenyan phone number
-     */
+    // Normalize phone
     const customerPhone = normalizePhoneNumber(phoneNumber);
 
-    /**
-     * Timestamp
-     */
+    // Generate timestamp/password
     const timestamp = generateTimestamp();
-
-    /**
-     * Password
-     */
     const password = generatePassword(timestamp);
 
-    /**
-     * OAuth Token
-     */
+    // OAuth token
     const accessToken = await getAccessToken();
-        /**
-     * Build STK Push payload
-     */
+
+    // Build payload
     const stkPayload = {
       BusinessShortCode: MPESA_SHORTCODE,
       Password: password,
@@ -108,9 +83,7 @@ serve(async (req: Request): Promise<Response> => {
       TransactionDesc: "AI Content Generation",
     };
 
-    /**
-     * Send STK Push request
-     */
+    // Send request
     const response = await fetch(
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
       {
@@ -123,62 +96,7 @@ serve(async (req: Request): Promise<Response> => {
       }
     );
 
-    /**
-     * Parse Safaricom response
-     */
-    const result = await response.json();
-
-    /**
-     * Handle HTTP errors
-     */
-    if (!response.ok) {
-      return failure(
-        result.errorMessage ??
-          result.errorCode ??
-          "Failed to initiate STK Push.",
-        response.status
-      );
-    }
-
-    /**
-     * Handle missing CheckoutRequestID
-     */
-    if (!result.CheckoutRequestID) {
-      return failure(
-        "Safaricom did not return a CheckoutRequestID.",
-        500
-      );
-    }
-        /**
-     * STK Push accepted by Safaricom
-     *
-     * The actual payment result will be delivered later
-     * to mpesa-callback.
-     */
-    return success({
-      merchantRequestID: result.MerchantRequestID,
-      checkoutRequestID: result.CheckoutRequestID,
-      responseCode: result.ResponseCode,
-      responseDescription: result.ResponseDescription,
-      customerMessage: result.CustomerMessage,
-      phoneNumber: customerPhone,
-      amount,
-    });
-
-  } catch (error) {
-    console.error("M-Pesa STK Push Error:", error);
-
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unknown server error.";
-
-    return failure(message, 500);
-  }
-});
-    /**
-     * Read Safaricom response safely
-     */
+    // Parse response
     let result: Record<string, unknown>;
 
     try {
@@ -190,27 +108,23 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    /**
-     * Handle HTTP errors returned by Safaricom
-     */
+    // HTTP error
     if (!response.ok) {
       console.error("Safaricom Error:", result);
 
       return failure(
         String(
-          result.errorMessage ??
-          result.errorCode ??
+          result["errorMessage"] ??
+          result["errorCode"] ??
           "Failed to initiate STK Push."
         ),
         response.status
       );
     }
 
-    /**
-     * Validate required response fields
-     */
-    const checkoutRequestID = result.CheckoutRequestID;
-    const merchantRequestID = result.MerchantRequestID;
+    // Validate response
+    const checkoutRequestID = result["CheckoutRequestID"];
+    const merchantRequestID = result["MerchantRequestID"];
 
     if (
       typeof checkoutRequestID !== "string" ||
@@ -224,19 +138,13 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    /**
-     * Success
-     *
-     * Customer now receives the STK Push prompt.
-     * Payment confirmation will arrive later
-     * through mpesa-callback.
-     */
+    // Success
     return success({
       merchantRequestID,
       checkoutRequestID,
-      responseCode: result.ResponseCode,
-      responseDescription: result.ResponseDescription,
-      customerMessage: result.CustomerMessage,
+      responseCode: result["ResponseCode"],
+      responseDescription: result["ResponseDescription"],
+      customerMessage: result["CustomerMessage"],
       phoneNumber: customerPhone,
       amount,
     });
