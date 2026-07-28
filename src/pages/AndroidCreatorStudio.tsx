@@ -1,3 +1,4 @@
+import PaymentModal from "@/components/payments/PaymentModal";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -114,6 +115,12 @@ export default function AndroidCreatorStudio() {
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+const [paymentPrice, setPaymentPrice] = useState("KSh 20");
+const [paymentComplete, setPaymentComplete] = useState(false);
+
+const [pendingGeneration, setPendingGeneration] =
+  useState<(() => void) | null>(null);
 
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
 const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
@@ -1041,6 +1048,11 @@ onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
   )
 }
 onVideoDurationChange={setSelectedVideoDurationSeconds}
+onRequestPayment={(amount, onSuccess) => {
+  setPaymentPrice(amount);
+  setPendingGeneration(() => onSuccess);
+  setPaymentOpen(true);
+}}
                   />
         </div>
 
@@ -1118,7 +1130,23 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
           </section>
         </div>
 
-      </div>
+            </div>
+
+      <PaymentModal
+        open={paymentOpen}
+        price={paymentPrice}
+        onClose={() => setPaymentOpen(false)}
+        onPaymentSuccess={() => {
+          setPaymentOpen(false);
+          setPaymentComplete(true);
+
+          if (pendingGeneration) {
+            pendingGeneration();
+            setPendingGeneration(null);
+          }
+        }}
+        onMpesaPayment={handleMpesaPayment}
+      />
     </main>
   );
 }

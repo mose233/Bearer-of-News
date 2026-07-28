@@ -88,9 +88,18 @@ type DynamicToolWorkspaceProps = {
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
-  onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+   onGenerateCompleteVideo?: () => void;
+  onAddEnhancedPhotoToTimeline?: (
+    file: File,
+    preview: string,
+    durationSeconds?: number
+  ) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+
+  onRequestPayment?: (
+    amount: string,
+    onSuccess: () => void
+  ) => void;
 };
 
 const boxClass =
@@ -829,10 +838,12 @@ function VideoTemplatePanel({
         )}
 
         <div className="flex flex-wrap gap-3">
-          <PrimaryGenerateButton
-            label="Generate Video"
-            onClick={handleGenerateVideoDraft}
-          />
+         <PrimaryGenerateButton
+  label="Generate Video"
+  onClick={() =>
+    requestGeneration("$0.70", handleGenerateVideoDraft)
+  }
+/>
 
           <button
             type="button"
@@ -1776,6 +1787,7 @@ export default function DynamicToolWorkspace({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  onRequestPayment,
 }: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
@@ -1834,6 +1846,17 @@ export default function DynamicToolWorkspace({
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
   const [eventPhone, setEventPhone] = useState("");
+  const requestGeneration = (
+  amount: string,
+  generate: () => void
+) => {
+  if (!onRequestPayment) {
+    generate();
+    return;
+  }
+
+  onRequestPayment(amount, generate);
+};
 
   if (!selectedTool) {
         return null;

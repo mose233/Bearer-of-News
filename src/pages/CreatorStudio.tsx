@@ -1,3 +1,5 @@
+import PaymentModal from "@/components/payments/PaymentModal";
+import { supabase } from "@/integrations/supabase/client";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -112,13 +114,26 @@ export default function CreatorStudio() {
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+const [paymentPrice, setPaymentPrice] = useState("KSh 20");
+const [paymentComplete, setPaymentComplete] = useState(false);
+  const [pendingGeneration, setPendingGeneration] =
+  useState<(() => void) | null>(null);
+const requestPaidGeneration = (
+  amount: string,
+  generate: () => void
+) => {
+  console.log("Opening payment for:", amount);
 
+  setPaymentPrice(amount);
+  setPendingGeneration(() => generate);
+  setPaymentOpen(true);
+};
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
   const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
 
   const handleSelectTool = (tool: AiToolSelection) => {
     setSelectedTool(tool);
-
     window.setTimeout(() => {
       workspaceSectionRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -126,7 +141,23 @@ export default function CreatorStudio() {
       });
     }, 120);
   };
+const handleMpesaPayment = async (phoneNumber: string) => {
+  const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
+    body: {
+      phoneNumber,
+      amount: 20,
+    },
+  });
 
+  if (error) {
+    alert(error.message);
+    throw error;
+  }
+
+  console.log("STK Push Response:", data);
+
+  alert("STK Push sent. Please complete payment on your phone.");
+};
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
 }, [mediaFiles, mediaPreviews]);
@@ -198,9 +229,6 @@ export default function CreatorStudio() {
   const getTimelineDuration = () => {
     return selectedVideoDurationSeconds || 10;
   };
-
-
-  
 
  const addSceneToTimeline = (
   file: File,
@@ -463,8 +491,7 @@ export default function CreatorStudio() {
   setSceneDurations(uploaded.durations);
   setCurrentIndex(0);
 };
-
-  const handleGenerateImage = async () => {
+  const performImageGeneration = async () => {
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
@@ -499,7 +526,11 @@ setGeneratedImagePreview(result.previewUrl);
       setIsGeneratingImage(false);
     }
   };
-
+const handleGenerateImage = () => {
+  requestPaidGeneration("KSh 20", () => {
+    performImageGeneration();
+  });
+};
   const handleGenerateMultiScenePlan = () => {
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
@@ -1050,13 +1081,21 @@ const resetCurrentProject = () => {
             onPublishToFacebook={openFacebookAfterExport}
             onDownloadGeneratedImage={handleDownloadGeneratedImage}
             onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-              addSceneToTimeline(
-                file,
-                preview,
-                durationSeconds || getTimelineDuration()
-              )
-            }
-            onVideoDurationChange={setSelectedVideoDurationSeconds}
+  addSceneToTimeline(
+    file,
+    preview,
+    durationSeconds || getTimelineDuration()
+  )
+}
+onVideoDurationChange={setSelectedVideoDurationSeconds}
+
+requestGeneration={requestPaidGeneration}
+
+onRequestPayment={(amount, onSuccess) => {
+  setPaymentPrice(amount);
+  setPendingGeneration(() => onSuccess);
+  setPaymentOpen(true);
+}}
           />
         </div>
 
@@ -1151,7 +1190,23 @@ const resetCurrentProject = () => {
           </section>
         </div>
 
-      </div>
+            </div> {/* closes grid */}
+
+      <PaymentModal
+        open={paymentOpen}
+        price={paymentPrice}
+        onClose={() => setPaymentOpen(false)}
+        onPaymentSuccess={() => {
+          setPaymentOpen(false);
+          setPaymentComplete(true);
+
+          if (pendingGeneration) {
+            pendingGeneration();
+            setPendingGeneration(null);
+          }
+        }}
+        onMpesaPayment={handleMpesaPayment}
+      />
     </main>
   );
 }

@@ -88,9 +88,22 @@ type DynamicToolWorkspaceProps = {
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
-  onGenerateCompleteVideo?: () => void;
-  onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
+    onGenerateCompleteVideo?: () => void;
+  onAddEnhancedPhotoToTimeline?: (
+    file: File,
+    preview: string,
+    durationSeconds?: number
+  ) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+  requestGeneration?: (
+  amount: string,
+  generate: () => void
+) => void;
+  
+  onRequestPayment?: (
+    amount: string,
+    onSuccess: () => void
+  ) => void;
 };
 
 const boxClass =
@@ -537,6 +550,7 @@ function VideoTemplatePanel({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  requestGeneration, 
 }: {
   tool: string;
   videoPrompt?: string;
@@ -551,6 +565,10 @@ function VideoTemplatePanel({
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+  requestGeneration: (
+  amount: string,
+  generate: () => void
+) => void;
 }) {
   const [localVideoType, setLocalVideoType] = useState("Trending Reel");
   const [localVisualStyle, setLocalVisualStyle] = useState("Modern Social");
@@ -829,11 +847,16 @@ function VideoTemplatePanel({
         )}
 
         <div className="flex flex-wrap gap-3">
-          <PrimaryGenerateButton
-            label="Generate Video"
-            onClick={handleGenerateVideoDraft}
-          />
-
+         <PrimaryGenerateButton
+  label="Generate Video"
+  onClick={() => {
+    if (requestGeneration) {
+      requestGeneration("$0.70", handleGenerateVideoDraft);
+    } else {
+      handleGenerateVideoDraft();
+    }
+  }}
+/>
           <button
             type="button"
             onClick={() => {
@@ -881,6 +904,10 @@ function LifeEventVideoPanel({
   onGenerateCompleteVideo?: () => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+  requestGeneration?: (
+  amount: string,
+  generate: () => void
+) => void;
 }) {
   const isTribute = tool === "Obituary / Tribute Studio";
   const [occasion, setOccasion] = useState("Birthday");
@@ -1764,6 +1791,7 @@ export default function DynamicToolWorkspace({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  onRequestPayment,
 }: DynamicToolWorkspaceProps) {
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
@@ -1822,7 +1850,22 @@ export default function DynamicToolWorkspace({
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
   const [eventPhone, setEventPhone] = useState("");
+  const requestGeneration = (
+  amount: string,
+  generate: () => void
+) => {
+  console.log("requestGeneration called");
+  console.log("onRequestPayment =", onRequestPayment);
 
+  if (!onRequestPayment) {
+    console.log("No payment handler. Generating directly.");
+    generate();
+    return;
+  }
+
+  console.log("Opening payment...");
+  onRequestPayment(amount, generate);
+};
 
   if (!selectedTool) {
     return (
@@ -1851,12 +1894,11 @@ export default function DynamicToolWorkspace({
   const getCurrentPicturePrice = () =>
     premiumPictureTools.includes(tool) ? "$0.10" : "$0.05";
 
-  const confirmPictureGeneration = () =>
-    window.confirm(
-      `✨ Ready to Generate\n\nCreate your image for ${getCurrentPicturePrice()}`
-    );
-
-
+  const confirmPictureGeneration = (
+  generate: () => void
+) => {
+  requestGeneration(getCurrentPicturePrice(), generate);
+};
 
   const wrapCanvasText = (
     context: CanvasRenderingContext2D,
@@ -1897,12 +1939,9 @@ export default function DynamicToolWorkspace({
     return ["#7c2d12", "#f97316"];
   };
 
-  const generateQuoteImageFile = async () => {
-    if (!confirmPictureGeneration()) {
-      return;
-    }
-
-
+  const generateQuoteImageFile = () => {
+  confirmPictureGeneration(async () => {
+  console.log("generateQuoteImageFile called");
     const cleanQuote = quoteText.trim();
 
     if (!cleanQuote) {
@@ -2007,8 +2046,10 @@ export default function DynamicToolWorkspace({
     setQuotePreview(preview);
     setQuoteStatus(
       `${quoteOutputFormat} quote image created. Preview it, then add it to the timeline.`
-    );
-  };
+     );
+
+  });
+};
 
   const handleAddQuoteImageToTimeline = () => {
     if (!quoteFile || !quotePreview) {
@@ -3214,6 +3255,7 @@ export default function DynamicToolWorkspace({
         onGenerateCompleteVideo={onGenerateCompleteVideo}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
         onVideoDurationChange={onVideoDurationChange}
+        requestGeneration={requestGeneration}
       />
     );
   }
@@ -3234,6 +3276,7 @@ export default function DynamicToolWorkspace({
         onGenerateCompleteVideo={onGenerateCompleteVideo}
         onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
         onVideoDurationChange={onVideoDurationChange}
+        requestGeneration={requestGeneration}
       />
     );
   }
