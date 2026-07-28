@@ -1,78 +1,89 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { getAccessToken } from "../_shared/mpesa.ts";
-import { success, failure } from "../_shared/response.ts";
+
 import {
   MPESA_BASE_URL,
   MPESA_SHORTCODE,
-  MPESA_PASSKEY,
 } from "../_shared/env.ts";
 
-function generateTimestamp(): string {
-  const now = new Date();
+import { getAccessToken } from "../_shared/mpesa.ts";
 
-  const yyyy = now.getFullYear();
-  const MM = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  const HH = String(now.getHours()).padStart(2, "0");
-  const mm = String(now.getMinutes()).padStart(2, "0");
-  const ss = String(now.getSeconds()).padStart(2, "0");
+import {
+  generatePassword,
+  generateTimestamp,
+  normalizePhoneNumber,
+} from "../_shared/mpesa-utils.ts";
 
-  return `${yyyy}${MM}${dd}${HH}${mm}${ss}`;
-}
+import {
+  corsHeaders,
+  success,
+  failure,
+} from "../_shared/response.ts";
 
-serve(async (req) => {
+const CALLBACK_URL =
+  "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback";
+
+serve(async (req: Request): Promise<Response> => {
   try {
-    const body = await req.json();
+    // CORS
+    if (req.method === "OPTIONS") {
+      return new Response("ok", {
+        headers: corsHeaders,
+      });
+    }
 
-    const {
-      phoneNumber,
-      amount,
-      accountReference = "xnewsapp",
-      transactionDesc = "AI Generation",
-    } = body;
+    // Only POST
+    if (req.method !== "POST") {
+      return failure("Method Not Allowed", 405);
+    }
+
+    // Read body
+    let body: {
+      phoneNumber?: string;
+      amount?: number;
+    };
+
+    try {
+      body = await req.json();
+    } catch {
+      return failure("Invalid JSON body.", 400);
+    }
+
+    const { phoneNumber, amount } = body;
 
     if (!phoneNumber) {
       return failure("phoneNumber is required.", 400);
     }
 
-    if (!amount || Number(amount) <= 0) {
+    if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
       return failure("amount must be greater than zero.", 400);
     }
 
+    // Normalize phone
+    const customerPhone = normalizePhoneNumber(phoneNumber);
+
+    // Generate timestamp/password
+    const timestamp = generateTimestamp();
+    const password = generatePassword(timestamp);
+
+    // OAuth token
     const accessToken = await getAccessToken();
 
-    const timestamp = generateTimestamp();
-
-    const password = btoa(
-      `${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`
-    );
-
-    // Debug information (does not expose secrets)
-    console.log("===== MPESA STK PUSH DEBUG =====");
-    console.log("Base URL:", MPESA_BASE_URL);
-    console.log("BusinessShortCode:", MPESA_SHORTCODE);
-    console.log("Timestamp:", timestamp);
-    console.log("Passkey Present:", MPESA_PASSKEY.length > 0);
-    console.log("PhoneNumber:", phoneNumber);
-    console.log("Amount:", amount);
-
-    const payload = {
+    // Build payload
+    const stkPayload = {
       BusinessShortCode: MPESA_SHORTCODE,
       Password: password,
       Timestamp: timestamp,
       TransactionType: "CustomerPayBillOnline",
-      Amount: Number(amount),
-      PartyA: phoneNumber,
+      Amount: Math.round(amount),
+      PartyA: customerPhone,
       PartyB: MPESA_SHORTCODE,
-      PhoneNumber: phoneNumber,
-      CallBackURL:
-        "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback",
-      AccountReference: accountReference,
-      TransactionDesc: transactionDesc,
+      PhoneNumber: customerPhone,
+      CallBackURL: CALLBACK_URL,
+      AccountReference: "xnewsapp",
+      TransactionDesc: "AI Content Generation",
     };
 
-    console.log("Payload:", JSON.stringify(payload, null, 2));
-
+    // Send request
     const response = await fetch(
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
       {
@@ -81,42 +92,70 @@ serve(async (req) => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(stkPayload),
       }
     );
 
-    const result = await response.json();
+    // Parse response
+    let result: Record<string, unknown>;
 
-    console.log("===== SAFARICOM RESPONSE =====");
-    console.log(JSON.stringify(result, null, 2));
-
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify(
-          {
-            success: false,
-            status: response.status,
-            safaricom: result,
-          },
-          null,
-          2
-        ),
-        {
-          status: response.status,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+    try {
+      result = await response.json();
+    } catch {
+      return failure(
+        "Invalid response received from Safaricom.",
+        502
       );
     }
 
-    return success(result);
+    // HTTP error
+    if (!response.ok) {
+      console.error("Safaricom Error:", result);
+
+      return failure(
+        String(
+          result["errorMessage"] ??
+          result["errorCode"] ??
+          "Failed to initiate STK Push."
+        ),
+        response.status
+      );
+    }
+
+    // Validate response
+    const checkoutRequestID = result["CheckoutRequestID"];
+    const merchantRequestID = result["MerchantRequestID"];
+
+    if (
+      typeof checkoutRequestID !== "string" ||
+      typeof merchantRequestID !== "string"
+    ) {
+      console.error("Unexpected Safaricom Response:", result);
+
+      return failure(
+        "Safaricom returned an unexpected response.",
+        502
+      );
+    }
+
+    // Success
+    return success({
+      merchantRequestID,
+      checkoutRequestID,
+      responseCode: result["ResponseCode"],
+      responseDescription: result["ResponseDescription"],
+      customerMessage: result["CustomerMessage"],
+      phoneNumber: customerPhone,
+      amount,
+    });
+
   } catch (error) {
-    console.error("===== ERROR =====");
-    console.error(error);
+    console.error("M-Pesa STK Push Error:", error);
 
     return failure(
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error
+        ? error.message
+        : "Internal server error.",
       500
     );
   }
