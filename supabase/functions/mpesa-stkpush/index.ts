@@ -14,7 +14,6 @@ import {
 } from "../_shared/mpesa-utils.ts";
 
 import {
-  corsHeaders,
   success,
   failure,
 } from "../_shared/response.ts";
@@ -26,10 +25,8 @@ serve(async (req: Request): Promise<Response> => {
   try {
     // CORS
     if (req.method === "OPTIONS") {
-      return new Response("ok", {
-        headers: corsHeaders,
-      });
-    }
+  return success({ ok: true });
+}
 
     // Only POST
     if (req.method !== "POST") {
