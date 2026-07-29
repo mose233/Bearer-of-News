@@ -25,15 +25,15 @@ serve(async (req: Request): Promise<Response> => {
   try {
     // CORS
     if (req.method === "OPTIONS") {
-  return success({ ok: true });
-}
+      return success({ ok: true });
+    }
 
     // Only POST
     if (req.method !== "POST") {
       return failure("Method Not Allowed", 405);
     }
 
-    // Read body
+    // Read request body
     let body: {
       phoneNumber?: string;
       amount?: number;
@@ -51,7 +51,11 @@ serve(async (req: Request): Promise<Response> => {
       return failure("phoneNumber is required.", 400);
     }
 
-    if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
+    if (
+      typeof amount !== "number" ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
       return failure("amount must be greater than zero.", 400);
     }
 
@@ -62,10 +66,10 @@ serve(async (req: Request): Promise<Response> => {
     const timestamp = generateTimestamp();
     const password = generatePassword(timestamp);
 
-    // OAuth token
+    // Verify OAuth still works
     const accessToken = await getAccessToken();
 
-    // Build payload
+    // Build STK payload
     const stkPayload = {
       BusinessShortCode: MPESA_SHORTCODE,
       Password: password,
@@ -80,76 +84,16 @@ serve(async (req: Request): Promise<Response> => {
       TransactionDesc: "AI Content Generation",
     };
 
-     // Send request
-console.error("=== DEBUG ===");
-console.error("Normalized Phone:", customerPhone);
-console.error("Amount:", amount);
-console.error("Rounded Amount:", Math.round(amount));
-console.error("BusinessShortCode:", MPESA_SHORTCODE);
-console.error("Payload:", JSON.stringify(stkPayload, null, 2));
-const response = await fetch(
-  `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(stkPayload),
-  }
-);
-
-    // Parse response
-    let result: Record<string, unknown>;
-
-    try {
-      result = await response.json();
-    } catch {
-      return failure(
-        "Invalid response received from Safaricom.",
-        502
-      );
-    }
-
-    // HTTP error
-    if (!response.ok) {
-      console.error("Safaricom Error:", result);
-
-      return failure(
-        String(
-          result["errorMessage"] ??
-          result["errorCode"] ??
-          "Failed to initiate STK Push."
-        ),
-        response.status
-      );
-    }
-
-    // Validate response
-    const checkoutRequestID = result["CheckoutRequestID"];
-    const merchantRequestID = result["MerchantRequestID"];
-
-    if (
-      typeof checkoutRequestID !== "string" ||
-      typeof merchantRequestID !== "string"
-    ) {
-      console.error("Unexpected Safaricom Response:", result);
-
-      return failure(
-        "Safaricom returned an unexpected response.",
-        502
-      );
-    }
-
-    // Success
+    // TEMPORARY DEBUG RESPONSE
     return success({
-      merchantRequestID,
-      checkoutRequestID,
-      responseCode: result["ResponseCode"],
-      responseDescription: result["ResponseDescription"],
-      customerMessage: result["CustomerMessage"],
-      phoneNumber: customerPhone,
+      debug: true,
+      customerPhone,
       amount,
+      roundedAmount: Math.round(amount),
+      businessShortCode: MPESA_SHORTCODE,
+      baseUrl: MPESA_BASE_URL,
+      accessTokenReceived: !!accessToken,
+      payload: stkPayload,
     });
 
   } catch (error) {
