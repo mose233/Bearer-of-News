@@ -82,6 +82,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send request
     const response = await fetch(
+    console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
       {
         method: "POST",
