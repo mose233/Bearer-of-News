@@ -1,12 +1,19 @@
 import { PaymentRequest, PaymentResult } from "./PaymentTypes";
-import { PricingService } from "./PricingService";
-import { CurrencyService } from "./CurrencyService";
 import { MpesaPayment } from "./MpesaPayment";
 import { VisaPayment } from "./VisaPayment";
 
+const PRICING = {
+  "picture-ai": 0.05,
+  "video-ai": 0.50,
+  "music-ai": 0.20,
+  "cinematic-ai": 1.50,
+} as const;
+
+const USD_TO_KES = 130;
+
 export class PaymentManager {
   static async pay(request: PaymentRequest): Promise<PaymentResult> {
-    const priceUSD = PricingService[request.tool];
+    const priceUSD = PRICING[request.tool];
 
     if (priceUSD === undefined) {
       return {
@@ -24,7 +31,7 @@ export class PaymentManager {
           };
         }
 
-        const amountKES = CurrencyService.usdToKes(priceUSD);
+        const amountKES = Math.max(1, Math.round(priceUSD * USD_TO_KES));
 
         return MpesaPayment.pay({
           phoneNumber: request.phoneNumber,
@@ -34,12 +41,11 @@ export class PaymentManager {
         });
       }
 
-      case "visa": {
+      case "visa":
         return VisaPayment.pay({
           amountUSD: priceUSD,
           tool: request.tool,
         });
-      }
 
       default:
         return {
