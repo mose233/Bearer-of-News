@@ -5,6 +5,7 @@ import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { PaymentManager } from "@/lib/payments/PaymentManager";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -141,7 +142,6 @@ const requestPaidGeneration = (
       });
     }, 120);
   };
-import { PaymentManager } from "@/lib/payments/PaymentManager";
 
 const handleMpesaPayment = async (phoneNumber: string) => {
   const result = await PaymentManager.pay({
