@@ -141,22 +141,23 @@ const requestPaidGeneration = (
       });
     }, 120);
   };
+import { PaymentManager } from "@/lib/payments/PaymentManager";
+
 const handleMpesaPayment = async (phoneNumber: string) => {
-  const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
-    body: {
-      phoneNumber,
-      amount: 20,
-    },
+  const result = await PaymentManager.pay({
+    tool: "picture-ai",
+    paymentMethod: "mpesa",
+    phoneNumber,
   });
 
-  if (error) {
-    alert(error.message);
-    throw error;
+  if (!result.success) {
+    alert(result.message ?? "Payment failed.");
+    throw new Error(result.message);
   }
 
-  console.log("STK Push Response:", data);
+  console.log("Payment Result:", result);
 
-  alert("STK Push sent. Please complete payment on your phone.");
+  alert(result.message ?? "STK Push sent. Please complete payment on your phone.");
 };
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
