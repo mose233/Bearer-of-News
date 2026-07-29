@@ -80,19 +80,20 @@ serve(async (req: Request): Promise<Response> => {
       TransactionDesc: "AI Content Generation",
     };
 
-    // Send request
-    const response = await fetch(
-    console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
-      `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(stkPayload),
-      }
-    );
+     // Send request
+console.log("Normalized Phone:", customerPhone);
+console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
+const response = await fetch(
+  `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(stkPayload),
+  }
+);
 
     // Parse response
     let result: Record<string, unknown>;
