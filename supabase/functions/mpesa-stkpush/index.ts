@@ -81,8 +81,12 @@ serve(async (req: Request): Promise<Response> => {
     };
 
      // Send request
-console.log("Normalized Phone:", customerPhone);
-console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
+console.error("=== DEBUG ===");
+console.error("Normalized Phone:", customerPhone);
+console.error("Amount:", amount);
+console.error("Rounded Amount:", Math.round(amount));
+console.error("BusinessShortCode:", MPESA_SHORTCODE);
+console.error("Payload:", JSON.stringify(stkPayload, null, 2));
 const response = await fetch(
   `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
   {
