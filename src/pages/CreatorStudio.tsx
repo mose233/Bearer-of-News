@@ -157,7 +157,9 @@ const handleMpesaPayment = async (phoneNumber: string) => {
 
   console.log("Payment Result:", result);
 
-  alert(result.message ?? "STK Push sent. Please complete payment on your phone.");
+  // Payment request accepted.
+  // Do NOT generate AI yet.
+  return result;
 };
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
