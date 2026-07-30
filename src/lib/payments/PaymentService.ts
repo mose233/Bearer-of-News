@@ -44,7 +44,11 @@ export class PaymentService {
         throw new Error("No response received from payment server.");
       }
 
-      return data as MpesaPaymentResponse;
+      if (!data.success) {
+  throw new Error(data.error ?? "Payment request failed.");
+}
+
+return data.data as MpesaPaymentResponse;
     } catch (err) {
       console.error("M-Pesa STK Push failed:", err);
       throw err;
