@@ -97,7 +97,29 @@ const response = await fetch(
   }
 );
 
-const data = await response.json();
+// Log the payload BEFORE sending it
+console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
+
+// Send request to Daraja
+const response = await fetch(
+  `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(stkPayload),
+  }
+);
+
+// Read the response
+const responseText = await response.text();
+
+console.log("Daraja Status:", response.status);
+console.log("Daraja Response:", responseText);
+
+const data = JSON.parse(responseText);
 
 if (!response.ok) {
   console.error("Daraja Error:", data);
