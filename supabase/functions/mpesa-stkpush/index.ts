@@ -84,17 +84,33 @@ serve(async (req: Request): Promise<Response> => {
       TransactionDesc: "AI Content Generation",
     };
 
-    // TEMPORARY DEBUG RESPONSE
-    return success({
-      debug: true,
-      customerPhone,
-      amount,
-      roundedAmount: Math.round(amount),
-      businessShortCode: MPESA_SHORTCODE,
-      baseUrl: MPESA_BASE_URL,
-      accessTokenReceived: !!accessToken,
-      payload: stkPayload,
-    });
+   // Send STK Push request to Safaricom
+const response = await fetch(
+  `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(stkPayload),
+  }
+);
+
+const data = await response.json();
+
+if (!response.ok) {
+  console.error("Daraja Error:", data);
+
+  return failure(
+    data.errorMessage ??
+      data.ResponseDescription ??
+      "Failed to send STK Push.",
+    response.status
+  );
+}
+
+return success(data);
 
   } catch (error) {
     console.error("M-Pesa STK Push Error:", error);
