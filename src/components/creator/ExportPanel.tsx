@@ -37,11 +37,6 @@ export default function ExportPanel({
   const openExternal = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
-console.log("EXPORT PANEL", {
-  isRecording,
-  isExporting,
-  busy,
-});
   return (
     <div className="space-y-4 text-white">
        {exportStatus && (
