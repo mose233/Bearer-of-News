@@ -1,145 +1,158 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { useState } from "react";
+import { X } from "lucide-react";
+import { PaymentService } from "@/lib/payments/PaymentService";
 
-import {
-  MPESA_BASE_URL,
-  MPESA_SHORTCODE,
-} from "../_shared/env.ts";
+type PaymentModalProps = {
+  open: boolean;
+  price: string;
+  onClose: () => void;
+  onPaymentSuccess: () => void;
+};
 
-import { getAccessToken } from "../_shared/mpesa.ts";
+const paymentMethods = [
+  "M-Pesa Kenya",
+  "Airtel Money Kenya",
+  "MTN Mobile Money",
+  "Airtel Money Uganda",
+  "M-Pesa Tanzania",
+  "Airtel Money Tanzania",
+  "Visa",
+];
 
-import {
-  generatePassword,
-  generateTimestamp,
-  normalizePhoneNumber,
-} from "../_shared/mpesa-utils.ts";
+export default function PaymentModal({
+  open,
+  price,
+  onClose,
+  onPaymentSuccess,
+}: PaymentModalProps) {
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
-import {
-  success,
-  failure,
-} from "../_shared/response.ts";
+  if (!open) return null;
 
-const CALLBACK_URL =
-  "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback";
-
-serve(async (req: Request): Promise<Response> => {
-  try {
-    // Handle CORS
-    if (req.method === "OPTIONS") {
-      return success({ ok: true });
+  const handleMpesaPayment = async () => {
+    if (!phoneNumber.trim()) {
+      alert("Please enter your M-Pesa phone number.");
+      return;
     }
-
-    // Only allow POST
-    if (req.method !== "POST") {
-      return failure("Method Not Allowed", 405);
-    }
-
-    // Read request body
-    let body: {
-      phoneNumber?: string;
-      amount?: number;
-    };
 
     try {
-      body = await req.json();
-    } catch {
-      return failure("Invalid JSON body.", 400);
-    }
+      setIsProcessing(true);
 
-    const { phoneNumber, amount } = body;
+      const response = await PaymentService.sendMpesaSTKPush({
+        phoneNumber,
+        amount: Number(price.replace(/[^\d.]/g, "")),
+      });
 
-    if (!phoneNumber) {
-      return failure("phoneNumber is required.", 400);
-    }
-
-    if (
-      typeof amount !== "number" ||
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
-      return failure("amount must be greater than zero.", 400);
-    }
-
-    // Normalize phone number
-    const customerPhone = normalizePhoneNumber(phoneNumber);
-
-    // Generate timestamp & password
-    const timestamp = generateTimestamp();
-    const password = generatePassword(timestamp);
-
-    // Get OAuth token
-    const accessToken = await getAccessToken();
-
-    // Ensure minimum payment is 1 KES
-    const amountToCharge = Math.max(1, Math.round(amount));
-
-    // Build STK Push payload
-    const stkPayload = {
-      BusinessShortCode: MPESA_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
-      Amount: amountToCharge,
-      PartyA: customerPhone,
-      PartyB: MPESA_SHORTCODE,
-      PhoneNumber: customerPhone,
-      CallBackURL: CALLBACK_URL,
-      AccountReference: "xnewsapp",
-      TransactionDesc: "AI Content Generation",
-    };
-
-    console.log(
-      "STK Payload:",
-      JSON.stringify(stkPayload, null, 2)
-    );
-
-    // Send STK Push request
-    const response = await fetch(
-      `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(stkPayload),
-      }
-    );
-
-    const responseText = await response.text();
-
-    console.log("Daraja Status:", response.status);
-    console.log("Daraja Response:", responseText);
-
-    let data: any;
-
-    try {
-      data = JSON.parse(responseText);
-    } catch {
-      return failure("Invalid response from Daraja.", 500);
-    }
-
-    if (!response.ok) {
-      console.error("Daraja Error:", data);
-
-      return failure(
-        data.errorMessage ??
-          data.ResponseDescription ??
-          "Failed to send STK Push.",
-        response.status
+      setStatusMessage(
+        "📱 STK Push sent. Please complete the payment on your phone..."
       );
-    }
 
-    // Return the REAL Daraja response
-    return success(data);
+      const checkoutRequestID = response.CheckoutRequestID;
 
-  } catch (error) {
-    console.error("M-Pesa STK Push Error:", error);
-
-    return failure(
-      error instanceof Error
-        ? error.message
-        : "Internal server error.",
-      500
+     const interval = setInterval(async () => {
+  try {
+    const result = await PaymentService.checkMpesaPayment(
+      checkoutRequestID
     );
+
+    if (result.paid) {
+      clearInterval(interval);
+
+      setStatusMessage("✅ Payment confirmed!");
+
+      setIsProcessing(false);
+
+      onPaymentSuccess();
+
+      onClose();
+    }
+  } catch (err) {
+    console.error("Payment status check failed:", err);
   }
-});
+}, 3000);
+    } catch (err) {
+      console.error("STK Push failed:", err);
+      alert("Failed to initiate M-Pesa payment.");
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950 p-5 text-white shadow-2xl">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-extrabold">
+            ✨ Ready to Generate
+          </h3>
+
+          <button onClick={onClose}>
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <p className="mt-3 text-sm text-slate-300">
+          Create your image for <strong>{price}</strong>
+        </p>
+
+        <h4 className="mt-5 text-sm font-extrabold">
+          Choose Payment Method
+        </h4>
+
+        <div className="mt-4 max-h-[320px] overflow-y-auto space-y-3 pr-1">
+          {paymentMethods.map((method) => (
+            <button
+              key={method}
+              onClick={() => setSelectedMethod(method)}
+              className={`w-full rounded-2xl border px-4 py-3 text-left font-bold transition ${
+                selectedMethod === method
+                  ? "border-cyan-400 bg-cyan-900/30"
+                  : "border-white/10 bg-slate-900 hover:bg-slate-800"
+              }`}
+            >
+              {method}
+            </button>
+          ))}
+
+          {selectedMethod === "M-Pesa Kenya" && (
+            <div className="mt-5 space-y-4">
+              <input
+                type="tel"
+                placeholder="2547XXXXXXXX"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+
+              <button
+                disabled={isProcessing}
+                onClick={handleMpesaPayment}
+                className="w-full rounded-xl bg-green-600 py-3 font-bold text-white hover:bg-green-700 disabled:opacity-60"
+              >
+                {isProcessing
+                  ? "Waiting for Payment..."
+                  : "Send STK Push"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {statusMessage && (
+          <div className="mt-5 rounded-xl bg-slate-800 p-3 text-sm text-cyan-300">
+            {statusMessage}
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          disabled={isProcessing}
+          className="mt-5 w-full rounded-2xl bg-slate-700 py-3 font-bold hover:bg-slate-600 disabled:opacity-50"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
