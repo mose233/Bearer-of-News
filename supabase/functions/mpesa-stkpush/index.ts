@@ -23,12 +23,12 @@ const CALLBACK_URL =
 
 serve(async (req: Request): Promise<Response> => {
   try {
-    // CORS
+    // Handle CORS
     if (req.method === "OPTIONS") {
       return success({ ok: true });
     }
 
-    // Only POST
+    // Only allow POST
     if (req.method !== "POST") {
       return failure("Method Not Allowed", 405);
     }
@@ -59,23 +59,26 @@ serve(async (req: Request): Promise<Response> => {
       return failure("amount must be greater than zero.", 400);
     }
 
-    // Normalize phone
+    // Normalize phone number
     const customerPhone = normalizePhoneNumber(phoneNumber);
 
-    // Generate timestamp/password
+    // Generate timestamp & password
     const timestamp = generateTimestamp();
     const password = generatePassword(timestamp);
 
-    // Verify OAuth still works
+    // Get OAuth token
     const accessToken = await getAccessToken();
 
-    // Build STK payload
+    // Ensure minimum payment is 1 KES
+    const amountToCharge = Math.max(1, Math.round(amount));
+
+    // Build STK Push payload
     const stkPayload = {
       BusinessShortCode: MPESA_SHORTCODE,
       Password: password,
       Timestamp: timestamp,
       TransactionType: "CustomerPayBillOnline",
-      Amount: Math.round(amount),
+      Amount: amountToCharge,
       PartyA: customerPhone,
       PartyB: MPESA_SHORTCODE,
       PhoneNumber: customerPhone,
@@ -84,55 +87,50 @@ serve(async (req: Request): Promise<Response> => {
       TransactionDesc: "AI Content Generation",
     };
 
-   // Send STK Push request to Safaricom
-const response = await fetch(
-  `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(stkPayload),
-  }
-);
+    console.log(
+      "STK Payload:",
+      JSON.stringify(stkPayload, null, 2)
+    );
 
-// Log the payload BEFORE sending it
-console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
+    // Send STK Push request
+    const response = await fetch(
+      `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(stkPayload),
+      }
+    );
 
-// Send request to Daraja
-const response = await fetch(
-  `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(stkPayload),
-  }
-);
+    const responseText = await response.text();
 
-// Read the response
-const responseText = await response.text();
+    console.log("Daraja Status:", response.status);
+    console.log("Daraja Response:", responseText);
 
-console.log("Daraja Status:", response.status);
-console.log("Daraja Response:", responseText);
+    let data: any;
 
-const data = JSON.parse(responseText);
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      return failure("Invalid response from Daraja.", 500);
+    }
 
-if (!response.ok) {
-  console.error("Daraja Error:", data);
+    if (!response.ok) {
+      console.error("Daraja Error:", data);
 
-  return failure(
-    data.errorMessage ??
-      data.ResponseDescription ??
-      "Failed to send STK Push.",
-    response.status
-  );
-}
+      return failure(
+        data.errorMessage ??
+          data.ResponseDescription ??
+          "Failed to send STK Push.",
+        response.status
+      );
+    }
 
-return success(data);
+    // Return the REAL Daraja response
+    return success(data);
 
   } catch (error) {
     console.error("M-Pesa STK Push Error:", error);
