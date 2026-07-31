@@ -31,9 +31,6 @@ export async function querySTKStatus(checkoutRequestID: string) {
 
   const text = await response.text();
 
-  console.log("STK Query HTTP Status:", response.status);
-  console.log("STK Query Raw Response:", text);
-
   if (!text.trim()) {
     throw new Error(
       `Daraja returned an empty response (HTTP ${response.status}).`
