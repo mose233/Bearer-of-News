@@ -42,15 +42,32 @@ export default function PaymentModal({
       setIsProcessing(true);
 
       const response = await PaymentService.sendMpesaSTKPush({
-        phoneNumber,
-        amount: Number(price.replace(/[^\d.]/g, "")),
-      });
+  phoneNumber,
+  amount: Number(price.replace(/[^\d.]/g, "")),
+});
 
-      setStatusMessage(
-        "📱 STK Push sent. Please complete the payment on your phone..."
-      );
+console.log("========== MPESA RESPONSE ==========");
+console.log(response);
+console.log("MerchantRequestID:", response?.MerchantRequestID);
+console.log("CheckoutRequestID:", response?.CheckoutRequestID);
+console.log("===================================");
 
-      const checkoutRequestID = response.CheckoutRequestID;
+setStatusMessage(
+  "📱 STK Push sent. Please complete the payment on your phone..."
+);
+
+const checkoutRequestID = response.CheckoutRequestID;
+
+if (!checkoutRequestID) {
+  console.error("No CheckoutRequestID returned:", response);
+
+  alert(
+    "M-Pesa did not return a CheckoutRequestID. Check the browser console."
+  );
+
+  setIsProcessing(false);
+  return;
+}
 
      const interval = setInterval(async () => {
   try {
