@@ -31,12 +31,29 @@ export async function querySTKStatus(checkoutRequestID: string) {
 
   const text = await response.text();
 
+  console.log("STK Query HTTP Status:", response.status);
+  console.log("STK Query Raw Response:", text);
+
+  if (!text.trim()) {
+    throw new Error(
+      `Daraja returned an empty response (HTTP ${response.status}).`
+    );
+  }
+
   let data;
 
   try {
     data = JSON.parse(text);
-  } catch {
-    throw new Error("Invalid response from Daraja.");
+  } catch (err) {
+    throw new Error(
+      `Daraja returned invalid JSON: ${text}`
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Daraja Error (${response.status}): ${JSON.stringify(data)}`
+    );
   }
 
   return data;
