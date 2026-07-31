@@ -124,7 +124,6 @@ const requestPaidGeneration = (
   amount: string,
   generate: () => void
 ) => {
-  console.log("Opening payment for:", amount);
 
   setPaymentPrice(amount);
   setPendingGeneration(() => generate);
