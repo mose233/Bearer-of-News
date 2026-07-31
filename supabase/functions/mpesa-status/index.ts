@@ -1,8 +1,9 @@
 import { serve } from "https://deno.land/std/http/server.ts";
+
 import { corsHeaders } from "../_shared/response.ts";
+import { querySTKStatus } from "../_shared/mpesa-query.ts";
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", {
       headers: corsHeaders,
@@ -28,14 +29,51 @@ serve(async (req) => {
       );
     }
 
-    // TODO:
-    // Here we will later check whether the payment
-    // has been completed with Safaricom.
+    const result = await querySTKStatus(checkoutRequestID);
+
+    const resultCode = String(result.ResultCode ?? "");
+
+    if (resultCode === "0") {
+      return new Response(
+        JSON.stringify({
+          paid: true,
+          pending: false,
+          result,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    if (
+      resultCode === "1032" ||
+      resultCode === "1037" ||
+      result.ResponseCode === "0"
+    ) {
+      return new Response(
+        JSON.stringify({
+          paid: false,
+          pending: true,
+          result,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     return new Response(
       JSON.stringify({
         paid: false,
-        message: "Payment verification not implemented yet.",
+        pending: false,
+        result,
       }),
       {
         headers: {
@@ -44,6 +82,7 @@ serve(async (req) => {
         },
       }
     );
+
   } catch (err) {
     return new Response(
       JSON.stringify({
