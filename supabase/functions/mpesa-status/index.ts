@@ -33,11 +33,14 @@ serve(async (req) => {
 
     const resultCode = String(result.ResultCode ?? "");
 
+    // ✅ Payment successful
     if (resultCode === "0") {
       return new Response(
         JSON.stringify({
           paid: true,
           pending: false,
+          cancelled: false,
+          failed: false,
           result,
         }),
         {
@@ -49,15 +52,14 @@ serve(async (req) => {
       );
     }
 
-    if (
-      resultCode === "1032" ||
-      resultCode === "1037" ||
-      result.ResponseCode === "0"
-    ) {
+    // ✅ Still processing
+    if (resultCode === "4999") {
       return new Response(
         JSON.stringify({
           paid: false,
           pending: true,
+          cancelled: false,
+          failed: false,
           result,
         }),
         {
@@ -69,10 +71,54 @@ serve(async (req) => {
       );
     }
 
+    // ✅ User cancelled
+    if (resultCode === "1032") {
+      return new Response(
+        JSON.stringify({
+          paid: false,
+          pending: false,
+          cancelled: true,
+          failed: false,
+          message: "Payment cancelled by user.",
+          result,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    // ✅ Request timed out
+    if (resultCode === "1037") {
+      return new Response(
+        JSON.stringify({
+          paid: false,
+          pending: false,
+          cancelled: false,
+          failed: true,
+          message: "Payment request timed out.",
+          result,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    // ✅ Any other failure
     return new Response(
       JSON.stringify({
         paid: false,
         pending: false,
+        cancelled: false,
+        failed: true,
+        message: result.ResultDesc ?? "Payment failed.",
         result,
       }),
       {
@@ -87,6 +133,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         paid: false,
+        pending: false,
+        cancelled: false,
+        failed: true,
         error: err instanceof Error ? err.message : "Unknown error",
       }),
       {
