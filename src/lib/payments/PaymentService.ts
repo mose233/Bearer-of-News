@@ -13,6 +13,15 @@ export interface MpesaPaymentResponse {
   CustomerMessage: string;
 }
 
+export interface MpesaPaymentStatusResponse {
+  paid: boolean;
+  pending?: boolean;
+  cancelled?: boolean;
+  failed?: boolean;
+  message?: string;
+  result?: any;
+}
+
 export class PaymentService {
   /**
    * Send an M-Pesa STK Push request.
@@ -60,7 +69,7 @@ return data.data as MpesaPaymentResponse;
    */
   static async checkMpesaPayment(
     checkoutRequestID: string
-  ): Promise<{ paid: boolean; message?: string }> {
+  ): Promise<MpesaPaymentStatusResponse> {
     if (!checkoutRequestID?.trim()) {
       throw new Error("CheckoutRequestID is required.");
     }
@@ -83,10 +92,7 @@ return data.data as MpesaPaymentResponse;
         throw new Error("No response received from payment status server.");
       }
 
-      return data as {
-        paid: boolean;
-        message?: string;
-      };
+      return data as MpesaPaymentStatusResponse;
     } catch (err) {
       console.error("Payment status check failed:", err);
       throw err;
