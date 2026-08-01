@@ -58,6 +58,7 @@ export default function PaymentModal({
       checkoutRequestID
     );
 
+    // ✅ Payment successful
     if (result.paid) {
       clearInterval(interval);
 
@@ -68,9 +69,49 @@ export default function PaymentModal({
       onPaymentSuccess();
 
       onClose();
+
+      return;
+    }
+
+    // ⏳ Still waiting for payment
+    if ((result as any).pending) {
+      return;
+    }
+
+    // ❌ User cancelled
+    if ((result as any).cancelled) {
+      clearInterval(interval);
+
+      setStatusMessage("❌ Payment cancelled.");
+
+      setIsProcessing(false);
+
+      return;
+    }
+
+    // ❌ Payment failed or timed out
+    if ((result as any).failed) {
+      clearInterval(interval);
+
+      setStatusMessage(
+        (result as any).message ??
+          "❌ Payment failed. Please try again."
+      );
+
+      setIsProcessing(false);
+
+      return;
     }
   } catch (err) {
+    clearInterval(interval);
+
     console.error("Payment status check failed:", err);
+
+    setStatusMessage(
+      "Unable to verify payment. Please try again."
+    );
+
+    setIsProcessing(false);
   }
 }, 3000);
     } catch (err) {
