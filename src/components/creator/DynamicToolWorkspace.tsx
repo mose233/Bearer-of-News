@@ -2473,6 +2473,18 @@ const isThumbnailCreator = tool === "Thumbnail Creator";
 const isTextToImage = tool === "Text to Image";
 const isAIArtGenerator = tool === "AI Art Generator";
 const isMemeGenerator = tool === "Meme Generator";
+    const isPromptToImage =
+  isFacebookPostImage ||
+  isInstagramPostImage ||
+  isWhatsAppStatusImage ||
+  isPosterFlyer ||
+  isEventPoster ||
+  isBusinessBanner ||
+  isProductAdImage ||
+  isThumbnailCreator ||
+  isTextToImage ||
+  isAIArtGenerator ||
+  isMemeGenerator;
     const showFontStudio = [
       "Product Ad Image",
       "Facebook Post Image",
