@@ -1,4 +1,5 @@
 import { fal } from "@fal-ai/client";
+import { getPictureModel, PictureTool } from "./models";
 
 fal.config({
   credentials: import.meta.env.VITE_FAL_KEY,
@@ -6,7 +7,7 @@ fal.config({
 
 export interface PictureAIRequest {
   prompt: string;
-  tool: string;
+  tool: PictureTool;
   style?: string;
   aspectRatio?: string;
   image?: File;
@@ -23,22 +24,22 @@ export class PictureAIService {
     request: PictureAIRequest
   ): Promise<PictureAIResult> {
     try {
-      const result = await fal.subscribe(
-        "fal-ai/flux/dev",
-        {
-          input: {
-            prompt: request.prompt,
-          },
-        }
-      );
+      // Get the correct fal.ai model for the selected tool
+      const model = getPictureModel(request.tool);
 
-      const imageUrl =
-        result.data.images?.[0]?.url;
+      // Generate the image
+      const result = await fal.subscribe(model, {
+        input: {
+          prompt: request.prompt,
+        },
+      });
+
+      const imageUrl = result.data.images?.[0]?.url;
 
       if (!imageUrl) {
         return {
           success: false,
-          error: "No image returned.",
+          error: "No image returned from fal.ai.",
         };
       }
 
@@ -52,7 +53,7 @@ export class PictureAIService {
         error:
           err instanceof Error
             ? err.message
-            : "Unknown error",
+            : "Unknown error occurred.",
       };
     }
   }
