@@ -2465,6 +2465,14 @@ export default function DynamicToolWorkspace({
     const isProductAdImage = tool === "Product Ad Image";
     const isFacebookPostImage = tool === "Facebook Post Image";
     const isPosterFlyer = tool === "Poster / Flyer";
+    const isInstagramPostImage = tool === "Instagram Post Image";
+const isWhatsAppStatusImage = tool === "WhatsApp Status Image";
+const isEventPoster = tool === "Event Poster";
+const isBusinessBanner = tool === "Business Banner";
+const isThumbnailCreator = tool === "Thumbnail Creator";
+const isTextToImage = tool === "Text to Image";
+const isAIArtGenerator = tool === "AI Art Generator";
+const isMemeGenerator = tool === "Meme Generator";
     const showFontStudio = [
       "Product Ad Image",
       "Facebook Post Image",
