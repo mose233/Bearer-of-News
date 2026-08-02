@@ -1,5 +1,3 @@
-import { fal } from "@fal-ai/client";
-
 export type ImageGenerationRequest = {
   tool: string;
   prompt: string;
@@ -17,36 +15,79 @@ export class ImageProvider {
     request: ImageGenerationRequest
   ): Promise<ImageGenerationResult> {
 
-    fal.config({
-      credentials: request.falApiKey,
-    });
+    // Step 1: Submit generation request
+    const queueResponse = await fetch(
+      "https://queue.fal.run/fal-ai/flux/dev",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Key ${request.falApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: request.prompt,
+        }),
+      }
+    );
 
-    const result = await fal.subscribe("fal-ai/flux/dev", {
-      input: {
-        prompt: request.prompt,
-      },
-    });
-
-    const imageUrl = result.data.images?.[0]?.url;
-
-    if (!imageUrl) {
-      throw new Error("fal.ai returned no image.");
+    if (!queueResponse.ok) {
+      const error = await queueResponse.text();
+      throw new Error(`fal.ai request failed: ${error}`);
     }
 
-    // Download the generated image
+    const queueResult = await queueResponse.json();
+
+    const requestId = queueResult.request_id;
+
+    if (!requestId) {
+      throw new Error("fal.ai did not return a request ID.");
+    }
+
+    // Step 2: Poll until finished
+    let imageUrl: string | undefined;
+
+    while (!imageUrl) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const statusResponse = await fetch(
+        `https://queue.fal.run/fal-ai/flux/dev/requests/${requestId}`,
+        {
+          headers: {
+            Authorization: `Key ${request.falApiKey}`,
+          },
+        }
+      );
+
+      if (!statusResponse.ok) {
+        const error = await statusResponse.text();
+        throw new Error(error);
+      }
+
+      const status = await statusResponse.json();
+
+      if (status.status === "COMPLETED") {
+        imageUrl = status.response?.images?.[0]?.url;
+      }
+
+      if (status.status === "FAILED") {
+        throw new Error(
+          status.error ?? "fal.ai generation failed."
+        );
+      }
+    }
+
+    // Step 3: Download generated image
     const imageResponse = await fetch(imageUrl);
 
     if (!imageResponse.ok) {
-      throw new Error("Failed to download generated image.");
+      throw new Error("Unable to download generated image.");
     }
 
-    // Convert to Blob
     const blob = await imageResponse.blob();
 
-    // Convert Blob → Base64
-    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = await blob.arrayBuffer();
 
-    const bytes = new Uint8Array(arrayBuffer);
+    const bytes = new Uint8Array(buffer);
 
     let binary = "";
 
