@@ -1,3 +1,4 @@
+import { ImageProvider } from "./providers/ImageProvider";
 type Env = {
 OPENAI_API_KEY?: string;
 AI_ENABLED?: string;
