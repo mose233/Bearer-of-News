@@ -1,7 +1,8 @@
 import { ImageProvider } from "./providers/ImageProvider";
+
 type Env = {
-OPENAI_API_KEY?: string;
-AI_ENABLED?: string;
+  FAL_API_KEY?: string;
+  AI_ENABLED?: string;
 };
 
 type GenerateImageRequest = {
@@ -19,27 +20,27 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-
   if (context.env.AI_ENABLED !== "true") {
     return jsonResponse(
       {
         ok: false,
         stage: "disabled",
-        error: "Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai.",
+        error:
+          "Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai.",
       },
       503
     );
   }
 
   try {
-    const apiKey = context.env.OPENAI_API_KEY;
+    const falApiKey = context.env.FAL_API_KEY;
 
-    if (!apiKey) {
+    if (!falApiKey) {
       return jsonResponse(
         {
           ok: false,
           stage: "env",
-          error: "OpenAI key missing in Cloudflare",
+          error: "FAL API key missing in Cloudflare.",
         },
         500
       );
@@ -54,7 +55,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         {
           ok: false,
           stage: "input",
-          error: "Prompt is required",
+          error: "Prompt is required.",
         },
         400
       );
@@ -76,53 +77,17 @@ Style:
 Scene:
 ${prompt}`;
 
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-image-1",
-        prompt: imagePrompt,
-        size,
-        quality: "medium",
-        n: 1,
-      }),
+    const image = await ImageProvider.generate({
+      tool: "Text to Image",
+      prompt: imagePrompt,
+      size,
+      falApiKey,
     });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      return jsonResponse(
-        {
-          ok: false,
-          stage: "openai",
-          status: response.status,
-          error: result,
-        },
-        response.status
-      );
-    }
-
-    const b64 = result?.data?.[0]?.b64_json;
-
-    if (!b64) {
-      return jsonResponse(
-        {
-          ok: false,
-          stage: "parse",
-          error: "No image returned from OpenAI",
-          raw: result,
-        },
-        500
-      );
-    }
 
     return jsonResponse({
       ok: true,
-      imageBase64: b64,
-      mimeType: "image/png",
+      imageBase64: image.imageBase64,
+      mimeType: image.mimeType,
     });
   } catch (error) {
     return jsonResponse(
