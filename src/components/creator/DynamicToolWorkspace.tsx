@@ -1,4 +1,3 @@
-import CinematicStudioPanel from "@/components/creator/CinematicStudioPanel";
 import React, { RefObject, useRef, useState } from "react";
 import {
   Captions,
@@ -3371,14 +3370,7 @@ const isMemeGenerator = tool === "Meme Generator";
       />
     );
   }
-if (category === "Cinematic AI") {
-  return (
-    <CinematicStudioPanel
-      tool={tool}
-      requestGeneration={requestGeneration}
-    />
-  );
-}
+
   if (tool === "Photo Music Video") {
     return (
       <PhotoMusicVideoPanel
