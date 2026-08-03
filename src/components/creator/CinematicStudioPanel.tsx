@@ -26,3 +26,21 @@ export default function CinematicStudioPanel({
     </div>
   );
 }
+    <div className="mt-6">
+  <label className="mb-2 block text-sm font-extrabold">
+    Video Duration
+  </label>
+
+  <select
+    value={duration}
+    onChange={(e) => setDuration(e.target.value)}
+    className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-white"
+  >
+    <option>10 Seconds</option>
+    <option>20 Seconds</option>
+    <option>30 Seconds</option>
+    <option>40 Seconds</option>
+    <option>50 Seconds</option>
+    <option>60 Seconds</option>
+  </select>
+</div>
