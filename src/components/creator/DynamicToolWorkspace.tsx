@@ -3366,6 +3366,7 @@ const isMemeGenerator = tool === "Meme Generator";
         songStatus={songStatus}
         setSongStatus={setSongStatus}
         onMusicUpload={onMusicUpload}
+        requestGeneration={requestGeneration}
       />
     );
   }
