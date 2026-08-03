@@ -1284,7 +1284,7 @@ function VideoTemplatePanel({
   );
 }
 
-function CinematicPlaceholderPanel({
+  function CinematicPlaceholderPanel({
   tool,
   selectedCreatorFont,
   setSelectedCreatorFont,
@@ -1294,6 +1294,7 @@ function CinematicPlaceholderPanel({
   setVideoOutputFormat,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  requestGeneration,
 }: {
   tool: string;
   selectedCreatorFont: string;
@@ -1304,6 +1305,10 @@ function CinematicPlaceholderPanel({
   setVideoOutputFormat?: (value: string) => void;
   onAddEnhancedPhotoToTimeline?: (file: File, preview: string, durationSeconds?: number) => void;
   onVideoDurationChange?: (durationSeconds: number) => void;
+    requestGeneration?: (
+  amount: string,
+  generate: () => void
+) => void;
 }) {
   const [cinematicMotionStyle, setCinematicMotionStyle] = useState(
     tool === "Photo to Video"
