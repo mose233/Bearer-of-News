@@ -1194,7 +1194,7 @@ onRequestPayment={(amount, onSuccess) => {
 
             </div> {/* closes grid */}
 
-            <PaymentModal
+           <PaymentModal
   open={paymentOpen}
   price={paymentPrice}
   onClose={() => setPaymentOpen(false)}
