@@ -1075,11 +1075,6 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
 
 requestGeneration={requestPaidGeneration}
 
-onRequestPayment={(amount, onSuccess) => {
-  setPaymentPrice(amount);
-  setPendingGeneration(() => onSuccess);
-  setPaymentOpen(true);
-}}
           />
         </div>
 
