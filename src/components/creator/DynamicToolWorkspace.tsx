@@ -878,7 +878,7 @@ function VideoTemplatePanel({
   );
 }
 
-function LifeEventVideoPanel({
+  function LifeEventVideoPanel({
   tool,
   videoPrompt,
   setVideoPrompt,
@@ -891,6 +891,7 @@ function LifeEventVideoPanel({
   onGenerateCompleteVideo,
   onAddEnhancedPhotoToTimeline,
   onVideoDurationChange,
+  requestGeneration,
 }: {
   tool: string;
   videoPrompt?: string;
