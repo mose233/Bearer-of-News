@@ -2600,10 +2600,25 @@ const isMemeGenerator = tool === "Meme Generator";
                 : "$0.07"} per image
             </p>
 
-           
           </div>
         </>
+        {isPromptToImage ? (
+  <div className="mt-5 space-y-5">
+    <label className="block">
+      <span className="mb-2 block text-sm font-extrabold">
+        Describe what you want to create
+      </span>
 
+      <textarea
+        value={aiImagePrompt ?? ""}
+        onChange={(e) => setAiImagePrompt?.(e.target.value)}
+        placeholder={promptPlaceholder}
+        className={textareaClass}
+        rows={5}
+      />
+    </label>
+  </div>
+) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/60 px-5 py-8 text-center transition hover:border-pink-400/50 hover:bg-slate-950/80">
             <Upload className="mb-3 h-7 w-7 text-pink-300" />
@@ -2637,7 +2652,7 @@ const isMemeGenerator = tool === "Meme Generator";
             }}
           />
         </div>
-
+        )}
         <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/50 p-4">
           <h4 className="mb-4 text-sm font-extrabold text-white">
             Tool Settings
