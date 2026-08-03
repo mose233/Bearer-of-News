@@ -142,24 +142,6 @@ const requestPaidGeneration = (
     }, 120);
   };
 
-const handleMpesaPayment = async (phoneNumber: string) => {
-  const result = await PaymentManager.pay({
-    tool: "picture-ai",
-    paymentMethod: "mpesa",
-    phoneNumber,
-  });
-
-  if (!result.success) {
-    alert(result.message ?? "Payment failed.");
-    throw new Error(result.message);
-  }
-
-  console.log("Payment Result:", result);
-
-  // Payment request accepted.
-  // Do NOT generate AI yet.
-  return result;
-};
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
 }, [mediaFiles, mediaPreviews]);
