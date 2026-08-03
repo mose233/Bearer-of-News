@@ -1194,21 +1194,20 @@ onRequestPayment={(amount, onSuccess) => {
 
             </div> {/* closes grid */}
 
-      <PaymentModal
-        open={paymentOpen}
-        price={paymentPrice}
-        onClose={() => setPaymentOpen(false)}
-        onPaymentSuccess={() => {
-          setPaymentOpen(false);
-          setPaymentComplete(true);
+            <PaymentModal
+  open={paymentOpen}
+  price={paymentPrice}
+  onClose={() => setPaymentOpen(false)}
+  onPaymentSuccess={() => {
+    setPaymentOpen(false);
+    setPaymentComplete(true);
 
-          if (pendingGeneration) {
-            pendingGeneration();
-            setPendingGeneration(null);
-          }
-        }}
-        onMpesaPayment={handleMpesaPayment}
-      />
+    if (pendingGeneration) {
+      pendingGeneration();
+      setPendingGeneration(null);
+    }
+  }}
+/>
     </main>
   );
 }
