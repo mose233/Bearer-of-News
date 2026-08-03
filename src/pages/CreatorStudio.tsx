@@ -1,4 +1,3 @@
-import PaymentModal from "@/components/payments/PaymentModal";
 import { supabase } from "@/integrations/supabase/client";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
