@@ -2496,45 +2496,48 @@ const isMemeGenerator = tool === "Meme Generator";
       "Scene Changer",
     ].includes(tool);
 
-    const pictureDescription = isPhotoEnhancer
-      ? "Improve photo quality, sharpness, lighting and color before adding it to the timeline."
-      : isStudioPortrait
-        ? "Create a professional portrait look for business, profile, ID, or public-facing content."
-        : isBeautyGlow
-          ? "Apply a social-media beauty glow with smoother lighting and a clean polished look."
-          : isYoungerLook
-            ? "Create a youthful mock transformation effect before adding the photo to the timeline."
-            : isBackgroundChanger
-              ? "Prepare a background-change mock preview for office, studio, beach, Nairobi, or transparent-style content."
-              : isHairstyleChanger
-                ? "Try a new hairstyle look from an uploaded photo."
-                : isOutfitChanger
-                  ? "Change outfits for sports fans, careers, weddings, fashion and creative looks."
-                  : isSceneChanger
-                    ? "Place a person into travel, luxury, work, sports or action scenes."
-                    : isProductAdImage
-                ? "Turn a product photo into a simple marketing image with product details and offer text."
-                : isFacebookPostImage
-                  ? "Create a Facebook-ready post image with a headline and short description."
-                  : isPosterFlyer
-                    ? "Create a poster or flyer mockup with event details, venue, date, and contact."
-                     : isTextToImage
-  ? "Describe the image you want AI to create. After payment, the image will be generated and added to the preview."
-  : isAIArtGenerator
-  ? "Describe the artwork you want AI to create in your chosen artistic style."
-  : isInstagramPostImage
-  ? "Create Instagram-ready images using a text prompt."
-  : isWhatsAppStatusImage
-  ? "Create WhatsApp Status images from a text description."
-  : isEventPoster
-  ? "Create an event poster from a text prompt."
-  : isBusinessBanner
-  ? "Create a business banner from a text prompt."
-  : isThumbnailCreator
-  ? "Create a thumbnail from a text prompt."
-  : isMemeGenerator
-  ? "Create a meme from a text prompt."
-  : "Upload a photo, choose a style, preview the result, then add it to the timeline.";
+   const pictureDescription =
+  isTextToImage
+    ? "Describe the image you want AI to create. After payment, the image will be generated and added to the preview."
+    : isAIArtGenerator
+      ? "Describe the artwork you want AI to create in your chosen artistic style."
+      : isFacebookPostImage
+        ? "Create a Facebook-ready post image with a headline and short description."
+        : isInstagramPostImage
+          ? "Create Instagram-ready images using a text prompt."
+          : isWhatsAppStatusImage
+            ? "Create WhatsApp Status images from a text description."
+            : isPosterFlyer
+              ? "Create a poster or flyer mockup with event details, venue, date, and contact."
+              : isEventPoster
+                ? "Create an event poster from a text prompt."
+                : isBusinessBanner
+                  ? "Create a business banner from a text prompt."
+                  : isProductAdImage
+                    ? "Turn a product description into a simple marketing image."
+                    : isThumbnailCreator
+                      ? "Create a thumbnail from a text prompt."
+                      : isMemeGenerator
+                        ? "Create a meme from a text prompt."
+
+                        // Upload → Image tools
+                        : isPhotoEnhancer
+                          ? "Improve photo quality, sharpness, lighting and color before adding it to the timeline."
+                          : isStudioPortrait
+                            ? "Create a professional portrait look for business, profile, ID, or public-facing content."
+                            : isBeautyGlow
+                              ? "Apply a social-media beauty glow with smoother lighting and a clean polished look."
+                              : isYoungerLook
+                                ? "Create a youthful mock transformation effect before adding the photo to the timeline."
+                                : isBackgroundChanger
+                                  ? "Prepare a background-change mock preview for office, studio, beach, Nairobi, or transparent-style content."
+                                  : isHairstyleChanger
+                                    ? "Try a new hairstyle look from an uploaded photo."
+                                    : isOutfitChanger
+                                      ? "Change outfits for sports fans, careers, weddings, fashion and creative looks."
+                                      : isSceneChanger
+                                        ? "Place a person into travel, luxury, work, sports or action scenes."
+                                        : "Upload a photo, choose a style, preview the result, then add it to the timeline.";
      const promptPlaceholder = isTextToImage
   ? "Describe the image you want to create..."
   : isAIArtGenerator
