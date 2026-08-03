@@ -1,10 +1,10 @@
+import PaymentModal from "@/components/payments/PaymentModal";
 import { supabase } from "@/integrations/supabase/client";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { PaymentManager } from "@/lib/payments/PaymentManager";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
