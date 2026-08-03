@@ -3698,18 +3698,22 @@ const isMemeGenerator = tool === "Meme Generator";
   );
 }
 
-<CinematicPlaceholderPanel
-  tool={tool}
-  selectedCreatorFont={selectedCreatorFont}
-  setSelectedCreatorFont={setSelectedCreatorFont}
-  onMediaUpload={onMediaUpload}
-  setVideoPrompt={setVideoPrompt}
-  setVideoCreativeType={setVideoCreativeType}
-  setVideoOutputFormat={setVideoOutputFormat}
-  onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
-  onVideoDurationChange={onVideoDurationChange}
-  requestGeneration={requestGeneration}
-/>
+if (category === "Cinematic AI") {
+  return (
+    <CinematicPlaceholderPanel
+      tool={tool}
+      selectedCreatorFont={selectedCreatorFont}
+      setSelectedCreatorFont={setSelectedCreatorFont}
+      onMediaUpload={onMediaUpload}
+      setVideoPrompt={setVideoPrompt}
+      setVideoCreativeType={setVideoCreativeType}
+      setVideoOutputFormat={setVideoOutputFormat}
+      onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+      onVideoDurationChange={onVideoDurationChange}
+      requestGeneration={requestGeneration}
+    />
+  );
+}
 
   return (
     <div className={boxClass}>
