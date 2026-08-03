@@ -44,3 +44,28 @@ export default function CinematicStudioPanel({
     <option>60 Seconds</option>
   </select>
 </div>
+    <div className="mt-6">
+  <label className="mb-2 block text-sm font-extrabold">
+    Describe what you want AI to create
+  </label>
+
+  <textarea
+    value={prompt}
+    onChange={(e) => setPrompt(e.target.value)}
+    rows={6}
+    placeholder={`Example: ${
+      tool === "Talking Avatar"
+        ? "Create a talking business presenter introducing our company."
+        : tool === "Photo to Video"
+        ? "Animate this photo into a smooth cinematic video."
+        : tool === "Text to Video"
+        ? "Create a cinematic sunset scene with mountains and rivers."
+        : tool === "Movie Scene Generator"
+        ? "Generate an action movie scene inside a futuristic city."
+        : tool === "Trailer Generator"
+        ? "Create a dramatic trailer for an African adventure movie."
+        : "Describe the cinematic video you want AI to create."
+    }`}
+    className="w-full rounded-2xl border border-white/10 bg-slate-900 p-4 text-white outline-none"
+  />
+</div>
