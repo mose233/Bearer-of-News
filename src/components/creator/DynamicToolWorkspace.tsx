@@ -2518,7 +2518,23 @@ const isMemeGenerator = tool === "Meme Generator";
                   ? "Create a Facebook-ready post image with a headline and short description."
                   : isPosterFlyer
                     ? "Create a poster or flyer mockup with event details, venue, date, and contact."
-                    : "Upload a photo, choose a style, preview the result, then add it to the timeline.";
+                     : isTextToImage
+  ? "Describe the image you want AI to create. After payment, the image will be generated and added to the preview."
+  : isAIArtGenerator
+  ? "Describe the artwork you want AI to create in your chosen artistic style."
+  : isInstagramPostImage
+  ? "Create Instagram-ready images using a text prompt."
+  : isWhatsAppStatusImage
+  ? "Create WhatsApp Status images from a text description."
+  : isEventPoster
+  ? "Create an event poster from a text prompt."
+  : isBusinessBanner
+  ? "Create a business banner from a text prompt."
+  : isThumbnailCreator
+  ? "Create a thumbnail from a text prompt."
+  : isMemeGenerator
+  ? "Create a meme from a text prompt."
+  : "Upload a photo, choose a style, preview the result, then add it to the timeline.";
      const promptPlaceholder = isTextToImage
   ? "Describe the image you want to create..."
   : isAIArtGenerator
