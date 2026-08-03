@@ -1783,6 +1783,8 @@ export default function DynamicToolWorkspace({
   onGenerateDance,
   videoPrompt = "",
   setVideoPrompt,
+  aiImagePrompt = "",
+  setAiImagePrompt,
   videoCreativeType = "General",
   setVideoCreativeType,
   videoOutputFormat = "Facebook Reel",
