@@ -2558,27 +2558,44 @@ const isMemeGenerator = tool === "Meme Generator";
   : isMemeGenerator
   ? "Describe the meme you want to create..."
   : "Describe your image...";
-    const generateLabel = isProductAdImage
-      ? "Generate Product Ad Image"
-      : isFacebookPostImage
-        ? "Generate Facebook Post Image"
-        : isPosterFlyer
-          ? "Generate Poster / Flyer"
-          : isBackgroundChanger
-            ? "Generate Background Preview"
-            : isHairstyleChanger
-              ? "Generate Hairstyle Preview"
-              : isOutfitChanger
-                ? "Generate Outfit Preview"
-                : isSceneChanger
-                  ? "Generate Scene Preview"
-                  : isStudioPortrait
-              ? "Generate Studio Portrait"
-              : isBeautyGlow
-                ? "Generate Beauty Glow"
-                : isYoungerLook
-                  ? "Generate Younger Look"
-                  : "Generate Enhanced Photo";
+    const generateLabel =
+  isProductAdImage
+    ? "Generate Product Ad Image"
+    : isFacebookPostImage
+      ? "Generate Facebook Post Image"
+      : isInstagramPostImage
+        ? "Generate Instagram Image"
+        : isWhatsAppStatusImage
+          ? "Generate WhatsApp Status"
+          : isPosterFlyer
+            ? "Generate Poster / Flyer"
+            : isEventPoster
+              ? "Generate Event Poster"
+              : isBusinessBanner
+                ? "Generate Business Banner"
+                : isThumbnailCreator
+                  ? "Generate Thumbnail"
+                  : isTextToImage
+                    ? "Generate Image"
+                    : isAIArtGenerator
+                      ? "Generate Artwork"
+                      : isMemeGenerator
+                        ? "Generate Meme"
+                        : isBackgroundChanger
+                          ? "Generate Background Preview"
+                          : isHairstyleChanger
+                            ? "Generate Hairstyle Preview"
+                            : isOutfitChanger
+                              ? "Generate Outfit Preview"
+                              : isSceneChanger
+                                ? "Generate Scene Preview"
+                                : isStudioPortrait
+                                  ? "Generate Studio Portrait"
+                                  : isBeautyGlow
+                                    ? "Generate Beauty Glow"
+                                    : isYoungerLook
+                                      ? "Generate Younger Look"
+                                      : "Generate Enhanced Photo";
 
     return (
       <div className={boxClass}>
