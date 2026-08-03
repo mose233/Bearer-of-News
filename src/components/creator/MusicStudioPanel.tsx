@@ -16,6 +16,10 @@ type MusicStudioPanelProps = {
   songStatus: string;
   setSongStatus: (value: string) => void;
   onMusicUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  requestGeneration?: (
+  amount: string,
+  generate: () => void
+) => void;
 };
 
 const inputClass =
@@ -143,6 +147,7 @@ export default function MusicStudioPanel({
   songStatus,
   setSongStatus,
   onMusicUpload,
+  requestGeneration,
 }: MusicStudioPanelProps) {
   const [voiceStyle, setVoiceStyle] = useState("Afrobeats Male Voice");
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
