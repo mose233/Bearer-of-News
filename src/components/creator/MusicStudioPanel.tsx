@@ -676,10 +676,19 @@ export default function MusicStudioPanel({
           />
         </div>
 
-        <button
-          type="button"
-          onClick={handleGenerateAudio}
-          disabled={isGeneratingAudio}
+          <button
+  type="button"
+  onClick={() => {
+    if (requestGeneration) {
+      requestGeneration(
+        musicPricing[songDuration] ?? "$0.05",
+        handleGenerateAudio
+      );
+    } else {
+      handleGenerateAudio();
+    }
+  }}
+  disabled={isGeneratingAudio}
           className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
         >
           {isGeneratingAudio ? (
