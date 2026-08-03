@@ -2657,7 +2657,27 @@ const isMemeGenerator = tool === "Meme Generator";
           <h4 className="mb-4 text-sm font-extrabold text-white">
             Tool Settings
           </h4>
-
+        {isPromptToImage && (
+  <div className="space-y-4">
+    <SelectField
+      label="Image Style"
+      value={enhancementStyle}
+      options={[
+        "Photorealistic",
+        "Digital Art",
+        "Cinematic",
+        "Minimal",
+        "Luxury",
+        "Modern",
+        "3D Render",
+        "Anime",
+      ]}
+      onChange={(value) => {
+        setEnhancementStyle(value);
+      }}
+    />
+  </div>
+)}
           {isPhotoEnhancer && (
             <div className="grid gap-4 md:grid-cols-2">
               <SelectField
