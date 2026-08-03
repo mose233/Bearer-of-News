@@ -123,6 +123,7 @@ const requestPaidGeneration = (
   amount: string,
   generate: () => void
 ) => {
+  console.log("Opening payment modal:", amount);
 
   setPaymentPrice(amount);
   setPendingGeneration(() => generate);
