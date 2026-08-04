@@ -210,16 +210,54 @@ async function drawMockScene({
 export async function generateSceneImage(
   prompt: string,
   size: GenerateImageSize = "1024x1024"
-) {
-  const theme = sceneThemes[0];
-
-  return drawMockScene({
-    prompt,
-    title: "Mock AI Scene",
-    size,
-    colors: theme.colors,
-    sceneNumber: 1,
+): Promise<GeneratedSceneImage> {
+  const response = await fetch("/api/generate-image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+      size,
+    }),
   });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.ok) {
+    throw new Error(result.error || "Image generation failed.");
+  }
+
+  const mimeType = result.mimeType || "image/png";
+
+  const binary = atob(result.imageBase64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  const blob = new Blob([bytes], {
+    type: mimeType,
+  });
+
+  const previewUrl = URL.createObjectURL(blob);
+
+  const file = new File(
+    [blob],
+    `ai-scene-${Date.now()}.png`,
+    {
+      type: mimeType,
+    }
+  );
+
+  return {
+    file,
+    previewUrl,
+    blob,
+    title: "AI Scene",
+    prompt: prompt.trim(),
+  };
 }
 
 export async function generateMultipleSceneImages(
