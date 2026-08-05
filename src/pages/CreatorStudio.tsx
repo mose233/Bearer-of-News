@@ -122,14 +122,20 @@ const [paymentPrice, setPaymentPrice] = useState("KSh 20");
 const [paymentComplete, setPaymentComplete] = useState(false);
   const [pendingGeneration, setPendingGeneration] =
   useState<(() => void) | null>(null);
+   import type { PaymentRequest } from "@/lib/payments/PaymentRequest";
+
 const requestPaidGeneration = (
-  amount: string,
+  payment: PaymentRequest,
   generate: () => void
 ) => {
-  console.log("Opening payment modal:", amount);
+  console.log("Opening payment:", payment);
 
-  setPaymentPrice(amount);
+  setPaymentPrice(
+    `${payment.currency} ${payment.amount.toFixed(2)}`
+  );
+
   setPendingGeneration(() => generate);
+
   setPaymentOpen(true);
 };
   const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
