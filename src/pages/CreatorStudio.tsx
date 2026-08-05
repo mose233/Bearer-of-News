@@ -1184,20 +1184,28 @@ onRequestPayment={(amount, onSuccess) => {
 
             </div> {/* closes grid */}
 
-           <PaymentModal
+         <PaymentModal
   open={paymentOpen}
   price={paymentPrice}
   onClose={() => setPaymentOpen(false)}
   onPaymentSuccess={() => {
+    console.log("✅ PaymentModal: Payment confirmed");
+
     setPaymentOpen(false);
     setPaymentComplete(true);
 
+    console.log("pendingGeneration =", pendingGeneration);
+
     if (pendingGeneration) {
+      console.log("🚀 Executing pending generation...");
+
       pendingGeneration();
+
+      console.log("✅ pendingGeneration finished");
+
       setPendingGeneration(null);
+    } else {
+      console.log("❌ pendingGeneration is NULL");
     }
   }}
 />
-    </main>
-  );
-}
