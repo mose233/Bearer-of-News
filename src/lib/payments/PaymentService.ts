@@ -91,7 +91,7 @@ return data.data as MpesaPaymentResponse;
       if (!data) {
         throw new Error("No response received from payment status server.");
       }
-      console.log("Payment status response:", data);
+  
       return data as MpesaPaymentStatusResponse;
     } catch (err) {
       console.error("Payment status check failed:", err);
