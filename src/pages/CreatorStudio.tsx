@@ -525,11 +525,20 @@ Preview=${result.previewUrl ? "YES" : "NO"}`);
 const handleGenerateImage = () => {
   const usdPrice = getUSDPrice("Picture AI");
 
-  const kesPrice = convertUSDToKES(usdPrice);
+const kesPrice = convertUSDToKES(usdPrice);
 
-  requestPaidGeneration(`KSh ${kesPrice}`, () => {
+requestPaidGeneration(
+  {
+    tool: "Picture AI",
+    usdPrice,
+    currency: "KES",
+    amount: kesPrice,
+    description: "Picture AI Generation",
+  },
+  () => {
     performImageGeneration();
-  });
+  }
+);
 };
   const handleGenerateMultiScenePlan = () => {
     try {
