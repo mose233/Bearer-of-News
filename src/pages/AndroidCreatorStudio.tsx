@@ -1133,20 +1133,16 @@ onRequestPayment={(amount, onSuccess) => {
             </div>
 
       <PaymentModal
-        open={paymentOpen}
-        price={paymentPrice}
-        onClose={() => setPaymentOpen(false)}
-        onPaymentSuccess={() => {
-          setPaymentOpen(false);
-          setPaymentComplete(true);
+  open={paymentOpen}
+  price={paymentPrice}
+  onClose={() => setPaymentOpen(false)}
+  onPaymentSuccess={() => {
+    setPaymentOpen(false);
+    setPaymentComplete(true);
 
-          if (pendingGeneration) {
-            pendingGeneration();
-            setPendingGeneration(null);
-          }
-        }}
-        onMpesaPayment={handleMpesaPayment}
-      />
-    </main>
-  );
-}
+    if (pendingGeneration) {
+      pendingGeneration();
+      setPendingGeneration(null);
+    }
+  }}
+/>
