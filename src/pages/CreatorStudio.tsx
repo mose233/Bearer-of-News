@@ -7,6 +7,9 @@ import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
+import { getUSDPrice } from "@/lib/pricing/pricingEngine";
+import { convertUSDToKES } from "@/lib/pricing/exchangeService";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import AiToolLauncher, {
@@ -518,8 +521,6 @@ Preview=${result.previewUrl ? "YES" : "NO"}`);
     setIsGeneratingImage(false);
   }
 };
-import { getUSDPrice } from "@/lib/pricing/pricingEngine";
-import { convertUSDToKES } from "@/lib/pricing/exchangeService";
 
 const handleGenerateImage = () => {
   const usdPrice = getUSDPrice("Picture AI");
