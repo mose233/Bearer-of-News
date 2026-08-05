@@ -518,8 +518,15 @@ Preview=${result.previewUrl ? "YES" : "NO"}`);
     setIsGeneratingImage(false);
   }
 };
+import { getUSDPrice } from "@/lib/pricing/pricingEngine";
+import { convertUSDToKES } from "@/lib/pricing/exchangeService";
+
 const handleGenerateImage = () => {
-  requestPaidGeneration("KSh 20", () => {
+  const usdPrice = getUSDPrice("Picture AI");
+
+  const kesPrice = convertUSDToKES(usdPrice);
+
+  requestPaidGeneration(`KSh ${kesPrice}`, () => {
     performImageGeneration();
   });
 };
