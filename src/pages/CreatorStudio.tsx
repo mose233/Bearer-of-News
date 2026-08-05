@@ -119,7 +119,7 @@ export default function CreatorStudio() {
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
   const [paymentOpen, setPaymentOpen] = useState(false);
-  const [paymentPrice, setPaymentPrice] = useState("KSh 20");
+  const [paymentPrice, setPaymentPrice] = useState("");
   const [paymentComplete, setPaymentComplete] = useState(false);
   const [pendingGeneration, setPendingGeneration] =
   useState<(() => void) | null>(null);
