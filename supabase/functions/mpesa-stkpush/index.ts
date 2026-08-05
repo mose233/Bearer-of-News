@@ -66,26 +66,33 @@ serve(async (req: Request): Promise<Response> => {
     const timestamp = generateTimestamp();
     const password = generatePassword(timestamp);
 
-    // Get OAuth token
-    const accessToken = await getAccessToken();
+   // Get OAuth token
+const accessToken = await getAccessToken();
 
-    // Ensure minimum payment is 1 KES
-    const amountToCharge = Math.max(1, Math.round(amount));
+console.log("Incoming payment amount:", amount);
+console.log("Incoming payment type:", typeof amount);
 
-    // Build STK Push payload
-    const stkPayload = {
-      BusinessShortCode: MPESA_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
-      Amount: amountToCharge,
-      PartyA: customerPhone,
-      PartyB: MPESA_SHORTCODE,
-      PhoneNumber: customerPhone,
-      CallBackURL: CALLBACK_URL,
-      AccountReference: "xnewsapp",
-      TransactionDesc: "AI Content Generation",
-    };
+// Ensure minimum payment is 1 KES
+const amountToCharge = Math.max(1, Math.round(amount));
+
+console.log("Amount to charge:", amountToCharge);
+
+// Build STK Push payload
+const stkPayload = {
+  BusinessShortCode: MPESA_SHORTCODE,
+  Password: password,
+  Timestamp: timestamp,
+  TransactionType: "CustomerPayBillOnline",
+  Amount: amountToCharge,
+  PartyA: customerPhone,
+  PartyB: MPESA_SHORTCODE,
+  PhoneNumber: customerPhone,
+  CallBackURL: CALLBACK_URL,
+  AccountReference: "xnewsapp",
+  TransactionDesc: "AI Content Generation",
+};
+
+console.log("STK Payload:", JSON.stringify(stkPayload, null, 2));
 
     console.log(
       "STK Payload:",
