@@ -487,7 +487,11 @@ const requestPaidGeneration = (
       setIsGeneratingImage(true);
       setMultiScenePlan([]);
 
-      const result = await generateSceneImage(prompt, "1024x1024");
+      console.log("Starting fal.ai image generation...");
+
+const result = await generateSceneImage(prompt, "1024x1024");
+
+console.log("generateSceneImage returned:", result);
 
       if (generatedImagePreview) {
         URL.revokeObjectURL(generatedImagePreview);
@@ -503,10 +507,15 @@ setGeneratedImageFile(result.file);
 setGeneratedImagePreview(result.previewUrl);
 
       alert("AI scene image generated successfully.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate AI scene image.");
-    } finally {
+       catch (error) {
+  console.error("Picture AI failed:", error);
+
+  alert(
+    error instanceof Error
+      ? error.message
+      : String(error)
+  );
+} finally {
       setIsGeneratingImage(false);
     }
   };
