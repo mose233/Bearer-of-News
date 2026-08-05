@@ -40,7 +40,12 @@ export default function PaymentModal({
 
     try {
       setIsProcessing(true);
+      console.log("Payment price =", price);
 
+console.log(
+  "Amount sent to M-Pesa =",
+  Number(price.replace(/[^\d.]/g, ""))
+);
       const response = await PaymentService.sendMpesaSTKPush({
         phoneNumber,
         amount: Number(price.replace(/[^\d.]/g, "")),
