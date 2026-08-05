@@ -497,11 +497,13 @@ export default function CreatorStudio() {
     setMultiScenePlan([]);
 
     console.log("Starting fal.ai image generation...");
+    console.log("Prompt:", prompt);
+
+    console.log("Calling generateSceneImage...");
 
     const result = await generateSceneImage(prompt, "1024x1024");
 
     console.log("generateSceneImage returned:", result);
-
     if (generatedImagePreview) {
       URL.revokeObjectURL(generatedImagePreview);
     }
