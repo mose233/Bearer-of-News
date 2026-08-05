@@ -476,49 +476,48 @@ const requestPaidGeneration = (
   setCurrentIndex(0);
 };
   const performImageGeneration = async () => {
-    try {
-      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
+  try {
+    const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
-      if (!prompt) {
-        alert("Please write an AI image prompt first.");
-        return;
-      }
-
-      setIsGeneratingImage(true);
-      setMultiScenePlan([]);
-
-      console.log("Starting fal.ai image generation...");
-
-const result = await generateSceneImage(prompt, "1024x1024");
-
-console.log("generateSceneImage returned:", result);
-
-      if (generatedImagePreview) {
-        URL.revokeObjectURL(generatedImagePreview);
-      }
-
-      alert(
-  `Generated:
-File=${result.file ? "YES" : "NO"}
-Preview=${result.previewUrl ? "YES" : "NO"}`
-);
-
-setGeneratedImageFile(result.file);
-setGeneratedImagePreview(result.previewUrl);
-
-      alert("AI scene image generated successfully.");
-       catch (error) {
-  console.error("Picture AI failed:", error);
-
-  alert(
-    error instanceof Error
-      ? error.message
-      : String(error)
-  );
-} finally {
-      setIsGeneratingImage(false);
+    if (!prompt) {
+      alert("Please write an AI image prompt first.");
+      return;
     }
-  };
+
+    setIsGeneratingImage(true);
+    setMultiScenePlan([]);
+
+    console.log("Starting fal.ai image generation...");
+
+    const result = await generateSceneImage(prompt, "1024x1024");
+
+    console.log("generateSceneImage returned:", result);
+
+    if (generatedImagePreview) {
+      URL.revokeObjectURL(generatedImagePreview);
+    }
+
+    alert(`Generated:
+File=${result.file ? "YES" : "NO"}
+Preview=${result.previewUrl ? "YES" : "NO"}`);
+
+    setGeneratedImageFile(result.file);
+    setGeneratedImagePreview(result.previewUrl);
+
+    alert("AI scene image generated successfully.");
+
+  } catch (error) {
+    console.error("Picture AI failed:", error);
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : String(error)
+    );
+  } finally {
+    setIsGeneratingImage(false);
+  }
+};
 const handleGenerateImage = () => {
   requestPaidGeneration("KSh 20", () => {
     performImageGeneration();
