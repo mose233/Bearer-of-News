@@ -1209,3 +1209,8 @@ onRequestPayment={(amount, onSuccess) => {
     }
   }}
 />
+
+    </div>
+  </main>
+);
+}
