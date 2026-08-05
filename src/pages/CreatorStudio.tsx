@@ -9,6 +9,7 @@ import { ExportManager } from "@/lib/creator/ExportManager";
 
 import { getUSDPrice } from "@/lib/pricing/pricingEngine";
 import { convertUSDToKES } from "@/lib/pricing/exchangeService";
+import type { PaymentRequest } from "@/lib/payments/PaymentRequest";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -118,13 +119,12 @@ export default function CreatorStudio() {
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
   const [paymentOpen, setPaymentOpen] = useState(false);
-const [paymentPrice, setPaymentPrice] = useState("KSh 20");
-const [paymentComplete, setPaymentComplete] = useState(false);
+  const [paymentPrice, setPaymentPrice] = useState("KSh 20");
+  const [paymentComplete, setPaymentComplete] = useState(false);
   const [pendingGeneration, setPendingGeneration] =
   useState<(() => void) | null>(null);
-   import type { PaymentRequest } from "@/lib/payments/PaymentRequest";
-
-const requestPaidGeneration = (
+  
+  const requestPaidGeneration = (
   payment: PaymentRequest,
   generate: () => void
 ) => {
