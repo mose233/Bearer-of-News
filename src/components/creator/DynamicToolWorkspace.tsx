@@ -3333,15 +3333,15 @@ const isMemeGenerator = tool === "Meme Generator";
     ? !(aiImagePrompt ?? "").trim()
     : !picturePreview
 }
-            onClick={() => {
-  confirmPictureGeneration(() => {
-    if (isPromptToImage) {
-      onGenerateImage?.();
-    } else {
+             onClick={() => {
+  if (isPromptToImage) {
+    onGenerateImage?.();
+  } else {
+    confirmPictureGeneration(() => {
       setHasPreviewedEnhancement(true);
-    }
-  });
-}}
+    });
+  }
+}} 
             className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
           >
             <Wand2 className="mr-2 h-4 w-4" />
