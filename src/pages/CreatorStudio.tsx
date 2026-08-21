@@ -485,7 +485,7 @@ export default function CreatorStudio() {
   setSceneDurations(uploaded.durations);
   setCurrentIndex(0);
 };
-  const performImageGeneration = async () => {
+ const performImageGeneration = async () => {
   try {
     const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
@@ -497,27 +497,50 @@ export default function CreatorStudio() {
     setIsGeneratingImage(true);
     setMultiScenePlan([]);
 
-    console.log("Starting fal.ai image generation...");
+    console.log("Starting real fal.ai Picture AI generation...");
     console.log("Prompt:", prompt);
 
-    console.log("Calling generateSceneImage...");
+    const result = await PictureAIService.generate({
+      prompt,
+      tool: "Text to Image",
+      aspectRatio: "1:1",
+    });
 
-    const result = await generateSceneImage(prompt, "1024x1024");
+    console.log("PictureAIService result:", result);
 
-    console.log("generateSceneImage returned:", result);
+    if (!result.success || !result.imageUrl) {
+      throw new Error(
+        result.error || "fal.ai did not return an image."
+      );
+    }
+
     if (generatedImagePreview) {
       URL.revokeObjectURL(generatedImagePreview);
     }
 
-    alert(`Generated:
-File=${result.file ? "YES" : "NO"}
-Preview=${result.previewUrl ? "YES" : "NO"}`);
+    setGeneratedImagePreview(result.imageUrl);
 
-    setGeneratedImageFile(result.file);
-    setGeneratedImagePreview(result.previewUrl);
+    // Convert the fal.ai image URL into a File so the
+    // existing desktop timeline/export workflow can continue.
+    const response = await fetch(result.imageUrl);
 
-    alert("AI scene image generated successfully.");
+    if (!response.ok) {
+      throw new Error("Failed to download the generated fal.ai image.");
+    }
 
+    const blob = await response.blob();
+
+    const file = new File(
+      [blob],
+      `picture-ai-${Date.now()}.png`,
+      {
+        type: blob.type || "image/png",
+      }
+    );
+
+    setGeneratedImageFile(file);
+
+    alert("Picture AI image generated successfully.");
   } catch (error) {
     console.error("Picture AI failed:", error);
 
