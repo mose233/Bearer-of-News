@@ -1,3 +1,4 @@
+import { PictureAIService } from "@/lib/ai/PictureAIService";
 import { getPrice } from "@/lib/pricing/pricingEngine";
 import PaymentModal from "@/components/payments/PaymentModal";
 import { supabase } from "@/integrations/supabase/client";
