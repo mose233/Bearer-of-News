@@ -12,37 +12,60 @@ export async function generateFalVideo(
     throw new Error("VITE_FAL_KEY is not configured.");
   }
 
-  if (!request.imageFile) {
+  if (!request.imageUrl) {
     throw new Error("An image is required for Photo to Video.");
   }
 
-  const imageUrl = await fal.storage.upload(request.imageFile);
-
-  const result = await fal.subscribe("fal-ai/wan-i2v", {
-    input: {
-      image_url: imageUrl,
-      prompt: request.prompt,
-    },
-    logs: true,
-    onQueueUpdate(update) {
-      console.log("fal.ai queue update:", update);
-    },
+  console.log("Starting fal.ai video generation:", {
+    tool: request.tool,
+    model: "fal-ai/wan-i2v",
+    prompt: request.prompt,
+    imageUrl: request.imageUrl,
+    durationSeconds: request.durationSeconds,
+    aspectRatio: request.aspectRatio,
   });
 
-  console.log("fal.ai result:", result);
+  try {
+    const result = await fal.subscribe("fal-ai/wan-i2v", {
+      input: {
+        image_url: request.imageUrl,
+        prompt: request.prompt,
+      },
+      logs: true,
+      onQueueUpdate(update) {
+        console.log("fal.ai queue update:", update);
+      },
+    });
 
-  const videoUrl = result.data?.video?.url;
+    console.log("fal.ai video result:", result);
 
-  if (!videoUrl) {
-    throw new Error("fal.ai completed but returned no video URL.");
+    const videoUrl = result.data?.video?.url;
+
+    if (!videoUrl) {
+      throw new Error("fal.ai completed but returned no video URL.");
+    }
+
+    return {
+      id:
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : String(Date.now()),
+      status: "completed",
+      videoUrl,
+    };
+  } catch (error) {
+    console.error("fal.ai video generation failed:", error);
+
+    return {
+      id:
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : String(Date.now()),
+      status: "failed",
+      error:
+        error instanceof Error
+          ? error.message
+          : "fal.ai video generation failed.",
+    };
   }
-
-  return {
-    id:
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : String(Date.now()),
-    status: "completed",
-    videoUrl,
-  };
 }
