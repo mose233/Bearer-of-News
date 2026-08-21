@@ -194,7 +194,7 @@ export default function AIVideoStudioPanel() {
           </div>
 
           <Badge className="w-fit bg-emerald-500 text-black hover:bg-emerald-500">
-            Mock AI Mode
+            AI Mode
           </Badge>
         </div>
       </div>

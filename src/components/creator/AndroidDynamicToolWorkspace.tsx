@@ -3091,7 +3091,7 @@ export default function DynamicToolWorkspace({
                 </span>
                 {hasPreviewedEnhancement && (
                   <span className="rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
-                    Mock AI
+                    AI
                   </span>
                 )}
               </div>
