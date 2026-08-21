@@ -1,3 +1,4 @@
+import { CurrencyService } from "@/lib/payments/CurrencyService";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { PaymentService } from "@/lib/payments/PaymentService";
@@ -40,16 +41,17 @@ export default function PaymentModal({
 
     try {
       setIsProcessing(true);
-      console.log("Payment price =", price);
+      const usdAmount = Number(price.replace(/[^\d.]/g, ""));
+const amountKES = CurrencyService.usdToKes(usdAmount);
 
-console.log(
-  "Amount sent to M-Pesa =",
-  Number(price.replace(/[^\d.]/g, ""))
-);
-      const response = await PaymentService.sendMpesaSTKPush({
-        phoneNumber,
-        amount: Number(price.replace(/[^\d.]/g, "")),
-      });
+console.log("Payment price =", price);
+console.log("USD amount =", usdAmount);
+console.log("Amount sent to M-Pesa (KES) =", amountKES);
+
+const response = await PaymentService.sendMpesaSTKPush({
+  phoneNumber,
+  amount: amountKES,
+});
 
       setStatusMessage(
         "📱 STK Push sent. Please complete the payment on your phone..."
