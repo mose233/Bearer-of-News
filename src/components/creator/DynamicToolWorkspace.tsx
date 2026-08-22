@@ -3314,9 +3314,7 @@ const isMemeGenerator = tool === "Meme Generator";
           <Button
   type="button"
   disabled={false}
-  onClick={() => {
-  alert("GENERATE BUTTON CLICKED");
-
+ onClick={() => {
   if (isPromptToImage) {
     onGenerateImage?.();
   } else {
