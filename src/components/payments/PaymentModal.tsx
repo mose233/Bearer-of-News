@@ -34,100 +34,131 @@ export default function PaymentModal({
   if (!open) return null;
 
   const handleMpesaPayment = async () => {
-    if (!phoneNumber.trim()) {
-      alert("Please enter your M-Pesa phone number.");
-      return;
-    }
+  if (!phoneNumber.trim()) {
+    alert("Please enter your M-Pesa phone number.");
+    return;
+  }
 
-    try {
-      setIsProcessing(true);
-      const usdAmount = Number(price.replace(/[^\d.]/g, ""));
-const amountKES = CurrencyService.usdToKes(usdAmount);
+  let interval: ReturnType<typeof setInterval> | null = null;
+  let firstCheckTimeout: ReturnType<typeof setTimeout> | null = null;
 
-console.log("Payment price =", price);
-console.log("USD amount =", usdAmount);
-console.log("Amount sent to M-Pesa (KES) =", amountKES);
-
-const response = await PaymentService.sendMpesaSTKPush({
-  phoneNumber,
-  amount: amountKES,
-});
-
-      setStatusMessage(
-        "📱 STK Push sent. Please complete the payment on your phone..."
-      );
-
-      const checkoutRequestID = response.CheckoutRequestID;
-
-     const interval = setInterval(async () => {
   try {
-    const result = await PaymentService.checkMpesaPayment(
-      checkoutRequestID
-    );
+    setIsProcessing(true);
 
-    // ✅ Payment successful
-    if (result.paid) {
-      clearInterval(interval);
+    const usdAmount = Number(price.replace(/[^\d.]/g, ""));
+    const amountKES = CurrencyService.usdToKes(usdAmount);
 
-      setStatusMessage("✅ Payment confirmed!");
+    console.log("Payment price =", price);
+    console.log("USD amount =", usdAmount);
+    console.log("Amount sent to M-Pesa (KES) =", amountKES);
 
-      setIsProcessing(false);
-
-      onPaymentSuccess();
-
-      onClose();
-
-      return;
-    }
-
-    // ⏳ Still waiting for payment
-    if ((result as any).pending) {
-      return;
-    }
-
-    // ❌ User cancelled
-    if ((result as any).cancelled) {
-      clearInterval(interval);
-
-      setStatusMessage("❌ Payment cancelled.");
-
-      setIsProcessing(false);
-
-      return;
-    }
-
-    // ❌ Payment failed or timed out
-    if ((result as any).failed) {
-      clearInterval(interval);
-
-      setStatusMessage(
-        (result as any).message ??
-          "❌ Payment failed. Please try again."
-      );
-
-      setIsProcessing(false);
-
-      return;
-    }
-  } catch (err) {
-    clearInterval(interval);
-
-    console.error("Payment status check failed:", err);
+    const response = await PaymentService.sendMpesaSTKPush({
+      phoneNumber,
+      amount: amountKES,
+    });
 
     setStatusMessage(
-      "Unable to verify payment. Please try again."
+      "📱 STK Push sent. Please complete the payment on your phone..."
     );
+
+    const checkoutRequestID = response.CheckoutRequestID;
+
+    const checkPaymentStatus = async () => {
+      try {
+        const result = await PaymentService.checkMpesaPayment(
+          checkoutRequestID
+        );
+
+        console.log("M-Pesa payment status:", result);
+
+        // ✅ Payment successful
+        if (result.paid) {
+          if (interval) clearInterval(interval);
+          if (firstCheckTimeout) clearTimeout(firstCheckTimeout);
+
+          setStatusMessage("✅ Payment confirmed!");
+          setIsProcessing(false);
+
+          onPaymentSuccess();
+          onClose();
+
+          return;
+        }
+
+        // ⏳ Still waiting for payment
+        if ((result as any).pending) {
+          setStatusMessage(
+            "📱 Waiting for payment confirmation..."
+          );
+
+          return;
+        }
+
+        // ❌ User cancelled
+        if ((result as any).cancelled) {
+          if (interval) clearInterval(interval);
+          if (firstCheckTimeout) clearTimeout(firstCheckTimeout);
+
+          setStatusMessage("❌ Payment cancelled.");
+          setIsProcessing(false);
+
+          return;
+        }
+
+        // ❌ Payment failed or timed out
+        if ((result as any).failed) {
+          if (interval) clearInterval(interval);
+          if (firstCheckTimeout) clearTimeout(firstCheckTimeout);
+
+          setStatusMessage(
+            (result as any).message ??
+              "❌ Payment failed. Please try again."
+          );
+
+          setIsProcessing(false);
+
+          return;
+        }
+
+        // If the backend has not confirmed anything yet,
+        // continue waiting.
+        setStatusMessage(
+          "📱 Waiting for payment confirmation..."
+        );
+      } catch (err) {
+        // IMPORTANT:
+        // Do not stop the payment process because of one
+        // temporary verification error.
+        console.warn(
+          "M-Pesa verification temporarily unavailable:",
+          err
+        );
+
+        setStatusMessage(
+          "📱 Waiting for payment confirmation..."
+        );
+      }
+    };
+
+    // Give the customer 10 seconds to receive the STK
+    // prompt and enter their M-Pesa PIN.
+    firstCheckTimeout = setTimeout(() => {
+      checkPaymentStatus();
+    }, 10000);
+
+    // Continue checking every 5 seconds.
+    interval = setInterval(() => {
+      checkPaymentStatus();
+    }, 5000);
+
+  } catch (err) {
+    console.error("STK Push failed:", err);
+
+    alert("Failed to initiate M-Pesa payment.");
 
     setIsProcessing(false);
   }
-}, 6000);
-    } catch (err) {
-      console.error("STK Push failed:", err);
-      alert("Failed to initiate M-Pesa payment.");
-      setIsProcessing(false);
-    }
-  };
-
+};
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950 p-5 text-white shadow-2xl">
