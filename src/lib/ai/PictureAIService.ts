@@ -27,6 +27,9 @@ export class PictureAIService {
       // Get the correct fal.ai model for the selected tool
       const model = getPictureModel(request.tool);
 
+      console.log("FAL MODEL:", model);
+      console.log("FAL REQUEST:", request);
+
       // Generate the image
       const result = await fal.subscribe(model, {
         input: {
@@ -34,7 +37,11 @@ export class PictureAIService {
         },
       });
 
+      console.log("FAL RESULT:", result);
+
       const imageUrl = result.data.images?.[0]?.url;
+
+      console.log("FAL IMAGE URL:", imageUrl);
 
       if (!imageUrl) {
         return {
@@ -48,6 +55,8 @@ export class PictureAIService {
         imageUrl,
       };
     } catch (err) {
+      console.error("FAL GENERATION ERROR:", err);
+
       return {
         success: false,
         error:
