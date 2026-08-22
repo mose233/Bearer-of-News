@@ -3330,6 +3330,8 @@ const isMemeGenerator = tool === "Meme Generator";
   type="button"
   disabled={false}
   onClick={() => {
+    alert(`Generate clicked. Prompt tool: ${isPromptToImage}`);
+
     if (isPromptToImage) {
       onGenerateImage?.();
     } else {
