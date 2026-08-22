@@ -556,6 +556,7 @@ export default function CreatorStudio() {
 };
 
 const handleGenerateImage = () => {
+  alert("HANDLE GENERATE IMAGE REACHED");
   const usdPrice = getUSDPrice("Picture AI");
 
   const kesPrice = convertUSDToKES(usdPrice);
