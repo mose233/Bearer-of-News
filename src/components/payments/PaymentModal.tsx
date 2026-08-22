@@ -120,7 +120,7 @@ const response = await PaymentService.sendMpesaSTKPush({
 
     setIsProcessing(false);
   }
-}, 3000);
+}, 6000);
     } catch (err) {
       console.error("STK Push failed:", err);
       alert("Failed to initiate M-Pesa payment.");
