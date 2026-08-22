@@ -1803,6 +1803,7 @@ export default function DynamicToolWorkspace({
   setVideoPrompt,
   aiImagePrompt = "",
   setAiImagePrompt,
+  onGenerateImage,
   videoCreativeType = "General",
   setVideoCreativeType,
   videoOutputFormat = "Facebook Reel",
@@ -3103,22 +3104,7 @@ const isMemeGenerator = tool === "Meme Generator";
               </label>
             </div>
           )}
-          {isTextToImage && (
-  <div className="space-y-4">
-    <label className="block">
-      <span className="mb-2 block text-sm font-extrabold">
-        Image Prompt
-      </span>
-
-      <textarea
-        value={aiImagePrompt ?? ""}
-        onChange={(e) => setAiImagePrompt?.(e.target.value)}
-        placeholder="Describe the image you want AI to create..."
-        className={textareaClass}
-      />
-    </label>
-  </div>
-)}
+         
           {isPosterFlyer && (
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
@@ -3329,12 +3315,10 @@ const isMemeGenerator = tool === "Meme Generator";
           <Button
   type="button"
   disabled={false}
-  onClick={() => {
-    alert(`Generate clicked. Prompt tool: ${isPromptToImage}`);
-
-    if (isPromptToImage) {
-      onGenerateImage?.();
-    } else {
+ onClick={() => {
+  if (isPromptToImage) {
+    onGenerateImage?.();
+  } else {
       confirmPictureGeneration(() => {
         setHasPreviewedEnhancement(true);
       });
