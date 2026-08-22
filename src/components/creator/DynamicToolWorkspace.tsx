@@ -3315,10 +3315,11 @@ const isMemeGenerator = tool === "Meme Generator";
   type="button"
   disabled={false}
   onClick={() => {
+  alert("GENERATE BUTTON CLICKED");
 
-    if (isPromptToImage) {
-      onGenerateImage?.();
-    } else {
+  if (isPromptToImage) {
+    onGenerateImage?.();
+  } else {
       confirmPictureGeneration(() => {
         setHasPreviewedEnhancement(true);
       });
