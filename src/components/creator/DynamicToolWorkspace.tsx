@@ -1803,6 +1803,7 @@ export default function DynamicToolWorkspace({
   setVideoPrompt,
   aiImagePrompt = "",
   setAiImagePrompt,
+  onGenerateImage,
   videoCreativeType = "General",
   setVideoCreativeType,
   videoOutputFormat = "Facebook Reel",
