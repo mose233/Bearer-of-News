@@ -1114,10 +1114,7 @@ const resetCurrentProject = () => {
             isGeneratingImage={isGeneratingImage}
             generatedImagePreview={generatedImagePreview}
             multiScenePlan={multiScenePlan}
-            onGenerateImage={() => {
-  alert("CREATOR STUDIO CALLBACK RECEIVED");
-  handleGenerateImage();
-}}
+            onGenerateImage={handleGenerateImage}
             onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
             onAddGeneratedImage={handleAddGeneratedImage}
             onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
