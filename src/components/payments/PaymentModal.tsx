@@ -45,12 +45,12 @@ export default function PaymentModal({
   try {
     setIsProcessing(true);
 
-    const amountKES = Number(
-  price.replace(/[^\d.]/g, "")
-);
+    const usdAmount = Number(price.replace(/[^\d.]/g, ""));
+    const amountKES = CurrencyService.usdToKes(usdAmount);
 
-console.log("Payment price =", price);
-console.log("Amount sent to M-Pesa (KES) =", amountKES);
+    console.log("Payment price =", price);
+    console.log("USD amount =", usdAmount);
+    console.log("Amount sent to M-Pesa (KES) =", amountKES);
 
     const response = await PaymentService.sendMpesaSTKPush({
       phoneNumber,
