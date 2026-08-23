@@ -1803,7 +1803,10 @@ export default function DynamicToolWorkspace({
   setVideoPrompt,
   aiImagePrompt = "",
   setAiImagePrompt,
+  isGeneratingImage = false,
+  generatedImagePreview,
   onGenerateImage,
+  onAddGeneratedImage,
   videoCreativeType = "General",
   setVideoCreativeType,
   videoOutputFormat = "Facebook Reel",
@@ -3179,7 +3182,7 @@ const isMemeGenerator = tool === "Meme Generator";
           />
         )}
 
-        {picturePreview && (
+        {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
@@ -3202,17 +3205,18 @@ const isMemeGenerator = tool === "Meme Generator";
                 <span className="text-xs font-extrabold uppercase tracking-wide text-pink-200">
                   Enhanced Preview
                 </span>
-                {hasPreviewedEnhancement && (
-                  <span className="rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
-                    AI
-                  </span>
-                )}
+                {(hasPreviewedEnhancement ||
+           (isPromptToImage && !!generatedImagePreview)) && (
+            <span className="rounded-full bg-pink-600 px-3 py-1 text-xs font-extrabold text-white">
+            AI
+            </span>
+           )}
               </div>
 
               {hasPreviewedEnhancement ? (
                 <div className="relative overflow-hidden rounded-2xl">
                   <img
-                    src={picturePreview}
+                    src={isPromptToImage ? generatedImagePreview : picturePreview}
                     alt="Enhanced preview"
                     className="max-h-[380px] w-full rounded-2xl object-cover"
                     style={{ filter: filterClass }}
