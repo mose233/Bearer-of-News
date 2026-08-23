@@ -17,6 +17,7 @@ export interface PictureAIResult {
   success: boolean;
   imageUrl?: string;
   error?: string;
+  requestId?: string;
 }
 
 export class PictureAIService {
@@ -24,20 +25,54 @@ export class PictureAIService {
     request: PictureAIRequest
   ): Promise<PictureAIResult> {
     try {
-      // Get the correct fal.ai model for the selected tool
       const model = getPictureModel(request.tool);
 
+      console.log("=================================");
+      console.log("REAL FAL.AI GENERATION STARTING");
       console.log("FAL MODEL:", model);
       console.log("FAL REQUEST:", request);
+      console.log(
+        "FAL KEY AVAILABLE:",
+        Boolean(import.meta.env.VITE_FAL_KEY)
+      );
+      console.log("=================================");
 
-      // Generate the image
       const result = await fal.subscribe(model, {
         input: {
           prompt: request.prompt,
         },
+
+        logs: true,
+
+        onQueueUpdate: (update) => {
+          console.log("FAL QUEUE UPDATE:", update);
+
+          if (update.status === "IN_QUEUE") {
+            console.log("FAL STATUS: Request is in queue.");
+          }
+
+          if (update.status === "IN_PROGRESS") {
+            console.log("FAL STATUS: Generation is in progress.");
+
+            if ("logs" in update && update.logs) {
+              update.logs.forEach((log) => {
+                console.log("FAL LOG:", log.message);
+              });
+            }
+          }
+
+          if (update.status === "COMPLETED") {
+            console.log("FAL STATUS: Generation completed.");
+          }
+        },
       });
 
+      console.log("=================================");
+      console.log("FAL GENERATION COMPLETED");
+      console.log("FAL REQUEST ID:", result.requestId);
       console.log("FAL RESULT:", result);
+      console.log("FAL DATA:", result.data);
+      console.log("=================================");
 
       const imageUrl = result.data.images?.[0]?.url;
 
@@ -46,23 +81,28 @@ export class PictureAIService {
       if (!imageUrl) {
         return {
           success: false,
-          error: "No image returned from fal.ai.",
+          error: "fal.ai completed but returned no image URL.",
+          requestId: result.requestId,
         };
       }
 
       return {
         success: true,
         imageUrl,
+        requestId: result.requestId,
       };
     } catch (err) {
-      console.error("FAL GENERATION ERROR:", err);
+      console.error("=================================");
+      console.error("FAL GENERATION ERROR");
+      console.error(err);
+      console.error("=================================");
 
       return {
         success: false,
         error:
           err instanceof Error
             ? err.message
-            : "Unknown error occurred.",
+            : "Unknown fal.ai generation error.",
       };
     }
   }
