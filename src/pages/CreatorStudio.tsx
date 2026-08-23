@@ -558,14 +558,12 @@ export default function CreatorStudio() {
 const handleGenerateImage = () => {
   const usdPrice = getUSDPrice("Picture AI");
 
-  const kesPrice = convertUSDToKES(usdPrice);
-
   requestPaidGeneration(
     {
       tool: "Picture AI",
       usdPrice,
-      currency: "KES",
-      amount: kesPrice,
+      currency: "USD",
+      amount: usdPrice,
       description: "Picture AI Generation",
     },
     () => {
