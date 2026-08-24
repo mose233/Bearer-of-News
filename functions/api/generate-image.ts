@@ -20,6 +20,11 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  /*
+   * Diagnostic check:
+   * We intentionally report only whether the variables exist.
+   * The actual FAL API key is NEVER returned to the browser.
+   */
   if (context.env.AI_ENABLED !== "true") {
     return jsonResponse(
       {
@@ -27,6 +32,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         stage: "disabled",
         error:
           "Picture AI is temporarily disabled while we integrate M-Pesa and fal.ai.",
+        diagnostic: {
+          AI_ENABLED: context.env.AI_ENABLED ?? "MISSING",
+          FAL_API_KEY: context.env.FAL_API_KEY ? "PRESENT" : "MISSING",
+        },
       },
       503
     );
@@ -41,6 +50,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           ok: false,
           stage: "env",
           error: "FAL API key missing in Cloudflare.",
+          diagnostic: {
+            AI_ENABLED: context.env.AI_ENABLED ?? "MISSING",
+            FAL_API_KEY: "MISSING",
+          },
         },
         500
       );
