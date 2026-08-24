@@ -1,13 +1,6 @@
-import { fal } from "@fal-ai/client";
-import { getPictureModel, PictureTool } from "./models";
-
-fal.config({
-  credentials: import.meta.env.VITE_FAL_KEY,
-});
-
 export interface PictureAIRequest {
   prompt: string;
-  tool: PictureTool;
+  tool: string;
   style?: string;
   aspectRatio?: string;
   image?: File;
@@ -17,7 +10,6 @@ export interface PictureAIResult {
   success: boolean;
   imageUrl?: string;
   error?: string;
-  requestId?: string;
 }
 
 export class PictureAIService {
@@ -25,75 +17,78 @@ export class PictureAIService {
     request: PictureAIRequest
   ): Promise<PictureAIResult> {
     try {
-      const model = getPictureModel(request.tool);
-
       console.log("=================================");
-      console.log("REAL FAL.AI GENERATION STARTING");
-      console.log("FAL MODEL:", model);
-      console.log("FAL REQUEST:", request);
-      console.log(
-        "FAL KEY AVAILABLE:",
-        Boolean(import.meta.env.VITE_FAL_KEY)
-      );
+      console.log("REAL FAL.AI PICTURE AI GENERATION");
+      console.log("Tool:", request.tool);
+      console.log("Prompt:", request.prompt);
+      console.log("Aspect Ratio:", request.aspectRatio);
+      console.log("Calling /api/generate-image...");
       console.log("=================================");
 
-      const result = await fal.subscribe(model, {
-        input: {
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           prompt: request.prompt,
-        },
-
-        logs: true,
-
-        onQueueUpdate: (update) => {
-          console.log("FAL QUEUE UPDATE:", update);
-
-          if (update.status === "IN_QUEUE") {
-            console.log("FAL STATUS: Request is in queue.");
-          }
-
-          if (update.status === "IN_PROGRESS") {
-            console.log("FAL STATUS: Generation is in progress.");
-
-            if ("logs" in update && update.logs) {
-              update.logs.forEach((log) => {
-                console.log("FAL LOG:", log.message);
-              });
-            }
-          }
-
-          if (update.status === "COMPLETED") {
-            console.log("FAL STATUS: Generation completed.");
-          }
-        },
+          size: "1024x1024",
+        }),
       });
 
-      console.log("=================================");
-      console.log("FAL GENERATION COMPLETED");
-      console.log("FAL REQUEST ID:", result.requestId);
-      console.log("FAL RESULT:", result);
-      console.log("FAL DATA:", result.data);
-      console.log("=================================");
+      console.log(
+        "Picture AI backend response status:",
+        response.status
+      );
 
-      const imageUrl = result.data.images?.[0]?.url;
+      const data = await response.json();
 
-      console.log("FAL IMAGE URL:", imageUrl);
+      console.log("Picture AI backend response:", data);
 
-      if (!imageUrl) {
+      if (!response.ok || !data.ok) {
         return {
           success: false,
-          error: "fal.ai completed but returned no image URL.",
-          requestId: result.requestId,
+          error:
+            data?.error ||
+            `Picture AI generation failed (${response.status}).`,
         };
       }
+
+      if (!data.imageBase64) {
+        return {
+          success: false,
+          error: "Picture AI server returned no image.",
+        };
+      }
+
+      const mimeType = data.mimeType || "image/png";
+
+      // Convert the server-returned Base64 image into a
+      // browser object URL so the existing preview workflow
+      // can continue using result.imageUrl.
+      const binaryString = atob(data.imageBase64);
+
+      const bytes = new Uint8Array(binaryString.length);
+
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const blob = new Blob([bytes], {
+        type: mimeType,
+      });
+
+      const imageUrl = URL.createObjectURL(blob);
+
+      console.log("REAL FAL.AI IMAGE URL CREATED:", imageUrl);
 
       return {
         success: true,
         imageUrl,
-        requestId: result.requestId,
       };
     } catch (err) {
       console.error("=================================");
-      console.error("FAL GENERATION ERROR");
+      console.error("FAL PICTURE AI GENERATION ERROR");
       console.error(err);
       console.error("=================================");
 
@@ -102,7 +97,7 @@ export class PictureAIService {
         error:
           err instanceof Error
             ? err.message
-            : "Unknown fal.ai generation error.",
+            : String(err),
       };
     }
   }
