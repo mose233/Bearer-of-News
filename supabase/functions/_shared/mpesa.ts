@@ -8,11 +8,12 @@ import {
 /**
  * Obtain a Safaricom Daraja OAuth access token.
  *
- * This function is server-side only.
- * Consumer Key and Consumer Secret must NEVER be exposed
- * to the browser/frontend.
+ * Server-side only.
+ * Consumer Key and Consumer Secret must NEVER
+ * be exposed to the browser/frontend.
  */
 export async function getAccessToken(): Promise<string> {
+  // Validate that the required M-Pesa configuration exists.
   validateMpesaConfig();
 
   const credentials = btoa(
@@ -41,8 +42,15 @@ export async function getAccessToken(): Promise<string> {
     );
   }
 
+  // Read the response body ONCE.
   const responseText = await response.text();
 
+  console.log(
+    "M-PESA OAuth HTTP status:",
+    response.status
+  );
+
+  // Handle OAuth failure.
   if (!response.ok) {
     console.error(
       "M-PESA OAuth failed:",
@@ -54,10 +62,11 @@ export async function getAccessToken(): Promise<string> {
     );
 
     throw new Error(
-      `Safaricom OAuth failed with HTTP ${response.status}.`
+      `Safaricom OAuth failed with HTTP ${response.status}: ${responseText}`
     );
   }
 
+  // Parse successful response.
   let data: {
     access_token?: string;
     expires_in?: string | number;
@@ -76,16 +85,21 @@ export async function getAccessToken(): Promise<string> {
     );
   }
 
-  if (!response.ok) {
-  const errorText = await response.text();
+  // Make sure Daraja actually returned a token.
+  if (!data.access_token) {
+    console.error(
+      "M-PESA OAuth response did not contain an access_token:",
+      data
+    );
 
-  console.error("M-Pesa OAuth HTTP status:", response.status);
-  console.error("M-Pesa OAuth response:", errorText);
+    throw new Error(
+      "M-Pesa access token missing from Safaricom response."
+    );
+  }
 
-  throw new Error(
-    `Failed to obtain M-Pesa access token. HTTP ${response.status}: ${errorText}`
+  console.log(
+    "M-PESA OAuth access token obtained successfully."
   );
-}
 
   return data.access_token;
 }
