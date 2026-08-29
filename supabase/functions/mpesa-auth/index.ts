@@ -1,48 +1,53 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 import {
-  MPESA_ENV,
   MPESA_BASE_URL,
   MPESA_CONSUMER_KEY,
   MPESA_CONSUMER_SECRET,
-  MPESA_SHORTCODE,
 } from "../_shared/env.ts";
 
-serve(async () => {
+serve(async (_req: Request): Promise<Response> => {
   try {
-    const diagnostics = {
-      environment: MPESA_ENV || "MISSING",
-      baseUrl: MPESA_BASE_URL || "MISSING",
-
-      consumerKeyConfigured:
-        MPESA_CONSUMER_KEY.length > 0,
-
-      consumerSecretConfigured:
-        MPESA_CONSUMER_SECRET.length > 0,
-
-      shortcodeConfigured:
-        MPESA_SHORTCODE.length > 0,
-
-      shortcode:
-        MPESA_SHORTCODE
-          ? `***${MPESA_SHORTCODE.slice(-3)}`
-          : "MISSING",
+    // Never return credentials.
+    const config = {
+      baseUrl: MPESA_BASE_URL,
+      hasConsumerKey: Boolean(MPESA_CONSUMER_KEY),
+      consumerKeyLength: MPESA_CONSUMER_KEY.length,
+      hasConsumerSecret: Boolean(MPESA_CONSUMER_SECRET),
+      consumerSecretLength: MPESA_CONSUMER_SECRET.length,
     };
 
-    if (
-      !MPESA_ENV ||
-      !MPESA_BASE_URL ||
-      !MPESA_CONSUMER_KEY ||
-      !MPESA_CONSUMER_SECRET ||
-      !MPESA_SHORTCODE
-    ) {
-      return Response.json(
-        {
+    if (!MPESA_BASE_URL) {
+      return new Response(
+        JSON.stringify({
           success: false,
           stage: "configuration",
-          diagnostics,
-        },
-        { status: 500 }
+          error: "MPESA_BASE_URL is empty.",
+          config,
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    if (!MPESA_CONSUMER_KEY || !MPESA_CONSUMER_SECRET) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          stage: "configuration",
+          error: "Consumer Key or Consumer Secret is missing.",
+          config,
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
     }
 
@@ -64,60 +69,46 @@ serve(async () => {
 
     const responseText = await response.text();
 
-    if (!response.ok) {
-      return Response.json(
-        {
-          success: false,
-          stage: "safaricom_oauth",
-          diagnostics,
-          oauthUrl,
-          safaricomStatus: response.status,
-          safaricomStatusText: response.statusText,
-          safaricomResponse: responseText || "(empty response)",
-        },
-        { status: 500 }
-      );
-    }
-
-    let data: {
-      access_token?: string;
-      expires_in?: string | number;
-    };
+    let parsedResponse: unknown = responseText;
 
     try {
-      data = JSON.parse(responseText);
+      parsedResponse = JSON.parse(responseText);
     } catch {
-      return Response.json(
-        {
-          success: false,
-          stage: "safaricom_oauth_json",
-          diagnostics,
-          safaricomStatus: response.status,
-          safaricomResponse: responseText,
-        },
-        { status: 500 }
-      );
+      // Keep raw response text.
     }
 
-    return Response.json({
-      success: true,
-      stage: "safaricom_oauth",
-      diagnostics,
-      safaricomStatus: response.status,
-      tokenReceived: Boolean(data.access_token),
-      expiresIn: data.expires_in ?? null,
-    });
-  } catch (error) {
-    return Response.json(
+    return new Response(
+      JSON.stringify({
+        success: response.ok,
+        stage: "safaricom_oauth",
+        httpStatus: response.status,
+        statusText: response.statusText,
+        response: parsedResponse,
+        config,
+      }),
       {
+        status: response.ok ? 200 : 502,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
         success: false,
-        stage: "unexpected_error",
+        stage: "oauth_request",
         error:
           error instanceof Error
             ? error.message
             : "Unknown error",
-      },
-      { status: 500 }
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 });
