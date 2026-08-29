@@ -8,6 +8,17 @@ import {
 export async function getAccessToken(): Promise<string> {
   validateMpesaConfig();
 
+  console.log("M-PESA OAuth starting");
+  console.log("M-PESA BASE URL:", MPESA_BASE_URL);
+  console.log(
+    "M-PESA CONSUMER KEY present:",
+    Boolean(MPESA_CONSUMER_KEY)
+  );
+  console.log(
+    "M-PESA CONSUMER SECRET present:",
+    Boolean(MPESA_CONSUMER_SECRET)
+  );
+
   const credentials = btoa(
     `${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`
   );
@@ -36,16 +47,12 @@ export async function getAccessToken(): Promise<string> {
 
   const responseText = await response.text();
 
-  console.log("M-PESA OAuth status:", response.status);
+  console.log("M-PESA OAuth HTTP status:", response.status);
+  console.log("M-PESA OAuth response:", responseText);
 
   if (!response.ok) {
-    console.error(
-      "M-PESA OAuth response:",
-      responseText
-    );
-
     throw new Error(
-      `Safaricom OAuth failed. HTTP ${response.status}: ${responseText}`
+      `M-Pesa OAuth failed. HTTP ${response.status}: ${responseText}`
     );
   }
 
