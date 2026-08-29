@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 import {
+  MPESA_ENV,
   MPESA_BASE_URL,
   MPESA_CONSUMER_KEY,
   MPESA_CONSUMER_SECRET,
@@ -8,58 +9,15 @@ import {
 
 serve(async (_req: Request): Promise<Response> => {
   try {
-    // Never return credentials.
-    const config = {
-      baseUrl: MPESA_BASE_URL,
-      hasConsumerKey: Boolean(MPESA_CONSUMER_KEY),
-      consumerKeyLength: MPESA_CONSUMER_KEY.length,
-      hasConsumerSecret: Boolean(MPESA_CONSUMER_SECRET),
-      consumerSecretLength: MPESA_CONSUMER_SECRET.length,
-    };
-
-    if (!MPESA_BASE_URL) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          stage: "configuration",
-          error: "MPESA_BASE_URL is empty.",
-          config,
-        }),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
-    if (!MPESA_CONSUMER_KEY || !MPESA_CONSUMER_SECRET) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          stage: "configuration",
-          error: "Consumer Key or Consumer Secret is missing.",
-          config,
-        }),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
     const credentials = btoa(
       `${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`
     );
 
-    const oauthUrl =
+    const url =
       `${MPESA_BASE_URL}/oauth/v1/generate` +
       "?grant_type=client_credentials";
 
-    const response = await fetch(oauthUrl, {
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         Authorization: `Basic ${credentials}`,
@@ -69,22 +27,43 @@ serve(async (_req: Request): Promise<Response> => {
 
     const responseText = await response.text();
 
-    let parsedResponse: unknown = responseText;
-
-    try {
-      parsedResponse = JSON.parse(responseText);
-    } catch {
-      // Keep raw response text.
-    }
+    console.log("========== MPESA OAUTH DIAGNOSTIC ==========");
+    console.log("Environment:", MPESA_ENV);
+    console.log("Base URL:", MPESA_BASE_URL);
+    console.log(
+      "Consumer Key present:",
+      Boolean(MPESA_CONSUMER_KEY)
+    );
+    console.log(
+      "Consumer Key length:",
+      MPESA_CONSUMER_KEY.length
+    );
+    console.log(
+      "Consumer Secret present:",
+      Boolean(MPESA_CONSUMER_SECRET)
+    );
+    console.log(
+      "Consumer Secret length:",
+      MPESA_CONSUMER_SECRET.length
+    );
+    console.log("OAuth URL:", url);
+    console.log("HTTP status:", response.status);
+    console.log("Status text:", response.statusText);
+    console.log("Response:", responseText);
+    console.log("============================================");
 
     return new Response(
       JSON.stringify({
         success: response.ok,
-        stage: "safaricom_oauth",
+        environment: MPESA_ENV,
+        baseUrl: MPESA_BASE_URL,
+        consumerKeyPresent: Boolean(MPESA_CONSUMER_KEY),
+        consumerKeyLength: MPESA_CONSUMER_KEY.length,
+        consumerSecretPresent: Boolean(MPESA_CONSUMER_SECRET),
+        consumerSecretLength: MPESA_CONSUMER_SECRET.length,
         httpStatus: response.status,
         statusText: response.statusText,
-        response: parsedResponse,
-        config,
+        response: responseText,
       }),
       {
         status: response.ok ? 200 : 502,
@@ -94,10 +73,11 @@ serve(async (_req: Request): Promise<Response> => {
       }
     );
   } catch (error) {
+    console.error("OAuth diagnostic error:", error);
+
     return new Response(
       JSON.stringify({
         success: false,
-        stage: "oauth_request",
         error:
           error instanceof Error
             ? error.message
