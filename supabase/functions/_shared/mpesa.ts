@@ -76,15 +76,16 @@ export async function getAccessToken(): Promise<string> {
     );
   }
 
-  if (!data.access_token) {
-    console.error(
-      "M-PESA OAuth response did not contain access_token."
-    );
+  if (!response.ok) {
+  const errorText = await response.text();
 
-    throw new Error(
-      "Safaricom OAuth response did not contain an access token."
-    );
-  }
+  console.error("M-Pesa OAuth HTTP status:", response.status);
+  console.error("M-Pesa OAuth response:", errorText);
+
+  throw new Error(
+    `Failed to obtain M-Pesa access token. HTTP ${response.status}: ${errorText}`
+  );
+}
 
   return data.access_token;
 }
