@@ -2,6 +2,7 @@ import {
   MPESA_BASE_URL,
   MPESA_PASSKEY,
   MPESA_SHORTCODE,
+  MPESA_ENV,
   validateMpesaConfig,
 } from "./env.ts";
 
@@ -16,10 +17,11 @@ import {
  * Safaricom STK Push Query response.
  *
  * IMPORTANT:
- * ResultCode describes the actual transaction result.
  *
- * ResponseCode "0" only means Safaricom accepted
+ * ResponseCode "0" means Safaricom accepted
  * the STK Query request.
+ *
+ * ResultCode describes the actual transaction result.
  */
 export interface MpesaSTKQueryResponse {
   ResponseCode?: string | number;
@@ -39,7 +41,7 @@ export interface MpesaSTKQueryResponse {
  *
  * This function ONLY communicates with Safaricom.
  *
- * It does NOT decide whether a payment is:
+ * It does NOT decide whether the payment is:
  *
  * - paid
  * - pending
@@ -61,7 +63,7 @@ export async function querySTKStatus(
 
   /**
    * ============================================================
-   * VALIDATE CHECKOUT REQUEST ID
+   * NORMALIZE CHECKOUT REQUEST ID
    * ============================================================
    */
 
@@ -76,7 +78,7 @@ export async function querySTKStatus(
 
   /**
    * ============================================================
-   * GET SAFARICOM ACCESS TOKEN
+   * GET ACCESS TOKEN
    * ============================================================
    */
 
@@ -97,7 +99,7 @@ export async function querySTKStatus(
    * GENERATE PASSWORD
    * ============================================================
    *
-   * Password:
+   * Password is:
    *
    * Base64(
    *   BusinessShortCode +
@@ -105,8 +107,10 @@ export async function querySTKStatus(
    *   Timestamp
    * )
    *
-   * The shared helper uses the configured
-   * MPESA_SHORTCODE and MPESA_PASSKEY.
+   * IMPORTANT:
+   *
+   * We use the SAME configured shortcode and passkey
+   * used by the STK Push.
    */
 
   const password =
@@ -117,14 +121,14 @@ export async function querySTKStatus(
    * BUILD STK QUERY PAYLOAD
    * ============================================================
    *
-   * STK Push Query requires:
+   * Safaricom STK Push Query expects:
    *
    * BusinessShortCode
    * Password
    * Timestamp
    * CheckoutRequestID
    *
-   * PartyA / PartyB are NOT sent here.
+   * PartyA and PartyB are NOT part of this request.
    */
 
   const payload = {
@@ -152,15 +156,15 @@ export async function querySTKStatus(
 
   /**
    * ============================================================
-   * SAFE REQUEST DIAGNOSTICS
+   * SAFE DIAGNOSTICS
    * ============================================================
    *
    * NEVER log:
    *
    * - Consumer Secret
    * - Passkey
-   * - Access Token
    * - Password
+   * - Access Token
    */
 
   console.log(
@@ -177,7 +181,7 @@ export async function querySTKStatus(
 
   console.log(
     "Environment:",
-    Deno.env.get("MPESA_ENV") ?? "unknown"
+    MPESA_ENV || "unknown"
   );
 
   console.log(
@@ -206,12 +210,22 @@ export async function querySTKStatus(
   );
 
   console.log(
+    "Payload fields:",
+    [
+      "BusinessShortCode",
+      "Password",
+      "Timestamp",
+      "CheckoutRequestID",
+    ]
+  );
+
+  console.log(
     "================================="
   );
 
   /**
    * ============================================================
-   * SEND QUERY TO SAFARICOM
+   * SEND REQUEST TO SAFARICOM
    * ============================================================
    */
 
@@ -239,10 +253,6 @@ export async function querySTKStatus(
       }
     );
   } catch (error) {
-    /**
-     * Network-level failure.
-     */
-
     console.error(
       "================================="
     );
@@ -266,18 +276,12 @@ export async function querySTKStatus(
 
   /**
    * ============================================================
-   * READ SAFARICOM RESPONSE
+   * READ RESPONSE BODY
    * ============================================================
    */
 
   const text =
     await response.text();
-
-  /**
-   * ============================================================
-   * EMPTY RESPONSE
-   * ============================================================
-   */
 
   if (!text.trim()) {
     console.error(
@@ -339,8 +343,6 @@ export async function querySTKStatus(
    * ============================================================
    * HTTP ERROR
    * ============================================================
-   *
-   * An HTTP failure means the request itself failed.
    */
 
   if (!response.ok) {
@@ -382,7 +384,7 @@ export async function querySTKStatus(
 
   /**
    * ============================================================
-   * SAFARICOM RESPONSE
+   * NORMALIZE RESPONSE VALUES
    * ============================================================
    */
 
@@ -447,4 +449,104 @@ export async function querySTKStatus(
   );
 
   console.log(
-    "Result
+    "ResultCode:",
+    resultCode
+  );
+
+  console.log(
+    "ResultDesc:",
+    resultDescription
+  );
+
+  console.log(
+    "================================="
+  );
+
+  /**
+   * ============================================================
+   * IMPORTANT DIAGNOSTIC
+   * ============================================================
+   *
+   * ResponseCode 0 does NOT mean payment succeeded.
+   *
+   * It only means Safaricom accepted the QUERY request.
+   *
+   * ResultCode contains the actual transaction result.
+   */
+
+  if (
+    responseCode === "0" &&
+    resultCode === "4999" &&
+    resultDescription
+      .toLowerCase()
+      .includes("merchant does not exist")
+  ) {
+    console.error(
+      "================================="
+    );
+
+    console.error(
+      "M-PESA MERCHANT CONFIGURATION ERROR"
+    );
+
+    console.error(
+      "================================="
+    );
+
+    console.error(
+      "Safaricom accepted the STK Query request"
+    );
+
+    console.error(
+      "but reported:"
+    );
+
+    console.error(
+      "ResultCode:",
+      resultCode
+    );
+
+    console.error(
+      "ResultDesc:",
+      resultDescription
+    );
+
+    console.error(
+      "BusinessShortCode:",
+      MPESA_SHORTCODE
+    );
+
+    console.error(
+      "Environment:",
+      MPESA_ENV
+    );
+
+    console.error(
+      "CheckoutRequestID:",
+      normalizedCheckoutRequestID
+    );
+
+    console.error(
+      "This indicates a Safaricom-side merchant/"
+      + "shortcode provisioning issue rather than "
+      + "a frontend payment-status issue."
+    );
+
+    console.error(
+      "================================="
+    );
+  }
+
+  /**
+   * ============================================================
+   * RETURN SAFARICOM RESPONSE
+   * ============================================================
+   *
+   * Do NOT convert ResultCode here.
+   *
+   * mpesa-status.ts is responsible for deciding
+   * paid/pending/cancelled/failed.
+   */
+
+  return data;
+}
