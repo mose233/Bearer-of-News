@@ -1,18 +1,18 @@
 /**
  * M-PESA environment configuration.
  *
- * IMPORTANT:
- * Production must be explicitly configured.
+ * Production configuration for xnewsapp.com.
  *
  * Required Supabase secrets:
  *
  * MPESA_ENV=production
  * MPESA_CONSUMER_KEY=YOUR_PRODUCTION_CONSUMER_KEY
  * MPESA_CONSUMER_SECRET=YOUR_PRODUCTION_CONSUMER_SECRET
- * MPESA_SHORTCODE=4320242
+ * MPESA_SHORTCODE=4798391
  * MPESA_PASSKEY=YOUR_PRODUCTION_PASSKEY
+ * MPESA_TRANSACTION_TYPE=CustomerBuyGoodsOnline
  *
- * Never put the real credentials in GitHub or frontend code.
+ * Never put real credentials in GitHub or frontend code.
  */
 
 export const MPESA_ENV =
@@ -31,26 +31,18 @@ export const MPESA_PASSKEY =
   Deno.env.get("MPESA_PASSKEY")?.trim() ?? "";
 
 /**
- * STK Push transaction type.
+ * M-PESA transaction type.
  *
- * Safaricom's standard STK Push values include:
+ * For xnewsapp.com production:
  *
- * CustomerPayBillOnline
  * CustomerBuyGoodsOnline
  *
- * Your current implementation uses CustomerPayBillOnline.
- *
- * If Safaricom instructs you that shortcode 4320242 must use
- * CustomerBuyGoodsOnline instead, change this Supabase secret:
- *
- * MPESA_TRANSACTION_TYPE=CustomerBuyGoodsOnline
- *
- * We keep CustomerPayBillOnline as the current default because
- * that is what the existing xnewsapp.com implementation was using.
+ * because Safaricom has confirmed shortcode 4798391
+ * is a Till number.
  */
 export const MPESA_TRANSACTION_TYPE =
   Deno.env.get("MPESA_TRANSACTION_TYPE")?.trim() ||
-  "CustomerPayBillOnline";
+  "CustomerBuyGoodsOnline";
 
 /**
  * Production Safaricom API base URL.
@@ -63,9 +55,11 @@ export const MPESA_BASE_URL =
       : "";
 
 /**
- * Validate the configuration before making a live request.
+ * Validate the M-PESA configuration before making
+ * a live request.
  *
- * This deliberately does NOT silently fall back to Sandbox.
+ * IMPORTANT:
+ * We deliberately do NOT silently fall back to Sandbox.
  */
 export function validateMpesaConfig(): void {
   if (!MPESA_ENV) {
@@ -74,7 +68,10 @@ export function validateMpesaConfig(): void {
     );
   }
 
-  if (MPESA_ENV !== "production" && MPESA_ENV !== "sandbox") {
+  if (
+    MPESA_ENV !== "production" &&
+    MPESA_ENV !== "sandbox"
+  ) {
     throw new Error(
       `M-PESA configuration error: unsupported MPESA_ENV "${MPESA_ENV}".`
     );
@@ -110,9 +107,36 @@ export function validateMpesaConfig(): void {
     );
   }
 
-  if (MPESA_ENV === "production" && MPESA_SHORTCODE !== "4320242") {
+  if (!MPESA_TRANSACTION_TYPE) {
     throw new Error(
-      `M-PESA production configuration error: expected HO shortcode 4320242, received ${MPESA_SHORTCODE}.`
+      "M-PESA configuration error: MPESA_TRANSACTION_TYPE is missing."
+    );
+  }
+
+  /**
+   * Production xnewsapp.com Till.
+   *
+   * Safaricom confirmed this number as a Till.
+   */
+  if (
+    MPESA_ENV === "production" &&
+    MPESA_SHORTCODE !== "4798391"
+  ) {
+    throw new Error(
+      `M-PESA production configuration error: expected Till 4798391, received ${MPESA_SHORTCODE}.`
+    );
+  }
+
+  /**
+   * Because 4798391 is a Buy Goods Till, the transaction
+   * type must be CustomerBuyGoodsOnline.
+   */
+  if (
+    MPESA_ENV === "production" &&
+    MPESA_TRANSACTION_TYPE !== "CustomerBuyGoodsOnline"
+  ) {
+    throw new Error(
+      `M-PESA production configuration error: Till 4798391 requires CustomerBuyGoodsOnline, received ${MPESA_TRANSACTION_TYPE}.`
     );
   }
 }
