@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import {
   MPESA_BASE_URL,
   MPESA_SHORTCODE,
+  MPESA_TRANSACTION_TYPE,
 } from "../_shared/env.ts";
 
 import { getAccessToken } from "../_shared/mpesa.ts";
@@ -18,11 +19,6 @@ import {
   failure,
 } from "../_shared/response.ts";
 
-/**
- * M-PESA callback endpoint.
- *
- * Safaricom will POST the final payment result here.
- */
 const CALLBACK_URL =
   "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback";
 
@@ -41,9 +37,12 @@ const CALLBACK_URL =
  * 8. Return the real Safaricom response
  *
  * IMPORTANT:
+ *
  * This function only starts the payment.
- * Payment confirmation is handled separately by mpesa-status
- * and mpesa-callback.
+ * Payment confirmation is handled separately by:
+ *
+ * - mpesa-status
+ * - mpesa-callback
  */
 serve(async (req: Request): Promise<Response> => {
   try {
@@ -78,7 +77,9 @@ serve(async (req: Request): Promise<Response> => {
     try {
       body = await req.json();
     } catch {
-      console.error("M-PESA STK Push: Invalid JSON body.");
+      console.error(
+        "M-PESA STK Push: Invalid JSON body."
+      );
 
       return failure(
         "Invalid JSON body.",
@@ -109,11 +110,9 @@ serve(async (req: Request): Promise<Response> => {
      * VALIDATE AMOUNT
      * ============================================================
      *
-     * The frontend may send a decimal USD value after conversion.
-     *
      * M-PESA requires a whole-number KES amount.
      *
-     * Example:
+     * Examples:
      *
      * 9     -> 9 KES
      * 9.4   -> 9 KES
@@ -162,37 +161,55 @@ serve(async (req: Request): Promise<Response> => {
     const amountToCharge =
       Math.max(1, Math.round(amount));
 
+    /**
+     * ============================================================
+     * DIAGNOSTICS
+     * ============================================================
+     */
     console.log("=================================");
     console.log("M-PESA STK PUSH");
     console.log("=================================");
+
     console.log(
       "Environment:",
       Deno.env.get("MPESA_ENV")
     );
+
     console.log(
       "Base URL:",
       MPESA_BASE_URL
     );
+
     console.log(
-      "Shortcode:",
+      "Shortcode / Till:",
       MPESA_SHORTCODE
     );
+
+    console.log(
+      "Transaction Type:",
+      MPESA_TRANSACTION_TYPE
+    );
+
     console.log(
       "Phone:",
       customerPhone
     );
+
     console.log(
       "Incoming amount:",
       amount
     );
+
     console.log(
       "Incoming amount type:",
       typeof amount
     );
+
     console.log(
       "Amount charged:",
       amountToCharge
     );
+
     console.log("=================================");
 
     /**
@@ -205,13 +222,15 @@ serve(async (req: Request): Promise<Response> => {
     /**
      * ============================================================
      * GENERATE STK PASSWORD
-     *
-     * Password is generated from:
-     *
-     * BusinessShortCode + Passkey + Timestamp
-     *
-     * using the shared helper.
      * ============================================================
+     *
+     * Password:
+     *
+     * Base64(
+     *   BusinessShortCode +
+     *   Passkey +
+     *   Timestamp
+     * )
      */
     const password =
       generatePassword(timestamp);
@@ -247,6 +266,12 @@ serve(async (req: Request): Promise<Response> => {
      * ============================================================
      * BUILD STK PUSH PAYLOAD
      * ============================================================
+     *
+     * 4798391 is a Safaricom Till.
+     *
+     * Therefore:
+     *
+     * CustomerBuyGoodsOnline
      */
     const stkPayload = {
       BusinessShortCode:
@@ -259,7 +284,7 @@ serve(async (req: Request): Promise<Response> => {
         timestamp,
 
       TransactionType:
-        "CustomerPayBillOnline",
+        MPESA_TRANSACTION_TYPE,
 
       Amount:
         amountToCharge,
@@ -286,7 +311,10 @@ serve(async (req: Request): Promise<Response> => {
     /**
      * IMPORTANT:
      *
-     * Do NOT log the Password or OAuth access token.
+     * Do NOT log:
+     *
+     * - Password
+     * - OAuth access token
      */
     console.log(
       "M-PESA STK payload:",
@@ -473,26 +501,21 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ============================================================
-     * CHECK DARaja RESPONSE CODE
+     * CHECK DARAJA RESPONSE CODE
      * ============================================================
-     *
-     * Safaricom normally returns:
      *
      * ResponseCode = "0"
      *
-     * when the STK request was accepted.
+     * means Safaricom accepted the STK request.
      *
      * IMPORTANT:
      *
      * Accepted does NOT mean paid.
      *
-     * It only means Safaricom accepted the STK request.
+     * Final payment confirmation must come from:
      *
-     * The final payment result must be checked using:
-     *
-     * mpesa-status
-     * and/or
-     * mpesa-callback
+     * - mpesa-status
+     * - mpesa-callback
      */
     const responseCode =
       data.ResponseCode !== undefined
@@ -527,8 +550,6 @@ serve(async (req: Request): Promise<Response> => {
      * ============================================================
      * SUCCESS
      * ============================================================
-     *
-     * Return the REAL Safaricom response.
      */
     console.log(
       "================================="
@@ -559,9 +580,22 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     console.log(
+      "TransactionType:",
+      MPESA_TRANSACTION_TYPE
+    );
+
+    console.log(
+      "Shortcode / Till:",
+      MPESA_SHORTCODE
+    );
+
+    console.log(
       "================================="
     );
 
+    /**
+     * Return the REAL Safaricom response.
+     */
     return success(data);
 
   } catch (error) {
