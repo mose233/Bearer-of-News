@@ -4,29 +4,38 @@ import { corsHeaders } from "../_shared/response.ts";
 import { querySTKStatus } from "../_shared/mpesa-query.ts";
 
 /**
- * Known Safaricom STK Push result codes.
+ * Safaricom STK Push result codes.
  *
  * IMPORTANT:
- * ResultCode 0 is the ONLY code that can produce paid:true.
+ * ResultCode 0 is the ONLY result that can produce paid:true.
+ *
+ * 4999 MUST NOT be treated as pending.
+ * In our live production response it is:
+ *
+ * "Merchant does not exist"
+ *
+ * Therefore it is a payment failure/configuration error.
  */
 const RESULT_SUCCESS = "0";
-const RESULT_PENDING = "4999";
 const RESULT_CANCELLED = "1032";
 const RESULT_TIMEOUT = "1037";
+const RESULT_MERCHANT_NOT_FOUND = "4999";
 
 /**
- * Safaricom may return other failure codes such as:
+ * Safaricom can return many other failure codes.
+ *
+ * Examples:
  *
  * 1    - insufficient funds
  * 2001 - wrong PIN
  *
- * We intentionally do not need to enumerate every failure code.
- * Anything other than the explicitly successful/pending/cancelled/
- * timeout states is treated as NOT PAID.
+ * Anything other than ResultCode 0 is NOT paid.
  */
 serve(async (req: Request): Promise<Response> => {
   /**
+   * ============================================================
    * CORS
+   * ============================================================
    */
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -36,7 +45,9 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   /**
-   * Only POST is allowed.
+   * ============================================================
+   * ONLY POST
+   * ============================================================
    */
   if (req.method !== "POST") {
     return jsonResponse(
@@ -53,7 +64,9 @@ serve(async (req: Request): Promise<Response> => {
 
   try {
     /**
-     * Parse request body safely.
+     * ============================================================
+     * PARSE REQUEST
+     * ============================================================
      */
     let body: {
       checkoutRequestID?: string;
@@ -90,13 +103,15 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(
-      "Checking M-PESA payment:",
-      checkoutRequestID
-    );
+    console.log("=================================");
+    console.log("M-PESA PAYMENT STATUS CHECK");
+    console.log("CheckoutRequestID:", checkoutRequestID);
+    console.log("=================================");
 
     /**
-     * Ask Safaricom for the actual transaction status.
+     * ============================================================
+     * ASK SAFARICOM FOR STATUS
+     * ============================================================
      */
     const result =
       await querySTKStatus(checkoutRequestID);
@@ -123,10 +138,10 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ============================================================
-     * PAYMENT SUCCESS
+     * SUCCESS
      * ============================================================
      *
-     * This is the ONLY place where paid:true is returned.
+     * ONLY ResultCode 0 can produce paid:true.
      */
     if (resultCode === RESULT_SUCCESS) {
       console.log(
@@ -146,27 +161,54 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ============================================================
-     * PAYMENT STILL PROCESSING
+     * MERCHANT DOES NOT EXIST
      * ============================================================
+     *
+     * IMPORTANT:
+     *
+     * 4999 is NOT a pending payment.
+     *
+     * Our production tests are returning:
+     *
+     * ResultCode: 4999
+     * ResultDesc: Merchant does not exist
+     *
+     * Therefore we MUST stop polling and report failure.
      */
-    if (resultCode === RESULT_PENDING) {
+    if (resultCode === RESULT_MERCHANT_NOT_FOUND) {
+      console.error(
+        "❌ M-PESA MERCHANT NOT FOUND:",
+        checkoutRequestID
+      );
+
+      console.error(
+        "Safaricom returned ResultCode 4999:",
+        resultDescription
+      );
+
       return jsonResponse({
         paid: false,
-        pending: true,
+        pending: false,
         cancelled: false,
-        failed: false,
+        failed: true,
         message:
-          "Payment is still being processed.",
+          resultDescription ||
+          "M-PESA merchant could not be found. Verify the production shortcode/Till provisioning.",
         result,
       });
     }
 
     /**
      * ============================================================
-     * USER CANCELLED PAYMENT
+     * CUSTOMER CANCELLED
      * ============================================================
      */
     if (resultCode === RESULT_CANCELLED) {
+      console.log(
+        "❌ M-PESA PAYMENT CANCELLED:",
+        checkoutRequestID
+      );
+
       return jsonResponse({
         paid: false,
         pending: false,
@@ -180,10 +222,15 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ============================================================
-     * STK REQUEST TIMED OUT
+     * REQUEST TIMED OUT
      * ============================================================
      */
     if (resultCode === RESULT_TIMEOUT) {
+      console.log(
+        "❌ M-PESA PAYMENT TIMED OUT:",
+        checkoutRequestID
+      );
+
       return jsonResponse({
         paid: false,
         pending: false,
@@ -197,37 +244,72 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ============================================================
-     * ANY OTHER RESULT = NOT PAID
+     * OTHER SAFARICOM FAILURE
      * ============================================================
      *
-     * This is deliberate.
-     *
-     * We do NOT guess that an unknown result means success.
+     * Any known/unknown non-zero result is NOT PAID.
      */
+    if (resultCode !== "") {
+      console.error(
+        "❌ M-PESA PAYMENT FAILED:",
+        JSON.stringify({
+          checkoutRequestID,
+          resultCode,
+          resultDescription,
+        })
+      );
+
+      return jsonResponse({
+        paid: false,
+        pending: false,
+        cancelled: false,
+        failed: true,
+        message:
+          resultDescription ||
+          "M-PESA payment was not successful.",
+        result,
+      });
+    }
+
+    /**
+     * ============================================================
+     * UNEXPECTED EMPTY RESULT
+     * ============================================================
+     *
+     * We do not mark this as paid.
+     *
+     * We return pending so the frontend can retry because
+     * the verification response itself was incomplete.
+     */
+    console.warn(
+      "⚠️ M-PESA returned an empty ResultCode:",
+      checkoutRequestID
+    );
+
     return jsonResponse({
       paid: false,
-      pending: false,
+      pending: true,
       cancelled: false,
-      failed: true,
+      failed: false,
       message:
-        resultDescription ||
-        "M-PESA payment was not successful.",
+        "M-PESA verification returned an incomplete response. Please retry.",
       result,
     });
   } catch (error) {
     /**
      * ============================================================
-     * VERIFICATION ERROR
+     * VERIFICATION/API ERROR
      * ============================================================
      *
-     * VERY IMPORTANT:
+     * This is different from a Safaricom payment failure.
      *
-     * A Safaricom/API/server error can NEVER produce paid:true.
+     * If our request to Safaricom itself fails, we allow the
+     * frontend to retry.
      *
-     * The frontend may retry the status check.
+     * NEVER return paid:true here.
      */
     console.error(
-      "M-PESA payment verification error:",
+      "❌ M-PESA payment verification error:",
       error
     );
 
@@ -246,7 +328,9 @@ serve(async (req: Request): Promise<Response> => {
 });
 
 /**
- * Standard JSON response helper.
+ * ============================================================
+ * JSON RESPONSE HELPER
+ * ============================================================
  */
 function jsonResponse(
   body: Record<string, unknown>,
