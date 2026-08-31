@@ -1,42 +1,54 @@
 import { serve } from "https://deno.land/std/http/server.ts";
 
 import { corsHeaders } from "../_shared/response.ts";
-import { querySTKStatus } from "../_shared/mpesa-query.ts";
+import {
+  MPESA_BASE_URL,
+  MPESA_PASSKEY,
+} from "../_shared/env.ts";
+import { getAccessToken } from "../_shared/mpesa.ts";
+
+import {
+  generatePassword,
+  generateTimestamp,
+} from "../_shared/mpesa-utils.ts";
 
 /**
- * Safaricom STK Push result codes.
+ * ============================================================
+ * TEMPORARY M-PESA STK QUERY DIAGNOSTIC
+ * ============================================================
+ *
+ * PURPOSE:
+ *
+ * Test which BusinessShortCode Safaricom associates with
+ * the supplied CheckoutRequestID.
+ *
+ * CURRENT NUMBERS WE ARE TESTING:
+ *
+ * 4320242 = STK Push Business Short Code
+ * 4798391 = Till Number
+ * 4460875 = Business Till Store Number
  *
  * IMPORTANT:
- * ResultCode 0 is the ONLY result that can produce paid:true.
  *
- * 4999 MUST NOT be treated as pending.
- * In our live production response it is:
+ * This function is diagnostic only.
  *
- * "Merchant does not exist"
+ * It does NOT:
  *
- * Therefore it is a payment failure/configuration error.
+ * - initiate a payment
+ * - mark a payment as paid
+ * - modify the database
+ * - modify the STK Push function
+ *
+ * It only sends an STK Push Query request to Safaricom.
  */
-const RESULT_SUCCESS = "0";
-const RESULT_CANCELLED = "1032";
-const RESULT_TIMEOUT = "1037";
-const RESULT_MERCHANT_NOT_FOUND = "4999";
 
-/**
- * Safaricom can return many other failure codes.
- *
- * Examples:
- *
- * 1    - insufficient funds
- * 2001 - wrong PIN
- *
- * Anything other than ResultCode 0 is NOT paid.
- */
 serve(async (req: Request): Promise<Response> => {
   /**
-   * ============================================================
+   * ==========================================================
    * CORS
-   * ============================================================
+   * ==========================================================
    */
+
   if (req.method === "OPTIONS") {
     return new Response("ok", {
       status: 200,
@@ -45,18 +57,16 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   /**
-   * ============================================================
+   * ==========================================================
    * ONLY POST
-   * ============================================================
+   * ==========================================================
    */
+
   if (req.method !== "POST") {
     return jsonResponse(
       {
-        paid: false,
-        pending: false,
-        cancelled: false,
-        failed: true,
-        message: "Method Not Allowed.",
+        success: false,
+        error: "Method Not Allowed.",
       },
       405
     );
@@ -64,12 +74,21 @@ serve(async (req: Request): Promise<Response> => {
 
   try {
     /**
-     * ============================================================
+     * ========================================================
      * PARSE REQUEST
-     * ============================================================
+     * ========================================================
+     *
+     * Example:
+     *
+     * {
+     *   "checkoutRequestID": "ws_CO_...",
+     *   "businessShortCode": "4320242"
+     * }
      */
+
     let body: {
       checkoutRequestID?: string;
+      businessShortCode?: string;
     };
 
     try {
@@ -77,11 +96,8 @@ serve(async (req: Request): Promise<Response> => {
     } catch {
       return jsonResponse(
         {
-          paid: false,
-          pending: false,
-          cancelled: false,
-          failed: true,
-          message: "Invalid JSON request body.",
+          success: false,
+          error: "Invalid JSON request body.",
         },
         400
       );
@@ -90,259 +106,536 @@ serve(async (req: Request): Promise<Response> => {
     const checkoutRequestID =
       body.checkoutRequestID?.trim();
 
+    const businessShortCode =
+      body.businessShortCode?.trim();
+
+    /**
+     * ========================================================
+     * VALIDATE CHECKOUT REQUEST ID
+     * ========================================================
+     */
+
     if (!checkoutRequestID) {
       return jsonResponse(
         {
-          paid: false,
-          pending: false,
-          cancelled: false,
-          failed: true,
-          message: "CheckoutRequestID is required.",
+          success: false,
+          error:
+            "checkoutRequestID is required.",
         },
         400
       );
     }
 
-    console.log("=================================");
-    console.log("M-PESA PAYMENT STATUS CHECK");
-    console.log("CheckoutRequestID:", checkoutRequestID);
-    console.log("=================================");
+    /**
+     * ========================================================
+     * VALIDATE BUSINESS SHORT CODE
+     * ========================================================
+     */
+
+    if (!businessShortCode) {
+      return jsonResponse(
+        {
+          success: false,
+          error:
+            "businessShortCode is required.",
+        },
+        400
+      );
+    }
 
     /**
-     * ============================================================
-     * ASK SAFARICOM FOR STATUS
-     * ============================================================
+     * ========================================================
+     * ALLOW ONLY OUR THREE KNOWN NUMBERS
+     * ========================================================
+     *
+     * This prevents accidentally testing arbitrary
+     * merchant numbers.
      */
-    const result =
-      await querySTKStatus(checkoutRequestID);
 
-    const resultCode =
-      result.ResultCode === undefined ||
-      result.ResultCode === null
-        ? ""
-        : String(result.ResultCode);
+    const allowedNumbers = [
+      "4320242",
+      "4798391",
+      "4460875",
+    ];
 
-    const resultDescription =
-      typeof result.ResultDesc === "string"
-        ? result.ResultDesc
-        : "";
+    if (!allowedNumbers.includes(businessShortCode)) {
+      return jsonResponse(
+        {
+          success: false,
+          error:
+            "For this diagnostic, businessShortCode must be 4320242, 4798391, or 4460875.",
+        },
+        400
+      );
+    }
+
+    /**
+     * ========================================================
+     * LOG SAFE DIAGNOSTIC INFORMATION
+     * ========================================================
+     */
 
     console.log(
-      "M-PESA verification result:",
-      JSON.stringify({
-        checkoutRequestID,
-        resultCode,
-        resultDescription,
-      })
+      "================================="
     );
 
-    /**
-     * ============================================================
-     * SUCCESS
-     * ============================================================
-     *
-     * ONLY ResultCode 0 can produce paid:true.
-     */
-    if (resultCode === RESULT_SUCCESS) {
-      console.log(
-        "✅ M-PESA PAYMENT VERIFIED SUCCESSFULLY:",
-        checkoutRequestID
-      );
+    console.log(
+      "TEMPORARY M-PESA STK QUERY TEST"
+    );
 
-      return jsonResponse({
-        paid: true,
-        pending: false,
-        cancelled: false,
-        failed: false,
-        message: "Payment confirmed.",
-        result,
-      });
-    }
+    console.log(
+      "================================="
+    );
 
-    /**
-     * ============================================================
-     * MERCHANT DOES NOT EXIST
-     * ============================================================
-     *
-     * IMPORTANT:
-     *
-     * 4999 is NOT a pending payment.
-     *
-     * Our production tests are returning:
-     *
-     * ResultCode: 4999
-     * ResultDesc: Merchant does not exist
-     *
-     * Therefore we MUST stop polling and report failure.
-     */
-    if (resultCode === RESULT_MERCHANT_NOT_FOUND) {
-      console.error(
-        "❌ M-PESA MERCHANT NOT FOUND:",
-        checkoutRequestID
-      );
+    console.log(
+      "BusinessShortCode:",
+      businessShortCode
+    );
 
-      console.error(
-        "Safaricom returned ResultCode 4999:",
-        resultDescription
-      );
-
-      return jsonResponse({
-        paid: false,
-        pending: false,
-        cancelled: false,
-        failed: true,
-        message:
-          resultDescription ||
-          "M-PESA merchant could not be found. Verify the production shortcode/Till provisioning.",
-        result,
-      });
-    }
-
-    /**
-     * ============================================================
-     * CUSTOMER CANCELLED
-     * ============================================================
-     */
-    if (resultCode === RESULT_CANCELLED) {
-      console.log(
-        "❌ M-PESA PAYMENT CANCELLED:",
-        checkoutRequestID
-      );
-
-      return jsonResponse({
-        paid: false,
-        pending: false,
-        cancelled: true,
-        failed: false,
-        message:
-          "Payment was cancelled by the customer.",
-        result,
-      });
-    }
-
-    /**
-     * ============================================================
-     * REQUEST TIMED OUT
-     * ============================================================
-     */
-    if (resultCode === RESULT_TIMEOUT) {
-      console.log(
-        "❌ M-PESA PAYMENT TIMED OUT:",
-        checkoutRequestID
-      );
-
-      return jsonResponse({
-        paid: false,
-        pending: false,
-        cancelled: false,
-        failed: true,
-        message:
-          "M-PESA payment request timed out.",
-        result,
-      });
-    }
-
-    /**
-     * ============================================================
-     * OTHER SAFARICOM FAILURE
-     * ============================================================
-     *
-     * Any known/unknown non-zero result is NOT PAID.
-     */
-    if (resultCode !== "") {
-      console.error(
-        "❌ M-PESA PAYMENT FAILED:",
-        JSON.stringify({
-          checkoutRequestID,
-          resultCode,
-          resultDescription,
-        })
-      );
-
-      return jsonResponse({
-        paid: false,
-        pending: false,
-        cancelled: false,
-        failed: true,
-        message:
-          resultDescription ||
-          "M-PESA payment was not successful.",
-        result,
-      });
-    }
-
-    /**
-     * ============================================================
-     * UNEXPECTED EMPTY RESULT
-     * ============================================================
-     *
-     * We do not mark this as paid.
-     *
-     * We return pending so the frontend can retry because
-     * the verification response itself was incomplete.
-     */
-    console.warn(
-      "⚠️ M-PESA returned an empty ResultCode:",
+    console.log(
+      "CheckoutRequestID:",
       checkoutRequestID
     );
 
+    console.log(
+      "Environment:",
+      Deno.env.get("MPESA_ENV") ??
+        "unknown"
+    );
+
+    console.log(
+      "Base URL:",
+      MPESA_BASE_URL
+    );
+
+    /**
+     * ========================================================
+     * VALIDATE REQUIRED SECRETS
+     * ========================================================
+     */
+
+    if (!MPESA_BASE_URL) {
+      throw new Error(
+        "MPESA_BASE_URL is not configured."
+      );
+    }
+
+    if (!MPESA_PASSKEY) {
+      throw new Error(
+        "MPESA_PASSKEY is not configured."
+      );
+    }
+
+    /**
+     * ========================================================
+     * GET ACCESS TOKEN
+     * ========================================================
+     */
+
+    const accessToken =
+      await getAccessToken();
+
+    /**
+     * ========================================================
+     * GENERATE TIMESTAMP
+     * ========================================================
+     */
+
+    const timestamp =
+      generateTimestamp();
+
+    /**
+     * ========================================================
+     * GENERATE PASSWORD
+     * ========================================================
+     *
+     * IMPORTANT:
+     *
+     * We deliberately use the BusinessShortCode being tested.
+     *
+     * However, the Passkey remains the current Supabase
+     * MPESA_PASSKEY secret.
+     *
+     * Therefore, if Safaricom rejects a number because the
+     * passkey does not belong to that shortcode, that result
+     * is itself useful diagnostic information.
+     */
+
+    const password =
+      btoa(
+        `${businessShortCode}${MPESA_PASSKEY}${timestamp}`
+      );
+
+    /**
+     * ========================================================
+     * BUILD SAFARICOM QUERY
+     * ========================================================
+     */
+
+    const payload = {
+      BusinessShortCode:
+        businessShortCode,
+
+      Password:
+        password,
+
+      Timestamp:
+        timestamp,
+
+      CheckoutRequestID:
+        checkoutRequestID,
+    };
+
+    const url =
+      `${MPESA_BASE_URL}/mpesa/stkpushquery/v1/query`;
+
+    console.log(
+      "Query endpoint:",
+      url
+    );
+
+    /**
+     * IMPORTANT:
+     *
+     * Never log payload.
+     *
+     * It contains the generated password.
+     */
+
+    /**
+     * ========================================================
+     * SEND REQUEST
+     * ========================================================
+     */
+
+    let response: Response;
+
+    try {
+      response = await fetch(
+        url,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          body:
+            JSON.stringify(payload),
+        }
+      );
+    } catch (error) {
+      console.error(
+        "M-PESA diagnostic network error:",
+        error
+      );
+
+      return jsonResponse(
+        {
+          success: false,
+          businessShortCode,
+          checkoutRequestID,
+          error:
+            "Unable to connect to Safaricom.",
+        },
+        502
+      );
+    }
+
+    /**
+     * ========================================================
+     * READ RESPONSE
+     * ========================================================
+     */
+
+    const text =
+      await response.text();
+
+    console.log(
+      "Safaricom HTTP Status:",
+      response.status
+    );
+
+    /**
+     * ========================================================
+     * EMPTY RESPONSE
+     * ========================================================
+     */
+
+    if (!text.trim()) {
+      return jsonResponse(
+        {
+          success: false,
+          businessShortCode,
+          checkoutRequestID,
+          httpStatus:
+            response.status,
+          error:
+            "Safaricom returned an empty response.",
+        },
+        502
+      );
+    }
+
+    /**
+     * ========================================================
+     * PARSE SAFARICOM RESPONSE
+     * ========================================================
+     */
+
+    let data: Record<
+      string,
+      unknown
+    >;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error(
+        "Safaricom returned invalid JSON."
+      );
+
+      return jsonResponse(
+        {
+          success: false,
+          businessShortCode,
+          checkoutRequestID,
+          httpStatus:
+            response.status,
+          error:
+            "Safaricom returned invalid JSON.",
+        },
+        502
+      );
+    }
+
+    /**
+     * ========================================================
+     * LOG RESPONSE
+     * ========================================================
+     *
+     * The Safaricom response does not contain our passkey
+     * or access token, so it is useful for diagnostics.
+     */
+
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "M-PESA DIAGNOSTIC RESULT"
+    );
+
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "Tested BusinessShortCode:",
+      businessShortCode
+    );
+
+    console.log(
+      "HTTP Status:",
+      response.status
+    );
+
+    console.log(
+      "ResponseCode:",
+      data.ResponseCode
+    );
+
+    console.log(
+      "ResponseDescription:",
+      data.ResponseDescription
+    );
+
+    console.log(
+      "ResultCode:",
+      data.ResultCode
+    );
+
+    console.log(
+      "ResultDesc:",
+      data.ResultDesc
+    );
+
+    console.log(
+      "MerchantRequestID:",
+      data.MerchantRequestID
+    );
+
+    console.log(
+      "CheckoutRequestID:",
+      data.CheckoutRequestID
+    );
+
+    console.log(
+      "================================="
+    );
+
+    /**
+     * ========================================================
+     * RETURN DIAGNOSTIC RESULT
+     * ========================================================
+     */
+
     return jsonResponse({
-      paid: false,
-      pending: true,
-      cancelled: false,
-      failed: false,
-      message:
-        "M-PESA verification returned an incomplete response. Please retry.",
-      result,
+      success: response.ok,
+
+      testedBusinessShortCode:
+        businessShortCode,
+
+      checkoutRequestID,
+
+      httpStatus:
+        response.status,
+
+      safaricomResponse:
+        data,
+
+      interpretation:
+        interpretResult(data),
     });
   } catch (error) {
     /**
-     * ============================================================
-     * VERIFICATION/API ERROR
-     * ============================================================
-     *
-     * This is different from a Safaricom payment failure.
-     *
-     * If our request to Safaricom itself fails, we allow the
-     * frontend to retry.
-     *
-     * NEVER return paid:true here.
+     * ========================================================
+     * UNEXPECTED ERROR
+     * ========================================================
      */
+
     console.error(
-      "❌ M-PESA payment verification error:",
+      "================================="
+    );
+
+    console.error(
+      "M-PESA DIAGNOSTIC ERROR"
+    );
+
+    console.error(
       error
+    );
+
+    console.error(
+      "================================="
     );
 
     return jsonResponse(
       {
-        paid: false,
-        pending: true,
-        cancelled: false,
-        failed: false,
-        message:
-          "Payment verification is temporarily unavailable. Please retry.",
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Internal server error.",
       },
-      200
+      500
     );
   }
 });
 
 /**
  * ============================================================
- * JSON RESPONSE HELPER
+ * INTERPRET SAFARICOM RESPONSE
  * ============================================================
  */
+
+function interpretResult(
+  data: Record<string, unknown>
+): string {
+  const responseCode =
+    data.ResponseCode === undefined ||
+    data.ResponseCode === null
+      ? ""
+      : String(data.ResponseCode);
+
+  const resultCode =
+    data.ResultCode === undefined ||
+    data.ResultCode === null
+      ? ""
+      : String(data.ResultCode);
+
+  const description =
+    typeof data.ResponseDescription ===
+    "string"
+      ? data.ResponseDescription
+      : "";
+
+  const resultDescription =
+    typeof data.ResultDesc ===
+    "string"
+      ? data.ResultDesc
+      : "";
+
+  /**
+   * Safaricom accepted the query request.
+   */
+
+  if (responseCode === "0") {
+    if (resultCode === "0") {
+      return "Safaricom accepted this BusinessShortCode and the transaction ResultCode is SUCCESS (0).";
+    }
+
+    return (
+      "Safaricom accepted this BusinessShortCode for the query. " +
+      `ResultCode=${resultCode || "empty"}. ` +
+      `${resultDescription}`
+    ).trim();
+  }
+
+  /**
+   * Agent/store mismatch.
+   */
+
+  if (
+    description
+      .toLowerCase()
+      .includes("agent number") ||
+    description
+      .toLowerCase()
+      .includes("store number")
+  ) {
+    return (
+      "Safaricom rejected this BusinessShortCode because " +
+      "the Agent Number and Store Number do not match."
+    );
+  }
+
+  /**
+   * Generic response.
+   */
+
+  return (
+    description ||
+    resultDescription ||
+    "Safaricom rejected or did not complete the query."
+  );
+}
+
+/**
+ * ============================================================
+ * JSON RESPONSE
+ * ============================================================
+ */
+
 function jsonResponse(
   body: Record<string, unknown>,
   status = 200
 ): Response {
   return new Response(
-    JSON.stringify(body),
+    JSON.stringify(body, null, 2),
     {
       status,
       headers: {
         ...corsHeaders,
-        "Content-Type": "application/json",
+        "Content-Type":
+          "application/json",
       },
     }
   );
