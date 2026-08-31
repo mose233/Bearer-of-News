@@ -4,6 +4,7 @@ import {
   MPESA_BASE_URL,
   MPESA_SHORTCODE,
   MPESA_TRANSACTION_TYPE,
+  validateMpesaConfig,
 } from "../_shared/env.ts";
 
 import { getAccessToken } from "../_shared/mpesa.ts";
@@ -19,55 +20,59 @@ import {
   failure,
 } from "../_shared/response.ts";
 
+/**
+ * ============================================================
+ * CALLBACK URL
+ * ============================================================
+ *
+ * Safaricom will send the final STK transaction result here.
+ */
 const CALLBACK_URL =
   "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback";
 
 /**
- * M-PESA STK Push
- *
- * Flow:
- *
- * 1. Receive phone number + amount from xnewsapp.com
- * 2. Validate the request
- * 3. Normalize the phone number
- * 4. Generate timestamp
- * 5. Generate STK password
- * 6. Obtain Safaricom OAuth token
- * 7. Send STK Push request to Safaricom
- * 8. Return the real Safaricom response
- *
- * IMPORTANT:
- *
- * This function only starts the payment.
- * Payment confirmation is handled separately by:
- *
- * - mpesa-status
- * - mpesa-callback
+ * ============================================================
+ * M-PESA STK PUSH
+ * ============================================================
  */
 serve(async (req: Request): Promise<Response> => {
   try {
     /**
-     * ============================================================
+     * ==========================================================
      * CORS
-     * ============================================================
+     * ==========================================================
      */
     if (req.method === "OPTIONS") {
       return success({ ok: true });
     }
 
     /**
-     * ============================================================
-     * METHOD CHECK
-     * ============================================================
+     * ==========================================================
+     * ONLY POST
+     * ==========================================================
      */
     if (req.method !== "POST") {
-      return failure("Method Not Allowed.", 405);
+      return failure(
+        "Method Not Allowed.",
+        405
+      );
     }
 
     /**
-     * ============================================================
-     * READ REQUEST BODY
-     * ============================================================
+     * ==========================================================
+     * VALIDATE M-PESA CONFIGURATION
+     * ==========================================================
+     *
+     * This is important because it prevents an incorrect
+     * shortcode/environment combination from reaching
+     * Safaricom.
+     */
+    validateMpesaConfig();
+
+    /**
+     * ==========================================================
+     * PARSE REQUEST BODY
+     * ==========================================================
      */
     let body: {
       phoneNumber?: string;
@@ -77,28 +82,23 @@ serve(async (req: Request): Promise<Response> => {
     try {
       body = await req.json();
     } catch {
-      console.error(
-        "M-PESA STK Push: Invalid JSON body."
-      );
-
       return failure(
         "Invalid JSON body.",
         400
       );
     }
 
-    const phoneNumber = body.phoneNumber;
-    const amount = body.amount;
+    const {
+      phoneNumber,
+      amount,
+    } = body;
 
     /**
-     * ============================================================
+     * ==========================================================
      * VALIDATE PHONE NUMBER
-     * ============================================================
+     * ==========================================================
      */
-    if (
-      typeof phoneNumber !== "string" ||
-      !phoneNumber.trim()
-    ) {
+    if (!phoneNumber) {
       return failure(
         "phoneNumber is required.",
         400
@@ -106,17 +106,9 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     /**
-     * ============================================================
+     * ==========================================================
      * VALIDATE AMOUNT
-     * ============================================================
-     *
-     * M-PESA requires a whole-number KES amount.
-     *
-     * Examples:
-     *
-     * 9     -> 9 KES
-     * 9.4   -> 9 KES
-     * 9.6   -> 10 KES
+     * ==========================================================
      */
     if (
       typeof amount !== "number" ||
@@ -130,63 +122,63 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     /**
-     * ============================================================
+     * ==========================================================
      * NORMALIZE PHONE NUMBER
-     * ============================================================
+     * ==========================================================
+     *
+     * Example:
+     *
+     * +254716172432
+     *
+     * becomes:
+     *
+     * 254716172432
      */
-    let customerPhone: string;
-
-    try {
-      customerPhone =
-        normalizePhoneNumber(phoneNumber);
-    } catch (error) {
-      console.error(
-        "M-PESA phone normalization error:",
-        error
-      );
-
-      return failure(
-        error instanceof Error
-          ? error.message
-          : "Invalid phone number.",
-        400
-      );
-    }
+    const customerPhone =
+      normalizePhoneNumber(phoneNumber);
 
     /**
-     * ============================================================
-     * CONVERT AMOUNT TO WHOLE KES
-     * ============================================================
+     * ==========================================================
+     * NORMALIZE PAYMENT AMOUNT
+     * ==========================================================
+     *
+     * M-PESA requires a whole-number KES amount.
+     *
+     * Example:
+     *
+     * 9.4 -> 9
+     * 9.6 -> 10
      */
     const amountToCharge =
-      Math.max(1, Math.round(amount));
+      Math.max(
+        1,
+        Math.round(amount)
+      );
 
-    /**
-     * ============================================================
-     * DIAGNOSTICS
-     * ============================================================
-     */
-    console.log("=================================");
-    console.log("M-PESA STK PUSH");
-    console.log("=================================");
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "M-PESA STK PUSH REQUEST"
+    );
+
+    console.log(
+      "================================="
+    );
 
     console.log(
       "Environment:",
-      Deno.env.get("MPESA_ENV")
+      Deno.env.get("MPESA_ENV") ?? "unknown"
     );
 
     console.log(
-      "Base URL:",
-      MPESA_BASE_URL
-    );
-
-    console.log(
-      "Shortcode / Till:",
+      "BusinessShortCode:",
       MPESA_SHORTCODE
     );
 
     console.log(
-      "Transaction Type:",
+      "TransactionType:",
       MPESA_TRANSACTION_TYPE
     );
 
@@ -196,82 +188,72 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     console.log(
-      "Incoming amount:",
-      amount
-    );
-
-    console.log(
-      "Incoming amount type:",
-      typeof amount
-    );
-
-    console.log(
-      "Amount charged:",
+      "Amount:",
       amountToCharge
     );
 
-    console.log("=================================");
+    console.log(
+      "Callback URL:",
+      CALLBACK_URL
+    );
+
+    console.log(
+      "================================="
+    );
 
     /**
-     * ============================================================
+     * ==========================================================
      * GENERATE TIMESTAMP
-     * ============================================================
+     * ==========================================================
      */
-    const timestamp = generateTimestamp();
+    const timestamp =
+      generateTimestamp();
 
     /**
-     * ============================================================
+     * ==========================================================
      * GENERATE STK PASSWORD
-     * ============================================================
+     * ==========================================================
      *
-     * Password:
+     * The password is generated from:
      *
-     * Base64(
-     *   BusinessShortCode +
-     *   Passkey +
-     *   Timestamp
-     * )
+     * BusinessShortCode
+     * +
+     * Passkey
+     * +
+     * Timestamp
+     *
+     * IMPORTANT:
+     *
+     * Never log this password.
      */
     const password =
       generatePassword(timestamp);
 
     /**
-     * ============================================================
-     * GET SAFARICOM OAUTH ACCESS TOKEN
-     * ============================================================
+     * ==========================================================
+     * GET SAFARICOM ACCESS TOKEN
+     * ==========================================================
      */
-    console.log(
-      "Requesting M-PESA OAuth access token..."
-    );
-
     const accessToken =
       await getAccessToken();
 
-    if (!accessToken) {
-      console.error(
-        "M-PESA OAuth returned an empty access token."
-      );
-
-      return failure(
-        "Unable to obtain M-PESA access token.",
-        500
-      );
-    }
-
-    console.log(
-      "M-PESA OAuth access token obtained successfully."
-    );
-
     /**
-     * ============================================================
+     * ==========================================================
      * BUILD STK PUSH PAYLOAD
-     * ============================================================
+     * ==========================================================
      *
-     * 4798391 is a Safaricom Till.
+     * For the current xnewsapp.com production configuration:
      *
-     * Therefore:
+     * BusinessShortCode = 4320242
      *
+     * TransactionType =
      * CustomerBuyGoodsOnline
+     *
+     * PartyA =
+     * customer's phone
+     *
+     * PartyB =
+     * merchant shortcode
      */
     const stkPayload = {
       BusinessShortCode:
@@ -309,70 +291,13 @@ serve(async (req: Request): Promise<Response> => {
     };
 
     /**
-     * IMPORTANT:
-     *
-     * Do NOT log:
-     *
-     * - Password
-     * - OAuth access token
-     */
-    console.log(
-      "M-PESA STK payload:",
-      JSON.stringify(
-        {
-          BusinessShortCode:
-            stkPayload.BusinessShortCode,
-
-          TransactionType:
-            stkPayload.TransactionType,
-
-          Amount:
-            stkPayload.Amount,
-
-          PartyA:
-            stkPayload.PartyA,
-
-          PartyB:
-            stkPayload.PartyB,
-
-          PhoneNumber:
-            stkPayload.PhoneNumber,
-
-          CallBackURL:
-            stkPayload.CallBackURL,
-
-          AccountReference:
-            stkPayload.AccountReference,
-
-          TransactionDesc:
-            stkPayload.TransactionDesc,
-
-          Timestamp:
-            stkPayload.Timestamp,
-        },
-        null,
-        2
-      )
-    );
-
-    /**
-     * ============================================================
+     * ==========================================================
      * SEND STK PUSH TO SAFARICOM
-     * ============================================================
+     * ==========================================================
      */
-    const stkUrl =
-      `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`;
-
-    console.log(
-      "Sending STK Push to:",
-      stkUrl
-    );
-
-    let response: Response;
-
-    try {
-      response = await fetch(
-        stkUrl,
+    const response =
+      await fetch(
+        `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
         {
           method: "POST",
 
@@ -391,97 +316,68 @@ serve(async (req: Request): Promise<Response> => {
             JSON.stringify(stkPayload),
         }
       );
-    } catch (error) {
-      console.error(
-        "M-PESA STK Push network error:",
-        error
-      );
-
-      return failure(
-        "Unable to connect to Safaricom STK Push service.",
-        502
-      );
-    }
 
     /**
-     * ============================================================
+     * ==========================================================
      * READ SAFARICOM RESPONSE
-     * ============================================================
+     * ==========================================================
      */
     const responseText =
       await response.text();
 
     console.log(
-      "Safaricom STK HTTP status:",
+      "Daraja HTTP Status:",
       response.status
     );
 
-    console.log(
-      "Safaricom STK response:",
-      responseText || "(empty response)"
-    );
-
     /**
-     * ============================================================
-     * HANDLE EMPTY RESPONSE
-     * ============================================================
+     * NEVER log the request payload.
+     *
+     * It contains the generated STK password.
      */
+
     if (!responseText.trim()) {
       console.error(
-        "Safaricom STK Push returned an empty response."
+        "Daraja returned an empty response."
       );
 
       return failure(
         `Safaricom returned an empty response (HTTP ${response.status}).`,
-        response.ok ? 500 : response.status
-      );
-    }
-
-    /**
-     * ============================================================
-     * PARSE JSON
-     * ============================================================
-     */
-    let data: Record<string, unknown>;
-
-    try {
-      data = JSON.parse(
-        responseText
-      );
-    } catch {
-      console.error(
-        "Safaricom STK response was not valid JSON:",
-        responseText
-      );
-
-      return failure(
-        "Invalid response from Daraja.",
         502
       );
     }
 
     /**
-     * ============================================================
-     * HANDLE SAFARICOM HTTP ERROR
-     * ============================================================
+     * ==========================================================
+     * PARSE RESPONSE
+     * ==========================================================
+     */
+    let data: Record<string, unknown>;
+
+    try {
+      data =
+        JSON.parse(responseText);
+    } catch {
+      console.error(
+        "Daraja returned invalid JSON:",
+        responseText
+      );
+
+      return failure(
+        "Invalid response from Safaricom.",
+        502
+      );
+    }
+
+    /**
+     * ==========================================================
+     * SAFARICOM HTTP ERROR
+     * ==========================================================
      */
     if (!response.ok) {
       console.error(
-        "M-PESA STK Push HTTP error:",
-        JSON.stringify(
-          {
-            status:
-              response.status,
-
-            statusText:
-              response.statusText,
-
-            response:
-              data,
-          },
-          null,
-          2
-        )
+        "Daraja STK Push HTTP error:",
+        JSON.stringify(data)
       );
 
       const errorMessage =
@@ -489,9 +385,7 @@ serve(async (req: Request): Promise<Response> => {
           ? data.errorMessage
           : typeof data.ResponseDescription === "string"
             ? data.ResponseDescription
-            : typeof data.errorCode === "string"
-              ? data.errorCode
-              : "Failed to send STK Push.";
+            : "Failed to send STK Push.";
 
       return failure(
         errorMessage,
@@ -500,63 +394,42 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     /**
-     * ============================================================
-     * CHECK DARAJA RESPONSE CODE
-     * ============================================================
+     * ==========================================================
+     * SAFARICOM APPLICATION RESPONSE
+     * ==========================================================
      *
-     * ResponseCode = "0"
+     * ResponseCode 0 means:
      *
-     * means Safaricom accepted the STK request.
+     * Safaricom accepted the STK Push request.
      *
-     * IMPORTANT:
-     *
-     * Accepted does NOT mean paid.
-     *
-     * Final payment confirmation must come from:
-     *
-     * - mpesa-status
-     * - mpesa-callback
+     * It does NOT mean the customer has paid yet.
      */
     const responseCode =
-      data.ResponseCode !== undefined
-        ? String(data.ResponseCode)
-        : "";
+      data.ResponseCode === undefined ||
+      data.ResponseCode === null
+        ? ""
+        : String(data.ResponseCode);
 
-    if (
-      responseCode &&
-      responseCode !== "0"
-    ) {
-      console.error(
-        "M-PESA STK Push rejected:",
-        JSON.stringify(
-          data,
-          null,
-          2
-        )
-      );
-
-      const message =
-        typeof data.ResponseDescription === "string"
-          ? data.ResponseDescription
-          : "M-PESA STK Push was rejected.";
-
-      return failure(
-        message,
-        400
-      );
-    }
-
-    /**
-     * ============================================================
-     * SUCCESS
-     * ============================================================
-     */
     console.log(
       "================================="
     );
 
     console.log(
-      "✅ M-PESA STK PUSH ACCEPTED"
+      "M-PESA STK PUSH RESPONSE"
+    );
+
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "ResponseCode:",
+      responseCode
+    );
+
+    console.log(
+      "ResponseDescription:",
+      data.ResponseDescription
     );
 
     console.log(
@@ -570,23 +443,8 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     console.log(
-      "ResponseCode:",
-      data.ResponseCode
-    );
-
-    console.log(
-      "ResponseDescription:",
-      data.ResponseDescription
-    );
-
-    console.log(
-      "TransactionType:",
-      MPESA_TRANSACTION_TYPE
-    );
-
-    console.log(
-      "Shortcode / Till:",
-      MPESA_SHORTCODE
+      "CustomerMessage:",
+      data.CustomerMessage
     );
 
     console.log(
@@ -594,19 +452,49 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     /**
-     * Return the REAL Safaricom response.
+     * ==========================================================
+     * STK PUSH ACCEPTED
+     * ==========================================================
      */
-    return success(data);
+    if (responseCode === "0") {
+      return success(data);
+    }
+
+    /**
+     * ==========================================================
+     * STK PUSH REJECTED
+     * ==========================================================
+     */
+    const description =
+      typeof data.ResponseDescription === "string"
+        ? data.ResponseDescription
+        : "Safaricom did not accept the STK Push request.";
+
+    return failure(
+      description,
+      400
+    );
 
   } catch (error) {
     /**
-     * ============================================================
+     * ==========================================================
      * UNEXPECTED ERROR
-     * ============================================================
+     * ==========================================================
      */
     console.error(
-      "M-PESA STK Push Error:",
+      "================================="
+    );
+
+    console.error(
+      "M-PESA STK PUSH ERROR"
+    );
+
+    console.error(
       error
+    );
+
+    console.error(
+      "================================="
     );
 
     return failure(
