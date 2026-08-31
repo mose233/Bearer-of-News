@@ -21,7 +21,9 @@
  */
 
 /**
- * M-PESA environment.
+ * ============================================================
+ * M-PESA ENVIRONMENT
+ * ============================================================
  *
  * Expected values:
  *
@@ -32,56 +34,66 @@ export const MPESA_ENV =
   Deno.env.get("MPESA_ENV")?.trim().toLowerCase() ?? "";
 
 /**
- * Safaricom Consumer Key.
+ * ============================================================
+ * SAFARICOM CONSUMER KEY
+ * ============================================================
  */
 export const MPESA_CONSUMER_KEY =
   Deno.env.get("MPESA_CONSUMER_KEY")?.trim() ?? "";
 
 /**
- * Safaricom Consumer Secret.
+ * ============================================================
+ * SAFARICOM CONSUMER SECRET
+ * ============================================================
  */
 export const MPESA_CONSUMER_SECRET =
   Deno.env.get("MPESA_CONSUMER_SECRET")?.trim() ?? "";
 
 /**
- * Safaricom Business Short Code.
+ * ============================================================
+ * M-PESA BUSINESS SHORT CODE
+ * ============================================================
  *
- * For the current xnewsapp.com production
- * STK Push credentials this is:
+ * Safaricom supplied the following Business Short Code
+ * for the approved xnewsapp.com STK Push application:
  *
  * 4320242
  *
- * The value is intentionally read from Supabase Secrets
- * instead of being hard-coded here.
+ * The actual value is still read from Supabase Secrets.
  */
 export const MPESA_SHORTCODE =
   Deno.env.get("MPESA_SHORTCODE")?.trim() ?? "";
 
 /**
- * Safaricom STK Push Passkey.
+ * ============================================================
+ * M-PESA STK PUSH PASSKEY
+ * ============================================================
  *
- * This MUST come from Supabase Secrets.
+ * The real Passkey must be stored only in
+ * Supabase Edge Function Secrets.
  */
 export const MPESA_PASSKEY =
   Deno.env.get("MPESA_PASSKEY")?.trim() ?? "";
 
 /**
- * M-PESA transaction type.
- *
- * This remains configurable because Safaricom's
- * approved merchant configuration determines the
- * correct transaction type.
+ * ============================================================
+ * M-PESA TRANSACTION TYPE
+ * ============================================================
  *
  * Current xnewsapp.com configuration:
  *
  * CustomerBuyGoodsOnline
+ *
+ * This remains configurable through Supabase Secrets.
  */
 export const MPESA_TRANSACTION_TYPE =
   Deno.env.get("MPESA_TRANSACTION_TYPE")?.trim() ||
   "CustomerBuyGoodsOnline";
 
 /**
- * Safaricom API base URL.
+ * ============================================================
+ * SAFARICOM API BASE URL
+ * ============================================================
  */
 export const MPESA_BASE_URL =
   MPESA_ENV === "production"
@@ -91,21 +103,39 @@ export const MPESA_BASE_URL =
       : "";
 
 /**
- * Validate M-PESA configuration.
+ * ============================================================
+ * EXPECTED PRODUCTION BUSINESS SHORT CODE
+ * ============================================================
+ *
+ * This is the Business Short Code supplied by Safaricom
+ * in the approved STK Push credentials.
  *
  * IMPORTANT:
  *
- * There is intentionally NO hard-coded validation such as:
+ * The real secret is still stored in Supabase.
+ * This constant contains only the public merchant identifier.
+ */
+const EXPECTED_PRODUCTION_SHORTCODE = "4320242";
+
+/**
+ * ============================================================
+ * VALIDATE M-PESA CONFIGURATION
+ * ============================================================
  *
- * MPESA_SHORTCODE === "4798391"
+ * This function must be called before making Safaricom API
+ * requests.
  *
- * The shortcode is supplied by Safaricom through
- * Supabase Secrets.
+ * IMPORTANT:
+ *
+ * No credentials are logged.
  */
 export function validateMpesaConfig(): void {
   /**
-   * Environment
+   * ------------------------------------------------------------
+   * ENVIRONMENT
+   * ------------------------------------------------------------
    */
+
   if (!MPESA_ENV) {
     throw new Error(
       "M-PESA configuration error: MPESA_ENV is not configured."
@@ -122,8 +152,11 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Base URL
+   * ------------------------------------------------------------
+   * BASE URL
+   * ------------------------------------------------------------
    */
+
   if (!MPESA_BASE_URL) {
     throw new Error(
       "M-PESA configuration error: API base URL is missing."
@@ -131,8 +164,11 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Consumer Key
+   * ------------------------------------------------------------
+   * CONSUMER KEY
+   * ------------------------------------------------------------
    */
+
   if (!MPESA_CONSUMER_KEY) {
     throw new Error(
       "M-PESA configuration error: MPESA_CONSUMER_KEY is missing."
@@ -140,8 +176,11 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Consumer Secret
+   * ------------------------------------------------------------
+   * CONSUMER SECRET
+   * ------------------------------------------------------------
    */
+
   if (!MPESA_CONSUMER_SECRET) {
     throw new Error(
       "M-PESA configuration error: MPESA_CONSUMER_SECRET is missing."
@@ -149,8 +188,11 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Business Short Code
+   * ------------------------------------------------------------
+   * BUSINESS SHORT CODE
+   * ------------------------------------------------------------
    */
+
   if (!MPESA_SHORTCODE) {
     throw new Error(
       "M-PESA configuration error: MPESA_SHORTCODE is missing."
@@ -158,8 +200,29 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Passkey
+   * ------------------------------------------------------------
+   * PRODUCTION SHORT CODE VALIDATION
+   * ------------------------------------------------------------
+   *
+   * Prevents accidentally using the old 4798391 value or
+   * another incorrect shortcode in production.
    */
+
+  if (
+    MPESA_ENV === "production" &&
+    MPESA_SHORTCODE !== EXPECTED_PRODUCTION_SHORTCODE
+  ) {
+    throw new Error(
+      `M-PESA production configuration error: expected Business Short Code ${EXPECTED_PRODUCTION_SHORTCODE}, received ${MPESA_SHORTCODE}.`
+    );
+  }
+
+  /**
+   * ------------------------------------------------------------
+   * PASSKEY
+   * ------------------------------------------------------------
+   */
+
   if (!MPESA_PASSKEY) {
     throw new Error(
       "M-PESA configuration error: MPESA_PASSKEY is missing."
@@ -167,8 +230,11 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Transaction Type
+   * ------------------------------------------------------------
+   * TRANSACTION TYPE
+   * ------------------------------------------------------------
    */
+
   if (!MPESA_TRANSACTION_TYPE) {
     throw new Error(
       "M-PESA configuration error: MPESA_TRANSACTION_TYPE is missing."
@@ -176,17 +242,69 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * Safe configuration diagnostics.
+   * ------------------------------------------------------------
+   * PRODUCTION TRANSACTION TYPE
+   * ------------------------------------------------------------
    *
-   * NEVER print credentials.
+   * Current approved xnewsapp.com configuration.
    */
+
+  if (
+    MPESA_ENV === "production" &&
+    MPESA_TRANSACTION_TYPE !== "CustomerBuyGoodsOnline"
+  ) {
+    throw new Error(
+      `M-PESA production configuration error: expected transaction type CustomerBuyGoodsOnline, received ${MPESA_TRANSACTION_TYPE}.`
+    );
+  }
+
+  /**
+   * ------------------------------------------------------------
+   * SAFE DIAGNOSTICS
+   * ------------------------------------------------------------
+   *
+   * NEVER log:
+   *
+   * - Consumer Key
+   * - Consumer Secret
+   * - Passkey
+   * - OAuth access token
+   * - STK password
+   */
+
   console.log(
-    "M-PESA configuration validated:",
-    JSON.stringify({
-      environment: MPESA_ENV,
-      shortcode: MPESA_SHORTCODE,
-      transactionType: MPESA_TRANSACTION_TYPE,
-      baseUrl: MPESA_BASE_URL,
-    })
+    "================================="
+  );
+
+  console.log(
+    "M-PESA CONFIGURATION VALIDATED"
+  );
+
+  console.log(
+    "================================="
+  );
+
+  console.log(
+    "Environment:",
+    MPESA_ENV
+  );
+
+  console.log(
+    "Business Short Code:",
+    MPESA_SHORTCODE
+  );
+
+  console.log(
+    "Transaction Type:",
+    MPESA_TRANSACTION_TYPE
+  );
+
+  console.log(
+    "Base URL:",
+    MPESA_BASE_URL
+  );
+
+  console.log(
+    "================================="
   );
 }
