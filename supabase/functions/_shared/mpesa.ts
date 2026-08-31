@@ -1,6 +1,8 @@
 /**
  * M-PESA OAuth / Access Token helper.
  *
+ * xnewsapp.com
+ *
  * This file is responsible ONLY for obtaining
  * a Safaricom OAuth access token.
  *
@@ -13,6 +15,13 @@
  *
  * Those responsibilities belong to their
  * respective modules.
+ *
+ * IMPORTANT:
+ *
+ * All M-PESA credentials come from Supabase
+ * Edge Function Secrets through env.ts.
+ *
+ * NEVER put credentials directly in this file.
  */
 
 import {
@@ -20,6 +29,7 @@ import {
   MPESA_CONSUMER_KEY,
   MPESA_CONSUMER_SECRET,
   MPESA_ENV,
+  validateMpesaConfig,
 } from "./env.ts";
 
 /**
@@ -28,27 +38,59 @@ import {
 interface MpesaAccessTokenResponse {
   access_token?: string;
   expires_in?: string | number;
+  error?: string;
+  error_description?: string;
+  errorCode?: string | number;
   [key: string]: unknown;
 }
 
 /**
  * Obtain a Safaricom M-PESA OAuth access token.
  *
- * The credentials are read exclusively from
- * Supabase Edge Function Secrets through env.ts.
+ * Production endpoint:
+ *
+ * https://api.safaricom.co.ke/oauth/v1/generate
+ *
+ * Sandbox endpoint:
+ *
+ * https://sandbox.safaricom.co.ke/oauth/v1/generate
+ *
+ * The endpoint is selected by MPESA_ENV in env.ts.
  *
  * NEVER log:
  *
- * - Consumer Secret
  * - Consumer Key
+ * - Consumer Secret
  * - Authorization header
  * - Access Token
  */
 export async function getAccessToken(): Promise<string> {
   /**
    * ============================================================
-   * VALIDATE CREDENTIALS
+   * VALIDATE M-PESA CONFIGURATION
    * ============================================================
+   *
+   * This also validates:
+   *
+   * - MPESA_ENV
+   * - MPESA_CONSUMER_KEY
+   * - MPESA_CONSUMER_SECRET
+   * - MPESA_SHORTCODE
+   * - MPESA_PASSKEY
+   * - MPESA_TRANSACTION_TYPE
+   *
+   * The actual configuration rules live in env.ts.
+   */
+
+  validateMpesaConfig();
+
+  /**
+   * ============================================================
+   * EXTRA OAUTH VALIDATION
+   * ============================================================
+   *
+   * These checks are kept here as an additional safeguard
+   * because this function cannot work without them.
    */
 
   if (!MPESA_CONSUMER_KEY) {
@@ -77,16 +119,8 @@ export async function getAccessToken(): Promise<string> {
 
   /**
    * ============================================================
-   * OAUTH ENDPOINT
+   * BUILD OAUTH ENDPOINT
    * ============================================================
-   *
-   * Production:
-   *
-   * https://api.safaricom.co.ke/oauth/v1/generate
-   *
-   * Sandbox:
-   *
-   * https://sandbox.safaricom.co.ke/oauth/v1/generate
    */
 
   const url =
@@ -94,14 +128,19 @@ export async function getAccessToken(): Promise<string> {
 
   /**
    * ============================================================
-   * CREATE BASIC AUTH HEADER
+   * CREATE BASIC AUTH CREDENTIALS
    * ============================================================
    *
-   * Safaricom expects:
+   * Safaricom OAuth expects:
    *
-   * Base64(
+   * Authorization: Basic Base64(
    *   ConsumerKey + ":" + ConsumerSecret
    * )
+   *
+   * IMPORTANT:
+   *
+   * The encoded credentials are sensitive.
+   * They are never logged.
    */
 
   const credentials = btoa(
@@ -113,7 +152,7 @@ export async function getAccessToken(): Promise<string> {
    * SAFE DIAGNOSTICS
    * ============================================================
    *
-   * We deliberately do NOT log credentials.
+   * These logs intentionally contain no secrets.
    */
 
   console.log(
@@ -141,6 +180,11 @@ export async function getAccessToken(): Promise<string> {
   console.log(
     "Endpoint:",
     url
+  );
+
+  console.log(
+    "OAuth grant type:",
+    "client_credentials"
   );
 
   console.log(
@@ -201,13 +245,33 @@ export async function getAccessToken(): Promise<string> {
   const text =
     await response.text();
 
+  /**
+   * ============================================================
+   * EMPTY RESPONSE
+   * ============================================================
+   */
+
   if (!text.trim()) {
     console.error(
-      "M-PESA OAuth returned an empty response.",
-      {
-        status: response.status,
-        statusText: response.statusText,
-      }
+      "================================="
+    );
+
+    console.error(
+      "M-PESA OAUTH EMPTY RESPONSE"
+    );
+
+    console.error(
+      "HTTP Status:",
+      response.status
+    );
+
+    console.error(
+      "HTTP Status Text:",
+      response.statusText
+    );
+
+    console.error(
+      "================================="
     );
 
     throw new Error(
@@ -227,6 +291,16 @@ export async function getAccessToken(): Promise<string> {
     data =
       JSON.parse(text);
   } catch {
+    /**
+     * IMPORTANT:
+     *
+     * Do not print the raw response.
+     *
+     * Although OAuth normally returns JSON,
+     * we should not risk exposing unexpected
+     * sensitive information in production logs.
+     */
+
     console.error(
       "================================="
     );
@@ -239,11 +313,6 @@ export async function getAccessToken(): Promise<string> {
       "HTTP Status:",
       response.status
     );
-
-    /**
-     * Do not log the response if it could
-     * accidentally contain sensitive information.
-     */
 
     console.error(
       "Response was not valid JSON."
@@ -284,13 +353,17 @@ export async function getAccessToken(): Promise<string> {
     );
 
     /**
-     * Log only safe response fields.
+     * Only safe OAuth error fields are logged.
      *
-     * Never log access_token.
+     * NEVER log:
+     *
+     * - access_token
+     * - Consumer Secret
+     * - Authorization header
      */
 
     console.error(
-      "OAuth Response:",
+      "OAuth Error:",
       JSON.stringify({
         error:
           data.error,
@@ -321,7 +394,19 @@ export async function getAccessToken(): Promise<string> {
     !data.access_token.trim()
   ) {
     console.error(
-      "M-PESA OAuth response did not contain an access token."
+      "================================="
+    );
+
+    console.error(
+      "M-PESA OAUTH TOKEN MISSING"
+    );
+
+    console.error(
+      "Safaricom returned HTTP 200 but no access token."
+    );
+
+    console.error(
+      "================================="
     );
 
     throw new Error(
@@ -335,23 +420,43 @@ export async function getAccessToken(): Promise<string> {
    * ============================================================
    */
 
+  const accessToken =
+    data.access_token.trim();
+
+  console.log(
+    "================================="
+  );
+
+  console.log(
+    "M-PESA ACCESS TOKEN SUCCESS"
+  );
+
   console.log(
     "M-PESA access token obtained successfully."
   );
 
-  if (data.expires_in !== undefined) {
+  if (
+    data.expires_in !== undefined
+  ) {
     console.log(
       "M-PESA access token expires in:",
       data.expires_in
     );
   }
 
+  console.log(
+    "================================="
+  );
+
   /**
-   * Return the token.
+   * ============================================================
+   * RETURN TOKEN
+   * ============================================================
    *
    * IMPORTANT:
-   * Do not log this value.
+   *
+   * Never log this value.
    */
 
-  return data.access_token.trim();
+  return accessToken;
 }
