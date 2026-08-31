@@ -13,9 +13,24 @@
  * MPESA_ENV=production
  * MPESA_CONSUMER_KEY=YOUR_PRODUCTION_CONSUMER_KEY
  * MPESA_CONSUMER_SECRET=YOUR_PRODUCTION_CONSUMER_SECRET
- * MPESA_SHORTCODE=4320242
+ * MPESA_SHORTCODE=4798391
  * MPESA_PASSKEY=YOUR_PRODUCTION_PASSKEY
  * MPESA_TRANSACTION_TYPE=CustomerBuyGoodsOnline
+ *
+ * IMPORTANT:
+ *
+ * Safaricom has confirmed that:
+ *
+ * BusinessShortCode = 4798391
+ *
+ * This is the Till Number.
+ *
+ * Store Number:
+ *
+ * 4460875
+ *
+ * The previous value 4320242 must NOT be used as the
+ * M-PESA Express BusinessShortCode.
  *
  * Never put real credentials in GitHub or frontend code.
  */
@@ -54,12 +69,16 @@ export const MPESA_CONSUMER_SECRET =
  * M-PESA BUSINESS SHORT CODE
  * ============================================================
  *
- * Safaricom supplied the following Business Short Code
- * for the approved xnewsapp.com STK Push application:
+ * Safaricom has confirmed:
  *
- * 4320242
+ * BusinessShortCode = Till Number = 4798391
  *
- * The actual value is still read from Supabase Secrets.
+ * The value is still read from Supabase Edge Function
+ * Secrets rather than being used directly by the code.
+ *
+ * Supabase Secret:
+ *
+ * MPESA_SHORTCODE=4798391
  */
 export const MPESA_SHORTCODE =
   Deno.env.get("MPESA_SHORTCODE")?.trim() ?? "";
@@ -107,23 +126,41 @@ export const MPESA_BASE_URL =
  * EXPECTED PRODUCTION BUSINESS SHORT CODE
  * ============================================================
  *
- * This is the Business Short Code supplied by Safaricom
- * in the approved STK Push credentials.
+ * Safaricom has confirmed that the Till Number:
+ *
+ * 4798391
+ *
+ * is the BusinessShortCode for the M-PESA Express
+ * production integration.
  *
  * IMPORTANT:
  *
- * The real secret is still stored in Supabase.
- * This constant contains only the public merchant identifier.
+ * 4320242 is NOT used here.
+ *
+ * Safaricom has confirmed that 4320242 is associated
+ * with channeling payments to the bank.
  */
-const EXPECTED_PRODUCTION_SHORTCODE = "4320242";
+const EXPECTED_PRODUCTION_SHORTCODE = "4798391";
+
+/**
+ * ============================================================
+ * EXPECTED PRODUCTION TRANSACTION TYPE
+ * ============================================================
+ *
+ * Current xnewsapp.com configuration:
+ *
+ * CustomerBuyGoodsOnline
+ */
+const EXPECTED_PRODUCTION_TRANSACTION_TYPE =
+  "CustomerBuyGoodsOnline";
 
 /**
  * ============================================================
  * VALIDATE M-PESA CONFIGURATION
  * ============================================================
  *
- * This function must be called before making Safaricom API
- * requests.
+ * This function must be called before making Safaricom
+ * API requests.
  *
  * IMPORTANT:
  *
@@ -131,9 +168,9 @@ const EXPECTED_PRODUCTION_SHORTCODE = "4320242";
  */
 export function validateMpesaConfig(): void {
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * ENVIRONMENT
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_ENV) {
@@ -152,9 +189,9 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * BASE URL
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_BASE_URL) {
@@ -164,9 +201,9 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * CONSUMER KEY
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_CONSUMER_KEY) {
@@ -176,9 +213,9 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * CONSUMER SECRET
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_CONSUMER_SECRET) {
@@ -188,9 +225,9 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * BUSINESS SHORT CODE
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_SHORTCODE) {
@@ -200,12 +237,16 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
-   * PRODUCTION SHORT CODE VALIDATION
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
+   * PRODUCTION BUSINESS SHORT CODE VALIDATION
+   * ----------------------------------------------------------
    *
-   * Prevents accidentally using the old 4798391 value or
-   * another incorrect shortcode in production.
+   * Safaricom has confirmed:
+   *
+   * BusinessShortCode = 4798391
+   *
+   * This prevents the old 4320242 value from accidentally
+   * being used for M-PESA Express in production.
    */
 
   if (
@@ -218,9 +259,9 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * PASSKEY
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_PASSKEY) {
@@ -230,9 +271,9 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * TRANSACTION TYPE
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    */
 
   if (!MPESA_TRANSACTION_TYPE) {
@@ -242,26 +283,25 @@ export function validateMpesaConfig(): void {
   }
 
   /**
-   * ------------------------------------------------------------
-   * PRODUCTION TRANSACTION TYPE
-   * ------------------------------------------------------------
-   *
-   * Current approved xnewsapp.com configuration.
+   * ----------------------------------------------------------
+   * PRODUCTION TRANSACTION TYPE VALIDATION
+   * ----------------------------------------------------------
    */
 
   if (
     MPESA_ENV === "production" &&
-    MPESA_TRANSACTION_TYPE !== "CustomerBuyGoodsOnline"
+    MPESA_TRANSACTION_TYPE !==
+      EXPECTED_PRODUCTION_TRANSACTION_TYPE
   ) {
     throw new Error(
-      `M-PESA production configuration error: expected transaction type CustomerBuyGoodsOnline, received ${MPESA_TRANSACTION_TYPE}.`
+      `M-PESA production configuration error: expected transaction type ${EXPECTED_PRODUCTION_TRANSACTION_TYPE}, received ${MPESA_TRANSACTION_TYPE}.`
     );
   }
 
   /**
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    * SAFE DIAGNOSTICS
-   * ------------------------------------------------------------
+   * ----------------------------------------------------------
    *
    * NEVER log:
    *
