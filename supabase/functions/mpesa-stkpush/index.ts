@@ -1,553 +1,658 @@
 ```typescript
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+
+import {
+  MPESA_BASE_URL,
+  MPESA_SHORTCODE,
+  MPESA_TRANSACTION_TYPE,
+  validateMpesaConfig,
+} from "../_shared/env.ts";
+
+import { getAccessToken } from "../_shared/mpesa.ts";
+
+import {
+  generatePassword,
+  generateTimestamp,
+  normalizePhoneNumber,
+} from "../_shared/mpesa-utils.ts";
+
+import {
+  success,
+  failure,
+} from "../_shared/response.ts";
+
 /**
  * ============================================================
- * M-PESA ENVIRONMENT CONFIGURATION
+ * M-PESA STK PUSH CALLBACK URL
  * ============================================================
  *
- * Production configuration for xnewsapp.com.
+ * Safaricom sends the final transaction result asynchronously
+ * to this HTTPS endpoint.
  *
  * IMPORTANT:
  *
- * Real M-PESA credentials MUST remain in Supabase Edge
- * Function Secrets.
+ * ResponseCode 0 from the STK Push request only means that
+ * Safaricom accepted the request for processing.
  *
- * NEVER place:
- *
- * - Consumer Key
- * - Consumer Secret
- * - Passkey
- * - OAuth Access Token
- * - STK Password
- *
- * in GitHub, frontend code, or client-side configuration.
- *
- * ============================================================
- *
- * CURRENT SAFARICOM MERCHANT IDENTIFIERS
- * ============================================================
- *
- * We have confirmed three different identifiers:
- *
- * 1. DARaja Production App Short Code
- *
- *      4320242
- *
- *      This is the Short Code displayed on the Daraja
- *      Production App:
- *
- *      Prod-ENOCK NYAMBEGA MOSE-1788004129763
- *
- * 2. M-PESA ORGANIZATION SHORT CODE
- *
- *      4460875
- *
- *      This appears in the M-PESA Organization portal.
- *
- * 3. TILL NUMBER
- *
- *      4798391
- *
- *      This is the active Till Number belonging to the
- *      organization.
- *
- * ============================================================
- *
- * IMPORTANT DIAGNOSTIC HISTORY
- * ============================================================
- *
- * We previously used:
- *
- *      MPESA_SHORTCODE=4798391
- *
- * The STK Push API accepted the request:
- *
- *      ResponseCode: 0
- *      ResponseDescription:
- *      Success. Request accepted for processing
- *
- * However, querying the resulting CheckoutRequestID returned:
- *
- *      ResultCode: 4999
- *      ResultDesc: Merchant does not exist
- *
- * Therefore we must NOT assume that the Till Number is
- * automatically the Daraja application BusinessShortCode.
- *
- * This configuration deliberately keeps the identifiers
- * separate so the STK Push implementation can use the
- * correct merchant identifier once the Safaricom production
- * mapping is confirmed.
- *
- * ============================================================
- *
- * REQUIRED SUPABASE EDGE FUNCTION SECRETS
- * ============================================================
- *
- * MPESA_ENV=production
- *
- * MPESA_CONSUMER_KEY=YOUR_PRODUCTION_CONSUMER_KEY
- *
- * MPESA_CONSUMER_SECRET=YOUR_PRODUCTION_CONSUMER_SECRET
- *
- * MPESA_SHORTCODE=4320242
- *
- * MPESA_ORGANIZATION_SHORTCODE=4460875
- *
- * MPESA_TILL_NUMBER=4798391
- *
- * MPESA_PASSKEY=YOUR_PRODUCTION_PASSKEY
- *
- * MPESA_TRANSACTION_TYPE=CustomerBuyGoodsOnline
- *
- * ============================================================
+ * The actual payment result comes later through the callback.
  */
-
+const CALLBACK_URL =
+  "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback";
 
 /**
  * ============================================================
- * M-PESA ENVIRONMENT
- * ============================================================
- *
- * Allowed:
- *
- * production
- * sandbox
- */
-export const MPESA_ENV =
-  Deno.env.get("MPESA_ENV")?.trim().toLowerCase() ?? "";
-
-
-/**
- * ============================================================
- * SAFARICOM CONSUMER KEY
+ * M-PESA STK PUSH
  * ============================================================
  */
-export const MPESA_CONSUMER_KEY =
-  Deno.env.get("MPESA_CONSUMER_KEY")?.trim() ?? "";
+serve(async (req: Request): Promise<Response> => {
+  try {
+    /**
+     * ==========================================================
+     * CORS
+     * ==========================================================
+     */
+    if (req.method === "OPTIONS") {
+      return success({ ok: true });
+    }
 
+    /**
+     * ==========================================================
+     * ONLY POST
+     * ==========================================================
+     */
+    if (req.method !== "POST") {
+      return failure(
+        "Method Not Allowed.",
+        405
+      );
+    }
 
-/**
- * ============================================================
- * SAFARICOM CONSUMER SECRET
- * ============================================================
- */
-export const MPESA_CONSUMER_SECRET =
-  Deno.env.get("MPESA_CONSUMER_SECRET")?.trim() ?? "";
+    /**
+     * ==========================================================
+     * VALIDATE M-PESA CONFIGURATION
+     * ==========================================================
+     *
+     * This validates:
+     *
+     * - MPESA_ENV
+     * - MPESA_CONSUMER_KEY
+     * - MPESA_CONSUMER_SECRET
+     * - MPESA_SHORTCODE
+     * - MPESA_PASSKEY
+     * - MPESA_TRANSACTION_TYPE
+     *
+     * No credentials are logged.
+     */
+    validateMpesaConfig();
 
+    /**
+     * ==========================================================
+     * PARSE REQUEST BODY
+     * ==========================================================
+     */
+    let body: {
+      phoneNumber?: string;
+      amount?: number;
+    };
 
-/**
- * ============================================================
- * DARaja APPLICATION SHORT CODE
- * ============================================================
- *
- * This is the Short Code displayed on the Safaricom
- * Production App.
- *
- * Current confirmed value:
- *
- *      4320242
- *
- * IMPORTANT:
- *
- * This is deliberately NOT the Till Number.
- *
- * The previous configuration incorrectly treated:
- *
- *      4798391
- *
- * as the Daraja application shortcode.
- */
-export const MPESA_SHORTCODE =
-  Deno.env.get("MPESA_SHORTCODE")?.trim() ?? "";
+    try {
+      body = await req.json();
+    } catch {
+      return failure(
+        "Invalid JSON body.",
+        400
+      );
+    }
 
+    const {
+      phoneNumber,
+      amount,
+    } = body;
 
-/**
- * ============================================================
- * M-PESA ORGANIZATION SHORT CODE
- * ============================================================
- *
- * Current confirmed organization value:
- *
- *      4460875
- *
- * This is kept separately from the Daraja application
- * shortcode and the Till Number.
- */
-export const MPESA_ORGANIZATION_SHORTCODE =
-  Deno.env
-    .get("MPESA_ORGANIZATION_SHORTCODE")
-    ?.trim() ?? "";
+    /**
+     * ==========================================================
+     * VALIDATE PHONE NUMBER
+     * ==========================================================
+     */
+    if (!phoneNumber) {
+      return failure(
+        "phoneNumber is required.",
+        400
+      );
+    }
 
+    /**
+     * ==========================================================
+     * VALIDATE AMOUNT
+     * ==========================================================
+     *
+     * M-PESA requires a positive whole-number KES amount.
+     */
+    if (
+      typeof amount !== "number" ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      return failure(
+        "amount must be greater than zero.",
+        400
+      );
+    }
 
-/**
- * ============================================================
- * M-PESA TILL NUMBER
- * ============================================================
- *
- * Current active Till:
- *
- *      4798391
- *
- * IMPORTANT:
- *
- * Do not automatically substitute this value for
- * MPESA_SHORTCODE.
- */
-export const MPESA_TILL_NUMBER =
-  Deno.env.get("MPESA_TILL_NUMBER")?.trim() ?? "";
+    /**
+     * ==========================================================
+     * NORMALIZE PHONE NUMBER
+     * ==========================================================
+     *
+     * Examples:
+     *
+     * +254716172432
+     * 254716172432
+     * 0716172432
+     *
+     * become:
+     *
+     * 254716172432
+     */
+    const customerPhone =
+      normalizePhoneNumber(phoneNumber);
 
+    /**
+     * ==========================================================
+     * NORMALIZE PAYMENT AMOUNT
+     * ==========================================================
+     *
+     * M-PESA expects a whole-number amount.
+     *
+     * Example:
+     *
+     * 9.4 -> 9
+     * 9.6 -> 10
+     */
+    const amountToCharge =
+      Math.max(
+        1,
+        Math.round(amount)
+      );
 
-/**
- * ============================================================
- * M-PESA STK PUSH PASSKEY
- * ============================================================
- *
- * The real production Passkey must exist only in
- * Supabase Edge Function Secrets.
- */
-export const MPESA_PASSKEY =
-  Deno.env.get("MPESA_PASSKEY")?.trim() ?? "";
+    /**
+     * ==========================================================
+     * SAFE REQUEST DIAGNOSTICS
+     * ==========================================================
+     *
+     * Safe to log:
+     *
+     * - environment
+     * - BusinessShortCode
+     * - transaction type
+     * - phone number
+     * - amount
+     * - callback URL
+     *
+     * NEVER log:
+     *
+     * - consumer secret
+     * - passkey
+     * - STK password
+     * - OAuth access token
+     */
+    console.log(
+      "================================="
+    );
 
+    console.log(
+      "M-PESA STK PUSH REQUEST"
+    );
 
-/**
- * ============================================================
- * M-PESA TRANSACTION TYPE
- * ============================================================
- *
- * Current intended transaction type:
- *
- *      CustomerBuyGoodsOnline
- *
- * This remains configurable through Supabase Secrets.
- */
-export const MPESA_TRANSACTION_TYPE =
-  Deno.env.get("MPESA_TRANSACTION_TYPE")?.trim() ||
-  "CustomerBuyGoodsOnline";
+    console.log(
+      "================================="
+    );
 
+    console.log(
+      "Environment:",
+      Deno.env.get("MPESA_ENV") ?? "unknown"
+    );
 
-/**
- * ============================================================
- * SAFARICOM API BASE URL
- * ============================================================
- */
-export const MPESA_BASE_URL =
-  MPESA_ENV === "production"
-    ? "https://api.safaricom.co.ke"
-    : MPESA_ENV === "sandbox"
-      ? "https://sandbox.safaricom.co.ke"
-      : "";
+    console.log(
+      "BusinessShortCode:",
+      MPESA_SHORTCODE
+    );
 
+    console.log(
+      "TransactionType:",
+      MPESA_TRANSACTION_TYPE
+    );
 
-/**
- * ============================================================
- * EXPECTED PRODUCTION VALUES
- * ============================================================
- *
- * These values are based on the merchant information we have
- * established from the Safaricom portals.
- */
+    console.log(
+      "Phone:",
+      customerPhone
+    );
 
+    console.log(
+      "Amount:",
+      amountToCharge
+    );
 
-/**
- * Daraja Production App Short Code.
- */
-const EXPECTED_PRODUCTION_SHORTCODE =
-  "4320242";
+    console.log(
+      "Callback URL:",
+      CALLBACK_URL
+    );
 
+    console.log(
+      "================================="
+    );
 
-/**
- * M-PESA Organization Short Code.
- */
-const EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE =
-  "4460875";
+    /**
+     * ==========================================================
+     * GENERATE TIMESTAMP
+     * ==========================================================
+     *
+     * Safaricom format:
+     *
+     * YYYYMMDDHHmmss
+     */
+    const timestamp =
+      generateTimestamp();
 
+    /**
+     * ==========================================================
+     * GENERATE STK PASSWORD
+     * ==========================================================
+     *
+     * Safaricom formula:
+     *
+     * Base64(
+     *   BusinessShortCode +
+     *   Passkey +
+     *   Timestamp
+     * )
+     *
+     * generatePassword() reads the same
+     * MPESA_SHORTCODE from _shared/env.ts.
+     *
+     * Therefore the shortcode used here and the shortcode
+     * used to generate the password cannot accidentally differ.
+     */
+    const password =
+      generatePassword(timestamp);
 
-/**
- * Active Till Number.
- */
-const EXPECTED_PRODUCTION_TILL_NUMBER =
-  "4798391";
+    /**
+     * ==========================================================
+     * GET SAFARICOM ACCESS TOKEN
+     * ==========================================================
+     */
+    const accessToken =
+      await getAccessToken();
 
+    /**
+     * ==========================================================
+     * BUILD STK PUSH PAYLOAD
+     * ==========================================================
+     *
+     * CURRENT PRODUCTION CONFIGURATION
+     * ---------------------------------
+     *
+     * Daraja Production App shortcode:
+     *
+     *     4320242
+     *
+     * The actual value is NOT hard-coded here.
+     *
+     * It comes from:
+     *
+     *     MPESA_SHORTCODE
+     *
+     * which is loaded from Supabase Edge Function Secrets
+     * through _shared/env.ts.
+     *
+     * Till Number:
+     *
+     *     4798391
+     *
+     * Organization Short Code / Store Number:
+     *
+     *     4460875
+     *
+     * IMPORTANT:
+     *
+     * We do NOT substitute either of those values into
+     * BusinessShortCode here.
+     *
+     * The production Daraja shortcode configured for this
+     * application is the value supplied by MPESA_SHORTCODE.
+     */
+    const stkPayload = {
+      /**
+       * Daraja production application shortcode.
+       *
+       * Expected from Supabase secret:
+       *
+       * MPESA_SHORTCODE=4320242
+       */
+      BusinessShortCode:
+        MPESA_SHORTCODE,
 
-/**
- * Intended production transaction type.
- */
-const EXPECTED_PRODUCTION_TRANSACTION_TYPE =
-  "CustomerBuyGoodsOnline";
+      /**
+       * Generated from:
+       *
+       * MPESA_SHORTCODE
+       * +
+       * MPESA_PASSKEY
+       * +
+       * Timestamp
+       */
+      Password:
+        password,
 
+      Timestamp:
+        timestamp,
 
-/**
- * ============================================================
- * VALIDATE M-PESA CONFIGURATION
- * ============================================================
- *
- * This function must be called before making Safaricom
- * API requests.
- *
- * IMPORTANT:
- *
- * No sensitive credentials are logged.
- */
-export function validateMpesaConfig(): void {
+      /**
+       * Expected production transaction type:
+       *
+       * CustomerBuyGoodsOnline
+       */
+      TransactionType:
+        MPESA_TRANSACTION_TYPE,
 
-  /**
-   * ----------------------------------------------------------
-   * ENVIRONMENT
-   * ----------------------------------------------------------
-   */
+      /**
+       * Amount requested by customer.
+       */
+      Amount:
+        amountToCharge,
 
-  if (!MPESA_ENV) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_ENV is not configured."
+      /**
+       * Customer's M-PESA phone number.
+       */
+      PartyA:
+        customerPhone,
+
+      /**
+       * Merchant shortcode associated with the
+       * configured STK Push application.
+       *
+       * This deliberately uses the same configured
+       * shortcode as BusinessShortCode.
+       */
+      PartyB:
+        MPESA_SHORTCODE,
+
+      /**
+       * Customer's phone number.
+       */
+      PhoneNumber:
+        customerPhone,
+
+      /**
+       * Safaricom callback endpoint.
+       */
+      CallBackURL:
+        CALLBACK_URL,
+
+      /**
+       * Internal xnewsapp.com reference.
+       */
+      AccountReference:
+        "xnewsapp",
+
+      /**
+       * Customer-facing transaction description.
+       */
+      TransactionDesc:
+        "AI Content Generation",
+    };
+
+    /**
+     * ==========================================================
+     * SEND STK PUSH TO SAFARICOM
+     * ==========================================================
+     */
+    const response =
+      await fetch(
+        `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+          },
+
+          /**
+           * IMPORTANT:
+           *
+           * Never log this payload because it contains
+           * the generated STK password.
+           */
+          body:
+            JSON.stringify(stkPayload),
+        }
+      );
+
+    /**
+     * ==========================================================
+     * READ SAFARICOM RESPONSE
+     * ==========================================================
+     */
+    const responseText =
+      await response.text();
+
+    console.log(
+      "Daraja HTTP Status:",
+      response.status
+    );
+
+    /**
+     * ==========================================================
+     * EMPTY RESPONSE
+     * ==========================================================
+     */
+    if (!responseText.trim()) {
+      console.error(
+        "Daraja returned an empty response."
+      );
+
+      return failure(
+        `Safaricom returned an empty response (HTTP ${response.status}).`,
+        502
+      );
+    }
+
+    /**
+     * ==========================================================
+     * PARSE SAFARICOM RESPONSE
+     * ==========================================================
+     */
+    let data: Record<string, unknown>;
+
+    try {
+      data =
+        JSON.parse(responseText);
+    } catch {
+      console.error(
+        "Daraja returned invalid JSON."
+      );
+
+      return failure(
+        "Invalid response from Safaricom.",
+        502
+      );
+    }
+
+    /**
+     * ==========================================================
+     * SAFARICOM HTTP ERROR
+     * ==========================================================
+     *
+     * This means Safaricom rejected the HTTP/API request itself.
+     */
+    if (!response.ok) {
+      console.error(
+        "================================="
+      );
+
+      console.error(
+        "DARaja STK PUSH HTTP ERROR"
+      );
+
+      console.error(
+        "HTTP Status:",
+        response.status
+      );
+
+      console.error(
+        "Safaricom Response:",
+        JSON.stringify(
+          data,
+          null,
+          2
+        )
+      );
+
+      console.error(
+        "================================="
+      );
+
+      const errorMessage =
+        typeof data.errorMessage === "string"
+          ? data.errorMessage
+          : typeof data.ResponseDescription === "string"
+            ? data.ResponseDescription
+            : "Failed to send STK Push.";
+
+      return failure(
+        errorMessage,
+        response.status
+      );
+    }
+
+    /**
+     * ==========================================================
+     * NORMALIZE RESPONSE CODE
+     * ==========================================================
+     */
+    const responseCode =
+      data.ResponseCode === undefined ||
+      data.ResponseCode === null
+        ? ""
+        : String(data.ResponseCode);
+
+    /**
+     * ==========================================================
+     * SAFARICOM APPLICATION RESPONSE
+     * ==========================================================
+     *
+     * ResponseCode 0 means:
+     *
+     * Safaricom accepted the STK Push request.
+     *
+     * It does NOT mean:
+     *
+     * - customer entered PIN
+     * - money was received
+     * - payment succeeded
+     *
+     * The final result must come through the callback.
+     */
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "M-PESA STK PUSH RESPONSE"
+    );
+
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "ResponseCode:",
+      responseCode
+    );
+
+    console.log(
+      "ResponseDescription:",
+      data.ResponseDescription
+    );
+
+    console.log(
+      "MerchantRequestID:",
+      data.MerchantRequestID
+    );
+
+    console.log(
+      "CheckoutRequestID:",
+      data.CheckoutRequestID
+    );
+
+    console.log(
+      "CustomerMessage:",
+      data.CustomerMessage
+    );
+
+    console.log(
+      "================================="
+    );
+
+    /**
+     * ==========================================================
+     * STK PUSH ACCEPTED
+     * ==========================================================
+     */
+    if (responseCode === "0") {
+      return success(data);
+    }
+
+    /**
+     * ==========================================================
+     * STK PUSH REJECTED
+     * ==========================================================
+     */
+    const description =
+      typeof data.ResponseDescription === "string"
+        ? data.ResponseDescription
+        : "Safaricom did not accept the STK Push request.";
+
+    return failure(
+      description,
+      400
+    );
+
+  } catch (error) {
+    /**
+     * ==========================================================
+     * UNEXPECTED ERROR
+     * ==========================================================
+     */
+    console.error(
+      "================================="
+    );
+
+    console.error(
+      "M-PESA STK PUSH ERROR"
+    );
+
+    console.error(
+      error
+    );
+
+    console.error(
+      "================================="
+    );
+
+    return failure(
+      error instanceof Error
+        ? error.message
+        : "Internal server error.",
+      500
     );
   }
-
-  if (
-    MPESA_ENV !== "production" &&
-    MPESA_ENV !== "sandbox"
-  ) {
-    throw new Error(
-      `M-PESA configuration error: unsupported MPESA_ENV "${MPESA_ENV}".`
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * BASE URL
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_BASE_URL) {
-    throw new Error(
-      "M-PESA configuration error: API base URL is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * CONSUMER KEY
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_CONSUMER_KEY) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_CONSUMER_KEY is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * CONSUMER SECRET
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_CONSUMER_SECRET) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_CONSUMER_SECRET is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * DARaja APPLICATION SHORT CODE
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_SHORTCODE) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_SHORTCODE is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * PRODUCTION DARaja SHORT CODE VALIDATION
-   * ----------------------------------------------------------
-   *
-   * The Safaricom Production App shows:
-   *
-   *      Short Code = 4320242
-   *
-   * We therefore validate the application configuration
-   * against that value.
-   */
-  if (
-    MPESA_ENV === "production" &&
-    MPESA_SHORTCODE !==
-      EXPECTED_PRODUCTION_SHORTCODE
-  ) {
-    throw new Error(
-      `M-PESA production configuration error: expected Daraja application Short Code ${EXPECTED_PRODUCTION_SHORTCODE}, received ${MPESA_SHORTCODE}.`
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * ORGANIZATION SHORT CODE
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_ORGANIZATION_SHORTCODE) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_ORGANIZATION_SHORTCODE is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * PRODUCTION ORGANIZATION SHORT CODE VALIDATION
-   * ----------------------------------------------------------
-   */
-
-  if (
-    MPESA_ENV === "production" &&
-    MPESA_ORGANIZATION_SHORTCODE !==
-      EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE
-  ) {
-    throw new Error(
-      `M-PESA production configuration error: expected Organization Short Code ${EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE}, received ${MPESA_ORGANIZATION_SHORTCODE}.`
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * TILL NUMBER
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_TILL_NUMBER) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_TILL_NUMBER is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * PRODUCTION TILL VALIDATION
-   * ----------------------------------------------------------
-   */
-
-  if (
-    MPESA_ENV === "production" &&
-    MPESA_TILL_NUMBER !==
-      EXPECTED_PRODUCTION_TILL_NUMBER
-  ) {
-    throw new Error(
-      `M-PESA production configuration error: expected Till Number ${EXPECTED_PRODUCTION_TILL_NUMBER}, received ${MPESA_TILL_NUMBER}.`
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * PASSKEY
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_PASSKEY) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_PASSKEY is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * TRANSACTION TYPE
-   * ----------------------------------------------------------
-   */
-
-  if (!MPESA_TRANSACTION_TYPE) {
-    throw new Error(
-      "M-PESA configuration error: MPESA_TRANSACTION_TYPE is missing."
-    );
-  }
-
-
-  /**
-   * ----------------------------------------------------------
-   * PRODUCTION TRANSACTION TYPE VALIDATION
-   * ----------------------------------------------------------
-   */
-
-  if (
-    MPESA_ENV === "production" &&
-    MPESA_TRANSACTION_TYPE !==
-      EXPECTED_PRODUCTION_TRANSACTION_TYPE
-  ) {
-    throw new Error(
-      `M-PESA production configuration error: expected transaction type ${EXPECTED_PRODUCTION_TRANSACTION_TYPE}, received ${MPESA_TRANSACTION_TYPE}.`
-    );
-  }
-
-
-  /**
-   * ==========================================================
-   * SAFE DIAGNOSTICS
-   * ==========================================================
-   *
-   * NEVER log:
-   *
-   * - Consumer Key
-   * - Consumer Secret
-   * - Passkey
-   * - OAuth Access Token
-   * - STK Password
-   */
-
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "M-PESA CONFIGURATION VALIDATED"
-  );
-
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "Environment:",
-    MPESA_ENV
-  );
-
-  console.log(
-    "Daraja Application Short Code:",
-    MPESA_SHORTCODE
-  );
-
-  console.log(
-    "Organization Short Code:",
-    MPESA_ORGANIZATION_SHORTCODE
-  );
-
-  console.log(
-    "Till Number:",
-    MPESA_TILL_NUMBER
-  );
-
-  console.log(
-    "Transaction Type:",
-    MPESA_TRANSACTION_TYPE
-  );
-
-  console.log(
-    "Base URL:",
-    MPESA_BASE_URL
-  );
-
-  console.log(
-    "================================="
-  );
-}
+});
 ```
