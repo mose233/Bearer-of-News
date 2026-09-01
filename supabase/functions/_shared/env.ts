@@ -1,38 +1,73 @@
 /**
- * M-PESA environment configuration.
+ * ============================================================
+ * xnewsapp.com — M-PESA ENVIRONMENT CONFIGURATION
+ * ============================================================
  *
- * Production configuration for xnewsapp.com.
+ * This file contains configuration loading and validation only.
  *
  * IMPORTANT:
  *
- * All real M-PESA credentials must remain in
- * Supabase Edge Function Secrets.
+ * Real M-PESA credentials MUST remain in Supabase Edge
+ * Function Secrets.
  *
- * Required secrets:
+ * NEVER put the following values in GitHub or frontend code:
+ *
+ * - Consumer Key
+ * - Consumer Secret
+ * - Passkey
+ * - OAuth access token
+ * - STK password
+ *
+ * ------------------------------------------------------------
+ * REQUIRED SUPABASE SECRETS
+ * ------------------------------------------------------------
  *
  * MPESA_ENV=production
+ *
  * MPESA_CONSUMER_KEY=YOUR_PRODUCTION_CONSUMER_KEY
+ *
  * MPESA_CONSUMER_SECRET=YOUR_PRODUCTION_CONSUMER_SECRET
- * MPESA_SHORTCODE=4798391
+ *
+ * MPESA_SHORTCODE=4320242
+ *
  * MPESA_PASSKEY=YOUR_PRODUCTION_PASSKEY
+ *
  * MPESA_TRANSACTION_TYPE=CustomerBuyGoodsOnline
  *
- * IMPORTANT:
+ * ------------------------------------------------------------
+ * MERCHANT IDENTIFIERS DISCOVERED DURING CONFIGURATION
+ * ------------------------------------------------------------
  *
- * Safaricom has confirmed that:
+ * Daraja Production App Short Code:
  *
- * BusinessShortCode = 4798391
+ * 4320242
  *
- * This is the Till Number.
+ * M-PESA Till Number:
  *
- * Store Number:
+ * 4798391
+ *
+ * M-PESA Organization Short Code:
  *
  * 4460875
  *
- * The previous value 4320242 must NOT be used as the
- * M-PESA Express BusinessShortCode.
+ * IMPORTANT:
  *
- * Never put real credentials in GitHub or frontend code.
+ * These are NOT interchangeable.
+ *
+ * The Daraja Production App screenshot explicitly showed:
+ *
+ *     Short Code: 4320242
+ *     Product: Lipa na Mpesa Production
+ *
+ * Therefore, until Safaricom explicitly confirms otherwise,
+ * the Daraja application short code is treated as the
+ * BusinessShortCode for the production STK Push / STK Query
+ * integration.
+ *
+ * The Till Number 4798391 is retained as merchant information
+ * but is NOT automatically substituted into BusinessShortCode.
+ *
+ * ============================================================
  */
 
 /**
@@ -46,67 +81,141 @@
  * sandbox
  */
 export const MPESA_ENV =
-  Deno.env.get("MPESA_ENV")?.trim().toLowerCase() ?? "";
+  Deno.env
+    .get("MPESA_ENV")
+    ?.trim()
+    .toLowerCase() ?? "";
 
 /**
  * ============================================================
  * SAFARICOM CONSUMER KEY
  * ============================================================
+ *
+ * Loaded only from Supabase Edge Function Secrets.
  */
 export const MPESA_CONSUMER_KEY =
-  Deno.env.get("MPESA_CONSUMER_KEY")?.trim() ?? "";
+  Deno.env
+    .get("MPESA_CONSUMER_KEY")
+    ?.trim() ?? "";
 
 /**
  * ============================================================
  * SAFARICOM CONSUMER SECRET
  * ============================================================
+ *
+ * Loaded only from Supabase Edge Function Secrets.
  */
 export const MPESA_CONSUMER_SECRET =
-  Deno.env.get("MPESA_CONSUMER_SECRET")?.trim() ?? "";
+  Deno.env
+    .get("MPESA_CONSUMER_SECRET")
+    ?.trim() ?? "";
 
 /**
  * ============================================================
- * M-PESA BUSINESS SHORT CODE
+ * DARaja BUSINESS SHORT CODE
  * ============================================================
  *
- * Safaricom has confirmed:
+ * This is the value used by:
  *
- * BusinessShortCode = Till Number = 4798391
+ * - STK Push BusinessShortCode
+ * - STK Push PartyB
+ * - STK Password generation
+ * - STK Query BusinessShortCode
  *
- * The value is still read from Supabase Edge Function
- * Secrets rather than being used directly by the code.
+ * The value is loaded from Supabase Secrets.
+ *
+ * Current production value based on the Daraja Production App:
+ *
+ *     4320242
  *
  * Supabase Secret:
  *
- * MPESA_SHORTCODE=4798391
+ *     MPESA_SHORTCODE=4320242
+ *
+ * IMPORTANT:
+ *
+ * Do NOT automatically use the Till Number 4798391 here.
  */
 export const MPESA_SHORTCODE =
-  Deno.env.get("MPESA_SHORTCODE")?.trim() ?? "";
+  Deno.env
+    .get("MPESA_SHORTCODE")
+    ?.trim() ?? "";
+
+/**
+ * ============================================================
+ * M-PESA TILL NUMBER
+ * ============================================================
+ *
+ * Merchant Till Number discovered in the M-PESA Organization
+ * portal:
+ *
+ *     4798391
+ *
+ * This is informational configuration.
+ *
+ * It is deliberately separate from MPESA_SHORTCODE because
+ * the two identifiers have different meanings in the merchant
+ * configuration.
+ *
+ * Do NOT use this value automatically as BusinessShortCode.
+ */
+export const MPESA_TILL_NUMBER =
+  Deno.env
+    .get("MPESA_TILL_NUMBER")
+    ?.trim() || "4798391";
+
+/**
+ * ============================================================
+ * M-PESA ORGANIZATION SHORT CODE
+ * ============================================================
+ *
+ * Organization information discovered in the M-PESA portal:
+ *
+ *     4460875
+ *
+ * This is deliberately kept separate from:
+ *
+ *     MPESA_SHORTCODE
+ *
+ * and:
+ *
+ *     MPESA_TILL_NUMBER
+ *
+ * because these identifiers must not be confused.
+ */
+export const MPESA_ORGANIZATION_SHORTCODE =
+  Deno.env
+    .get("MPESA_ORGANIZATION_SHORTCODE")
+    ?.trim() || "4460875";
 
 /**
  * ============================================================
  * M-PESA STK PUSH PASSKEY
  * ============================================================
  *
- * The real Passkey must be stored only in
- * Supabase Edge Function Secrets.
+ * The real production Passkey MUST be stored in Supabase
+ * Edge Function Secrets.
  */
 export const MPESA_PASSKEY =
-  Deno.env.get("MPESA_PASSKEY")?.trim() ?? "";
+  Deno.env
+    .get("MPESA_PASSKEY")
+    ?.trim() ?? "";
 
 /**
  * ============================================================
  * M-PESA TRANSACTION TYPE
  * ============================================================
  *
- * Current xnewsapp.com configuration:
+ * Current production configuration:
  *
- * CustomerBuyGoodsOnline
+ *     CustomerBuyGoodsOnline
  *
  * This remains configurable through Supabase Secrets.
  */
 export const MPESA_TRANSACTION_TYPE =
-  Deno.env.get("MPESA_TRANSACTION_TYPE")?.trim() ||
+  Deno.env
+    .get("MPESA_TRANSACTION_TYPE")
+    ?.trim() ||
   "CustomerBuyGoodsOnline";
 
 /**
@@ -123,33 +232,47 @@ export const MPESA_BASE_URL =
 
 /**
  * ============================================================
- * EXPECTED PRODUCTION BUSINESS SHORT CODE
+ * EXPECTED PRODUCTION DARaja BUSINESS SHORT CODE
  * ============================================================
  *
- * Safaricom has confirmed that the Till Number:
+ * Evidence from the Daraja Production App:
  *
- * 4798391
+ *     Short Code = 4320242
  *
- * is the BusinessShortCode for the M-PESA Express
- * production integration.
- *
- * IMPORTANT:
- *
- * 4320242 is NOT used here.
- *
- * Safaricom has confirmed that 4320242 is associated
- * with channeling payments to the bank.
+ * This is the value currently associated with the
+ * xnewsapp.com production Daraja application.
  */
-const EXPECTED_PRODUCTION_SHORTCODE = "4798391";
+const EXPECTED_PRODUCTION_SHORTCODE =
+  "4320242";
+
+/**
+ * ============================================================
+ * EXPECTED PRODUCTION TILL NUMBER
+ * ============================================================
+ *
+ * M-PESA Organization portal:
+ *
+ *     Till Number = 4798391
+ */
+const EXPECTED_PRODUCTION_TILL_NUMBER =
+  "4798391";
+
+/**
+ * ============================================================
+ * EXPECTED PRODUCTION ORGANIZATION SHORT CODE
+ * ============================================================
+ *
+ * M-PESA Organization portal:
+ *
+ *     Organization Short Code = 4460875
+ */
+const EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE =
+  "4460875";
 
 /**
  * ============================================================
  * EXPECTED PRODUCTION TRANSACTION TYPE
  * ============================================================
- *
- * Current xnewsapp.com configuration:
- *
- * CustomerBuyGoodsOnline
  */
 const EXPECTED_PRODUCTION_TRANSACTION_TYPE =
   "CustomerBuyGoodsOnline";
@@ -159,12 +282,11 @@ const EXPECTED_PRODUCTION_TRANSACTION_TYPE =
  * VALIDATE M-PESA CONFIGURATION
  * ============================================================
  *
- * This function must be called before making Safaricom
- * API requests.
+ * Called before making Safaricom API requests.
  *
  * IMPORTANT:
  *
- * No credentials are logged.
+ * No secret credentials are logged.
  */
 export function validateMpesaConfig(): void {
   /**
@@ -238,23 +360,31 @@ export function validateMpesaConfig(): void {
 
   /**
    * ----------------------------------------------------------
-   * PRODUCTION BUSINESS SHORT CODE VALIDATION
+   * PRODUCTION BUSINESS SHORT CODE
    * ----------------------------------------------------------
    *
-   * Safaricom has confirmed:
+   * The Daraja Production App screenshot showed:
    *
-   * BusinessShortCode = 4798391
+   *     Short Code = 4320242
    *
-   * This prevents the old 4320242 value from accidentally
-   * being used for M-PESA Express in production.
+   * Therefore production configuration must use:
+   *
+   *     MPESA_SHORTCODE=4320242
+   *
+   * This validation prevents accidentally using:
+   *
+   *     4798391
+   *
+   * as the Daraja BusinessShortCode.
    */
 
   if (
     MPESA_ENV === "production" &&
-    MPESA_SHORTCODE !== EXPECTED_PRODUCTION_SHORTCODE
+    MPESA_SHORTCODE !==
+      EXPECTED_PRODUCTION_SHORTCODE
   ) {
     throw new Error(
-      `M-PESA production configuration error: expected Business Short Code ${EXPECTED_PRODUCTION_SHORTCODE}, received ${MPESA_SHORTCODE}.`
+      `M-PESA production configuration error: Daraja Production App expects Business Short Code ${EXPECTED_PRODUCTION_SHORTCODE}, received ${MPESA_SHORTCODE}.`
     );
   }
 
@@ -300,12 +430,42 @@ export function validateMpesaConfig(): void {
 
   /**
    * ----------------------------------------------------------
-   * SAFE DIAGNOSTICS
+   * MERCHANT CONFIGURATION VALIDATION
    * ----------------------------------------------------------
+   *
+   * These are informational merchant identifiers.
+   *
+   * They are intentionally NOT used as substitutes for
+   * MPESA_SHORTCODE.
+   */
+
+  if (
+    MPESA_ENV === "production" &&
+    MPESA_TILL_NUMBER !==
+      EXPECTED_PRODUCTION_TILL_NUMBER
+  ) {
+    throw new Error(
+      `M-PESA production configuration error: expected Till Number ${EXPECTED_PRODUCTION_TILL_NUMBER}, received ${MPESA_TILL_NUMBER}.`
+    );
+  }
+
+  if (
+    MPESA_ENV === "production" &&
+    MPESA_ORGANIZATION_SHORTCODE !==
+      EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE
+  ) {
+    throw new Error(
+      `M-PESA production configuration error: expected Organization Short Code ${EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE}, received ${MPESA_ORGANIZATION_SHORTCODE}.`
+    );
+  }
+
+  /**
+   * ==========================================================
+   * SAFE DIAGNOSTICS
+   * ==========================================================
    *
    * NEVER log:
    *
-   * - Consumer Key
    * - Consumer Secret
    * - Passkey
    * - OAuth access token
@@ -330,8 +490,18 @@ export function validateMpesaConfig(): void {
   );
 
   console.log(
-    "Business Short Code:",
+    "Daraja Business Short Code:",
     MPESA_SHORTCODE
+  );
+
+  console.log(
+    "M-PESA Till Number:",
+    MPESA_TILL_NUMBER
+  );
+
+  console.log(
+    "M-PESA Organization Short Code:",
+    MPESA_ORGANIZATION_SHORTCODE
   );
 
   console.log(
