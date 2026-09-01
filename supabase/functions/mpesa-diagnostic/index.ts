@@ -3,7 +3,6 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import {
   MPESA_BASE_URL,
   MPESA_SHORTCODE,
-  MPESA_PASSKEY,
   MPESA_TRANSACTION_TYPE,
   validateMpesaConfig,
 } from "../_shared/env.ts";
@@ -26,18 +25,13 @@ const CALLBACK_URL =
  *
  * PURPOSE:
  *
- * Test the following production STK Push configuration:
+ * Test the production STK Push configuration currently
+ * configured for xnewsapp.com.
  *
- * BusinessShortCode = 4320242
+ * BusinessShortCode = 4798391
  * PartyB            = 4798391
  *
- * According to the Safaricom business information supplied
- * for xnewsapp.com:
- *
  * Store Number = 4460875
- * Till Number   = 4798391
- *
- * IMPORTANT:
  *
  * This function is temporary.
  *
@@ -45,10 +39,8 @@ const CALLBACK_URL =
  * It does NOT replace mpesa-status.
  * It does NOT perform STK Query.
  *
- * It ONLY allows us to test whether Safaricom accepts:
- *
- * BusinessShortCode = 4320242
- * PartyB            = 4798391
+ * It ONLY tests whether Safaricom accepts the STK Push
+ * request using the configured merchant shortcode.
  *
  * Never log:
  *
@@ -64,604 +56,652 @@ interface DiagnosticRequest {
   amount?: number;
 }
 
-serve(async (req: Request): Promise<Response> => {
-  try {
-    /**
-     * ==========================================================
-     * CORS
-     * ==========================================================
-     */
+/**
+ * ============================================================
+ * JSON RESPONSE HELPER
+ * ============================================================
+ */
+function jsonResponse(
+  body: unknown,
+  status = 200
+): Response {
+  return new Response(
+    JSON.stringify(
+      body,
+      null,
+      2
+    ),
+    {
+      status,
+      headers: {
+        "Content-Type":
+          "application/json",
 
-    if (req.method === "OPTIONS") {
-      return new Response(
-        JSON.stringify({ success: true }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":
-              "authorization, x-client-info, apikey, content-type",
-            "Access-Control-Allow-Methods":
-              "POST, OPTIONS",
-          },
-        }
-      );
+        "Access-Control-Allow-Origin":
+          "*",
+
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type",
+
+        "Access-Control-Allow-Methods":
+          "POST, OPTIONS",
+      },
     }
+  );
+}
 
-    /**
-     * ==========================================================
-     * ONLY POST
-     * ==========================================================
-     */
-
-    if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Method Not Allowed.",
-        }),
-        {
-          status: 405,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    /**
-     * ==========================================================
-     * VALIDATE CONFIGURATION
-     * ==========================================================
-     */
-
-    validateMpesaConfig();
-
-    /**
-     * ==========================================================
-     * READ REQUEST
-     * ==========================================================
-     */
-
-    let body: DiagnosticRequest;
-
+/**
+ * ============================================================
+ * M-PESA DIAGNOSTIC
+ * ============================================================
+ */
+serve(
+  async (
+    req: Request
+  ): Promise<Response> => {
     try {
-      body = await req.json();
-    } catch {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Invalid JSON body.",
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    const phoneNumber =
-      body.phoneNumber?.trim();
-
-    const requestedAmount =
-      body.amount;
-
-    /**
-     * ==========================================================
-     * VALIDATE PHONE
-     * ==========================================================
-     */
-
-    if (!phoneNumber) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "phoneNumber is required.",
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    /**
-     * ==========================================================
-     * VALIDATE AMOUNT
-     * ==========================================================
-     *
-     * For safety, require an explicit amount.
-     */
-
-    if (
-      typeof requestedAmount !== "number" ||
-      !Number.isFinite(requestedAmount) ||
-      requestedAmount <= 0
-    ) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error:
-            "amount must be a positive number.",
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    /**
-     * M-PESA requires a whole KES amount.
-     */
-
-    const amount =
-      Math.max(
-        1,
-        Math.round(requestedAmount)
-      );
-
-    /**
-     * ==========================================================
-     * NORMALIZE PHONE
-     * ==========================================================
-     */
-
-    const customerPhone =
-      normalizePhoneNumber(phoneNumber);
-
-    /**
-     * ==========================================================
-     * TEST CONFIGURATION
-     * ==========================================================
-     *
-     * IMPORTANT:
-     *
-     * We intentionally keep BusinessShortCode as the
-     * STK Push credential:
-     *
-     *     4320242
-     *
-     * But we explicitly test the customer-facing Till:
-     *
-     *     4798391
-     *
-     * as PartyB.
-     */
-
-    const testBusinessShortCode =
-      MPESA_SHORTCODE;
-
-    const testTillNumber =
-      "4798391";
-
-    const testStoreNumber =
-      "4460875";
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
-      "M-PESA DIAGNOSTIC TEST"
-    );
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
-      "Environment:",
-      Deno.env.get("MPESA_ENV") ?? "unknown"
-    );
-
-    console.log(
-      "BusinessShortCode:",
-      testBusinessShortCode
-    );
-
-    console.log(
-      "PartyB / Till:",
-      testTillNumber
-    );
-
-    console.log(
-      "Store Number:",
-      testStoreNumber
-    );
-
-    console.log(
-      "TransactionType:",
-      MPESA_TRANSACTION_TYPE
-    );
-
-    console.log(
-      "Phone:",
-      customerPhone
-    );
-
-    console.log(
-      "Amount:",
-      amount
-    );
-
-    console.log(
-      "Callback URL:",
-      CALLBACK_URL
-    );
-
-    console.log(
-      "================================="
-    );
-
-    /**
-     * ==========================================================
-     * GENERATE TIMESTAMP
-     * ==========================================================
-     */
-
-    const timestamp =
-      generateTimestamp();
-
-    /**
-     * ==========================================================
-     * GENERATE PASSWORD
-     * ==========================================================
-     *
-     * IMPORTANT:
-     *
-     * We deliberately do not log this.
-     */
-
-    const password =
-      generatePassword(timestamp);
-
-    /**
-     * ==========================================================
-     * GET ACCESS TOKEN
-     * ==========================================================
-     */
-
-    const accessToken =
-      await getAccessToken();
-
-    /**
-     * ==========================================================
-     * BUILD TEST PAYLOAD
-     * ==========================================================
-     */
-
-    const payload = {
-      BusinessShortCode:
-        testBusinessShortCode,
-
-      Password:
-        password,
-
-      Timestamp:
-        timestamp,
-
-      TransactionType:
-        MPESA_TRANSACTION_TYPE,
-
-      Amount:
-        amount,
-
-      PartyA:
-        customerPhone,
-
       /**
-       * IMPORTANT TEST:
-       *
-       * PartyB is deliberately set to the
-       * Safaricom-confirmed Till Number.
+       * ========================================================
+       * CORS
+       * ========================================================
        */
-      PartyB:
-        testTillNumber,
 
-      PhoneNumber:
-        customerPhone,
-
-      CallBackURL:
-        CALLBACK_URL,
-
-      AccountReference:
-        "xnewsapp-test",
-
-      TransactionDesc:
-        "xnewsapp diagnostic test",
-    };
-
-    /**
-     * ==========================================================
-     * SAFARICOM STK PUSH ENDPOINT
-     * ==========================================================
-     */
-
-    const url =
-      `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`;
-
-    console.log(
-      "Sending diagnostic STK Push..."
-    );
-
-    console.log(
-      "Endpoint:",
-      url
-    );
-
-    /**
-     * ==========================================================
-     * SEND REQUEST
-     * ==========================================================
-     */
-
-    let response: Response;
-
-    try {
-      response =
-        await fetch(
-          url,
+      if (
+        req.method === "OPTIONS"
+      ) {
+        return jsonResponse(
           {
-            method: "POST",
-
-            headers: {
-              Authorization:
-                `Bearer ${accessToken}`,
-
-              "Content-Type":
-                "application/json",
-
-              Accept:
-                "application/json",
-            },
-
-            body:
-              JSON.stringify(payload),
+            success: true,
           }
         );
-    } catch (error) {
-      console.error(
-        "M-PESA DIAGNOSTIC NETWORK ERROR:",
-        error
+      }
+
+      /**
+       * ========================================================
+       * ONLY POST
+       * ========================================================
+       */
+
+      if (
+        req.method !== "POST"
+      ) {
+        return jsonResponse(
+          {
+            success: false,
+            error:
+              "Method Not Allowed.",
+          },
+          405
+        );
+      }
+
+      /**
+       * ========================================================
+       * VALIDATE CONFIGURATION
+       * ========================================================
+       */
+
+      validateMpesaConfig();
+
+      /**
+       * ========================================================
+       * READ REQUEST
+       * ========================================================
+       */
+
+      let body: DiagnosticRequest;
+
+      try {
+        body =
+          await req.json();
+      } catch {
+        return jsonResponse(
+          {
+            success: false,
+            error:
+              "Invalid JSON body.",
+          },
+          400
+        );
+      }
+
+      const phoneNumber =
+        body.phoneNumber?.trim();
+
+      const requestedAmount =
+        body.amount;
+
+      /**
+       * ========================================================
+       * VALIDATE PHONE
+       * ========================================================
+       */
+
+      if (!phoneNumber) {
+        return jsonResponse(
+          {
+            success: false,
+            error:
+              "phoneNumber is required.",
+          },
+          400
+        );
+      }
+
+      /**
+       * ========================================================
+       * VALIDATE AMOUNT
+       * ========================================================
+       *
+       * For safety, require an explicit amount.
+       */
+
+      if (
+        typeof requestedAmount !==
+          "number" ||
+        !Number.isFinite(
+          requestedAmount
+        ) ||
+        requestedAmount <= 0
+      ) {
+        return jsonResponse(
+          {
+            success: false,
+            error:
+              "amount must be a positive number.",
+          },
+          400
+        );
+      }
+
+      /**
+       * ========================================================
+       * NORMALIZE M-PESA AMOUNT
+       * ========================================================
+       *
+       * M-PESA requires a whole KES amount.
+       */
+
+      const amount =
+        Math.max(
+          1,
+          Math.round(
+            requestedAmount
+          )
+        );
+
+      /**
+       * ========================================================
+       * NORMALIZE CUSTOMER PHONE
+       * ========================================================
+       */
+
+      const customerPhone =
+        normalizePhoneNumber(
+          phoneNumber
+        );
+
+      /**
+       * ========================================================
+       * MERCHANT CONFIGURATION
+       * ========================================================
+       *
+       * There is one source of truth:
+       *
+       * MPESA_SHORTCODE
+       *
+       * In production this must be:
+       *
+       * 4798391
+       *
+       * Therefore:
+       *
+       * BusinessShortCode = 4798391
+       * PartyB            = 4798391
+       */
+
+      const testBusinessShortCode =
+        MPESA_SHORTCODE;
+
+      const testTillNumber =
+        MPESA_SHORTCODE;
+
+      const testStoreNumber =
+        "4460875";
+
+      /**
+       * ========================================================
+       * SAFE DIAGNOSTIC LOGGING
+       * ========================================================
+       */
+
+      console.log(
+        "================================="
       );
 
-      return new Response(
-        JSON.stringify({
-          success: false,
-          test: {
-            businessShortCode:
-              testBusinessShortCode,
-
-            partyB:
-              testTillNumber,
-
-            storeNumber:
-              testStoreNumber,
-          },
-
-          error:
-            "Unable to connect to Safaricom.",
-        }),
-        {
-          status: 502,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    /**
-     * ==========================================================
-     * READ RESPONSE
-     * ==========================================================
-     */
-
-    const responseText =
-      await response.text();
-
-    console.log(
-      "Safaricom HTTP Status:",
-      response.status
-    );
-
-    /**
-     * ==========================================================
-     * EMPTY RESPONSE
-     * ==========================================================
-     */
-
-    if (!responseText.trim()) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-
-          test: {
-            businessShortCode:
-              testBusinessShortCode,
-
-            partyB:
-              testTillNumber,
-
-            storeNumber:
-              testStoreNumber,
-          },
-
-          httpStatus:
-            response.status,
-
-          error:
-            "Safaricom returned an empty response.",
-        }),
-        {
-          status: 502,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    /**
-     * ==========================================================
-     * PARSE RESPONSE
-     * ==========================================================
-     */
-
-    let data: Record<string, unknown>;
-
-    try {
-      data =
-        JSON.parse(responseText);
-    } catch {
-      console.error(
-        "Safaricom returned invalid JSON."
+      console.log(
+        "M-PESA DIAGNOSTIC TEST"
       );
 
-      return new Response(
-        JSON.stringify({
-          success: false,
-
-          test: {
-            businessShortCode:
-              testBusinessShortCode,
-
-            partyB:
-              testTillNumber,
-
-            storeNumber:
-              testStoreNumber,
-          },
-
-          httpStatus:
-            response.status,
-
-          error:
-            "Safaricom returned invalid JSON.",
-        }),
-        {
-          status: 502,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
+      console.log(
+        "================================="
       );
-    }
 
-    /**
-     * ==========================================================
-     * SAFE RESPONSE EXTRACTION
-     * ==========================================================
-     */
+      console.log(
+        "Environment:",
+        Deno.env.get(
+          "MPESA_ENV"
+        ) ?? "unknown"
+      );
 
-    const responseCode =
-      data.ResponseCode === undefined ||
-      data.ResponseCode === null
-        ? ""
-        : String(data.ResponseCode);
+      console.log(
+        "BusinessShortCode:",
+        testBusinessShortCode
+      );
 
-    const responseDescription =
-      typeof data.ResponseDescription ===
-      "string"
-        ? data.ResponseDescription
-        : "";
+      console.log(
+        "PartyB / Till:",
+        testTillNumber
+      );
 
-    const merchantRequestID =
-      typeof data.MerchantRequestID ===
-      "string"
-        ? data.MerchantRequestID
-        : null;
+      console.log(
+        "Store Number:",
+        testStoreNumber
+      );
 
-    const checkoutRequestID =
-      typeof data.CheckoutRequestID ===
-      "string"
-        ? data.CheckoutRequestID
-        : null;
+      console.log(
+        "TransactionType:",
+        MPESA_TRANSACTION_TYPE
+      );
 
-    const customerMessage =
-      typeof data.CustomerMessage ===
-      "string"
-        ? data.CustomerMessage
-        : "";
+      console.log(
+        "Phone:",
+        customerPhone
+      );
 
-    /**
-     * ==========================================================
-     * SAFE LOGGING
-     * ==========================================================
-     *
-     * We never log the original request payload because
-     * it contains the generated STK password.
-     */
+      console.log(
+        "Amount:",
+        amount
+      );
 
-    console.log(
-      "================================="
-    );
+      console.log(
+        "Callback URL:",
+        CALLBACK_URL
+      );
 
-    console.log(
-      "M-PESA DIAGNOSTIC RESPONSE"
-    );
+      console.log(
+        "================================="
+      );
 
-    console.log(
-      "================================="
-    );
+      /**
+       * ========================================================
+       * GENERATE TIMESTAMP
+       * ========================================================
+       */
 
-    console.log(
-      "HTTP Status:",
-      response.status
-    );
+      const timestamp =
+        generateTimestamp();
 
-    console.log(
-      "ResponseCode:",
-      responseCode
-    );
+      /**
+       * ========================================================
+       * GENERATE PASSWORD
+       * ========================================================
+       *
+       * We deliberately do not log this.
+       */
 
-    console.log(
-      "ResponseDescription:",
-      responseDescription
-    );
+      const password =
+        generatePassword(
+          timestamp
+        );
 
-    console.log(
-      "MerchantRequestID:",
-      merchantRequestID
-    );
+      /**
+       * ========================================================
+       * GET ACCESS TOKEN
+       * ========================================================
+       */
 
-    console.log(
-      "CheckoutRequestID:",
-      checkoutRequestID
-    );
+      const accessToken =
+        await getAccessToken();
 
-    console.log(
-      "CustomerMessage:",
-      customerMessage
-    );
+      /**
+       * ========================================================
+       * BUILD TEST PAYLOAD
+       * ========================================================
+       *
+       * Fresh production test:
+       *
+       * BusinessShortCode = 4798391
+       * PartyB            = 4798391
+       */
 
-    console.log(
-      "================================="
-    );
+      const payload = {
+        BusinessShortCode:
+          testBusinessShortCode,
 
-    /**
-     * ==========================================================
-     * RETURN DIAGNOSTIC RESULT
-     * ==========================================================
-     */
+        Password:
+          password,
 
-    return new Response(
-      JSON.stringify(
+        Timestamp:
+          timestamp,
+
+        TransactionType:
+          MPESA_TRANSACTION_TYPE,
+
+        Amount:
+          amount,
+
+        PartyA:
+          customerPhone,
+
+        PartyB:
+          testTillNumber,
+
+        PhoneNumber:
+          customerPhone,
+
+        CallBackURL:
+          CALLBACK_URL,
+
+        AccountReference:
+          "xnewsapp-test",
+
+        TransactionDesc:
+          "xnewsapp diagnostic test",
+      };
+
+      /**
+       * ========================================================
+       * SAFARICOM STK PUSH ENDPOINT
+       * ========================================================
+       */
+
+      const url =
+        `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`;
+
+      console.log(
+        "Sending diagnostic STK Push..."
+      );
+
+      console.log(
+        "Endpoint:",
+        url
+      );
+
+      /**
+       * ========================================================
+       * SEND REQUEST TO SAFARICOM
+       * ========================================================
+       */
+
+      let response: Response;
+
+      try {
+        response =
+          await fetch(
+            url,
+            {
+              method: "POST",
+
+              headers: {
+                Authorization:
+                  `Bearer ${accessToken}`,
+
+                "Content-Type":
+                  "application/json",
+
+                Accept:
+                  "application/json",
+              },
+
+              /**
+               * NEVER log this payload.
+               *
+               * It contains the generated
+               * STK password.
+               */
+              body:
+                JSON.stringify(
+                  payload
+                ),
+            }
+          );
+      } catch (error) {
+        console.error(
+          "M-PESA DIAGNOSTIC NETWORK ERROR:",
+          error
+        );
+
+        return jsonResponse(
+          {
+            success: false,
+
+            test: {
+              businessShortCode:
+                testBusinessShortCode,
+
+              partyB:
+                testTillNumber,
+
+              storeNumber:
+                testStoreNumber,
+
+              transactionType:
+                MPESA_TRANSACTION_TYPE,
+            },
+
+            error:
+              "Unable to connect to Safaricom.",
+          },
+          502
+        );
+      }
+
+      /**
+       * ========================================================
+       * READ SAFARICOM RESPONSE
+       * ========================================================
+       */
+
+      const responseText =
+        await response.text();
+
+      console.log(
+        "Safaricom HTTP Status:",
+        response.status
+      );
+
+      /**
+       * ========================================================
+       * EMPTY RESPONSE
+       * ========================================================
+       */
+
+      if (
+        !responseText.trim()
+      ) {
+        console.error(
+          "Safaricom returned an empty response."
+        );
+
+        return jsonResponse(
+          {
+            success: false,
+
+            test: {
+              businessShortCode:
+                testBusinessShortCode,
+
+              partyB:
+                testTillNumber,
+
+              storeNumber:
+                testStoreNumber,
+
+              transactionType:
+                MPESA_TRANSACTION_TYPE,
+            },
+
+            httpStatus:
+              response.status,
+
+            error:
+              "Safaricom returned an empty response.",
+          },
+          502
+        );
+      }
+
+      /**
+       * ========================================================
+       * PARSE RESPONSE
+       * ========================================================
+       */
+
+      let data: Record<
+        string,
+        unknown
+      >;
+
+      try {
+        data =
+          JSON.parse(
+            responseText
+          );
+      } catch {
+        console.error(
+          "Safaricom returned invalid JSON."
+        );
+
+        return jsonResponse(
+          {
+            success: false,
+
+            test: {
+              businessShortCode:
+                testBusinessShortCode,
+
+              partyB:
+                testTillNumber,
+
+              storeNumber:
+                testStoreNumber,
+
+              transactionType:
+                MPESA_TRANSACTION_TYPE,
+            },
+
+            httpStatus:
+              response.status,
+
+            error:
+              "Safaricom returned invalid JSON.",
+          },
+          502
+        );
+      }
+
+      /**
+       * ========================================================
+       * SAFE RESPONSE EXTRACTION
+       * ========================================================
+       */
+
+      const responseCode =
+        data.ResponseCode ===
+          undefined ||
+        data.ResponseCode ===
+          null
+          ? ""
+          : String(
+              data.ResponseCode
+            );
+
+      const responseDescription =
+        typeof data.ResponseDescription ===
+        "string"
+          ? data.ResponseDescription
+          : "";
+
+      const merchantRequestID =
+        typeof data.MerchantRequestID ===
+        "string"
+          ? data.MerchantRequestID
+          : null;
+
+      const checkoutRequestID =
+        typeof data.CheckoutRequestID ===
+        "string"
+          ? data.CheckoutRequestID
+          : null;
+
+      const customerMessage =
+        typeof data.CustomerMessage ===
+        "string"
+          ? data.CustomerMessage
+          : "";
+
+      /**
+       * ========================================================
+       * SAFE RESPONSE LOGGING
+       * ========================================================
+       *
+       * We never log the original request payload.
+       */
+
+      console.log(
+        "================================="
+      );
+
+      console.log(
+        "M-PESA DIAGNOSTIC RESPONSE"
+      );
+
+      console.log(
+        "================================="
+      );
+
+      console.log(
+        "HTTP Status:",
+        response.status
+      );
+
+      console.log(
+        "ResponseCode:",
+        responseCode
+      );
+
+      console.log(
+        "ResponseDescription:",
+        responseDescription
+      );
+
+      console.log(
+        "MerchantRequestID:",
+        merchantRequestID
+      );
+
+      console.log(
+        "CheckoutRequestID:",
+        checkoutRequestID
+      );
+
+      console.log(
+        "CustomerMessage:",
+        customerMessage
+      );
+
+      console.log(
+        "================================="
+      );
+
+      /**
+       * ========================================================
+       * RETURN DIAGNOSTIC RESULT
+       * ========================================================
+       */
+
+      return jsonResponse(
         {
           success:
             response.ok &&
@@ -696,61 +736,45 @@ serve(async (req: Request): Promise<Response> => {
             customerMessage,
           },
         },
-        null,
-        2
-      ),
-      {
-        status:
-          response.ok
-            ? 200
-            : 502,
+        response.ok
+          ? 200
+          : response.status
+      );
 
-        headers: {
-          "Content-Type":
-            "application/json",
+    } catch (error) {
+      /**
+       * ========================================================
+       * UNEXPECTED ERROR
+       * ========================================================
+       */
 
-          "Access-Control-Allow-Origin":
-            "*",
+      console.error(
+        "================================="
+      );
+
+      console.error(
+        "M-PESA DIAGNOSTIC ERROR"
+      );
+
+      console.error(
+        error
+      );
+
+      console.error(
+        "================================="
+      );
+
+      return jsonResponse(
+        {
+          success: false,
+
+          error:
+            error instanceof Error
+              ? error.message
+              : "Internal server error.",
         },
-      }
-    );
-
-  } catch (error) {
-    console.error(
-      "================================="
-    );
-
-    console.error(
-      "M-PESA DIAGNOSTIC UNEXPECTED ERROR"
-    );
-
-    console.error(
-      error
-    );
-
-    console.error(
-      "================================="
-    );
-
-    return new Response(
-      JSON.stringify({
-        success: false,
-
-        error:
-          error instanceof Error
-            ? error.message
-            : "Internal server error.",
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          "Access-Control-Allow-Origin":
-            "*",
-        },
-      }
-    );
+        500
+      );
+    }
   }
-});
+);
