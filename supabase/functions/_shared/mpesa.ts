@@ -47,15 +47,13 @@ interface MpesaAccessTokenResponse {
 /**
  * Obtain a Safaricom M-PESA OAuth access token.
  *
- * Production endpoint:
- *
+ * Production:
  * https://api.safaricom.co.ke/oauth/v1/generate
  *
- * Sandbox endpoint:
- *
+ * Sandbox:
  * https://sandbox.safaricom.co.ke/oauth/v1/generate
  *
- * The endpoint is selected by MPESA_ENV in env.ts.
+ * The base URL is selected by env.ts.
  *
  * NEVER log:
  *
@@ -69,17 +67,6 @@ export async function getAccessToken(): Promise<string> {
    * ============================================================
    * VALIDATE M-PESA CONFIGURATION
    * ============================================================
-   *
-   * This also validates:
-   *
-   * - MPESA_ENV
-   * - MPESA_CONSUMER_KEY
-   * - MPESA_CONSUMER_SECRET
-   * - MPESA_SHORTCODE
-   * - MPESA_PASSKEY
-   * - MPESA_TRANSACTION_TYPE
-   *
-   * The actual configuration rules live in env.ts.
    */
 
   validateMpesaConfig();
@@ -88,9 +75,6 @@ export async function getAccessToken(): Promise<string> {
    * ============================================================
    * EXTRA OAUTH VALIDATION
    * ============================================================
-   *
-   * These checks are kept here as an additional safeguard
-   * because this function cannot work without them.
    */
 
   if (!MPESA_CONSUMER_KEY) {
@@ -133,11 +117,8 @@ export async function getAccessToken(): Promise<string> {
    *
    * Safaricom OAuth expects:
    *
-   * Authorization: Basic Base64(
-   *   ConsumerKey + ":" + ConsumerSecret
-   * )
-   *
-   * IMPORTANT:
+   * Authorization:
+   * Basic Base64(ConsumerKey:ConsumerSecret)
    *
    * The encoded credentials are sensitive.
    * They are never logged.
@@ -151,8 +132,6 @@ export async function getAccessToken(): Promise<string> {
    * ============================================================
    * SAFE DIAGNOSTICS
    * ============================================================
-   *
-   * These logs intentionally contain no secrets.
    */
 
   console.log(
@@ -178,11 +157,6 @@ export async function getAccessToken(): Promise<string> {
   );
 
   console.log(
-    "Endpoint:",
-    url
-  );
-
-  console.log(
     "OAuth grant type:",
     "client_credentials"
   );
@@ -195,7 +169,16 @@ export async function getAccessToken(): Promise<string> {
    * ============================================================
    * REQUEST ACCESS TOKEN
    * ============================================================
+   *
+   * Use a timeout so a stalled Safaricom connection
+   * cannot leave the Edge Function hanging indefinitely.
    */
+
+  const controller = new AbortController();
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 15_000);
 
   let response: Response;
 
@@ -212,9 +195,25 @@ export async function getAccessToken(): Promise<string> {
           Accept:
             "application/json",
         },
+
+        signal:
+          controller.signal,
       }
     );
   } catch (error) {
+    if (
+      error instanceof DOMException &&
+      error.name === "AbortError"
+    ) {
+      console.error(
+        "M-PESA ACCESS TOKEN TIMEOUT"
+      );
+
+      throw new Error(
+        "Safaricom OAuth request timed out."
+      );
+    }
+
     console.error(
       "================================="
     );
@@ -224,7 +223,7 @@ export async function getAccessToken(): Promise<string> {
     );
 
     console.error(
-      error
+      "Unable to connect to Safaricom OAuth service."
     );
 
     console.error(
@@ -234,6 +233,8 @@ export async function getAccessToken(): Promise<string> {
     throw new Error(
       "Unable to connect to Safaricom OAuth service."
     );
+  } finally {
+    clearTimeout(timeout);
   }
 
   /**
@@ -291,16 +292,6 @@ export async function getAccessToken(): Promise<string> {
     data =
       JSON.parse(text);
   } catch {
-    /**
-     * IMPORTANT:
-     *
-     * Do not print the raw response.
-     *
-     * Although OAuth normally returns JSON,
-     * we should not risk exposing unexpected
-     * sensitive information in production logs.
-     */
-
     console.error(
       "================================="
     );
@@ -367,8 +358,10 @@ export async function getAccessToken(): Promise<string> {
       JSON.stringify({
         error:
           data.error,
+
         error_description:
           data.error_description,
+
         errorCode:
           data.errorCode,
       })
