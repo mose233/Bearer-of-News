@@ -145,7 +145,24 @@ serve(async (req: Request): Promise<Response> => {
       await querySTKStatus(
         checkoutRequestID
       );
-
+     console.log("========== M-PESA RAW QUERY RESULT ==========");
+console.log(
+  JSON.stringify(
+    {
+      ResponseCode: result?.ResponseCode ?? null,
+      ResponseDescription: result?.ResponseDescription ?? null,
+      MerchantRequestID: result?.MerchantRequestID ?? null,
+      CheckoutRequestID: result?.CheckoutRequestID ?? null,
+      ResultCode: result?.ResultCode ?? null,
+      ResultDesc: result?.ResultDesc ?? null,
+      CustomerMessage: result?.CustomerMessage ?? null,
+      ResultParameters: result?.ResultParameters ?? null,
+    },
+    null,
+    2
+  )
+);
+console.log("========== END M-PESA RAW QUERY RESULT ==========");
     /**
      * ========================================================
      * SAFE RAW SAFARICOM RESPONSE
