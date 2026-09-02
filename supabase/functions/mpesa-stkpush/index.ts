@@ -2,7 +2,6 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 import {
   MPESA_BASE_URL,
-  MPESA_ORGANIZATION_SHORTCODE,
   MPESA_SHORTCODE,
   MPESA_TILL_NUMBER,
   MPESA_TRANSACTION_TYPE,
@@ -176,7 +175,7 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(
       "BusinessShortCode:",
-      MPESA_ORGANIZATION_SHORTCODE
+      MPESA_SHORTCODE
     );
 
     console.log(
@@ -229,10 +228,7 @@ serve(async (req: Request): Promise<Response> => {
      * Never log this password.
      */
     const password =
-      generatePassword(
-        timestamp,
-        MPESA_ORGANIZATION_SHORTCODE
-      );
+      generatePassword(timestamp);
 
     /**
      * ==========================================================
@@ -258,11 +254,11 @@ serve(async (req: Request): Promise<Response> => {
      * customer's phone
      *
      * PartyB =
-     * merchant shortcode
+     * merchant Till Number (4798391)
      */
     const stkPayload = {
       BusinessShortCode:
-        MPESA_ORGANIZATION_SHORTCODE,
+        MPESA_SHORTCODE,
 
       Password:
         password,
