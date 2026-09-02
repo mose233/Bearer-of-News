@@ -263,7 +263,12 @@ serve(async (req: Request): Promise<Response> => {
       typeof result?.ResultDesc === "string"
         ? result.ResultDesc.trim()
         : "";
+       const normalizedDescription = resultDescription.toLowerCase();
 
+const isStillProcessing =
+  normalizedDescription.includes("still under processing") ||
+  normalizedDescription.includes("under processing") ||
+  normalizedDescription.includes("processing");
     console.log(
       "M-PESA verification result:",
       JSON.stringify({
@@ -280,7 +285,21 @@ serve(async (req: Request): Promise<Response> => {
      *
      * ONLY ResultCode "0" means payment succeeded.
      */
+       if (isStillProcessing) {
+  console.log(
+    "M-PESA PAYMENT STILL PROCESSING:",
+    checkoutRequestID,
+  );
 
+  return jsonResponse({
+    paid: false,
+    pending: true,
+    cancelled: false,
+    failed: false,
+    message: "M-PESA payment is still being processed.",
+    resultCode,
+  });
+}
     if (resultCode === RESULT_SUCCESS) {
       console.log(
         "M-PESA PAYMENT VERIFIED SUCCESSFULLY:",
