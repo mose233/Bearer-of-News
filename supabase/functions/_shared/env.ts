@@ -1,4 +1,3 @@
-```typescript
 /**
  * ============================================================
  * M-PESA ENVIRONMENT CONFIGURATION
@@ -22,97 +21,23 @@
  * in GitHub, frontend code, or client-side configuration.
  *
  * ============================================================
- *
- * CURRENT SAFARICOM MERCHANT IDENTIFIERS
+ * CONFIRMED MERCHANT IDENTIFIERS
  * ============================================================
  *
- * We have confirmed three different identifiers:
- *
- * 1. DARaja Production App Short Code
- *
+ * DARaja Production Application Short Code:
  *      4320242
  *
- *      This is the Short Code displayed on the Daraja
- *      Production App:
- *
- *      Prod-ENOCK NYAMBEGA MOSE-1788004129763
- *
- * 2. M-PESA ORGANIZATION SHORT CODE
- *
+ * M-PESA Organization Short Code:
  *      4460875
  *
- *      This appears in the M-PESA Organization portal.
- *
- * 3. TILL NUMBER
- *
+ * Active Till Number:
  *      4798391
  *
- *      This is the active Till Number belonging to the
- *      organization.
- *
- * ============================================================
- *
- * IMPORTANT DIAGNOSTIC HISTORY
- * ============================================================
- *
- * We previously used:
- *
- *      MPESA_SHORTCODE=4798391
- *
- * The STK Push API accepted the request:
- *
- *      ResponseCode: 0
- *      ResponseDescription:
- *      Success. Request accepted for processing
- *
- * However, querying the resulting CheckoutRequestID returned:
- *
- *      ResultCode: 4999
- *      ResultDesc: Merchant does not exist
- *
- * Therefore we must NOT assume that the Till Number is
- * automatically the Daraja application BusinessShortCode.
- *
- * This configuration deliberately keeps the identifiers
- * separate so the STK Push implementation can use the
- * correct merchant identifier once the Safaricom production
- * mapping is confirmed.
- *
- * ============================================================
- *
- * REQUIRED SUPABASE EDGE FUNCTION SECRETS
- * ============================================================
- *
- * MPESA_ENV=production
- *
- * MPESA_CONSUMER_KEY=YOUR_PRODUCTION_CONSUMER_KEY
- *
- * MPESA_CONSUMER_SECRET=YOUR_PRODUCTION_CONSUMER_SECRET
- *
- * MPESA_SHORTCODE=4320242
- *
- * MPESA_ORGANIZATION_SHORTCODE=4460875
- *
- * MPESA_TILL_NUMBER=4798391
- *
- * MPESA_PASSKEY=YOUR_PRODUCTION_PASSKEY
- *
- * MPESA_TRANSACTION_TYPE=CustomerBuyGoodsOnline
+ * These are intentionally kept as separate values.
  *
  * ============================================================
  */
 
-
-/**
- * ============================================================
- * M-PESA ENVIRONMENT
- * ============================================================
- *
- * Allowed:
- *
- * production
- * sandbox
- */
 export const MPESA_ENV =
   Deno.env.get("MPESA_ENV")?.trim().toLowerCase() ?? "";
 
@@ -122,6 +47,7 @@ export const MPESA_ENV =
  * SAFARICOM CONSUMER KEY
  * ============================================================
  */
+
 export const MPESA_CONSUMER_KEY =
   Deno.env.get("MPESA_CONSUMER_KEY")?.trim() ?? "";
 
@@ -131,6 +57,7 @@ export const MPESA_CONSUMER_KEY =
  * SAFARICOM CONSUMER SECRET
  * ============================================================
  */
+
 export const MPESA_CONSUMER_SECRET =
   Deno.env.get("MPESA_CONSUMER_SECRET")?.trim() ?? "";
 
@@ -140,23 +67,18 @@ export const MPESA_CONSUMER_SECRET =
  * DARaja APPLICATION SHORT CODE
  * ============================================================
  *
- * This is the Short Code displayed on the Safaricom
- * Production App.
+ * This is the Short Code configured for the Daraja
+ * production application.
  *
- * Current confirmed value:
+ * Confirmed value:
  *
  *      4320242
  *
  * IMPORTANT:
  *
- * This is deliberately NOT the Till Number.
- *
- * The previous configuration incorrectly treated:
- *
- *      4798391
- *
- * as the Daraja application shortcode.
+ * This is NOT the Till Number.
  */
+
 export const MPESA_SHORTCODE =
   Deno.env.get("MPESA_SHORTCODE")?.trim() ?? "";
 
@@ -166,13 +88,11 @@ export const MPESA_SHORTCODE =
  * M-PESA ORGANIZATION SHORT CODE
  * ============================================================
  *
- * Current confirmed organization value:
+ * Confirmed value:
  *
  *      4460875
- *
- * This is kept separately from the Daraja application
- * shortcode and the Till Number.
  */
+
 export const MPESA_ORGANIZATION_SHORTCODE =
   Deno.env
     .get("MPESA_ORGANIZATION_SHORTCODE")
@@ -184,15 +104,15 @@ export const MPESA_ORGANIZATION_SHORTCODE =
  * M-PESA TILL NUMBER
  * ============================================================
  *
- * Current active Till:
+ * Confirmed active Till:
  *
  *      4798391
  *
  * IMPORTANT:
  *
- * Do not automatically substitute this value for
- * MPESA_SHORTCODE.
+ * Do NOT use this value as MPESA_SHORTCODE.
  */
+
 export const MPESA_TILL_NUMBER =
   Deno.env.get("MPESA_TILL_NUMBER")?.trim() ?? "";
 
@@ -202,9 +122,10 @@ export const MPESA_TILL_NUMBER =
  * M-PESA STK PUSH PASSKEY
  * ============================================================
  *
- * The real production Passkey must exist only in
+ * The real production Passkey must exist only inside
  * Supabase Edge Function Secrets.
  */
+
 export const MPESA_PASSKEY =
   Deno.env.get("MPESA_PASSKEY")?.trim() ?? "";
 
@@ -214,12 +135,11 @@ export const MPESA_PASSKEY =
  * M-PESA TRANSACTION TYPE
  * ============================================================
  *
- * Current intended transaction type:
+ * Current production transaction type:
  *
  *      CustomerBuyGoodsOnline
- *
- * This remains configurable through Supabase Secrets.
  */
+
 export const MPESA_TRANSACTION_TYPE =
   Deno.env.get("MPESA_TRANSACTION_TYPE")?.trim() ||
   "CustomerBuyGoodsOnline";
@@ -230,6 +150,7 @@ export const MPESA_TRANSACTION_TYPE =
  * SAFARICOM API BASE URL
  * ============================================================
  */
+
 export const MPESA_BASE_URL =
   MPESA_ENV === "production"
     ? "https://api.safaricom.co.ke"
@@ -240,38 +161,19 @@ export const MPESA_BASE_URL =
 
 /**
  * ============================================================
- * EXPECTED PRODUCTION VALUES
+ * CONFIRMED PRODUCTION VALUES
  * ============================================================
- *
- * These values are based on the merchant information we have
- * established from the Safaricom portals.
  */
 
-
-/**
- * Daraja Production App Short Code.
- */
 const EXPECTED_PRODUCTION_SHORTCODE =
   "4320242";
 
-
-/**
- * M-PESA Organization Short Code.
- */
 const EXPECTED_PRODUCTION_ORGANIZATION_SHORTCODE =
   "4460875";
 
-
-/**
- * Active Till Number.
- */
 const EXPECTED_PRODUCTION_TILL_NUMBER =
-  "4320242";
+  "4798391";
 
-
-/**
- * Intended production transaction type.
- */
 const EXPECTED_PRODUCTION_TRANSACTION_TYPE =
   "CustomerBuyGoodsOnline";
 
@@ -281,13 +183,12 @@ const EXPECTED_PRODUCTION_TRANSACTION_TYPE =
  * VALIDATE M-PESA CONFIGURATION
  * ============================================================
  *
- * This function must be called before making Safaricom
+ * This validates configuration before making Safaricom
  * API requests.
- *
- * IMPORTANT:
  *
  * No sensitive credentials are logged.
  */
+
 export function validateMpesaConfig(): void {
 
   /**
@@ -366,23 +267,16 @@ export function validateMpesaConfig(): void {
 
   /**
    * ----------------------------------------------------------
-   * PRODUCTION DARaja SHORT CODE VALIDATION
+   * PRODUCTION DARaja SHORT CODE
    * ----------------------------------------------------------
-   *
-   * The Safaricom Production App shows:
-   *
-   *      Short Code = 4320242
-   *
-   * We therefore validate the application configuration
-   * against that value.
    */
+
   if (
     MPESA_ENV === "production" &&
-    MPESA_SHORTCODE !==
-      EXPECTED_PRODUCTION_SHORTCODE
+    MPESA_SHORTCODE !== EXPECTED_PRODUCTION_SHORTCODE
   ) {
     throw new Error(
-      `M-PESA production configuration error: expected Daraja application Short Code ${EXPECTED_PRODUCTION_SHORTCODE}, received ${MPESA_SHORTCODE}.`
+      `M-PESA production configuration error: expected Daraja Application Short Code ${EXPECTED_PRODUCTION_SHORTCODE}, received ${MPESA_SHORTCODE}.`
     );
   }
 
@@ -402,7 +296,7 @@ export function validateMpesaConfig(): void {
 
   /**
    * ----------------------------------------------------------
-   * PRODUCTION ORGANIZATION SHORT CODE VALIDATION
+   * PRODUCTION ORGANIZATION SHORT CODE
    * ----------------------------------------------------------
    */
 
@@ -434,12 +328,17 @@ export function validateMpesaConfig(): void {
    * ----------------------------------------------------------
    * PRODUCTION TILL VALIDATION
    * ----------------------------------------------------------
+   *
+   * IMPORTANT:
+   *
+   * The correct Till is 4798391.
+   *
+   * The previous file incorrectly expected 4320242 here.
    */
 
   if (
     MPESA_ENV === "production" &&
-    MPESA_TILL_NUMBER !==
-      EXPECTED_PRODUCTION_TILL_NUMBER
+    MPESA_TILL_NUMBER !== EXPECTED_PRODUCTION_TILL_NUMBER
   ) {
     throw new Error(
       `M-PESA production configuration error: expected Till Number ${EXPECTED_PRODUCTION_TILL_NUMBER}, received ${MPESA_TILL_NUMBER}.`
@@ -550,4 +449,3 @@ export function validateMpesaConfig(): void {
     "================================="
   );
 }
-```
