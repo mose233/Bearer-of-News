@@ -8,8 +8,13 @@ import { querySTKStatus } from "../_shared/mpesa-query.ts";
  * SAFARICOM STK PUSH RESULT CODES
  * ============================================================
  *
- * ResultCode 0 is the ONLY result that means the payment
- * itself succeeded.
+ * ResultCode "0" is the ONLY result that confirms payment.
+ *
+ * Important:
+ * - ResponseCode is not payment confirmation.
+ * - ResponseDescription is not payment confirmation.
+ * - CustomerMessage is not payment confirmation.
+ * - Only ResultCode "0" means the payment succeeded.
  */
 
 const RESULT_SUCCESS = "0";
@@ -19,18 +24,45 @@ const RESULT_MERCHANT_NOT_FOUND = "4999";
 
 /**
  * ============================================================
- * M-PESA STATUS
+ * REQUEST TYPE
  * ============================================================
  *
- * The frontend sends ONLY:
+ * The frontend only needs to provide the CheckoutRequestID.
  *
- * {
- *   checkoutRequestID: "..."
- * }
+ * Merchant configuration such as:
+ * - BusinessShortCode
+ * - Consumer Key
+ * - Consumer Secret
+ * - Passkey
  *
- * The merchant configuration is handled server-side by
- * mpesa-query.ts / env.ts.
+ * is handled server-side by mpesa-query.ts / env.ts.
  */
+
+interface VerifyPaymentRequest {
+  checkoutRequestID?: string;
+}
+
+/**
+ * ============================================================
+ * RESPONSE TYPES
+ * ============================================================
+ */
+
+interface PaymentResponse {
+  paid: boolean;
+  pending: boolean;
+  cancelled: boolean;
+  failed: boolean;
+  message: string;
+  resultCode?: string;
+}
+
+/**
+ * ============================================================
+ * M-PESA PAYMENT STATUS
+ * ============================================================
+ */
+
 serve(async (req: Request): Promise<Response> => {
   /**
    * ==========================================================
@@ -60,7 +92,7 @@ serve(async (req: Request): Promise<Response> => {
         failed: true,
         message: "Method Not Allowed.",
       },
-      405
+      405,
     );
   }
 
@@ -71,9 +103,7 @@ serve(async (req: Request): Promise<Response> => {
      * ========================================================
      */
 
-    let body: {
-      checkoutRequestID?: string;
-    };
+    let body: VerifyPaymentRequest;
 
     try {
       body = await req.json();
@@ -86,7 +116,7 @@ serve(async (req: Request): Promise<Response> => {
           failed: true,
           message: "Invalid JSON request body.",
         },
-        400
+        400,
       );
     }
 
@@ -97,7 +127,9 @@ serve(async (req: Request): Promise<Response> => {
      */
 
     const checkoutRequestID =
-      body.checkoutRequestID?.trim();
+      typeof body.checkoutRequestID === "string"
+        ? body.checkoutRequestID.trim()
+        : "";
 
     if (!checkoutRequestID) {
       return jsonResponse(
@@ -106,70 +138,18 @@ serve(async (req: Request): Promise<Response> => {
           pending: false,
           cancelled: false,
           failed: true,
-          message:
-            "CheckoutRequestID is required.",
+          message: "CheckoutRequestID is required.",
         },
-        400
+        400,
       );
     }
 
-    console.log(
-      "================================="
-    );
-
-    console.log(
-      "M-PESA PAYMENT STATUS CHECK"
-    );
-
-    console.log(
-      "CheckoutRequestID:",
-      checkoutRequestID
-    );
-
-    console.log(
-      "================================="
-    );
-
     /**
      * ========================================================
-     * ASK SAFARICOM FOR PAYMENT STATUS
+     * LOG VERIFICATION REQUEST
      * ========================================================
      *
-     * querySTKStatus() obtains the M-PESA merchant
-     * configuration from the Edge Function environment.
-     *
-     * The frontend does NOT supply BusinessShortCode.
-     */
-
-    const result =
-      await querySTKStatus(
-        checkoutRequestID
-      );
-     console.log("========== M-PESA RAW QUERY RESULT ==========");
-console.log(
-  JSON.stringify(
-    {
-      ResponseCode: result?.ResponseCode ?? null,
-      ResponseDescription: result?.ResponseDescription ?? null,
-      MerchantRequestID: result?.MerchantRequestID ?? null,
-      CheckoutRequestID: result?.CheckoutRequestID ?? null,
-      ResultCode: result?.ResultCode ?? null,
-      ResultDesc: result?.ResultDesc ?? null,
-      CustomerMessage: result?.CustomerMessage ?? null,
-      ResultParameters: result?.ResultParameters ?? null,
-    },
-    null,
-    2
-  )
-);
-console.log("========== END M-PESA RAW QUERY RESULT ==========");
-    /**
-     * ========================================================
-     * SAFE RAW SAFARICOM RESPONSE
-     * ========================================================
-     *
-     * This exposes ONLY the transaction-status fields
-     * returned by Safaricom.
+     * CheckoutRequestID is safe to log for debugging.
      *
      * NEVER log:
      * - Consumer Secret
@@ -181,60 +161,107 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      */
 
     console.log(
-      "========== M-PESA RAW QUERY RESULT =========="
+      "=================================",
+    );
+
+    console.log(
+      "M-PESA PAYMENT STATUS CHECK",
+    );
+
+    console.log(
+      "CheckoutRequestID:",
+      checkoutRequestID,
+    );
+
+    console.log(
+      "=================================",
+    );
+
+    /**
+     * ========================================================
+     * ASK SAFARICOM FOR PAYMENT STATUS
+     * ========================================================
+     *
+     * querySTKStatus() obtains the M-PESA merchant configuration
+     * from the Edge Function environment.
+     *
+     * The frontend does NOT supply BusinessShortCode.
+     */
+
+    const result = await querySTKStatus(
+      checkoutRequestID,
+    );
+
+    /**
+     * ========================================================
+     * SAFE RAW SAFARICOM RESPONSE LOG
+     * ========================================================
+     *
+     * We log only transaction/status fields.
+     *
+     * We intentionally do NOT log credentials, tokens,
+     * authorization headers, generated passwords, etc.
+     */
+
+    console.log(
+      "========== M-PESA QUERY RESULT ==========",
     );
 
     console.log(
       JSON.stringify(
         {
-          ResponseCode:
-            result?.ResponseCode ?? null,
-
+          ResponseCode: result?.ResponseCode ?? null,
           ResponseDescription:
             result?.ResponseDescription ?? null,
-
           MerchantRequestID:
             result?.MerchantRequestID ?? null,
-
           CheckoutRequestID:
             result?.CheckoutRequestID ?? null,
-
           ResultCode:
             result?.ResultCode ?? null,
-
           ResultDesc:
             result?.ResultDesc ?? null,
-
           CustomerMessage:
             result?.CustomerMessage ?? null,
-
           ResultParameters:
             result?.ResultParameters ?? null,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
 
     console.log(
-      "========== END M-PESA RAW QUERY RESULT =========="
+      "========== END M-PESA QUERY RESULT ==========",
     );
 
     /**
      * ========================================================
      * NORMALIZE RESULT CODE
      * ========================================================
+     *
+     * Safaricom may return ResultCode as a number or string.
+     *
+     * We normalize it to a string so:
+     *
+     *     0
+     *
+     * and
+     *
+     *     "0"
+     *
+     * are handled identically.
      */
 
     const resultCode =
-      result.ResultCode === undefined ||
-      result.ResultCode === null
+      result?.ResultCode === undefined ||
+      result?.ResultCode === null
         ? ""
-        : String(result.ResultCode);
+        : String(result.ResultCode).trim();
 
     const resultDescription =
-      typeof result.ResultDesc === "string"
-        ? result.ResultDesc
+      typeof result?.ResultDesc === "string"
+        ? result.ResultDesc.trim()
         : "";
 
     console.log(
@@ -243,7 +270,7 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
         checkoutRequestID,
         resultCode,
         resultDescription,
-      })
+      }),
     );
 
     /**
@@ -251,13 +278,13 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      * PAYMENT SUCCESS
      * ========================================================
      *
-     * ONLY ResultCode 0 means the payment succeeded.
+     * ONLY ResultCode "0" means payment succeeded.
      */
 
     if (resultCode === RESULT_SUCCESS) {
       console.log(
         "M-PESA PAYMENT VERIFIED SUCCESSFULLY:",
-        checkoutRequestID
+        checkoutRequestID,
       );
 
       return jsonResponse({
@@ -266,7 +293,7 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
         cancelled: false,
         failed: false,
         message: "Payment confirmed.",
-        result,
+        resultCode,
       });
     }
 
@@ -275,23 +302,19 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      * MERCHANT NOT FOUND
      * ========================================================
      *
-     * 4999 is a payment/configuration failure.
-     *
-     * It must NOT be treated as pending.
+     * ResultCode 4999 is treated as a merchant/configuration
+     * failure and MUST NOT be treated as pending.
      */
 
-    if (
-      resultCode ===
-      RESULT_MERCHANT_NOT_FOUND
-    ) {
+    if (resultCode === RESULT_MERCHANT_NOT_FOUND) {
       console.error(
         "M-PESA MERCHANT NOT FOUND:",
-        checkoutRequestID
+        checkoutRequestID,
       );
 
       console.error(
         "Safaricom ResultCode 4999:",
-        resultDescription
+        resultDescription,
       );
 
       return jsonResponse({
@@ -302,7 +325,7 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
         message:
           resultDescription ||
           "M-PESA merchant could not be found. Verify the production merchant configuration.",
-        result,
+        resultCode,
       });
     }
 
@@ -312,13 +335,10 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      * ========================================================
      */
 
-    if (
-      resultCode ===
-      RESULT_CANCELLED
-    ) {
+    if (resultCode === RESULT_CANCELLED) {
       console.log(
         "M-PESA PAYMENT CANCELLED:",
-        checkoutRequestID
+        checkoutRequestID,
       );
 
       return jsonResponse({
@@ -326,9 +346,8 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
         pending: false,
         cancelled: true,
         failed: false,
-        message:
-          "Payment was cancelled by the customer.",
-        result,
+        message: "Payment was cancelled by the customer.",
+        resultCode,
       });
     }
 
@@ -338,13 +357,10 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      * ========================================================
      */
 
-    if (
-      resultCode ===
-      RESULT_TIMEOUT
-    ) {
+    if (resultCode === RESULT_TIMEOUT) {
       console.log(
         "M-PESA PAYMENT TIMED OUT:",
-        checkoutRequestID
+        checkoutRequestID,
       );
 
       return jsonResponse({
@@ -352,9 +368,8 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
         pending: false,
         cancelled: false,
         failed: true,
-        message:
-          "M-PESA payment request timed out.",
-        result,
+        message: "M-PESA payment request timed out.",
+        resultCode,
       });
     }
 
@@ -363,7 +378,10 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      * OTHER SAFARICOM PAYMENT FAILURE
      * ========================================================
      *
-     * Any non-zero ResultCode is NOT paid.
+     * Any known/non-empty ResultCode other than "0" means
+     * payment was NOT successful.
+     *
+     * We never treat an unknown non-zero ResultCode as paid.
      */
 
     if (resultCode !== "") {
@@ -373,7 +391,7 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
           checkoutRequestID,
           resultCode,
           resultDescription,
-        })
+        }),
       );
 
       return jsonResponse({
@@ -384,7 +402,7 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
         message:
           resultDescription ||
           "M-PESA payment was not successful.",
-        result,
+        resultCode,
       });
     }
 
@@ -393,13 +411,16 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
      * EMPTY RESULT CODE
      * ========================================================
      *
+     * Safaricom has not supplied a definitive payment result.
+     *
      * We cannot confirm payment.
-     * Allow the frontend to retry.
+     *
+     * The frontend may retry verification.
      */
 
     console.warn(
       "M-PESA returned an empty ResultCode:",
-      checkoutRequestID
+      checkoutRequestID,
     );
 
     return jsonResponse({
@@ -409,27 +430,40 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
       failed: false,
       message:
         "M-PESA verification returned an incomplete response. Please retry.",
-      result,
     });
   } catch (error) {
     /**
      * ========================================================
-     * TEMPORARY DIAGNOSTIC ERROR
+     * VERIFICATION ERROR
      * ========================================================
      *
-     * This temporarily exposes the safe error message so we
-     * can identify exactly where M-PESA verification fails.
+     * An exception means the verification operation itself
+     * failed.
+     *
+     * This is NOT the same thing as a Safaricom payment being
+     * genuinely pending.
+     *
+     * Therefore:
+     *
+     *     paid     = false
+     *     pending  = false
+     *     failed   = true
+     *
+     * The frontend can then handle this as a verification
+     * error instead of incorrectly assuming the payment is
+     * still pending.
      *
      * NEVER expose:
      * - Consumer Secret
      * - Passkey
      * - Access Token
      * - Generated Password
+     * - Authorization headers
      */
 
     console.error(
       "M-PESA payment verification error:",
-      error
+      error,
     );
 
     const errorMessage =
@@ -440,13 +474,13 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
     return jsonResponse(
       {
         paid: false,
-        pending: true,
+        pending: false,
         cancelled: false,
-        failed: false,
+        failed: true,
         message:
           `M-PESA verification error: ${errorMessage}`,
       },
-      200
+      500,
     );
   }
 });
@@ -458,8 +492,8 @@ console.log("========== END M-PESA RAW QUERY RESULT ==========");
  */
 
 function jsonResponse(
-  body: Record<string, unknown>,
-  status = 200
+  body: PaymentResponse,
+  status = 200,
 ): Response {
   return new Response(
     JSON.stringify(body),
@@ -467,9 +501,8 @@ function jsonResponse(
       status,
       headers: {
         ...corsHeaders,
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
       },
-    }
+    },
   );
 }
