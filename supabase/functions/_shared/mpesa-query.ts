@@ -1,6 +1,6 @@
 import {
   MPESA_BASE_URL,
-  MPESA_ORGANIZATION_SHORTCODE,
+  MPESA_SHORTCODE,
 } from "./env.ts";
 
 import { getAccessToken } from "./mpesa.ts";
@@ -10,10 +10,7 @@ export async function querySTKStatus(checkoutRequestID: string) {
   const accessToken = await getAccessToken();
 
   const timestamp = generateTimestamp();
-  const password = generatePassword(
-    timestamp,
-    MPESA_ORGANIZATION_SHORTCODE
-  );
+  const password = generatePassword(timestamp);
 
   const response = await fetch(
     `${MPESA_BASE_URL}/mpesa/stkpushquery/v1/query`,
@@ -24,7 +21,7 @@ export async function querySTKStatus(checkoutRequestID: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        BusinessShortCode: MPESA_ORGANIZATION_SHORTCODE,
+        BusinessShortCode: MPESA_SHORTCODE,
         Password: password,
         Timestamp: timestamp,
         CheckoutRequestID: checkoutRequestID,
