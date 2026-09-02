@@ -26,12 +26,9 @@ export function generateTimestamp(): string {
  * Generate STK Push password
  * Base64(shortcode + passkey + timestamp)
  */
-export function generatePassword(
-  timestamp: string,
-  businessShortCode: string = MPESA_SHORTCODE
-): string {
+export function generatePassword(timestamp: string): string {
   return btoa(
-    `${businessShortCode}${MPESA_PASSKEY}${timestamp}`
+    `${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`
   );
 }
 
