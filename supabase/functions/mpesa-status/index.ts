@@ -148,6 +148,63 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ========================================================
+     * SAFE RAW SAFARICOM RESPONSE
+     * ========================================================
+     *
+     * This exposes ONLY the transaction-status fields
+     * returned by Safaricom.
+     *
+     * NEVER log:
+     * - Consumer Secret
+     * - Passkey
+     * - OAuth access token
+     * - Generated password
+     * - Authorization headers
+     * - Supabase service-role credentials
+     */
+
+    console.log(
+      "========== M-PESA RAW QUERY RESULT =========="
+    );
+
+    console.log(
+      JSON.stringify(
+        {
+          ResponseCode:
+            result?.ResponseCode ?? null,
+
+          ResponseDescription:
+            result?.ResponseDescription ?? null,
+
+          MerchantRequestID:
+            result?.MerchantRequestID ?? null,
+
+          CheckoutRequestID:
+            result?.CheckoutRequestID ?? null,
+
+          ResultCode:
+            result?.ResultCode ?? null,
+
+          ResultDesc:
+            result?.ResultDesc ?? null,
+
+          CustomerMessage:
+            result?.CustomerMessage ?? null,
+
+          ResultParameters:
+            result?.ResultParameters ?? null,
+        },
+        null,
+        2
+      )
+    );
+
+    console.log(
+      "========== END M-PESA RAW QUERY RESULT =========="
+    );
+
+    /**
+     * ========================================================
      * NORMALIZE RESULT CODE
      * ========================================================
      */
@@ -338,43 +395,43 @@ serve(async (req: Request): Promise<Response> => {
       result,
     });
   } catch (error) {
-  /**
-   * ========================================================
-   * TEMPORARY DIAGNOSTIC ERROR
-   * ========================================================
-   *
-   * This temporarily exposes the safe error message so we
-   * can identify exactly where M-PESA verification fails.
-   *
-   * NEVER expose:
-   * - Consumer Secret
-   * - Passkey
-   * - Access Token
-   * - Generated Password
-   */
+    /**
+     * ========================================================
+     * TEMPORARY DIAGNOSTIC ERROR
+     * ========================================================
+     *
+     * This temporarily exposes the safe error message so we
+     * can identify exactly where M-PESA verification fails.
+     *
+     * NEVER expose:
+     * - Consumer Secret
+     * - Passkey
+     * - Access Token
+     * - Generated Password
+     */
 
-  console.error(
-    "M-PESA payment verification error:",
-    error
-  );
+    console.error(
+      "M-PESA payment verification error:",
+      error
+    );
 
-  const errorMessage =
-    error instanceof Error
-      ? error.message
-      : String(error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : String(error);
 
-  return jsonResponse(
-    {
-      paid: false,
-      pending: true,
-      cancelled: false,
-      failed: false,
-      message:
-        `M-PESA verification error: ${errorMessage}`,
-    },
-    200
-  );
-}
+    return jsonResponse(
+      {
+        paid: false,
+        pending: true,
+        cancelled: false,
+        failed: false,
+        message:
+          `M-PESA verification error: ${errorMessage}`,
+      },
+      200
+    );
+  }
 });
 
 /**
