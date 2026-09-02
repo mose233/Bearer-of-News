@@ -338,32 +338,43 @@ serve(async (req: Request): Promise<Response> => {
       result,
     });
   } catch (error) {
-    /**
-     * ========================================================
-     * VERIFICATION/API ERROR
-     * ========================================================
-     *
-     * We never return paid:true when verification itself
-     * fails.
-     */
+  /**
+   * ========================================================
+   * TEMPORARY DIAGNOSTIC ERROR
+   * ========================================================
+   *
+   * This temporarily exposes the safe error message so we
+   * can identify exactly where M-PESA verification fails.
+   *
+   * NEVER expose:
+   * - Consumer Secret
+   * - Passkey
+   * - Access Token
+   * - Generated Password
+   */
 
-    console.error(
-      "M-PESA payment verification error:",
-      error
-    );
+  console.error(
+    "M-PESA payment verification error:",
+    error
+  );
 
-    return jsonResponse(
-      {
-        paid: false,
-        pending: true,
-        cancelled: false,
-        failed: false,
-        message:
-          "Payment verification is temporarily unavailable. Please retry.",
-      },
-      200
-    );
-  }
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : String(error);
+
+  return jsonResponse(
+    {
+      paid: false,
+      pending: true,
+      cancelled: false,
+      failed: false,
+      message:
+        `M-PESA verification error: ${errorMessage}`,
+    },
+    200
+  );
+}
 });
 
 /**
