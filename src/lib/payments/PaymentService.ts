@@ -20,456 +20,437 @@ export interface MpesaPaymentStatusResponse {
   failed?: boolean;
   message?: string;
   error?: string;
-  result?: Record<string, unknown>;
+  resultCode?: string;
 }
 
 /**
  * Safely extract a useful error message from a Supabase
- * Edge Function invocation error.
+ * Edge Function invocation error or returned response.
  */
-async function extractFunctionError(
+function extractFunctionError(
   error: unknown,
-  fallbackMessage: string,
-): Promise<Error> {
-  const supabaseError =
-    error as {
-      message?: string;
-      context?: Response;
-    };
+  data?: unknown
+): string {
+  // First check a structured response from the Edge Function.
+  if (data && typeof data === "object") {
+    const response = data as Record<string, unknown>;
 
-  const context =
-    supabaseError?.context;
+    if (typeof response.message === "string" && response.message.trim()) {
+      return response.message.trim();
+    }
 
-  if (context) {
-    try {
-      const responseText =
-        await context.text();
-
-      if (responseText?.trim()) {
-        try {
-          const responseBody =
-            JSON.parse(responseText);
-
-          const detailedError =
-            responseBody?.error ??
-            responseBody?.message ??
-            responseBody?.details ??
-            responseBody?.errorMessage ??
-            responseBody?.ResponseDescription ??
-            responseBody?.ResultDesc;
-
-          if (detailedError) {
-            return new Error(
-              String(detailedError),
-            );
-          }
-
-          return new Error(
-            responseText,
-          );
-        } catch {
-          return new Error(
-            responseText,
-          );
-        }
-      }
-    } catch (bodyError) {
-      console.error(
-        "Could not read Edge Function error body:",
-        bodyError,
-      );
+    if (typeof response.error === "string" && response.error.trim()) {
+      return response.error.trim();
     }
   }
 
-  return new Error(
-    supabaseError?.message ||
-      fallbackMessage,
-  );
+  // Supabase FunctionsError usually has a message.
+  if (error instanceof Error && error.message.trim()) {
+    return error.message.trim();
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  ) {
+    const message = (error as { message: string }).message.trim();
+
+    if (message) {
+      return message;
+    }
+  }
+
+  return "Payment service request failed.";
 }
 
 export class PaymentService {
   /**
    * ============================================================
-   * SEND M-PESA STK PUSH
+   * M-PESA STK PUSH
    * ============================================================
    *
-   * Starts an M-PESA STK Push.
-   *
-   * This does NOT mean the payment is complete.
-   *
-   * A successful STK Push only means Safaricom accepted
-   * the request for processing.
+   * Starts an M-Pesa STK Push through the Supabase
+   * mpesa-stkpush Edge Function.
    */
   static async sendMpesaSTKPush(
-    request: MpesaPaymentRequest,
+    request: MpesaPaymentRequest
   ): Promise<MpesaPaymentResponse> {
-    if (!request.phoneNumber?.trim()) {
-      throw new Error(
-        "Phone number is required.",
-      );
+    const phoneNumber = request.phoneNumber?.trim();
+    const amount = Number(request.amount);
+
+    if (!phoneNumber) {
+      throw new Error("M-Pesa phone number is required.");
     }
 
-    if (
-      typeof request.amount !== "number" ||
-      !Number.isFinite(request.amount) ||
-      request.amount <= 0
-    ) {
-      throw new Error(
-        "Invalid payment amount.",
-      );
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new Error("A valid M-Pesa payment amount is required.");
     }
+
+    console.log("=================================");
+    console.log("M-PESA STK PUSH REQUEST");
+    console.log("Phone:", phoneNumber);
+    console.log("Amount:", amount);
+    console.log("=================================");
 
     try {
-      console.log(
-        "=================================",
-      );
-
-      console.log(
-        "M-PESA PAYMENT REQUEST",
-      );
-
-      console.log(
-        "Phone:",
-        request.phoneNumber,
-      );
-
-      console.log(
-        "Amount:",
-        request.amount,
-      );
-
-      console.log(
-        "=================================",
-      );
-
-      const {
-        data,
-        error,
-      } = await supabase.functions.invoke(
+      const { data, error } = await supabase.functions.invoke(
         "mpesa-stkpush",
         {
-          body: request,
-        },
+          body: {
+            phoneNumber,
+            amount,
+          },
+        }
       );
 
-      console.log(
-        "M-Pesa STK Push response:",
-        data,
-      );
+      console.log("M-PESA STK PUSH RESPONSE:", data);
 
       if (error) {
-        const detailedError =
-          await extractFunctionError(
-            error,
-            "M-Pesa payment request failed.",
-          );
-
         console.error(
-          "M-Pesa STK Push Edge Function error:",
-          detailedError,
+          "M-PESA STK PUSH FUNCTION ERROR:",
+          error
         );
 
-        throw detailedError;
+        const message = extractFunctionError(error, data);
+
+        throw new Error(message);
       }
 
       if (!data) {
         throw new Error(
-          "No response received from M-Pesa payment server.",
+          "M-Pesa STK Push returned an empty response."
         );
       }
 
       /**
-       * Our mpesa-stkpush Edge Function is expected
-       * to return:
-       *
-       * {
-       *   success: true,
-       *   data: {
-       *     MerchantRequestID,
-       *     CheckoutRequestID,
-       *     ResponseCode,
-       *     ResponseDescription,
-       *     CustomerMessage
-       *   }
-       * }
+       * Your mpesa-stkpush Edge Function returns its
+       * successful response inside data.data.
        */
-
-      if (!data.success) {
-        throw new Error(
-          data.error ??
-            data.message ??
-            data.details ??
-            "M-Pesa payment request failed.",
-        );
-      }
-
-      if (!data.data) {
-        throw new Error(
-          "M-Pesa server returned success but no payment data.",
-        );
-      }
-
-      const paymentResponse =
-        data.data as MpesaPaymentResponse;
-
       if (
-        !paymentResponse.CheckoutRequestID
+        typeof data === "object" &&
+        data !== null &&
+        "success" in data &&
+        data.success === false
       ) {
         throw new Error(
-          "M-Pesa server did not return a CheckoutRequestID.",
+          extractFunctionError(undefined, data)
         );
       }
 
-      console.log(
-        "M-Pesa STK Push accepted.",
-      );
+      const responseData =
+        typeof data === "object" &&
+        data !== null &&
+        "data" in data
+          ? data.data
+          : data;
 
-      console.log(
-        "CheckoutRequestID:",
-        paymentResponse.CheckoutRequestID,
-      );
+      if (
+        !responseData ||
+        typeof responseData !== "object"
+      ) {
+        throw new Error(
+          "M-Pesa STK Push returned an invalid response."
+        );
+      }
 
-      return paymentResponse;
-    } catch (err) {
+      const response =
+        responseData as Partial<MpesaPaymentResponse>;
+
+      if (!response.CheckoutRequestID) {
+        throw new Error(
+          response.ResponseDescription ||
+            response.CustomerMessage ||
+            "M-Pesa did not return a CheckoutRequestID."
+        );
+      }
+
+      return {
+        MerchantRequestID:
+          String(response.MerchantRequestID ?? ""),
+        CheckoutRequestID:
+          String(response.CheckoutRequestID),
+        ResponseCode:
+          String(response.ResponseCode ?? ""),
+        ResponseDescription:
+          String(response.ResponseDescription ?? ""),
+        CustomerMessage:
+          String(response.CustomerMessage ?? ""),
+      };
+    } catch (error) {
       console.error(
-        "M-Pesa STK Push failed:",
-        err,
+        "M-PESA STK PUSH ERROR:",
+        error
       );
 
-      throw err instanceof Error
-        ? err
-        : new Error(
-            "Failed to initiate M-Pesa payment.",
-          );
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error(
+        "Unable to start M-Pesa payment."
+      );
     }
   }
 
   /**
    * ============================================================
-   * CHECK M-PESA PAYMENT STATUS
+   * M-PESA PAYMENT STATUS CHECK
    * ============================================================
    *
    * IMPORTANT:
    *
-   * This is the step that determines whether the customer
-   * actually completed the payment.
+   * The actual deployed verification Edge Function in this
+   * project is:
    *
-   * STK Push accepted != payment completed.
+   *     mpesa-status
    *
-   * The CheckoutRequestID returned by STK Push is passed
-   * to the verification Edge Function.
+   * NOT:
+   *
+   *     mpesa-verify
+   *
+   * mpesa-status calls querySTKStatus(), which asks Safaricom
+   * for the actual transaction ResultCode.
+   *
+   * ResultCode "0" means PAYMENT CONFIRMED.
    */
   static async checkMpesaPayment(
-    checkoutRequestID: string,
+    checkoutRequestID: string
   ): Promise<MpesaPaymentStatusResponse> {
-    const normalizedCheckoutRequestID =
-      typeof checkoutRequestID === "string"
-        ? checkoutRequestID.trim()
-        : "";
+    const checkoutID = checkoutRequestID?.trim();
 
-    if (!normalizedCheckoutRequestID) {
+    if (!checkoutID) {
       throw new Error(
-        "CheckoutRequestID is required.",
+        "CheckoutRequestID is required to verify payment."
       );
     }
 
+    console.log("=================================");
+    console.log("M-PESA PAYMENT STATUS CHECK");
+    console.log("CheckoutRequestID:", checkoutID);
+    console.log("Edge Function: mpesa-status");
+    console.log("=================================");
+
     try {
-      console.log(
-        "=================================",
-      );
-
-      console.log(
-        "M-PESA PAYMENT STATUS CHECK",
-      );
-
-      console.log(
-        "CheckoutRequestID:",
-        normalizedCheckoutRequestID,
-      );
-
-      console.log(
-        "=================================",
-      );
-
       /**
-       * IMPORTANT:
+       * THIS IS THE CRITICAL FIX.
        *
-       * This must match the actual deployed
-       * verification Edge Function name.
-       *
-       * We are using "mpesa-verify" because that is
-       * the verification function we have been working
-       * with.
+       * Your actual Edge Function is mpesa-status.
        */
-      const {
-        data,
-        error,
-      } = await supabase.functions.invoke(
-        "mpesa-verify",
-        {
-          body: {
-            checkoutRequestID:
-              normalizedCheckoutRequestID,
-          },
-        },
-      );
+      const { data, error } =
+        await supabase.functions.invoke(
+          "mpesa-status",
+          {
+            body: {
+              checkoutRequestID: checkoutID,
+            },
+          }
+        );
 
       console.log(
-        "M-Pesa verification response:",
-        data,
+        "M-PESA STATUS RESPONSE:",
+        data
       );
 
       if (error) {
-        const detailedError =
-          await extractFunctionError(
-            error,
-            "M-Pesa payment status check failed.",
-          );
-
         console.error(
-          "M-Pesa verification Edge Function error:",
-          detailedError,
+          "M-PESA STATUS FUNCTION ERROR:",
+          error
         );
 
-        throw detailedError;
+        const message = extractFunctionError(
+          error,
+          data
+        );
+
+        throw new Error(message);
       }
 
       if (!data) {
         throw new Error(
-          "No response received from payment verification server.",
+          "M-Pesa status check returned an empty response."
         );
       }
 
       /**
-       * ========================================================
-       * NORMALIZE VERIFICATION RESPONSE
-       * ========================================================
+       * Normalize the response returned by mpesa-status.
        *
-       * The mpesa-verify Edge Function should return
-       * normalized payment state such as:
+       * Expected successful response:
        *
        * {
        *   paid: true,
        *   pending: false,
-       *   failed: false,
        *   cancelled: false,
-       *   message: "Payment completed successfully."
+       *   failed: false,
+       *   message: "Payment confirmed.",
+       *   resultCode: "0"
        * }
        */
 
       const status =
-        data as MpesaPaymentStatusResponse;
+        data as Partial<MpesaPaymentStatusResponse>;
+
+      const paid = status.paid === true;
+      const pending = status.pending === true;
+      const cancelled =
+        status.cancelled === true;
+      const failed = status.failed === true;
+
+      const resultCode =
+        status.resultCode !== undefined &&
+        status.resultCode !== null
+          ? String(status.resultCode).trim()
+          : undefined;
+
+      const message =
+        typeof status.message === "string"
+          ? status.message.trim()
+          : undefined;
 
       /**
-       * A payment is considered complete ONLY when
-       * the verification service explicitly says:
+       * PAYMENT CONFIRMED
        *
-       * paid === true
+       * Only paid === true is allowed to complete
+       * the payment flow.
        */
-      if (status.paid === true) {
+      if (paid) {
         console.log(
-          "=================================",
+          "================================="
         );
-
         console.log(
-          "M-PESA PAYMENT CONFIRMED",
+          "M-PESA PAYMENT CONFIRMED"
         );
-
-        console.log(
-          "Payment status: PAID",
-        );
-
         console.log(
           "CheckoutRequestID:",
-          normalizedCheckoutRequestID,
+          checkoutID
         );
-
         console.log(
-          "=================================",
+          "ResultCode:",
+          resultCode ?? "0"
+        );
+        console.log(
+          "================================="
         );
 
         return {
-          ...status,
           paid: true,
           pending: false,
-          failed: false,
           cancelled: false,
+          failed: false,
+          message:
+            message || "Payment confirmed.",
+          resultCode: resultCode ?? "0",
         };
       }
 
       /**
-       * Payment is still being processed.
+       * CUSTOMER CANCELLED PAYMENT
        */
-      if (status.pending === true) {
+      if (cancelled) {
         console.log(
-          "M-PESA PAYMENT STILL PENDING",
+          "M-PESA PAYMENT CANCELLED:",
+          checkoutID
         );
 
         return {
-          ...status,
-          paid: false,
-          pending: true,
-        };
-      }
-
-      /**
-       * Customer cancelled the payment.
-       */
-      if (status.cancelled === true) {
-        console.log(
-          "M-PESA PAYMENT CANCELLED",
-        );
-
-        return {
-          ...status,
           paid: false,
           pending: false,
           cancelled: true,
+          failed: false,
+          message:
+            message ||
+            "Payment was cancelled by the customer.",
+          resultCode,
         };
       }
 
       /**
-       * Payment failed.
+       * PAYMENT FAILED
        */
-      if (status.failed === true) {
-        console.log(
-          "M-PESA PAYMENT FAILED",
+      if (failed) {
+        console.error(
+          "M-PESA PAYMENT FAILED:",
+          {
+            checkoutRequestID: checkoutID,
+            resultCode,
+            message,
+          }
         );
 
         return {
-          ...status,
           paid: false,
           pending: false,
+          cancelled: false,
           failed: true,
+          message:
+            message ||
+            "M-Pesa payment was not successful.",
+          resultCode,
         };
       }
 
       /**
-       * If the verification function returned none
-       * of the expected states, do NOT assume payment
-       * succeeded.
+       * PAYMENT STILL PENDING
+       *
+       * This is the only situation where the frontend
+       * should continue polling.
+       */
+      if (pending) {
+        console.log(
+          "M-PESA PAYMENT STILL PENDING:",
+          checkoutID
+        );
+
+        return {
+          paid: false,
+          pending: true,
+          cancelled: false,
+          failed: false,
+          message:
+            message ||
+            "Waiting for payment confirmation...",
+          resultCode,
+        };
+      }
+
+      /**
+       * UNKNOWN RESPONSE
+       *
+       * Do NOT treat an unknown response as paid.
+       * Treat it as pending so the PaymentModal can retry.
        */
       console.warn(
-        "M-Pesa verification returned an unexpected status:",
-        status,
+        "M-PESA UNKNOWN STATUS RESPONSE:",
+        {
+          checkoutRequestID: checkoutID,
+          data,
+        }
       );
 
       return {
-        ...status,
         paid: false,
         pending: true,
+        cancelled: false,
+        failed: false,
+        message:
+          message ||
+          "Waiting for payment confirmation...",
+        resultCode,
       };
-    } catch (err) {
+    } catch (error) {
       console.error(
-        "Payment status check failed:",
-        err,
+        "M-PESA PAYMENT STATUS ERROR:",
+        error
       );
 
-      throw err instanceof Error
-        ? err
-        : new Error(
-            "Payment status check failed.",
-          );
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error(
+        "Unable to verify M-Pesa payment."
+      );
     }
   }
 }
