@@ -1,12 +1,9 @@
 import {
   MPESA_BASE_URL,
-  MPESA_PASSKEY,
   MPESA_SHORTCODE,
-  validateMpesaConfig,
 } from "./env.ts";
 
 import { getAccessToken } from "./mpesa.ts";
-
 import {
   generatePassword,
   generateTimestamp,
@@ -14,71 +11,42 @@ import {
 
 /**
  * ============================================================
- * M-PESA STK PUSH QUERY RESPONSE
+ * SAFARICOM STK QUERY
  * ============================================================
  *
- * ResponseCode:
- *   0 = Safaricom accepted the query request
+ * Queries the status of an existing M-PESA STK Push transaction.
  *
- * ResultCode:
- *   Actual result of the original STK Push transaction.
+ * The caller supplies ONLY the CheckoutRequestID.
  *
- * IMPORTANT:
+ * Merchant configuration is obtained server-side from env.ts.
  *
- * ResponseCode === "0" does NOT mean payment succeeded.
- *
- * Only ResultCode === "0" means the payment itself succeeded.
+ * NEVER log or expose:
+ * - Consumer Secret
+ * - Passkey
+ * - OAuth access token
+ * - Generated password
+ * - Authorization headers
  */
-export interface MpesaSTKQueryResponse {
-  ResponseCode?: string | number;
-  ResponseDescription?: string;
 
-  MerchantRequestID?: string;
-  CheckoutRequestID?: string;
+const MPESA_QUERY_TIMEOUT_MS = 15_000;
 
-  ResultCode?: string | number;
-  ResultDesc?: string;
-
-  [key: string]: unknown;
-}
-
-/**
- * ============================================================
- * QUERY STK PUSH STATUS
- * ============================================================
- *
- * This function communicates with Safaricom.
- *
- * It does NOT decide whether the payment is:
- *
- * - paid
- * - pending
- * - cancelled
- * - failed
- *
- * That decision belongs to mpesa-status.ts.
- */
 export async function querySTKStatus(
-  checkoutRequestID: string
-): Promise<MpesaSTKQueryResponse> {
-  /**
-   * ==========================================================
-   * VALIDATE M-PESA CONFIGURATION
-   * ==========================================================
-   */
-  validateMpesaConfig();
-
+  checkoutRequestID: string,
+): Promise<Record<string, unknown>> {
   /**
    * ==========================================================
    * VALIDATE CHECKOUT REQUEST ID
    * ==========================================================
    */
+
   const normalizedCheckoutRequestID =
-    checkoutRequestID?.trim();
+    typeof checkoutRequestID === "string"
+      ? checkoutRequestID.trim()
+      : "";
 
   if (!normalizedCheckoutRequestID) {
     throw new Error(
-      "CheckoutRequestID is required."
+      "CheckoutRequestID is required.",
     );
   }
 
@@ -87,165 +55,85 @@ export async function querySTKStatus(
    * GET ACCESS TOKEN
    * ==========================================================
    */
-  const accessToken =
-    await getAccessToken();
+
+  const accessToken = await getAccessToken();
+
+  if (!accessToken) {
+    throw new Error(
+      "Failed to obtain M-PESA access token.",
+    );
+  }
 
   /**
    * ==========================================================
-   * GENERATE TIMESTAMP
+   * GENERATE STK QUERY CREDENTIALS
    * ==========================================================
-   *
-   * The timestamp must match the password timestamp.
    */
-  const timestamp =
-    generateTimestamp();
+
+  const timestamp = generateTimestamp();
+  const password = generatePassword(timestamp);
 
   /**
    * ==========================================================
-   * GENERATE PASSWORD
-   * ==========================================================
-   *
-   * Safaricom formula:
-   *
-   * Base64(
-   *   BusinessShortCode +
-   *   Passkey +
-   *   Timestamp
-   * )
-   *
-   * The shortcode and passkey come from Supabase secrets.
-   */
-  const password =
-    generatePassword(timestamp);
-
-  /**
-   * ==========================================================
-   * BUILD QUERY PAYLOAD
+   * BUILD REQUEST
    * ==========================================================
    */
-  const payload = {
-    BusinessShortCode:
-      MPESA_SHORTCODE,
 
-    Password:
-      password,
+  const url =
+    `${MPESA_BASE_URL}/mpesa/stkpushquery/v1/query`;
 
-    Timestamp:
-      timestamp,
-
+  const requestBody = {
+    BusinessShortCode: MPESA_SHORTCODE,
+    Password: password,
+    Timestamp: timestamp,
     CheckoutRequestID:
       normalizedCheckoutRequestID,
   };
 
   /**
    * ==========================================================
-   * SAFARICOM STK QUERY URL
+   * REQUEST TIMEOUT
    * ==========================================================
    */
-  const url =
-    `${MPESA_BASE_URL}/mpesa/stkpushquery/v1/query`;
 
-  /**
-   * ==========================================================
-   * SAFE DIAGNOSTICS
-   * ==========================================================
-   *
-   * NEVER log:
-   *
-   * - Consumer Secret
-   * - Passkey
-   * - Access Token
-   * - Generated Password
-   */
-  console.log(
-    "================================="
-  );
+  const controller = new AbortController();
 
-  console.log(
-    "M-PESA STK QUERY REQUEST"
-  );
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, MPESA_QUERY_TIMEOUT_MS);
 
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "Environment:",
-    Deno.env.get("MPESA_ENV") ?? "unknown"
-  );
-
-  console.log(
-    "Base URL:",
-    MPESA_BASE_URL
-  );
-
-  console.log(
-    "BusinessShortCode:",
-    MPESA_SHORTCODE
-  );
-
-  console.log(
-    "CheckoutRequestID:",
-    normalizedCheckoutRequestID
-  );
-
-  console.log(
-    "Endpoint:",
-    url
-  );
-
-  console.log(
-    "================================="
-  );
-
-  /**
-   * ==========================================================
-   * SEND REQUEST TO SAFARICOM
-   * ==========================================================
-   */
   let response: Response;
 
   try {
-    response = await fetch(
-      url,
-      {
-        method: "POST",
-
-        headers: {
-          Authorization:
-            `Bearer ${accessToken}`,
-
-          "Content-Type":
-            "application/json",
-
-          Accept:
-            "application/json",
-        },
-
-        body:
-          JSON.stringify(payload),
-      }
-    );
+    response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
+    });
   } catch (error) {
-    console.error(
-      "================================="
-    );
+    if (
+      error instanceof DOMException &&
+      error.name === "AbortError"
+    ) {
+      throw new Error(
+        "Daraja STK Query request timed out.",
+      );
+    }
 
-    console.error(
-      "M-PESA STK QUERY NETWORK ERROR"
-    );
-
-    console.error(
-      error
-    );
-
-    console.error(
-      "================================="
-    );
+    const message =
+      error instanceof Error
+        ? error.message
+        : String(error);
 
     throw new Error(
-      "Unable to connect to Safaricom STK Query service."
+      `Unable to reach Daraja STK Query API: ${message}`,
     );
+  } finally {
+    clearTimeout(timeout);
   }
 
   /**
@@ -253,28 +141,12 @@ export async function querySTKStatus(
    * READ RESPONSE
    * ==========================================================
    */
-  const text =
-    await response.text();
 
-  /**
-   * ==========================================================
-   * EMPTY RESPONSE
-   * ==========================================================
-   */
+  const text = await response.text();
+
   if (!text.trim()) {
-    console.error(
-      "M-PESA STK Query returned an empty response.",
-      {
-        httpStatus:
-          response.status,
-
-        statusText:
-          response.statusText,
-      }
-    );
-
     throw new Error(
-      `Safaricom STK Query returned an empty response (HTTP ${response.status}).`
+      `Daraja returned an empty response (HTTP ${response.status}).`,
     );
   }
 
@@ -283,171 +155,65 @@ export async function querySTKStatus(
    * PARSE JSON
    * ==========================================================
    */
-  let data: MpesaSTKQueryResponse;
+
+  let data: Record<string, unknown>;
 
   try {
-    data =
-      JSON.parse(text);
+    const parsed: unknown = JSON.parse(text);
+
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      throw new Error(
+        "Response was not a JSON object.",
+      );
+    }
+
+    data = parsed as Record<string, unknown>;
   } catch {
-    console.error(
-      "================================="
-    );
-
-    console.error(
-      "M-PESA STK QUERY INVALID JSON"
-    );
-
-    console.error(
-      "HTTP Status:",
-      response.status
-    );
-
-    console.error(
-      "Raw Response:",
-      text
-    );
-
-    console.error(
-      "================================="
-    );
-
     throw new Error(
-      "Safaricom STK Query returned invalid JSON."
+      `Daraja returned invalid JSON (HTTP ${response.status}).`,
     );
   }
 
   /**
    * ==========================================================
-   * HTTP ERROR
+   * HANDLE HTTP ERRORS
    * ==========================================================
    *
-   * An HTTP error means Safaricom rejected the API request
-   * itself.
+   * Do not return an unsuccessful HTTP response as though it
+   * were a valid M-PESA payment result.
    */
+
   if (!response.ok) {
-    console.error(
-      "================================="
-    );
+    const responseCode =
+      typeof data.ResponseCode === "string" ||
+      typeof data.ResponseCode === "number"
+        ? String(data.ResponseCode)
+        : "";
 
-    console.error(
-      "M-PESA STK QUERY HTTP ERROR"
-    );
+    const responseDescription =
+      typeof data.ResponseDescription === "string"
+        ? data.ResponseDescription
+        : "";
 
-    console.error(
-      "HTTP Status:",
-      response.status
-    );
-
-    console.error(
-      "HTTP Status Text:",
-      response.statusText
-    );
-
-    console.error(
-      "Safaricom Response:",
-      JSON.stringify(
-        data,
-        null,
-        2
-      )
-    );
-
-    console.error(
-      "================================="
-    );
+    const errorDetails =
+      responseDescription ||
+      responseCode ||
+      "Unknown Daraja error.";
 
     throw new Error(
-      `Safaricom STK Query failed with HTTP ${response.status}.`
+      `Daraja STK Query failed (HTTP ${response.status}): ${errorDetails}`,
     );
   }
 
   /**
    * ==========================================================
-   * NORMALIZE RESPONSE CODES
+   * RETURN SAFARICOM RESULT
    * ==========================================================
    */
-  const responseCode =
-    data.ResponseCode === undefined ||
-    data.ResponseCode === null
-      ? ""
-      : String(data.ResponseCode);
 
-  const resultCode =
-    data.ResultCode === undefined ||
-    data.ResultCode === null
-      ? ""
-      : String(data.ResultCode);
-
-  /**
-   * ==========================================================
-   * RESPONSE DIAGNOSTICS
-   * ==========================================================
-   *
-   * These values are safe to log.
-   *
-   * We deliberately do NOT log:
-   *
-   * - password
-   * - passkey
-   * - access token
-   */
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "M-PESA STK QUERY RESPONSE"
-  );
-
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "HTTP Status:",
-    response.status
-  );
-
-  console.log(
-    "ResponseCode:",
-    responseCode
-  );
-
-  console.log(
-    "ResponseDescription:",
-    data.ResponseDescription
-  );
-
-  console.log(
-    "MerchantRequestID:",
-    data.MerchantRequestID
-  );
-
-  console.log(
-    "CheckoutRequestID:",
-    data.CheckoutRequestID
-  );
-
-  console.log(
-    "ResultCode:",
-    resultCode
-  );
-
-  console.log(
-    "ResultDesc:",
-    data.ResultDesc
-  );
-
-  console.log(
-    "================================="
-  );
-
-  /**
-   * ==========================================================
-   * RETURN RAW SAFARICOM RESULT
-   * ==========================================================
-   *
-   * mpesa-status.ts will interpret ResultCode.
-   */
   return data;
 }

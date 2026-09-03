@@ -23,18 +23,10 @@ import {
 
 /**
  * ============================================================
- * M-PESA STK PUSH CALLBACK URL
+ * CALLBACK URL
  * ============================================================
  *
- * Safaricom sends the final transaction result asynchronously
- * to this HTTPS endpoint.
- *
- * IMPORTANT:
- *
- * ResponseCode 0 from the STK Push request only means that
- * Safaricom accepted the request for processing.
- *
- * The actual payment result comes later through the callback.
+ * Safaricom will send the final STK transaction result here.
  */
 const CALLBACK_URL =
   "https://bjclqqynzsljskfeqfdj.supabase.co/functions/v1/mpesa-callback";
@@ -72,16 +64,9 @@ serve(async (req: Request): Promise<Response> => {
      * VALIDATE M-PESA CONFIGURATION
      * ==========================================================
      *
-     * This validates:
-     *
-     * - MPESA_ENV
-     * - MPESA_CONSUMER_KEY
-     * - MPESA_CONSUMER_SECRET
-     * - MPESA_SHORTCODE
-     * - MPESA_PASSKEY
-     * - MPESA_TRANSACTION_TYPE
-     *
-     * No credentials are logged.
+     * This is important because it prevents an incorrect
+     * shortcode/environment combination from reaching
+     * Safaricom.
      */
     validateMpesaConfig();
 
@@ -125,8 +110,6 @@ serve(async (req: Request): Promise<Response> => {
      * ==========================================================
      * VALIDATE AMOUNT
      * ==========================================================
-     *
-     * M-PESA requires a positive whole-number KES amount.
      */
     if (
       typeof amount !== "number" ||
@@ -144,13 +127,11 @@ serve(async (req: Request): Promise<Response> => {
      * NORMALIZE PHONE NUMBER
      * ==========================================================
      *
-     * Examples:
+     * Example:
      *
      * +254716172432
-     * 254716172432
-     * 0716172432
      *
-     * become:
+     * becomes:
      *
      * 254716172432
      */
@@ -162,7 +143,7 @@ serve(async (req: Request): Promise<Response> => {
      * NORMALIZE PAYMENT AMOUNT
      * ==========================================================
      *
-     * M-PESA expects a whole-number amount.
+     * M-PESA requires a whole-number KES amount.
      *
      * Example:
      *
@@ -175,27 +156,6 @@ serve(async (req: Request): Promise<Response> => {
         Math.round(amount)
       );
 
-    /**
-     * ==========================================================
-     * SAFE REQUEST DIAGNOSTICS
-     * ==========================================================
-     *
-     * Safe to log:
-     *
-     * - environment
-     * - BusinessShortCode
-     * - transaction type
-     * - phone number
-     * - amount
-     * - callback URL
-     *
-     * NEVER log:
-     *
-     * - consumer secret
-     * - passkey
-     * - STK password
-     * - OAuth access token
-     */
     console.log(
       "================================="
     );
@@ -246,10 +206,6 @@ serve(async (req: Request): Promise<Response> => {
      * ==========================================================
      * GENERATE TIMESTAMP
      * ==========================================================
-     *
-     * Safaricom format:
-     *
-     * YYYYMMDDHHmmss
      */
     const timestamp =
       generateTimestamp();
@@ -259,19 +215,17 @@ serve(async (req: Request): Promise<Response> => {
      * GENERATE STK PASSWORD
      * ==========================================================
      *
-     * Safaricom formula:
+     * The password is generated from:
      *
-     * Base64(
-     *   BusinessShortCode +
-     *   Passkey +
-     *   Timestamp
-     * )
+     * BusinessShortCode
+     * +
+     * Passkey
+     * +
+     * Timestamp
      *
-     * generatePassword() reads the same
-     * MPESA_SHORTCODE from _shared/env.ts.
+     * IMPORTANT:
      *
-     * Therefore the shortcode used here and the shortcode
-     * used to generate the password cannot accidentally differ.
+     * Never log this password.
      */
     const password =
       generatePassword(timestamp);
@@ -289,115 +243,50 @@ serve(async (req: Request): Promise<Response> => {
      * BUILD STK PUSH PAYLOAD
      * ==========================================================
      *
-     * CURRENT PRODUCTION CONFIGURATION
-     * ---------------------------------
+     * For the current xnewsapp.com production configuration:
      *
-     * Daraja Production App shortcode:
+     * BusinessShortCode = 4320242
      *
-     *     4320242
+     * TransactionType =
+     * CustomerBuyGoodsOnline
      *
-     * The actual value is NOT hard-coded here.
+     * PartyA =
+     * customer's phone
      *
-     * It comes from:
-     *
-     *     MPESA_SHORTCODE
-     *
-     * which is loaded from Supabase Edge Function Secrets
-     * through _shared/env.ts.
-     *
-     * Till Number:
-     *
-     *     4798391
-     *
-     * Organization Short Code / Store Number:
-     *
-     *     4460875
-     *
-     * IMPORTANT:
-     *
-     * We do NOT substitute either of those values into
-     * BusinessShortCode here.
-     *
-     * The production Daraja shortcode configured for this
-     * application is the value supplied by MPESA_SHORTCODE.
+     * PartyB =
+     * merchant Till Number (4798391)
      */
     const stkPayload = {
-      /**
-       * Daraja production application shortcode.
-       *
-       * Expected from Supabase secret:
-       *
-       * MPESA_SHORTCODE=4320242
-       */
       BusinessShortCode:
         MPESA_SHORTCODE,
 
-      /**
-       * Generated from:
-       *
-       * MPESA_SHORTCODE
-       * +
-       * MPESA_PASSKEY
-       * +
-       * Timestamp
-       */
       Password:
         password,
 
       Timestamp:
         timestamp,
 
-      /**
-       * Expected production transaction type:
-       *
-       * CustomerBuyGoodsOnline
-       */
       TransactionType:
         MPESA_TRANSACTION_TYPE,
 
-      /**
-       * Amount requested by customer.
-       */
       Amount:
         amountToCharge,
 
-      /**
-       * Customer's M-PESA phone number.
-       */
       PartyA:
         customerPhone,
 
-      /**
-       * Merchant shortcode associated with the
-       * configured STK Push application.
-       *
-       * This deliberately uses the same configured
-       * shortcode as BusinessShortCode.
-       */
       PartyB:
         MPESA_TILL_NUMBER,
 
-      /**
-       * Customer's phone number.
-       */
       PhoneNumber:
         customerPhone,
 
-      /**
-       * Safaricom callback endpoint.
-       */
       CallBackURL:
         CALLBACK_URL,
 
-      /**
-       * Internal xnewsapp.com reference.
-       */
       AccountReference:
         "xnewsapp",
 
-      /**
-       * Customer-facing transaction description.
-       */
       TransactionDesc:
         "AI Content Generation",
     };
@@ -424,12 +313,6 @@ serve(async (req: Request): Promise<Response> => {
               "application/json",
           },
 
-          /**
-           * IMPORTANT:
-           *
-           * Never log this payload because it contains
-           * the generated STK password.
-           */
           body:
             JSON.stringify(stkPayload),
         }
@@ -449,10 +332,11 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     /**
-     * ==========================================================
-     * EMPTY RESPONSE
-     * ==========================================================
+     * NEVER log the request payload.
+     *
+     * It contains the generated STK password.
      */
+
     if (!responseText.trim()) {
       console.error(
         "Daraja returned an empty response."
@@ -466,7 +350,7 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ==========================================================
-     * PARSE SAFARICOM RESPONSE
+     * PARSE RESPONSE
      * ==========================================================
      */
     let data: Record<string, unknown>;
@@ -476,7 +360,8 @@ serve(async (req: Request): Promise<Response> => {
         JSON.parse(responseText);
     } catch {
       console.error(
-        "Daraja returned invalid JSON."
+        "Daraja returned invalid JSON:",
+        responseText
       );
 
       return failure(
@@ -489,34 +374,11 @@ serve(async (req: Request): Promise<Response> => {
      * ==========================================================
      * SAFARICOM HTTP ERROR
      * ==========================================================
-     *
-     * This means Safaricom rejected the HTTP/API request itself.
      */
     if (!response.ok) {
       console.error(
-        "================================="
-      );
-
-      console.error(
-        "DARaja STK PUSH HTTP ERROR"
-      );
-
-      console.error(
-        "HTTP Status:",
-        response.status
-      );
-
-      console.error(
-        "Safaricom Response:",
-        JSON.stringify(
-          data,
-          null,
-          2
-        )
-      );
-
-      console.error(
-        "================================="
+        "Daraja STK Push HTTP error:",
+        JSON.stringify(data)
       );
 
       const errorMessage =
@@ -534,17 +396,6 @@ serve(async (req: Request): Promise<Response> => {
 
     /**
      * ==========================================================
-     * NORMALIZE RESPONSE CODE
-     * ==========================================================
-     */
-    const responseCode =
-      data.ResponseCode === undefined ||
-      data.ResponseCode === null
-        ? ""
-        : String(data.ResponseCode);
-
-    /**
-     * ==========================================================
      * SAFARICOM APPLICATION RESPONSE
      * ==========================================================
      *
@@ -552,14 +403,14 @@ serve(async (req: Request): Promise<Response> => {
      *
      * Safaricom accepted the STK Push request.
      *
-     * It does NOT mean:
-     *
-     * - customer entered PIN
-     * - money was received
-     * - payment succeeded
-     *
-     * The final result must come through the callback.
+     * It does NOT mean the customer has paid yet.
      */
+    const responseCode =
+      data.ResponseCode === undefined ||
+      data.ResponseCode === null
+        ? ""
+        : String(data.ResponseCode);
+
     console.log(
       "================================="
     );
