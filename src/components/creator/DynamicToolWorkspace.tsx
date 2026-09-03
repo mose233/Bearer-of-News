@@ -735,9 +735,6 @@ function VideoTemplatePanel({
       `${tool} ${selectedVideoDuration} video request prepared. ${stagedVideoFiles.length > 0 ? "Uploaded media has been added to the preview and timeline. " : ""}fal.ai will generate the real MP4 when connected. Preview the prepared media, then use Export / Download Media.`
     );
 
-    window.setTimeout(() => {
-      onGenerateCompleteVideo?.();
-    }, 80);
   };
 
   return (
@@ -1458,9 +1455,6 @@ function VideoTemplatePanel({
       `${tool} ${selectedCinematicDuration} video request prepared. ${stagedCinematicFile ? "Uploaded source media has been added to the preview and timeline. " : ""}fal.ai will generate the real MP4 when connected. Preview the prepared media, then use Export / Download Media.`
     );
 
-    window.setTimeout(() => {
-      onGenerateCompleteVideo?.();
-    }, 80);
   };
 
   return (
