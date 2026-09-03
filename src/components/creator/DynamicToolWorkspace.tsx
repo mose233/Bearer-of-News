@@ -732,9 +732,12 @@ function VideoTemplatePanel({
     setVideoOutputFormat?.(localOutputFormat);
 
     setVideoDraftStatus(
-      `${tool} ${selectedVideoDuration} video request prepared. ${stagedVideoFiles.length > 0 ? "Uploaded media has been added to the preview and timeline. " : ""}fal.ai will generate the real MP4 when connected. Preview the prepared media, then use Export / Download Media.`
+      `${tool} ${selectedVideoDuration} video prepared. ${stagedVideoFiles.length > 0 ? "Uploaded media has been added to the preview and timeline. " : ""}Preview it, then export/download from the main Export section.`
     );
 
+    window.setTimeout(() => {
+      onGenerateCompleteVideo?.();
+    }, 80);
   };
 
   return (
@@ -1367,12 +1370,12 @@ function VideoTemplatePanel({
         : "1. Upload Source Media";
 
   const uploadDescription = isPhotoToVideo
-    ? "Upload one photo. The request will be prepared now; fal.ai will generate the real motion video when connected."
+    ? "Upload one photo. Mock mode will prepare a motion-video draft from it."
     : isTalkingAvatar
-      ? "Upload a face or avatar image. The request will be prepared now; fal.ai will generate the real talking video when connected."
+      ? "Upload a face or avatar image for the talking video draft."
       : isNewsPresenter
-        ? "Upload presenter image, news image, or newsroom visual for the video request."
-        : "Upload a photo, image, or short video for this cinematic AI request.";
+        ? "Upload presenter image, news image, or newsroom visual."
+        : "Upload a photo, image, or short video for this cinematic AI tool.";
 
   const instructionLabel = isTalkingAvatar
     ? "6. Avatar Script"
@@ -1445,16 +1448,121 @@ function VideoTemplatePanel({
 
     if (!addedMedia) return;
 
-    const cinematicPrompt = buildCinematicPrompt();
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1920;
 
-    setVideoPrompt?.(cinematicPrompt);
-    setVideoCreativeType?.(cinematicMotionStyle);
-    setVideoOutputFormat?.(cinematicOutputFormat);
+    const context = canvas.getContext("2d");
 
-    setCinematicStatus(
-      `${tool} ${selectedCinematicDuration} video request prepared. ${stagedCinematicFile ? "Uploaded source media has been added to the preview and timeline. " : ""}fal.ai will generate the real MP4 when connected. Preview the prepared media, then use Export / Download Media.`
-    );
+    if (!context) {
+      alert("Could not create cinematic draft.");
+      return;
+    }
 
+    const gradient = context.createLinearGradient(0, 0, 1080, 1920);
+
+    if (cinematicMood === "Newsroom") {
+      gradient.addColorStop(0, "#0f172a");
+      gradient.addColorStop(1, "#2563eb");
+    } else if (cinematicMood === "Luxury") {
+      gradient.addColorStop(0, "#111827");
+      gradient.addColorStop(1, "#f59e0b");
+    } else if (cinematicMood === "Emotional") {
+      gradient.addColorStop(0, "#312e81");
+      gradient.addColorStop(1, "#ec4899");
+    } else if (cinematicMood === "Energetic") {
+      gradient.addColorStop(0, "#7c2d12");
+      gradient.addColorStop(1, "#22c55e");
+    } else {
+      gradient.addColorStop(0, "#020617");
+      gradient.addColorStop(1, "#7c3aed");
+    }
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 1080, 1920);
+
+    context.fillStyle = "rgba(255,255,255,0.10)";
+    context.beginPath();
+    context.arc(920, 260, 260, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(255,255,255,0.06)";
+    context.beginPath();
+    context.arc(120, 1550, 360, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(0,0,0,0.42)";
+    context.fillRect(80, 300, 920, 1040);
+
+    context.textAlign = "center";
+    context.fillStyle = "#ffffff";
+    context.font = `900 72px ${creatorFontCss}`;
+    context.fillText(tool.toUpperCase(), 540, 450);
+
+    context.font = `800 46px ${creatorFontCss}`;
+    context.fillStyle = "#fde68a";
+    context.fillText(cinematicMotionStyle, 540, 560);
+
+    context.font = `700 36px ${creatorFontCss}`;
+    context.fillStyle = "#cffafe";
+    context.fillText(cinematicMood, 540, 650);
+
+    context.fillStyle = "rgba(255,255,255,0.88)";
+    context.font = `700 30px ${creatorFontCss}`;
+    context.fillText(cinematicOutputFormat, 540, 750);
+
+    context.fillStyle = "rgba(255,255,255,0.78)";
+    context.font = `700 28px ${creatorFontCss}`;
+    context.fillText(`${cinematicAspectRatio} • ${cinematicTextPreset}`, 540, 820);
+
+    context.strokeStyle = "rgba(255,255,255,0.75)";
+    context.lineWidth = 7;
+    context.beginPath();
+    context.moveTo(250, 980);
+    context.bezierCurveTo(390, 850, 660, 1110, 830, 950);
+    context.stroke();
+
+    context.fillStyle = "#ffffff";
+    context.font = `800 34px ${creatorFontCss}`;
+    context.fillText("CINEMATIC VIDEO", 540, 1160);
+
+    context.fillStyle = "rgba(255,255,255,0.8)";
+    context.font = `700 26px ${creatorFontCss}`;
+    context.fillText("fal.ai will power real motion later", 540, 1230);
+
+    context.fillStyle = "rgba(255,255,255,0.88)";
+    context.font = `700 28px ${creatorFontCss}`;
+    context.fillText("xnewsapp.com", 540, 1770);
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        alert("Could not generate cinematic draft image.");
+        return;
+      }
+
+  
+
+      const file = new File([blob], `xnewsapp-${tool.toLowerCase().replace(/\s+/g, "-")}-mock-draft.png`, {
+        type: "image/png",
+      });
+      const preview = URL.createObjectURL(blob);
+
+      setVideoPrompt?.(buildCinematicPrompt());
+      setVideoCreativeType?.(cinematicMotionStyle);
+      setVideoOutputFormat?.(cinematicOutputFormat);
+
+      if (onAddEnhancedPhotoToTimeline) {
+        onAddEnhancedPhotoToTimeline(
+          file,
+          preview,
+          getDurationSecondsFromLabel(selectedCinematicDuration)
+        );
+      }
+
+      setCinematicStatus(
+        `${tool} ${selectedCinematicDuration} generated. Uploaded media and preview cover have been added to the timeline. Preview it, then use Export / Download Media.`
+      );
+    }, "image/png");
   };
 
   return (
@@ -1462,7 +1570,7 @@ function VideoTemplatePanel({
       <ToolHeader
         title={tool}
         icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
-        description="Cinematic AI is the premium AI motion-video workspace. Prepare the source media, motion style and video request now. fal.ai will generate the real MP4 when connected."
+        description="Cinematic AI is the premium AI motion-video workspace. Upload source media, choose motion style, then generate a preview. fal.ai will power real motion later."
       />
 
       <div className="mt-5 space-y-5">
