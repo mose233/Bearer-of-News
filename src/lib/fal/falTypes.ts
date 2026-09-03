@@ -10,6 +10,7 @@ export type FalVideoRequest = {
   tool: FalVideoTool;
   prompt: string;
   imageUrl?: string;
+  imageFile?: File;
   audioUrl?: string;
   durationSeconds: number;
   aspectRatio: "9:16" | "1:1" | "16:9";
