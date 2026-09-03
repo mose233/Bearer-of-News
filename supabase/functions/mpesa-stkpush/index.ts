@@ -1,9 +1,9 @@
-```typescript
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 import {
   MPESA_BASE_URL,
   MPESA_SHORTCODE,
+  MPESA_TILL_NUMBER,
   MPESA_TRANSACTION_TYPE,
   validateMpesaConfig,
 } from "../_shared/env.ts";
@@ -375,7 +375,7 @@ serve(async (req: Request): Promise<Response> => {
        * shortcode as BusinessShortCode.
        */
       PartyB:
-        MPESA_SHORTCODE,
+        MPESA_TILL_NUMBER,
 
       /**
        * Customer's phone number.
@@ -655,4 +655,3 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 });
-```

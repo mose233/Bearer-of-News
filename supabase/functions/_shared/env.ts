@@ -1,4 +1,3 @@
-```typescript
 /**
  * ============================================================
  * M-PESA ENVIRONMENT CONFIGURATION
@@ -550,4 +549,3 @@ export function validateMpesaConfig(): void {
     "================================="
   );
 }
-```
