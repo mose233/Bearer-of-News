@@ -339,6 +339,42 @@ serve(async (req: Request): Promise<Response> => {
      * It MUST NOT be treated as pending.
      */
 
+    // Safaricom can temporarily return ResultCode 4999 with
+    // "The transaction is still under processing" while the
+    // customer payment is still being completed.
+    //
+    // This is NOT the same as a genuine merchant/configuration
+    // failure. Treat this specific response as pending so the
+    // frontend can poll again until ResultCode "0" confirms payment.
+    if (
+      resultCode === RESULT_MERCHANT_NOT_FOUND &&
+      resultDescription.toLowerCase().includes("still under processing")
+    ) {
+      console.log(
+        "M-PESA TRANSACTION STILL PROCESSING:",
+        checkoutRequestID,
+      );
+
+      console.log(
+        "Safaricom ResultCode 4999:",
+        resultDescription,
+      );
+
+      return jsonResponse({
+        paid: false,
+        pending: true,
+        cancelled: false,
+        failed: false,
+        message:
+          resultDescription ||
+          "The transaction is still under processing.",
+        resultCode,
+        result,
+      });
+    }
+
+    // Other ResultCode 4999 responses remain genuine merchant/
+    // configuration failures.
     if (resultCode === RESULT_MERCHANT_NOT_FOUND) {
       console.error(
         "M-PESA MERCHANT NOT FOUND:",
