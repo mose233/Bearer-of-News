@@ -1471,9 +1471,9 @@ function VideoTemplatePanel({
 
     setStagedCinematicFile(file);
     setStagedCinematicFileName(file.name);
-    setCinematicStatus(
-      `${file.name} uploaded and ready. Click Generate ${tool} to add it to preview and timeline.`
-    );
+     setCinematicStatus(
+  `${file.name} uploaded as source media for fal.ai. Click Generate ${tool} to create the real AI video.`
+);
   };
 
   const handleGenerateCinematicTextToVideo = async () => {
