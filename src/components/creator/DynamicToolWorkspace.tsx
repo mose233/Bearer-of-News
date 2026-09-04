@@ -1476,24 +1476,6 @@ function VideoTemplatePanel({
     );
   };
 
-  const addStagedCinematicMediaToTimeline = () => {
-    if (!stagedCinematicFile) {
-      return true;
-    }
-
-    if (!onAddEnhancedPhotoToTimeline) {
-      alert("Timeline connection is not ready.");
-      return false;
-    }
-
-    const preview = URL.createObjectURL(stagedCinematicFile);
-    onAddEnhancedPhotoToTimeline(
-      stagedCinematicFile,
-      preview,
-      getDurationSecondsFromLabel(selectedCinematicDuration)
-    );
-    return true;
-  };
   const handleGenerateCinematicTextToVideo = async () => {
     const cinematicPrompt = buildCinematicPrompt();
 
