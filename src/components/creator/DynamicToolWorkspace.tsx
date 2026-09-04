@@ -902,13 +902,18 @@ function VideoTemplatePanel({
         )}
 
         <div className="flex flex-wrap gap-3">
-         <PrimaryGenerateButton
-  label="Generate Video"
+          <PrimaryGenerateButton
+  label={`Generate ${tool}`}
   onClick={() => {
+    const generateHandler =
+      tool === "Text to Video"
+        ? handleGenerateCinematicTextToVideo
+        : handleGenerateCinematicDraft;
+
     if (requestGeneration) {
-      requestGeneration("$0.70", handleGenerateVideoDraft);
+      requestGeneration("$0.72", generateHandler);
     } else {
-      handleGenerateVideoDraft();
+      generateHandler();
     }
   }}
 />
