@@ -2583,9 +2583,9 @@ const isMemeGenerator = tool === "Meme Generator";
                             : isBeautyGlow
                               ? "Apply a social-media beauty glow with smoother lighting and a clean polished look."
                               : isYoungerLook
-                                ? "Create a youthful mock transformation effect before adding the photo to the timeline."
+                                ? "Create a realistic youthful transformation while preserving the person's identity."
                                 : isBackgroundChanger
-                                  ? "Prepare a background-change mock preview for office, studio, beach, Nairobi, or transparent-style content."
+                                  ? "Replace the photo background with a realistic office, studio, beach, Nairobi, or transparent-style scene."
                                   : isHairstyleChanger
                                     ? "Try a new hairstyle look from an uploaded photo."
                                     : isOutfitChanger
@@ -2640,13 +2640,13 @@ const isMemeGenerator = tool === "Meme Generator";
                       : isMemeGenerator
                         ? "Generate Meme"
                         : isBackgroundChanger
-                          ? "Generate Background Preview"
+                          ? "Generate Background"
                           : isHairstyleChanger
-                            ? "Generate Hairstyle Preview"
+                            ? "Generate Hairstyle"
                             : isOutfitChanger
-                              ? "Generate Outfit Preview"
+                              ? "Generate Outfit"
                               : isSceneChanger
-                                ? "Generate Scene Preview"
+                                ? "Generate Scene"
                                 : isStudioPortrait
                                   ? "Generate Studio Portrait"
                                   : isBeautyGlow
