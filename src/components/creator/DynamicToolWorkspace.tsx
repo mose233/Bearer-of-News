@@ -893,8 +893,6 @@ function VideoTemplatePanel({
           />
         </label>
 
-        
-
         {videoDraftStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
             {videoDraftStatus}
@@ -905,11 +903,7 @@ function VideoTemplatePanel({
           <PrimaryGenerateButton
   label={`Generate ${tool}`}
   onClick={() => {
-    const generateHandler =
-      tool === "Text to Video"
-        ? handleGenerateCinematicTextToVideo
-        : handleGenerateCinematicDraft;
-
+  
     if (requestGeneration) {
       requestGeneration("$0.72", generateHandler);
     } else {
