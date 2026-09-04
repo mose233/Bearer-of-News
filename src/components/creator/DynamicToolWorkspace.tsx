@@ -1422,7 +1422,7 @@ function VideoTemplatePanel({
         : "1. Upload Source Media";
 
   const uploadDescription = isPhotoToVideo
-    ? "Upload one photo. Mock mode will prepare a motion-video draft from it."
+    ? "Upload one photo. fal.ai will generate a real motion video from it."
     : isTalkingAvatar
       ? "Upload a face or avatar image for the talking video draft."
       : isNewsPresenter
