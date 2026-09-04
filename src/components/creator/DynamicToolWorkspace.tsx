@@ -1460,7 +1460,7 @@ function VideoTemplatePanel({
       "User instructions:",
       cinematicScript.trim() || instructionPlaceholder,
       "",
-      "Create a timeline-ready cinematic preview now. Later fal.ai will replace this with real AI video generation.",
+      "Generate a real cinematic AI video using the selected settings and source instructions.",
     ].join("\n");
   };
 
