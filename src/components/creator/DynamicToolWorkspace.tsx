@@ -3686,9 +3686,22 @@ Create a clean, realistic, high-quality result.`;
     );
   }
 
-  if (category === "Cinematic AI" && tool === "Text to Video") {
-    return <AIVideoStudioPanel />;
-  }
+ if (category === "Cinematic AI" && tool === "Text to Video") {
+  return (
+    <CinematicPlaceholderPanel
+      tool={tool}
+      selectedCreatorFont={selectedCreatorFont}
+      setSelectedCreatorFont={setSelectedCreatorFont}
+      onMediaUpload={onMediaUpload}
+      setVideoPrompt={setVideoPrompt}
+      setVideoCreativeType={setVideoCreativeType}
+      setVideoOutputFormat={setVideoOutputFormat}
+      onAddEnhancedPhotoToTimeline={onAddEnhancedPhotoToTimeline}
+      onVideoDurationChange={onVideoDurationChange}
+      requestGeneration={requestGeneration}
+    />
+  );
+}
 
   if (category === "Cinematic AI" && tool === "Dance Animation") {
     return (
