@@ -2654,7 +2654,140 @@ const isMemeGenerator = tool === "Meme Generator";
                                     : isYoungerLook
                                       ? "Generate Younger Look"
                                       : "Generate Enhanced Photo";
+         const performUploadedPictureGeneration = async () => {
+  if (!pictureFile) {
+    alert("Please upload a photo first.");
+    return;
+  }
 
+  try {
+    setHasPreviewedEnhancement(false);
+
+    const prompt =
+      isPhotoEnhancer
+        ? `Enhance this photo with ${pictureStrength} strength.
+Improve sharpness, lighting, color, clarity, and overall image quality.
+HD upscale: ${pictureUpscale}.
+Preserve the person's identity, facial features, body, clothing, pose, and composition.
+Do not change the subject or add unnecessary elements.`
+        : isStudioPortrait
+          ? `Transform this uploaded photo into a professional ${portraitRole} portrait.
+Use a ${portraitBackground} background.
+Preserve the person's exact identity, facial structure, skin tone, facial features, pose, and clothing.
+Create a clean, professional, realistic photographic result.`
+          : isBeautyGlow
+            ? `Apply a ${beautyLevel} beauty enhancement using a ${enhancementStyle} look.
+Improve lighting, skin appearance, facial presentation, and overall polish.
+Keep the result natural and realistic.
+Preserve the person's exact identity and facial features.`
+            : isYoungerLook
+              ? `Make the person appear approximately ${youngerAge} younger.
+Use a ${enhancementStyle} look.
+Preserve the person's identity, facial structure, recognizable features, pose, and natural appearance.
+Create a realistic age-reduction result without changing who the person is.`
+              : isBackgroundChanger
+                ? `Replace the existing background with a ${backgroundChoice} background.
+Use a ${enhancementStyle} visual style.
+Keep the person or main subject exactly preserved.
+Do not change the person's face, identity, body, clothing, pose, or proportions.
+Create a realistic and natural separation between the subject and the new background.`
+                : isHairstyleChanger
+                  ? `Change the person's hairstyle to ${hairStyleChoice}.
+Use a ${enhancementStyle} visual style.
+Preserve the person's exact identity, face, facial structure, skin tone, pose, clothing, and body.
+Only change the hairstyle and make the result realistic.`
+                  : isOutfitChanger
+                    ? `Change the person's outfit to ${outfitChoice}.
+Use a ${enhancementStyle} visual style.
+Preserve the person's exact identity, face, facial structure, skin tone, hairstyle, pose, and body.
+Only change the clothing and make the result realistic.`
+                    : isSceneChanger
+                      ? `Place the person or main subject into the following scene: ${sceneChoice}.
+Use a ${enhancementStyle} visual mood.
+Preserve the person's exact identity, face, facial structure, skin tone, body, clothing, and pose.
+Create a realistic scene integration with appropriate lighting and perspective.`
+                      : `Improve this uploaded image using a ${enhancementStyle} style.
+Preserve the original subject and identity.
+Create a clean, realistic, high-quality result.`;
+
+    console.log("=================================");
+    console.log("REAL PICTURE AI EDIT REQUEST");
+    console.log("Tool:", tool);
+    console.log("Prompt:", prompt);
+    console.log("Image:", pictureFile.name);
+    console.log("=================================");
+
+    const result = await PictureAIService.generate({
+      prompt,
+      tool,
+      style: enhancementStyle,
+      aspectRatio: "1:1",
+      image: pictureFile,
+    });
+
+    if (!result.success || !result.imageUrl) {
+      throw new Error(
+        result.error || "Picture AI editing failed."
+      );
+    }
+
+    /*
+     * The service returns a Blob URL.
+     * Convert the generated image back into a File so the
+     * existing timeline/export workflow can use the AI result.
+     */
+    const response = await fetch(result.imageUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        "Unable to prepare the generated Picture AI image."
+      );
+    }
+
+    const blob = await response.blob();
+
+    const generatedFile = new File(
+      [blob],
+      `picture-ai-${Date.now()}.png`,
+      {
+        type: blob.type || "image/png",
+      }
+    );
+
+    /*
+     * The old picturePreview may point to the uploaded source
+     * image. Replace it with the generated AI result.
+     */
+    if (picturePreview) {
+      URL.revokeObjectURL(picturePreview);
+    }
+
+    setPictureFile(generatedFile);
+    setPictureFileName(generatedFile.name);
+    setPicturePreview(result.imageUrl);
+    setHasPreviewedEnhancement(true);
+
+    console.log("=================================");
+    console.log("REAL PICTURE AI EDIT COMPLETED");
+    console.log("Generated file:", generatedFile.name);
+    console.log("Generated size:", generatedFile.size);
+    console.log("Preview:", result.imageUrl);
+    console.log("=================================");
+  } catch (error) {
+    console.error(
+      "REAL PICTURE AI EDIT ERROR:",
+      error
+    );
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Picture AI generation failed."
+    );
+
+    setHasPreviewedEnhancement(false);
+  }
+};
     return (
       <div className={boxClass}>
         <>
@@ -3355,11 +3488,11 @@ const isMemeGenerator = tool === "Meme Generator";
  onClick={() => {
   if (isPromptToImage) {
     onGenerateImage?.();
-  } else {
-      confirmPictureGeneration(() => {
-        setHasPreviewedEnhancement(true);
-      });
-    }
+    } else {
+  confirmPictureGeneration(
+    performUploadedPictureGeneration
+  );
+}
   }}
   className="h-12 rounded-2xl bg-pink-600 px-5 font-extrabold text-white hover:bg-pink-700 disabled:opacity-60"
 >
