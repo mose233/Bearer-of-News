@@ -1,4 +1,5 @@
 import React, { RefObject, useRef, useState } from "react";
+import { PictureAIService } from "../../lib/ai/PictureAIService";
 import {
   Captions,
   ChevronDown,
