@@ -8,6 +8,7 @@ type Env = {
 type GenerateImageRequest = {
   prompt?: string;
   size?: "1024x1024" | "1024x1536" | "1536x1024";
+  imageData?: string;
 };
 
 function jsonResponse(data: unknown, status = 200) {
@@ -88,6 +89,49 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const size = body.size || "1024x1024";
 
+    /*
+     * ============================================================
+     * IMAGE-TO-IMAGE / UPLOADED PHOTO EDITING
+     * ============================================================
+     *
+     * When imageData is supplied, use fal.ai FLUX Kontext [dev].
+     *
+     * This is intentionally separate from the existing text-to-image
+     * path below so the current Picture AI text generation continues
+     * working exactly as before.
+     */
+    if (body.imageData) {
+      console.log("=================================");
+      console.log("FAL.AI IMAGE-TO-IMAGE EDITING");
+      console.log("Model: fal-ai/flux-kontext/dev");
+      console.log("Prompt:", prompt);
+      console.log("Uploaded image present: YES");
+      console.log("=================================");
+
+      const image = await ImageProvider.edit({
+        tool: "Image Editing",
+        prompt,
+        imageData: body.imageData,
+        falApiKey,
+      });
+
+      return jsonResponse({
+        ok: true,
+        imageBase64: image.imageBase64,
+        mimeType: image.mimeType,
+      });
+    }
+
+    /*
+     * ============================================================
+     * EXISTING TEXT-TO-IMAGE PATH
+     * ============================================================
+     *
+     * DO NOT CHANGE this behavior.
+     *
+     * Prompt-based Picture AI continues to use fal-ai/flux/dev
+     * through ImageProvider.generate().
+     */
     const imagePrompt = `Create a clean, high-quality social media video scene image.
 
 Style:
@@ -115,6 +159,8 @@ ${prompt}`;
       mimeType: image.mimeType,
     });
   } catch (error) {
+    console.error("Picture AI server error:", error);
+
     return jsonResponse(
       {
         ok: false,
