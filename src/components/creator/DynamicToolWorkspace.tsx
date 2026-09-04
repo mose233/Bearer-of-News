@@ -1860,8 +1860,8 @@ function VideoTemplatePanel({
               setVideoCreativeType?.(cinematicMotionStyle);
               setVideoOutputFormat?.(cinematicOutputFormat);
               setCinematicStatus(
-                `${tool} ${selectedCinematicDuration} video settings saved with ${cinematicTextPreset} text style. Click Generate to add uploaded media to preview/timeline, then export from the main Export section.`
-              );
+  `${tool} ${selectedCinematicDuration} settings saved with ${cinematicTextPreset} text style. Click Generate to create the real AI video, then export from the main Export section.`
+);
             }}
             className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-extrabold text-white hover:bg-slate-600"
           >
