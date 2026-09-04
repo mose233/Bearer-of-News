@@ -2,9 +2,13 @@ import { fal } from "@fal-ai/client";
 import { FalVideoRequest, FalVideoResult } from "./falTypes";
 import { falModelByTool } from "./falModels";
 
-fal.config({
-  credentials: import.meta.env.VITE_FAL_KEY,
-});
+const FAL_KEY = import.meta.env.VITE_FAL_KEY;
+
+if (FAL_KEY) {
+  fal.config({
+    credentials: FAL_KEY,
+  });
+}
 
 function createGenerationId(): string {
   return (
@@ -14,65 +18,118 @@ function createGenerationId(): string {
   );
 }
 
+function getFalErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Unknown fal.ai generation error.";
+  }
+}
+
 export async function generateFalVideo(
   request: FalVideoRequest
 ): Promise<FalVideoResult> {
-  if (!import.meta.env.VITE_FAL_KEY) {
-    throw new Error("VITE_FAL_KEY is not configured.");
+  const generationId = createGenerationId();
+
+  if (!FAL_KEY) {
+    return {
+      id: generationId,
+      status: "failed",
+      error: "VITE_FAL_KEY is not configured.",
+    };
   }
 
   const model = falModelByTool[request.tool];
 
   if (!model) {
-    throw new Error(
-      `${request.tool} is not connected to a fal.ai video model yet.`
-    );
+    return {
+      id: generationId,
+      status: "failed",
+      error: `${request.tool} is not connected to a fal.ai video model yet.`,
+    };
   }
 
   const isTextToVideo = request.tool === "Text to Video";
   const isImageToVideo = request.tool === "Photo to Video";
 
   if (!isTextToVideo && !isImageToVideo) {
-    throw new Error(
-      `${request.tool} is not connected to a supported fal.ai video model yet.`
-    );
+    return {
+      id: generationId,
+      status: "failed",
+      error: `${request.tool} is not connected to a supported fal.ai video model yet.`,
+    };
   }
 
-  if (isImageToVideo && !request.imageUrl && !request.imageFile) {
-    throw new Error(
-      "Photo to Video requires an uploaded image."
-    );
+  if (!request.prompt?.trim()) {
+    return {
+      id: generationId,
+      status: "failed",
+      error: "A video generation prompt is required.",
+    };
   }
 
-  const generationId = createGenerationId();
-
-  console.log("Starting real fal.ai video generation:", {
-    tool: request.tool,
-    model,
-    prompt: request.prompt,
-    hasImageFile: Boolean(request.imageFile),
-    hasImageUrl: Boolean(request.imageUrl),
-    durationSeconds: request.durationSeconds,
-    aspectRatio: request.aspectRatio,
-  });
+  if (isImageToVideo && !request.imageFile && !request.imageUrl) {
+    return {
+      id: generationId,
+      status: "failed",
+      error: "Photo to Video requires an uploaded image.",
+    };
+  }
 
   try {
-    const input: Record<string, unknown> = {
+    console.log("Starting real fal.ai video generation:", {
+      tool: request.tool,
+      model,
       prompt: request.prompt,
+      hasImageFile: Boolean(request.imageFile),
+      hasImageUrl: Boolean(request.imageUrl),
+      durationSeconds: request.durationSeconds,
+      aspectRatio: request.aspectRatio,
+    });
+
+    const input: Record<string, unknown> = {
+      prompt: request.prompt.trim(),
       resolution: "480p",
-      aspect_ratio:
-        request.aspectRatio === "1:1"
-          ? "1:1"
-          : request.aspectRatio,
       num_frames: 81,
       frames_per_second: 16,
       enable_safety_checker: true,
       enable_prompt_expansion: false,
     };
 
-    if (isImageToVideo) {
-      input.image_url = request.imageFile ?? request.imageUrl;
+    if (isTextToVideo) {
+      input.aspect_ratio =
+        request.aspectRatio === "9:16"
+          ? "9:16"
+          : "16:9";
     }
+
+    if (isImageToVideo) {
+      input.aspect_ratio =
+        request.aspectRatio === "1:1"
+          ? "1:1"
+          : request.aspectRatio === "9:16"
+            ? "9:16"
+            : "16:9";
+
+      if (request.imageFile) {
+        input.image_url = request.imageFile;
+      } else if (request.imageUrl) {
+        input.image_url = request.imageUrl;
+      }
+    }
+
+    console.log("fal.ai request input:", {
+      model,
+      input,
+    });
 
     const result = await fal.subscribe(model, {
       input,
@@ -82,13 +139,17 @@ export async function generateFalVideo(
       },
     });
 
-    console.log("fal.ai real video result:", result);
+    console.log("fal.ai completed response:", result);
+    console.log("fal.ai response data:", result?.data);
 
-    const videoUrl = result.data?.video?.url;
+    const videoUrl = result?.data?.video?.url;
 
-    if (!videoUrl) {
+    if (
+      typeof videoUrl !== "string" ||
+      videoUrl.trim().length === 0
+    ) {
       throw new Error(
-        "fal.ai completed but returned no video URL."
+        "fal.ai completed but did not return the expected data.video.url."
       );
     }
 
@@ -98,15 +159,18 @@ export async function generateFalVideo(
       videoUrl,
     };
   } catch (error) {
-    console.error("fal.ai video generation failed:", error);
+    const errorMessage = getFalErrorMessage(error);
+
+    console.error("fal.ai video generation failed:", {
+      tool: request.tool,
+      model,
+      error,
+    });
 
     return {
       id: generationId,
       status: "failed",
-      error:
-        error instanceof Error
-          ? error.message
-          : "fal.ai video generation failed.",
+      error: errorMessage,
     };
   }
 }
