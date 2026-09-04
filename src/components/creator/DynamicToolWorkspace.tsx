@@ -19,7 +19,6 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
-import AIVideoStudioPanel from "@/components/creator/AIVideoStudioPanel";
 import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 import MusicStudioPanel from "@/components/creator/MusicStudioPanel";
 
