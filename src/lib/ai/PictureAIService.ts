@@ -41,12 +41,15 @@ export class PictureAIService {
       console.log("Tool:", request.tool);
       console.log("Prompt:", prompt);
       console.log("Aspect Ratio:", request.aspectRatio);
+      console.log("Has uploaded image:", !!request.image);
       console.log("Sending request to /api/generate-image");
       console.log("=================================");
 
       /*
        * Convert the application's aspect ratio into one of the
-       * sizes supported by the Cloudflare image endpoint.
+       * sizes supported by the existing text-to-image endpoint.
+       *
+       * This is retained for the existing Text to Image flow.
        */
       let size: "1024x1024" | "1024x1536" | "1536x1024" =
         "1024x1024";
@@ -64,6 +67,26 @@ export class PictureAIService {
       }
 
       /*
+       * Uploaded-photo Picture AI tools use image-to-image editing.
+       *
+       * Convert the browser File into a data URI so the image can be
+       * securely sent to Cloudflare without exposing the FAL API key.
+       *
+       * Cloudflare will pass this image to fal.ai FLUX Kontext.
+       */
+      let imageData: string | undefined;
+
+      if (request.image) {
+        imageData = await this.fileToDataUrl(request.image);
+
+        console.log(
+          "Uploaded image converted to data URI.",
+          "Bytes:",
+          imageData.length
+        );
+      }
+
+      /*
        * Send the request to Cloudflare.
        *
        * IMPORTANT:
@@ -74,6 +97,19 @@ export class PictureAIService {
        * context.env.FAL_API_KEY
        *
        * inside /functions/api/generate-image.ts
+       *
+       * Existing text-to-image requests continue to use:
+       *
+       * {
+       *   prompt,
+       *   size
+       * }
+       *
+       * Uploaded-photo requests additionally send:
+       *
+       * {
+       *   imageData
+       * }
        */
       const response = await fetch("/api/generate-image", {
         method: "POST",
@@ -83,6 +119,7 @@ export class PictureAIService {
         body: JSON.stringify({
           prompt,
           size,
+          imageData,
         }),
       });
 
@@ -127,7 +164,8 @@ export class PictureAIService {
       if (!data.imageBase64) {
         return {
           success: false,
-          error: "fal.ai generated successfully but no image was returned.",
+          error:
+            "fal.ai generated successfully but no image was returned.",
         };
       }
 
@@ -141,7 +179,7 @@ export class PictureAIService {
        *       ↓
        * imageUrl
        *       ↓
-       * generatedImagePreview
+       * picturePreview / generatedImagePreview
        *       ↓
        * File
        *       ↓
@@ -188,5 +226,36 @@ export class PictureAIService {
             : String(err),
       };
     }
+  }
+
+  /**
+   * Convert a browser File into a data URI.
+   *
+   * The data URI is sent to our Cloudflare API.
+   * The FAL API key never leaves the server.
+   */
+  private static fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        if (typeof reader.result !== "string") {
+          reject(
+            new Error("Unable to convert uploaded image.")
+          );
+          return;
+        }
+
+        resolve(reader.result);
+      };
+
+      reader.onerror = () => {
+        reject(
+          new Error("Unable to read uploaded image.")
+        );
+      };
+
+      reader.readAsDataURL(file);
+    });
   }
 }
