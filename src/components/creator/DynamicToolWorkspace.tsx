@@ -1831,13 +1831,19 @@ function VideoTemplatePanel({
 
 
         <div className="flex flex-wrap gap-3">
-                 <PrimaryGenerateButton
+            <PrimaryGenerateButton
   label={`Generate ${tool}`}
   onClick={() => {
     const generateHandler =
       tool === "Text to Video"
         ? handleGenerateCinematicTextToVideo
-        : handleGenerateCinematicDraft;
+        : tool === "Photo to Video"
+          ? handleGenerateCinematicDraft
+          : async () => {
+              setCinematicStatus(
+                `${tool} is not connected to a supported fal.ai video model yet.`
+              );
+            };
 
     if (requestGeneration) {
       requestGeneration("$0.72", generateHandler);
@@ -1845,7 +1851,7 @@ function VideoTemplatePanel({
       generateHandler();
     }
   }}
-/>
+/>    
 
           <button
             type="button"
