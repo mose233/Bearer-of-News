@@ -1224,6 +1224,7 @@ const resetCurrentProject = () => {
             audioRef={audioRef}
             onMusicUpload={handleMusicUpload}
             onToggleMusic={toggleMusic}
+            onAddMusicToVideo={handleAddGeneratedMusicToVideo}
             photoMusicImagePreview={photoMusicImagePreview}
             photoMusicAudioName={photoMusicAudioName}
             photoMusicStyle={photoMusicStyle}
