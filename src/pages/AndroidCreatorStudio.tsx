@@ -1,3 +1,7 @@
+import { PictureAIService } from "@/lib/ai/PictureAIService";
+import { getPrice } from "@/lib/pricing/pricingEngine";
+import PaymentModal from "@/components/payments/PaymentModal";
+import { supabase } from "@/integrations/supabase/client";
 import { isAndroid } from "@/lib/creator/DeviceManager";
 import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
@@ -5,12 +9,16 @@ import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
+import { getUSDPrice } from "@/lib/pricing/pricingEngine";
+import { convertUSDToKES } from "@/lib/pricing/exchangeService";
+import type { PaymentRequest } from "@/lib/payments/PaymentRequest";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import AiToolLauncher, {
   AiToolSelection,
 } from "@/components/creator/AiToolLauncher";
-import AndroidDynamicToolWorkspace from "@/components/creator/AndroidDynamicToolWorkspace";
+import DynamicToolWorkspace from "@/components/creator/DynamicToolWorkspace";
 import PreviewPanel from "@/components/creator/PreviewPanel";
 import PicturePreviewPanel from "@/components/creator/PicturePreviewPanel";
 import ExportPanel from "@/components/creator/ExportPanel";
@@ -21,7 +29,6 @@ import {
 } from "@/lib/creator/AISceneManager";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
-import { createDanceVideo } from "@/lib/creator/DanceManager";
 
 import { MultiScenePlan } from "@/lib/creator/multiSceneGenerator";
 
@@ -53,7 +60,7 @@ import {
   exportPhotoMusicVideoMp4,
 } from "@/lib/creator/videoExport";
 
-export default function AndroidCreatorStudio() {
+export default function CreatorStudio() {
   const [videoPrompt, setVideoPrompt] = useState("");
   const [facebookCaption, setFacebookCaption] = useState("");
   const [contentType, setContentType] =
@@ -70,8 +77,6 @@ export default function AndroidCreatorStudio() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
   const [downloadComplete, setDownloadComplete] = useState(false);
-  const [isAndroidDownloading, setIsAndroidDownloading] = useState(false);
-  const [androidDownloadComplete, setAndroidDownloadComplete] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [backgroundMusic, setBackgroundMusic] = useState<File | null>(null);
@@ -114,23 +119,38 @@ export default function AndroidCreatorStudio() {
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [paymentPrice, setPaymentPrice] = useState("");
+  const [paymentComplete, setPaymentComplete] = useState(false);
+  const [pendingGeneration, setPendingGeneration] =
+  useState<(() => void) | null>(null);
+  
+  const requestPaidGeneration = (
+  payment: PaymentRequest,
+  generate: () => void
+) => {
+  console.log("Opening payment:", payment);
 
-  const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
-const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
+  setPaymentPrice(
+    `${payment.currency} ${payment.amount.toFixed(2)}`
+  );
 
-useEffect(() => {
-}, []);
+  setPendingGeneration(() => generate);
 
-const handleSelectTool = (tool: AiToolSelection) => {
-  setSelectedTool(tool);
-
-  window.setTimeout(() => {
-    workspaceSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, 120);
+  setPaymentOpen(true);
 };
+  const livePreviewSectionRef = useRef<HTMLDivElement | null>(null);
+  const workspaceSectionRef = useRef<HTMLDivElement | null>(null);
+
+  const handleSelectTool = (tool: AiToolSelection) => {
+    setSelectedTool(tool);
+    window.setTimeout(() => {
+      workspaceSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  };
 
   const imagePreviews: ImagePreviewItem[] = useMemo(() => {
   return buildImagePreviewItems(mediaFiles, mediaPreviews);
@@ -204,9 +224,6 @@ const handleSelectTool = (tool: AiToolSelection) => {
     return selectedVideoDurationSeconds || 10;
   };
 
-
-  
-
  const addSceneToTimeline = (
   file: File,
   preview: string,
@@ -230,6 +247,69 @@ const handleSelectTool = (tool: AiToolSelection) => {
   setCurrentIndex(next.currentIndex);
 
   scrollToLivePreview();
+};
+const handleAddGeneratedMusicToVideo = async (
+  audioUrl: string,
+  durationSeconds: number,
+  tool: string
+) => {
+  if (!audioUrl) {
+    throw new Error("Generated music URL is missing.");
+  }
+
+  setExportStatus("Adding generated AI music to your video...");
+
+  try {
+    const response = await fetch(audioUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `Could not retrieve generated audio (${response.status}).`
+      );
+    }
+
+    const blob = await response.blob();
+
+    if (blob.size === 0) {
+      throw new Error("Generated audio file is empty.");
+    }
+
+    const file = new File(
+      [blob],
+      `xnewsapp-${tool
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")}-ai-music.wav`,
+      {
+        type: blob.type || "audio/wav",
+      }
+    );
+
+    revokeMusicPreview(musicPreview);
+
+    const preview = createMusicPreview(file);
+
+    setBackgroundMusic(file);
+    setMusicPreview(preview);
+    setIsMusicPlaying(false);
+
+    setExportStatus(
+      `AI music added to the video soundtrack (${Math.round(
+        durationSeconds
+      )} seconds).`
+    );
+
+    window.setTimeout(() => {
+      livePreviewSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  } catch (error) {
+    console.error("Failed to add generated Music AI to video:", error);
+
+    throw error;
+  }
 };
 
   const handleGenerateScript = () => {
@@ -298,7 +378,10 @@ const handleSelectTool = (tool: AiToolSelection) => {
           `Generating scene image ${index + 1} of ${plan.length}...`
         );
 
-       const result = await generateSceneImage(prompt, "1024x1024");
+        const result = await generateSingleScene(
+  prompt,
+  "1024x1024"
+);
 
         generatedFiles.push(result.file);
         generatedPreviews.push(result.previewUrl);
@@ -415,38 +498,116 @@ const handleSelectTool = (tool: AiToolSelection) => {
   };
 
   const handleGenerateDancingVideo = async () => {
+  if (!dancingPhotoFile || !dancingPhotoPreview) {
+    alert("Please upload a dancing photo first.");
+    return;
+  }
+
+  const generateDanceWithFal = async () => {
     try {
-      if (!dancingPhotoFile || !dancingPhotoPreview) {
-        alert("Please upload a dancing photo first.");
-        return;
-      }
-
       setIsGeneratingDance(true);
-      setExportStatus("Generating mock dancing video...");
+      setExportStatus(
+        `Generating ${danceStyle} dance video with fal.ai...`
+      );
+      setDanceResultMessage("");
 
-     const result = await createDanceVideo(
-  dancingPhotoFile,
-  dancingPhotoPreview,
-  danceStyle
-);
+      const { generateFalVideo } = await import("@/lib/fal/falService");
 
-      setDanceResultMessage(result.message);
-
-      addSceneToTimeline(
-        dancingPhotoFile,
-        dancingPhotoPreview,
-        selectedVideoDurationSeconds
+      const durationSeconds = Math.min(
+        15,
+        Math.max(2, selectedVideoDurationSeconds)
       );
 
-      alert("Mock dancing video added to timeline.");
+      const dancePrompt = [
+        "Create a real AI dance animation video from the uploaded person image.",
+        `Dance style: ${danceStyle}.`,
+        "Preserve the person's identity, appearance, clothing, and overall visual characteristics.",
+        "Animate the person performing natural, energetic full-body dance movements appropriate for the selected style.",
+        "Keep the motion coherent, smooth, physically natural, and visually consistent.",
+        "Use a vertical social-media composition.",
+      ].join(" ");
+
+      const result = await generateFalVideo({
+        tool: "Photo to Video",
+        prompt: dancePrompt,
+        imageFile: dancingPhotoFile,
+        durationSeconds,
+        aspectRatio: "9:16",
+      });
+
+      if (result.status === "failed" || !result.videoUrl) {
+        throw new Error(
+          result.error || "fal.ai did not return a dance video."
+        );
+      }
+
+      const response = await fetch(result.videoUrl);
+
+      if (!response.ok) {
+        throw new Error(
+          `Could not download the fal.ai dance video (${response.status}).`
+        );
+      }
+
+      const blob = await response.blob();
+
+      const file = new File(
+        [blob],
+        `xnewsapp-${danceStyle
+          .toLowerCase()
+          .replace(/\s+/g, "-")}-dance-ai-video.mp4`,
+        { type: "video/mp4" }
+      );
+
+      const preview = URL.createObjectURL(blob);
+
+      addSceneToTimeline(
+        file,
+        preview,
+        durationSeconds
+      );
+
+      setDanceResultMessage(
+        `${danceStyle} real AI dance video generated by fal.ai and added to the preview and timeline.`
+      );
+
+      setExportStatus(
+        `${danceStyle} real AI dance video generated by fal.ai.`
+      );
     } catch (error) {
-      console.error(error);
-      alert("Failed to generate dancing video.");
+      console.error(
+        "Desktop Dance Animation fal.ai generation failed:",
+        error
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "fal.ai dance video generation failed.";
+
+      setDanceResultMessage(
+        `Dance video generation failed: ${message}`
+      );
+
+      setExportStatus(
+        `Dance video generation failed: ${message}`
+      );
     } finally {
       setIsGeneratingDance(false);
-      setExportStatus("");
     }
   };
+
+  requestPaidGeneration(
+    {
+      tool: "Dance Animation",
+      usdPrice: 1.08,
+      currency: "USD",
+      amount: 1.08,
+      description: "Dance Animation AI video generation",
+    },
+    generateDanceWithFal
+  );
+};
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   const files = Array.from(e.target.files || []);
@@ -465,48 +626,91 @@ const handleSelectTool = (tool: AiToolSelection) => {
   setSceneDurations(uploaded.durations);
   setCurrentIndex(0);
 };
+ const performImageGeneration = async () => {
+  try {
+    const prompt = aiImagePrompt.trim() || videoPrompt.trim();
 
-  const handleGenerateImage = async () => {
-    try {
-      if (isAndroid()) {
-  setAndroidDownloadComplete(false);
-}
-      const prompt = aiImagePrompt.trim() || videoPrompt.trim();
-
-      if (!prompt) {
-        alert("Please write an AI image prompt first.");
-        return;
-      }
-
-      setIsGeneratingImage(true);
-      setMultiScenePlan([]);
-      
-if (generatedImagePreview) {
-  URL.revokeObjectURL(generatedImagePreview);
-}
-
-setGeneratedImageFile(null);
-setGeneratedImagePreview("");
-      setDownloadComplete(false);
-
-      const result = await generateSceneImage(prompt, "1024x1024");
-
-    setGeneratedImageFile(result.file);
-setGeneratedImagePreview(result.previewUrl);
-
-addSceneToTimeline(
-  result.file,
-  result.previewUrl,
-  selectedVideoDurationSeconds
-);
-  } catch (error) {
-  console.error(error);
-  alert("Failed to generate AI scene image.");
-}finally {
-      setIsGeneratingImage(false);
+    if (!prompt) {
+      alert("Please write an AI image prompt first.");
+      return;
     }
-  };
 
+    setIsGeneratingImage(true);
+    setMultiScenePlan([]);
+
+    console.log("Starting real fal.ai Picture AI generation...");
+    console.log("Prompt:", prompt);
+
+    const result = await PictureAIService.generate({
+      prompt,
+      tool: "Text to Image",
+      aspectRatio: "1:1",
+    });
+
+    console.log("PictureAIService result:", result);
+
+    if (!result.success || !result.imageUrl) {
+      throw new Error(
+        result.error || "fal.ai did not return an image."
+      );
+    }
+
+    if (generatedImagePreview) {
+      URL.revokeObjectURL(generatedImagePreview);
+    }
+
+    setGeneratedImagePreview(result.imageUrl);
+
+    // Convert the fal.ai image URL into a File so the
+    // existing desktop timeline/export workflow can continue.
+    const response = await fetch(result.imageUrl);
+
+    if (!response.ok) {
+      throw new Error("Failed to download the generated fal.ai image.");
+    }
+
+    const blob = await response.blob();
+
+    const file = new File(
+      [blob],
+      `picture-ai-${Date.now()}.png`,
+      {
+        type: blob.type || "image/png",
+      }
+    );
+
+    setGeneratedImageFile(file);
+
+    alert("Picture AI image generated successfully.");
+  } catch (error) {
+    console.error("Picture AI failed:", error);
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : String(error)
+    );
+  } finally {
+    setIsGeneratingImage(false);
+  }
+};
+
+const handleGenerateImage = () => {
+  const usdPrice = getUSDPrice("Picture AI");
+
+  requestPaidGeneration(
+    {
+      tool: "Picture AI",
+      usdPrice,
+      currency: "USD",
+      amount: usdPrice,
+      description: "Picture AI Generation",
+    },
+    () => {
+      performImageGeneration();
+    }
+  );
+};
   const handleGenerateMultiScenePlan = () => {
     try {
       const prompt = aiImagePrompt.trim() || videoPrompt.trim();
@@ -557,7 +761,8 @@ alert(`${plan.length} scene plan generated successfully.`);
   scene.prompt,
   "1024x1024"
 );
-addSceneToTimeline(result.file, result.previewUrl, scene.duration);
+
+      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
 
       alert(`Scene ${index + 1} added to timeline.`);
     } catch (error) {
@@ -823,36 +1028,58 @@ const resetCurrentProject = () => {
 
   // Clear export state
   setExportStatus("");
-  setDownloadComplete(false);
-setAndroidDownloadComplete(false);
-setIsAndroidDownloading(false);
-setIsGeneratingImage(false);
 };
   const handleDownloadGeneratedImage = async () => {
-  return handleExportPrimaryMedia();
+  if (generatedImageFile) {
+    await ExportManager.exportImage(generatedImageFile);
+    setDownloadComplete(true);
+    return;
+  }
+
+  if (!generatedImagePreview) {
+    alert("Please generate an image first.");
+    return;
+  }
+
+  const response = await fetch(generatedImagePreview);
+  const blob = await response.blob();
+
+  await ExportManager.exportImage(blob);
+    setDownloadComplete(true);
 };
   const handleExportPrimaryMedia = async () => {
     try {
-      if (isAndroid()) {
-  setAndroidDownloadComplete(false);
-}
     if (selectedTool?.category === "Picture AI") {
+      if (generatedImageFile || generatedImagePreview) {
+        await handleDownloadGeneratedImage();
+        return;
+      }
+
+      const currentPreview = mediaPreviews[currentIndex];
       const currentFile = mediaFiles[currentIndex];
 
-if (!currentFile) {
-  alert("Please generate an image first.");
-  return;
-}
+      if (currentPreview && currentFile?.type.startsWith("image/")) {
+        const response = await fetch(currentPreview);
+        const blob = await response.blob();
 
-await ExportManager.exportImage(currentFile);
+        await ExportManager.exportImage(blob);
+        return;
+      }
 
-if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-}
+      if (imagePreviews.length > 0) {
+        const fallbackPreview = imagePreviews[0];
 
-setDownloadComplete(true);
-return;
+        const response = await fetch(fallbackPreview.preview);
+        const blob = await response.blob();
+
+        await ExportManager.exportImage(blob);
+        return;
+      }
+
+      alert("Please generate or add an image first.");
+      return;
     }
+
     const currentFile = mediaFiles[currentIndex];
     const currentPreview = mediaPreviews[currentIndex];
 
@@ -891,17 +1118,13 @@ return;
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
      } finally {
-  if (isAndroid()) {
-  setAndroidDownloadComplete(true);
-  setDownloadComplete(true);
-  return;
+  if (!isAndroid()) {
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
 }
-
-  setTimeout(() => {
-    resetCurrentProject();
-  }, 1000);
-}
-    };
+  };
 
  const handleExportSilentMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
@@ -927,8 +1150,6 @@ return;
   }
 };
   
-  
-
  const handleExportNarratedMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
@@ -955,7 +1176,53 @@ return;
     }, 1000);
   }
 };
+  const handleExportFinalMixedMp4 = async () => {
+  if (imagePreviews.length === 0) {
+    alert("Please upload or generate images first.");
+    return;
+  }
 
+  if (!aiVoiceBlob) {
+    alert("Please generate AI voice first.");
+    return;
+  }
+
+  setIsExporting(true);
+  setExportStatus(
+    "Exporting final mixed MP4 with voice and background music..."
+  );
+
+  try {
+    const videoBlob = await exportFinalMixedMp4({
+      imagePreviews,
+      durationSeconds: getTimelineDuration(),
+      voiceBlob: aiVoiceBlob,
+      voiceVolume,
+      backgroundMusic,
+      musicVolume,
+    });
+
+    await ExportManager.exportCustom(
+      videoBlob,
+      "xnewsapp-final-video.mp4"
+    );
+  } catch (error) {
+    console.error("Final mixed MP4 export failed:", error);
+
+    alert(
+      error instanceof Error
+        ? `Unable to export final mixed MP4: ${error.message}`
+        : "Unable to export final mixed MP4."
+    );
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
+};
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
@@ -967,7 +1234,12 @@ return;
           <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
             Create AI videos, images and music
           </h1>
+
+          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+            Choose a tool, create your media, then export and download.
+          </p>
         </header>
+
         <div className="mb-5">
           <AiToolLauncher
             selectedTool={selectedTool}
@@ -976,7 +1248,7 @@ return;
         </div>
 
         <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
-          <AndroidDynamicToolWorkspace
+          <DynamicToolWorkspace
             selectedTool={selectedTool}
             speechRate={speechRate}
             setSpeechRate={setSpeechRate}
@@ -996,6 +1268,7 @@ return;
             audioRef={audioRef}
             onMusicUpload={handleMusicUpload}
             onToggleMusic={toggleMusic}
+            onAddMusicToVideo={handleAddGeneratedMusicToVideo}
             photoMusicImagePreview={photoMusicImagePreview}
             photoMusicAudioName={photoMusicAudioName}
             photoMusicStyle={photoMusicStyle}
@@ -1020,20 +1293,19 @@ return;
             setVideoOutputFormat={setVideoOutputFormat}
             onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
             aiImagePrompt={aiImagePrompt}
-setAiImagePrompt={setAiImagePrompt}
-isGeneratingImage={isGeneratingImage}
-generatedImagePreview={generatedImagePreview}
-multiScenePlan={multiScenePlan}
-
-onGenerateImage={handleGenerateImage}
-onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
-onAddGeneratedImage={handleAddGeneratedImage}
-onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
-onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
-onMediaUpload={handleMediaUpload}
-onPublishToFacebook={openFacebookAfterExport}
-onDownloadGeneratedImage={handleDownloadGeneratedImage}
-onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+            setAiImagePrompt={setAiImagePrompt}
+            isGeneratingImage={isGeneratingImage}
+            generatedImagePreview={generatedImagePreview}
+            multiScenePlan={multiScenePlan}
+            onGenerateImage={handleGenerateImage}
+            onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
+            onAddGeneratedImage={handleAddGeneratedImage}
+            onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
+            onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
+            onMediaUpload={handleMediaUpload}
+            onPublishToFacebook={openFacebookAfterExport}
+            onDownloadGeneratedImage={handleDownloadGeneratedImage}
+            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
   addSceneToTimeline(
     file,
     preview,
@@ -1041,14 +1313,27 @@ onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
   )
 }
 onVideoDurationChange={setSelectedVideoDurationSeconds}
-                  />
+
+requestGeneration={requestPaidGeneration}
+
+onRequestPayment={(amount, onSuccess) => {
+  setPaymentPrice(amount);
+  setPendingGeneration(() => onSuccess);
+  setPaymentOpen(true);
+}}
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-4">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Preview
+                </CardTitle>
+              </CardHeader>
+
               <CardContent className="px-3 py-4 sm:px-4">
-            
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
@@ -1076,6 +1361,12 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
             </Card>
 
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Export & Download
+                </CardTitle>
+              </CardHeader>
+
               <CardContent className="px-3 py-4 sm:px-4">
   <ExportPanel
   isRecording={isRecording}
@@ -1091,34 +1382,67 @@ onVideoDurationChange={setSelectedVideoDurationSeconds}
   onInitializeFFmpeg={initializeFFmpeg}
   onExportSilentMp4={handleExportSilentMp4}
   onExportNarratedMp4={handleExportNarratedMp4}
-  onExportFinalMixedMp4={handleExportNarratedMp4}
+  onExportFinalMixedMp4={handleExportFinalMixedMp4}
 />
                
 </CardContent>
             </Card>
-{isAndroid() && downloadComplete && (
+
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
+              Review your content before downloading or sharing.
+            </div>
+            {isAndroid() && downloadComplete && (
   <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-    <p className="font-semibold text-emerald-300">
+    <p className="mb-3 font-semibold text-emerald-300">
       ✅ Download complete.
     </p>
 
-    <p className="mt-2 text-sm text-slate-300">
-      To create another image or video, refresh this page.
+    <p className="mb-4 text-sm text-slate-300">
+      Tap below to start a new creation.
     </p>
 
-    <Button
-      type="button"
-      onClick={() => window.location.reload()}
-      className="mt-4 w-full rounded-xl bg-cyan-600 text-white hover:bg-cyan-700"
+    <button
+      onClick={() => {
+        setDownloadComplete(false);
+        resetCurrentProject();
+      }}
+      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
     >
-      🔄 Refresh Page
-    </Button>
+      Click to Generate Again
+    </button>
   </div>
 )}
           </section>
         </div>
 
-      </div>
-    </main>
-  );
+            </div> {/* closes grid */}
+
+      <PaymentModal
+  open={paymentOpen}
+  price={paymentPrice}
+  onClose={() => setPaymentOpen(false)}
+  onPaymentSuccess={() => {
+    console.log("✅ PaymentModal: Payment confirmed");
+
+    setPaymentOpen(false);
+    setPaymentComplete(true);
+
+    console.log("pendingGeneration =", pendingGeneration);
+
+    if (pendingGeneration) {
+      console.log("🚀 Executing pending generation...");
+
+      pendingGeneration();
+
+      console.log("✅ pendingGeneration finished");
+
+      setPendingGeneration(null);
+    } else {
+      console.log("❌ pendingGeneration is NULL");
+    }
+  }}
+/>
+
+  </main>
+);
 }
