@@ -46,6 +46,81 @@ function getFalErrorMessage(error: unknown): string {
   }
 }
 
+function logFalErrorDetails(error: unknown): void {
+  console.error(
+    "fal.ai MiniMax Music 3 COMPLETE ERROR OBJECT:",
+    error
+  );
+
+  if (error instanceof Error) {
+    console.error(
+      "fal.ai MiniMax Music 3 ERROR NAME:",
+      error.name
+    );
+
+    console.error(
+      "fal.ai MiniMax Music 3 ERROR MESSAGE:",
+      error.message
+    );
+
+    console.error(
+      "fal.ai MiniMax Music 3 ERROR STACK:",
+      error.stack
+    );
+  }
+
+  if (typeof error === "object" && error !== null) {
+    try {
+      console.error(
+        "fal.ai MiniMax Music 3 ERROR PROPERTIES:",
+        Object.getOwnPropertyNames(error).reduce(
+          (details, key) => {
+            try {
+              details[key] = (error as Record<string, unknown>)[key];
+            } catch {
+              details[key] = "[Unable to read property]";
+            }
+
+            return details;
+          },
+          {} as Record<string, unknown>
+        )
+      );
+    } catch {
+      console.error(
+        "fal.ai MiniMax Music 3 ERROR PROPERTIES: unable to inspect"
+      );
+    }
+
+    const errorRecord = error as Record<string, unknown>;
+
+    console.error(
+      "fal.ai MiniMax Music 3 STATUS:",
+      errorRecord.status
+    );
+
+    console.error(
+      "fal.ai MiniMax Music 3 STATUS TEXT:",
+      errorRecord.statusText
+    );
+
+    console.error(
+      "fal.ai MiniMax Music 3 BODY:",
+      errorRecord.body
+    );
+
+    console.error(
+      "fal.ai MiniMax Music 3 DETAILS:",
+      errorRecord.details
+    );
+
+    console.error(
+      "fal.ai MiniMax Music 3 RESPONSE:",
+      errorRecord.response
+    );
+  }
+}
+
 function normalizeDuration(durationSeconds: number): number {
   if (!Number.isFinite(durationSeconds)) {
     return 60;
@@ -101,11 +176,13 @@ export async function generateFalMusic(
       },
       logs: true,
       onQueueUpdate(update) {
-        console.log("fal.ai MiniMax Music 3 queue update:", update);
+        console.log(
+          "fal.ai MiniMax Music 3 queue update:",
+          update
+        );
       },
     });
 
-    // DEBUG: inspect exactly what fal.ai returned.
     console.log(
       "fal.ai MiniMax Music 3 raw result:",
       result
@@ -114,7 +191,10 @@ export async function generateFalMusic(
     const audioUrl = result?.data?.audio?.url;
     const actualDuration = result?.data?.duration;
 
-    if (typeof audioUrl !== "string" || audioUrl.trim().length === 0) {
+    if (
+      typeof audioUrl !== "string" ||
+      audioUrl.trim().length === 0
+    ) {
       throw new Error(
         "fal.ai completed but did not return the expected data.audio.url."
       );
@@ -125,9 +205,13 @@ export async function generateFalMusic(
       status: "completed",
       audioUrl,
       durationSeconds:
-        typeof actualDuration === "number" ? actualDuration : duration,
+        typeof actualDuration === "number"
+          ? actualDuration
+          : duration,
     };
   } catch (error) {
+    logFalErrorDetails(error);
+
     const errorMessage = getFalErrorMessage(error);
 
     console.error(
