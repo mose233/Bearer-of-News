@@ -1663,8 +1663,7 @@ function VideoTemplatePanel({
       <ToolHeader
         title={tool}
         icon={<Clapperboard className="h-5 w-5 text-amber-300" />}
-        description="Cinematic AI is the premium AI motion-video workspace. Upload source media, choose motion style, then generate a preview. fal.ai will power real motion later."
-      />
+        description="Cinematic AI is the premium AI motion-video workspace. Upload source media, choose motion style, then generate a real AI video with fal.ai."
 
       <div className="mt-5 space-y-5">
         <VideoPricingCard
