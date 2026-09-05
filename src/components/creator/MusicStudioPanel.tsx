@@ -17,9 +17,9 @@ type MusicStudioPanelProps = {
   setSongStatus: (value: string) => void;
   onMusicUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   requestGeneration?: (
-  amount: string,
-  generate: () => void
-) => void;
+    amount: string,
+    generate: () => void
+  ) => void;
 };
 
 const inputClass =
@@ -91,6 +91,7 @@ const durations = [
   "4 min",
   "Full Song (5 min max)",
 ];
+
 const musicPricing: Record<string, string> = {
   "10 sec": "$0.05",
   "20 sec": "$0.10",
@@ -103,6 +104,7 @@ const musicPricing: Record<string, string> = {
   "4 min": "$1.20",
   "Full Song (5 min max)": "$1.50",
 };
+
 function SelectField({
   label,
   value,
@@ -119,6 +121,7 @@ function SelectField({
       <span className="mb-2 block text-sm font-extrabold text-white">
         {label}
       </span>
+
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -130,6 +133,75 @@ function SelectField({
       </select>
     </label>
   );
+}
+
+function getDurationSeconds(duration: string): number {
+  if (duration === "Full Song (5 min max)") {
+    return 300;
+  }
+
+  const match = duration.match(/^(\d+)\s*(sec|min)$/i);
+
+  if (!match) {
+    return 60;
+  }
+
+  const value = Number(match[1]);
+
+  if (!Number.isFinite(value)) {
+    return 60;
+  }
+
+  return match[2].toLowerCase() === "min" ? value * 60 : value;
+}
+
+function buildMusicPrompt({
+  tool,
+  style,
+  language,
+  voiceStyle,
+  duration,
+  userInstructions,
+}: {
+  tool: string;
+  style: string;
+  language: string;
+  voiceStyle: string;
+  duration: number;
+  userInstructions: string;
+}): string {
+  return [
+    `Create a polished ${style} song for ${tool}.`,
+    `Language: ${language}.`,
+    `Vocal direction: ${voiceStyle}.`,
+    `Target duration: approximately ${duration} seconds.`,
+    "Make the production professional, musical, coherent and suitable for social-media video use.",
+    "Use clear vocals, strong musical arrangement, appropriate rhythm and a memorable structure.",
+    `User creative direction: ${userInstructions}`,
+  ].join(" ");
+}
+
+function buildMusicLyrics(
+  userInstructions: string,
+  style: string,
+  language: string
+): string {
+  return [
+    "[Verse 1]",
+    userInstructions,
+    "",
+    "[Chorus]",
+    `Create a memorable ${style} hook that captures the main message.`,
+    "",
+    "[Verse 2]",
+    `Develop the story further in ${language} while keeping the lyrics natural and singable.`,
+    "",
+    "[Bridge]",
+    "Add an emotional or energetic bridge that builds toward the final chorus.",
+    "",
+    "[Chorus]",
+    "Repeat the strongest hook and finish with a memorable musical ending.",
+  ].join("\n");
 }
 
 export default function MusicStudioPanel({
@@ -152,6 +224,10 @@ export default function MusicStudioPanel({
   const [voiceStyle, setVoiceStyle] = useState("Afrobeats Male Voice");
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  const [audioUrl, setAudioUrl] = useState("");
+  const [audioDurationSeconds, setAudioDurationSeconds] = useState<number | null>(
+    null
+  );
 
   const config = useMemo(() => {
     const lowerTool = tool.toLowerCase();
@@ -160,7 +236,7 @@ export default function MusicStudioPanel({
       return {
         title: "Birthday Song Creator",
         description:
-          "Generate birthday audio with lyrics, voice direction and a downloadable draft.",
+          "Generate birthday audio with lyrics, voice direction and a downloadable song.",
         mainLabel: "1. Birthday Details",
         placeholder:
           "Example: Birthday person: Sarah. Age: 25. Message: May God bless you with joy, success and long life.",
@@ -381,7 +457,7 @@ export default function MusicStudioPanel({
       return {
         title: "Beat Generator",
         description:
-          "Generate beat direction and future audio instructions for production.",
+          "Generate beat-focused audio direction for production.",
         mainLabel: "1. Beat Description",
         placeholder:
           "Example: Energetic Gengetone beat with heavy drums, club bass and viral TikTok feel.",
@@ -406,7 +482,7 @@ export default function MusicStudioPanel({
     return {
       title: "AI Song Studio",
       description:
-        "Generate audio and an editable song draft for future fal.ai music generation.",
+        "Generate real AI music with lyrics and a downloadable audio file.",
       mainLabel: "1. Song Idea / Lyrics",
       placeholder:
         "Example: Create a Swahili Afrobeats song about dreams, success and Nairobi life.",
@@ -429,21 +505,10 @@ export default function MusicStudioPanel({
       "User instructions:",
       songLyrics.trim() || config.placeholder,
       "",
-      "Lyrics Structure:",
-      "Verse 1:",
-      "Write the opening story or message here.",
-      "",
-      "Chorus:",
-      "Repeat the strongest hook here.",
-      "",
-      "Verse 2:",
-      "Add emotion, details, names or location here.",
-      "",
-      "Bridge / Chant:",
-      "Add a memorable chant, worship line, slogan or call-and-response.",
-      "",
-      "fal.ai Audio Prompt:",
-      `Generate ${songDuration} ${songStyle || config.defaultStyle} audio in ${songLanguage} using ${voiceStyle}. Keep it polished, social-media ready and suitable for XNewsApp export.`,
+      "Generated by:",
+      "xnewsapp.com Music AI",
+      "Provider: fal.ai",
+      "Model: MiniMax Music 3",
     ].join("\n");
   }, [
     config.defaultStyle,
@@ -457,23 +522,75 @@ export default function MusicStudioPanel({
     voiceStyle,
   ]);
 
-  const handleGenerateAudio = () => {
+  const handleGenerateAudio = async () => {
     if (!songLyrics.trim()) {
       alert("Please write the music details first.");
       return;
     }
 
     setIsGeneratingAudio(true);
-    setSongStatus("Generating audio preview...");
+    setAudioReady(false);
+    setSongPreviewReady(false);
+    setAudioUrl("");
+    setAudioDurationSeconds(null);
+    setSongStatus("Sending your music request to fal.ai...");
 
-    window.setTimeout(() => {
+    try {
+      const durationSeconds = getDurationSeconds(songDuration);
+      const style = songStyle || config.defaultStyle;
+
+      const prompt = buildMusicPrompt({
+        tool,
+        style,
+        language: songLanguage,
+        voiceStyle,
+        duration: durationSeconds,
+        userInstructions: songLyrics.trim(),
+      });
+
+      const lyrics = buildMusicLyrics(
+        songLyrics.trim(),
+        style,
+        songLanguage
+      );
+
+      const { generateFalMusic } = await import("@/lib/fal/falMusicService");
+
+      const result = await generateFalMusic({
+        prompt,
+        lyrics,
+        durationSeconds,
+      });
+
+      if (result.status === "failed" || !result.audioUrl) {
+        throw new Error(
+          result.error || "fal.ai did not return generated audio."
+        );
+      }
+
+      setAudioUrl(result.audioUrl);
+      setAudioDurationSeconds(result.durationSeconds ?? durationSeconds);
       setAudioReady(true);
       setSongPreviewReady(true);
-      setIsGeneratingAudio(false);
+
       setSongStatus(
-        `${config.title} audio request prepared. fal.ai will generate the real MP3/WAV when connected.`
+        `${config.title} real AI audio generated by fal.ai and ready to play.`
       );
-    }, 700);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Music generation failed.";
+
+      console.error("Music AI generation error:", error);
+
+      setAudioReady(false);
+      setSongPreviewReady(false);
+      setAudioUrl("");
+      setSongStatus(`Music generation failed: ${message}`);
+    } finally {
+      setIsGeneratingAudio(false);
+    }
   };
 
   const handleDownloadDraft = () => {
@@ -485,43 +602,64 @@ export default function MusicStudioPanel({
     const blob = new Blob([generatedDraft], {
       type: "text/plain;charset=utf-8",
     });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
     link.download = "xnewsapp-song-draft.txt";
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
     URL.revokeObjectURL(url);
   };
 
-  const handleDownloadAudio = () => {
-    if (!audioReady) {
+  const handleDownloadAudio = async () => {
+    if (!audioUrl) {
       alert("Please generate audio first.");
       return;
     }
 
-    const audioPlaceholder = [
-      "XNewsApp Audio Placeholder",
-      "",
-      "Real MP3/WAV download will be enabled when fal.ai is connected.",
-      "",
-      generatedDraft,
-    ].join("\n");
+    try {
+      setSongStatus("Preparing your generated audio download...");
 
-    const blob = new Blob([audioPlaceholder], {
-      type: "text/plain;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+      const response = await fetch(audioUrl);
 
-    link.href = url;
-    link.download = "xnewsapp-audio-placeholder.txt";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      if (!response.ok) {
+        throw new Error(
+          `Could not download the generated audio (${response.status}).`
+        );
+      }
+
+      const blob = await response.blob();
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `xnewsapp-${tool
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")}-ai-music.mp3`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+
+      setSongStatus("Generated AI music downloaded successfully.");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Audio download failed.";
+
+      console.error("Music download error:", error);
+      setSongStatus(`Audio download failed: ${message}`);
+    }
   };
 
   return (
@@ -536,70 +674,83 @@ export default function MusicStudioPanel({
           {config.description}
         </p>
       </div>
-<details className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
-  <summary className="cursor-pointer list-none select-none">
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="text-sm font-extrabold text-cyan-200">
-          🎵 MUSIC AI
+
+      <details className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+        <summary className="cursor-pointer list-none select-none">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-extrabold text-cyan-200">
+                🎵 MUSIC AI
+              </div>
+
+              <div className="mt-1 text-sm font-bold text-white">
+                {songDuration} ........{" "}
+                {musicPricing[songDuration] ?? "$0.05"}
+              </div>
+            </div>
+
+            <span className="text-lg font-extrabold text-cyan-200">
+              Tap to View Prices ▼
+            </span>
+          </div>
+        </summary>
+
+        <div className="mt-4 space-y-2">
+          {Object.entries(musicPricing).map(([duration, price]) => (
+            <button
+              key={duration}
+              type="button"
+              onClick={(e) => {
+                setSongDuration(duration);
+                setSongPreviewReady(false);
+                setSongStatus("");
+                setAudioReady(false);
+                setAudioUrl("");
+                setAudioDurationSeconds(null);
+
+                const details = e.currentTarget.closest(
+                  "details"
+                ) as HTMLDetailsElement | null;
+
+                if (details) {
+                  details.open = false;
+                }
+              }}
+              className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
+                songDuration === duration
+                  ? "bg-cyan-500 text-black"
+                  : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
+              }`}
+            >
+              <span>{duration}</span>
+              <span>{price}</span>
+            </button>
+          ))}
         </div>
+      </details>
 
-        <div className="mt-1 text-sm font-bold text-white">
-  {songDuration} ........ {musicPricing[songDuration] ?? "$0.05"}
-</div>
-      </div>
-
-      <span className="text-lg font-extrabold text-cyan-200">
-        Tap to View Prices ▼
-      </span>
-    </div>
-  </summary>
-
-  <div className="mt-4 space-y-2">
-  {Object.entries(musicPricing).map(([duration, price]) => (
-  <button
-    key={duration}
-    type="button"
-    onClick={(e) => {
-      setSongDuration(duration);
-
-      const details = e.currentTarget.closest(
-        "details"
-      ) as HTMLDetailsElement | null;
-
-      if (details) {
-        details.open = false;
-      }
-    }}
-    className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
-      songDuration === duration
-        ? "bg-cyan-500 text-black"
-        : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
-    }`}
-  >
-    <span>{duration}</span>
-    <span>{price}</span>
-  </button>
-))}
-</div>
-</details>
       <div className="mt-5 space-y-5">
         <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
           <h4 className="text-sm font-extrabold text-white">
             Optional: Upload Reference Audio
           </h4>
+
           <p className="mt-1 text-xs leading-5 text-slate-300">
-            Upload a voice note, beat, melody or sample for audio generation.
+            Upload a voice note, beat, melody or sample for future reference
+            audio workflows.
           </p>
 
           <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-7 text-center transition hover:border-cyan-400/50 hover:bg-slate-950/90">
             <Upload className="mb-3 h-7 w-7 text-cyan-300" />
+
             <span className="text-sm font-extrabold text-white">
               Upload Audio
             </span>
+
             <span className="mt-1 text-xs font-medium text-slate-300">
               MP3, WAV, M4A or voice note
             </span>
+
             <input
               type="file"
               accept="audio/*"
@@ -613,6 +764,7 @@ export default function MusicStudioPanel({
           <span className="mb-2 block text-sm font-extrabold text-white">
             {config.mainLabel}
           </span>
+
           <textarea
             value={songLyrics}
             onChange={(e) => {
@@ -620,6 +772,8 @@ export default function MusicStudioPanel({
               setSongPreviewReady(false);
               setSongStatus("");
               setAudioReady(false);
+              setAudioUrl("");
+              setAudioDurationSeconds(null);
             }}
             placeholder={config.placeholder}
             className={textareaClass}
@@ -636,6 +790,8 @@ export default function MusicStudioPanel({
               setSongPreviewReady(false);
               setSongStatus("");
               setAudioReady(false);
+              setAudioUrl("");
+              setAudioDurationSeconds(null);
             }}
           />
 
@@ -648,6 +804,8 @@ export default function MusicStudioPanel({
               setSongPreviewReady(false);
               setSongStatus("");
               setAudioReady(false);
+              setAudioUrl("");
+              setAudioDurationSeconds(null);
             }}
           />
 
@@ -660,6 +818,8 @@ export default function MusicStudioPanel({
               setSongPreviewReady(false);
               setSongStatus("");
               setAudioReady(false);
+              setAudioUrl("");
+              setAudioDurationSeconds(null);
             }}
           />
 
@@ -672,23 +832,25 @@ export default function MusicStudioPanel({
               setSongPreviewReady(false);
               setSongStatus("");
               setAudioReady(false);
+              setAudioUrl("");
+              setAudioDurationSeconds(null);
             }}
           />
         </div>
 
-          <button
-  type="button"
-  onClick={() => {
-    if (requestGeneration) {
-      requestGeneration(
-        musicPricing[songDuration] ?? "$0.05",
-        handleGenerateAudio
-      );
-    } else {
-      handleGenerateAudio();
-    }
-  }}
-  disabled={isGeneratingAudio}
+        <button
+          type="button"
+          onClick={() => {
+            if (requestGeneration) {
+              requestGeneration(
+                musicPricing[songDuration] ?? "$0.05",
+                handleGenerateAudio
+              );
+            } else {
+              handleGenerateAudio();
+            }
+          }}
+          disabled={isGeneratingAudio}
           className="h-12 w-full rounded-2xl bg-cyan-600 px-5 text-sm font-extrabold text-white transition hover:bg-cyan-500 disabled:opacity-60 md:w-auto"
         >
           {isGeneratingAudio ? (
@@ -696,6 +858,7 @@ export default function MusicStudioPanel({
           ) : (
             <Wand2 className="mr-2 inline h-4 w-4" />
           )}
+
           {isGeneratingAudio ? "Generating..." : config.button}
         </button>
 
@@ -705,24 +868,35 @@ export default function MusicStudioPanel({
           </div>
         )}
 
-        {audioReady && (
+        {audioReady && audioUrl && (
           <div className="space-y-4 rounded-3xl border border-cyan-400/20 bg-cyan-500/10 p-4">
             <div>
               <div className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
                 Audio Preview
               </div>
+
               <p className="mt-1 text-xs font-medium leading-5 text-slate-300">
-                Real playable MP3/WAV will appear here after fal.ai is connected.
+                Real AI audio generated by fal.ai.
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
-              <div className="mb-2 text-xs font-bold text-white">
+              <div className="mb-3 text-xs font-bold text-white">
                 {config.title} • {songDuration}
               </div>
-              <div className="h-10 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-slate-300">
-                Audio player placeholder
-              </div>
+
+              <audio
+                controls
+                preload="metadata"
+                src={audioUrl}
+                className="w-full"
+              />
+
+              {audioDurationSeconds !== null && (
+                <div className="mt-2 text-[11px] font-semibold text-slate-400">
+                  Generated duration: {Math.round(audioDurationSeconds)} seconds
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -747,7 +921,9 @@ export default function MusicStudioPanel({
               <button
                 type="button"
                 onClick={() =>
-                  alert("Add To Video will attach generated audio to the video timeline after real audio is connected.")
+                  alert(
+                    "Generated audio is ready. Timeline attachment will be connected in the next Desktop Music timeline step."
+                  )
                 }
                 className="h-11 rounded-2xl bg-violet-600 px-4 text-xs font-extrabold text-white hover:bg-violet-500"
               >
@@ -763,6 +939,7 @@ export default function MusicStudioPanel({
             <div className="text-xs font-extrabold uppercase tracking-wide text-cyan-200">
               Generated Song Draft
             </div>
+
             <pre className="mt-2 max-h-[260px] overflow-auto whitespace-pre-wrap rounded-2xl bg-black/30 p-3 text-[11px] font-medium leading-5 text-slate-200">
               {generatedDraft}
             </pre>
