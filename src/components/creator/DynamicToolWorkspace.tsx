@@ -88,22 +88,32 @@ type DynamicToolWorkspaceProps = {
   onMediaUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPublishToFacebook?: () => void;
   onDownloadGeneratedImage?: () => void;
-    onGenerateCompleteVideo?: () => void;
+  onGenerateCompleteVideo?: () => void;
+
   onAddEnhancedPhotoToTimeline?: (
     file: File,
     preview: string,
     durationSeconds?: number
   ) => void;
+
   onVideoDurationChange?: (durationSeconds: number) => void;
+
   requestGeneration?: (
-  amount: string,
-  generate: () => void
-) => void;
-  
+    amount: string,
+    generate: () => void
+  ) => void;
+
   onRequestPayment?: (
     amount: string,
     onSuccess: () => void
   ) => void;
+
+  // Desktop Music AI → Video soundtrack connection.
+  onAddMusicToVideo?: (
+    audioUrl: string,
+    durationSeconds: number,
+    tool: string
+  ) => Promise<void> | void;
 };
 
 const boxClass =
