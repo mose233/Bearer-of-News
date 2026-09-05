@@ -1877,7 +1877,7 @@ function VideoTemplatePanel({
   );
 }
 
-export default function DynamicToolWorkspace({
+export default function AndroidDynamicToolWorkspace(
   selectedTool,
   speechRate: _speechRate,
   setSpeechRate: _setSpeechRate,
