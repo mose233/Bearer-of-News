@@ -332,21 +332,15 @@ const premiumVideoTools = [
 ];
 
 const ordinaryVideoPrices = [
+  ["5 Seconds", "$0.35"],
   ["10 Seconds", "$0.70"],
-  ["20 Seconds", "$1.20"],
-  ["30 Seconds", "$1.70"],
-  ["40 Seconds", "$2.20"],
-  ["50 Seconds", "$2.70"],
-  ["60 Seconds", "$3.20"],
+  ["15 Seconds", "$1.05"],
 ];
 
 const premiumVideoPrices = [
+  ["5 Seconds", "$0.36"],
   ["10 Seconds", "$0.72"],
-  ["20 Seconds", "$1.22"],
-  ["30 Seconds", "$1.72"],
-  ["40 Seconds", "$2.22"],
-  ["50 Seconds", "$2.72"],
-  ["60 Seconds", "$3.22"],
+  ["15 Seconds", "$1.08"],
 ];
 
 function getVideoPricingLabel(tool: string) {
