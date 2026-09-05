@@ -248,6 +248,69 @@ export default function CreatorStudio() {
 
   scrollToLivePreview();
 };
+const handleAddGeneratedMusicToVideo = async (
+  audioUrl: string,
+  durationSeconds: number,
+  tool: string
+) => {
+  if (!audioUrl) {
+    throw new Error("Generated music URL is missing.");
+  }
+
+  setExportStatus("Adding generated AI music to your video...");
+
+  try {
+    const response = await fetch(audioUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `Could not retrieve generated audio (${response.status}).`
+      );
+    }
+
+    const blob = await response.blob();
+
+    if (blob.size === 0) {
+      throw new Error("Generated audio file is empty.");
+    }
+
+    const file = new File(
+      [blob],
+      `xnewsapp-${tool
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")}-ai-music.wav`,
+      {
+        type: blob.type || "audio/wav",
+      }
+    );
+
+    revokeMusicPreview(musicPreview);
+
+    const preview = createMusicPreview(file);
+
+    setBackgroundMusic(file);
+    setMusicPreview(preview);
+    setIsMusicPlaying(false);
+
+    setExportStatus(
+      `AI music added to the video soundtrack (${Math.round(
+        durationSeconds
+      )} seconds).`
+    );
+
+    window.setTimeout(() => {
+      livePreviewSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  } catch (error) {
+    console.error("Failed to add generated Music AI to video:", error);
+
+    throw error;
+  }
+};
 
   const handleGenerateScript = () => {
     if (!videoPrompt.trim()) {
