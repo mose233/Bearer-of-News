@@ -34,6 +34,33 @@ function getFalErrorMessage(error: unknown): string {
   }
 }
 
+function normalizeDuration(durationSeconds: number): number {
+  if (!Number.isFinite(durationSeconds)) {
+    return 5;
+  }
+
+  return Math.min(
+    15,
+    Math.max(2, Math.round(durationSeconds))
+  );
+}
+
+function normalizeAspectRatio(
+  aspectRatio: FalVideoRequest["aspectRatio"]
+): string {
+  switch (aspectRatio) {
+    case "9:16":
+      return "9:16";
+
+    case "1:1":
+      return "1:1";
+
+    case "16:9":
+    default:
+      return "16:9";
+  }
+}
+
 export async function generateFalVideo(
   request: FalVideoRequest
 ): Promise<FalVideoResult> {
@@ -84,49 +111,37 @@ export async function generateFalVideo(
     };
   }
 
+  const duration = normalizeDuration(request.durationSeconds);
+  const aspectRatio = normalizeAspectRatio(request.aspectRatio);
+
   try {
-    console.log("Starting real fal.ai video generation:", {
+    console.log("Starting real fal.ai Wan 2.7 video generation:", {
       tool: request.tool,
       model,
       prompt: request.prompt,
       hasImageFile: Boolean(request.imageFile),
       hasImageUrl: Boolean(request.imageUrl),
-      durationSeconds: request.durationSeconds,
-      aspectRatio: request.aspectRatio,
+      durationSeconds: duration,
+      aspectRatio,
     });
 
     const input: Record<string, unknown> = {
       prompt: request.prompt.trim(),
-      resolution: "480p",
-      num_frames: 81,
-      frames_per_second: 16,
+      resolution: "720p",
+      duration,
       enable_safety_checker: true,
-      enable_prompt_expansion: false,
+      enable_prompt_expansion: true,
     };
 
     if (isTextToVideo) {
-      input.aspect_ratio =
-        request.aspectRatio === "9:16"
-          ? "9:16"
-          : "16:9";
+      input.aspect_ratio = aspectRatio;
     }
 
     if (isImageToVideo) {
-      input.aspect_ratio =
-        request.aspectRatio === "1:1"
-          ? "1:1"
-          : request.aspectRatio === "9:16"
-            ? "9:16"
-            : "16:9";
-
-      if (request.imageFile) {
-        input.image_url = request.imageFile;
-      } else if (request.imageUrl) {
-        input.image_url = request.imageUrl;
-      }
+      input.image_url = request.imageFile ?? request.imageUrl;
     }
 
-    console.log("fal.ai request input:", {
+    console.log("fal.ai Wan 2.7 request input:", {
       model,
       input,
     });
@@ -135,12 +150,18 @@ export async function generateFalVideo(
       input,
       logs: true,
       onQueueUpdate(update) {
-        console.log("fal.ai video queue update:", update);
+        console.log(
+          "fal.ai Wan 2.7 video queue update:",
+          update
+        );
       },
     });
 
-    console.log("fal.ai completed response:", result);
-    console.log("fal.ai response data:", result?.data);
+    console.log("fal.ai Wan 2.7 completed response:", result);
+    console.log(
+      "fal.ai Wan 2.7 response data:",
+      result?.data
+    );
 
     const videoUrl = result?.data?.video?.url;
 
@@ -161,11 +182,14 @@ export async function generateFalVideo(
   } catch (error) {
     const errorMessage = getFalErrorMessage(error);
 
-    console.error("fal.ai video generation failed:", {
-      tool: request.tool,
-      model,
-      error,
-    });
+    console.error(
+      "fal.ai Wan 2.7 video generation failed:",
+      {
+        tool: request.tool,
+        model,
+        error,
+      }
+    );
 
     return {
       id: generationId,
