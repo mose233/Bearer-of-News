@@ -1150,8 +1150,6 @@ const resetCurrentProject = () => {
   }
 };
   
-  
-
  const handleExportNarratedMp4 = async () => {
   if (!mediaFiles[currentIndex] && !mediaPreviews[currentIndex]) {
     alert("Please upload or generate media first.");
@@ -1178,7 +1176,53 @@ const resetCurrentProject = () => {
     }, 1000);
   }
 };
+  const handleExportFinalMixedMp4 = async () => {
+  if (imagePreviews.length === 0) {
+    alert("Please upload or generate images first.");
+    return;
+  }
 
+  if (!aiVoiceBlob) {
+    alert("Please generate AI voice first.");
+    return;
+  }
+
+  setIsExporting(true);
+  setExportStatus(
+    "Exporting final mixed MP4 with voice and background music..."
+  );
+
+  try {
+    const videoBlob = await exportFinalMixedMp4({
+      imagePreviews,
+      durationSeconds: getTimelineDuration(),
+      voiceBlob: aiVoiceBlob,
+      voiceVolume,
+      backgroundMusic,
+      musicVolume,
+    });
+
+    await ExportManager.exportCustom(
+      videoBlob,
+      "xnewsapp-final-video.mp4"
+    );
+  } catch (error) {
+    console.error("Final mixed MP4 export failed:", error);
+
+    alert(
+      error instanceof Error
+        ? `Unable to export final mixed MP4: ${error.message}`
+        : "Unable to export final mixed MP4."
+    );
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
+
+    setTimeout(() => {
+      resetCurrentProject();
+    }, 1000);
+  }
+};
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
