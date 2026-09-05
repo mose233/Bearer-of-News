@@ -20,6 +20,13 @@ type MusicStudioPanelProps = {
     amount: string,
     generate: () => void
   ) => void;
+
+  // Desktop timeline connection for generated Music AI.
+  onAddToVideo?: (
+    audioUrl: string,
+    durationSeconds: number,
+    tool: string
+  ) => Promise<void> | void;
 };
 
 const inputClass =
@@ -220,14 +227,15 @@ export default function MusicStudioPanel({
   setSongStatus,
   onMusicUpload,
   requestGeneration,
+  onAddToVideo,
 }: MusicStudioPanelProps) {
   const [voiceStyle, setVoiceStyle] = useState("Afrobeats Male Voice");
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const [audioUrl, setAudioUrl] = useState("");
-  const [audioDurationSeconds, setAudioDurationSeconds] = useState<number | null>(
-    null
-  );
+  const [audioDurationSeconds, setAudioDurationSeconds] = useState<
+    number | null
+  >(null);
 
   const config = useMemo(() => {
     const lowerTool = tool.toLowerCase();
@@ -554,7 +562,9 @@ export default function MusicStudioPanel({
         songLanguage
       );
 
-      const { generateFalMusic } = await import("@/lib/fal/falMusicService");
+      const { generateFalMusic } = await import(
+        "@/lib/fal/falMusicService"
+      );
 
       const result = await generateFalMusic({
         prompt,
@@ -569,7 +579,9 @@ export default function MusicStudioPanel({
       }
 
       setAudioUrl(result.audioUrl);
-      setAudioDurationSeconds(result.durationSeconds ?? durationSeconds);
+      setAudioDurationSeconds(
+        result.durationSeconds ?? durationSeconds
+      );
       setAudioReady(true);
       setSongPreviewReady(true);
 
@@ -638,11 +650,17 @@ export default function MusicStudioPanel({
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
 
+      const extension = blob.type.includes("wav")
+        ? "wav"
+        : blob.type.includes("mpeg") || blob.type.includes("mp3")
+          ? "mp3"
+          : "wav";
+
       link.href = url;
       link.download = `xnewsapp-${tool
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")}-ai-music.mp3`;
+        .replace(/^-|-$/g, "")}-ai-music.${extension}`;
 
       document.body.appendChild(link);
       link.click();
@@ -662,12 +680,60 @@ export default function MusicStudioPanel({
     }
   };
 
+  const handleAddToVideo = async () => {
+    if (!audioUrl) {
+      alert("Please generate audio first.");
+      return;
+    }
+
+    const durationSeconds =
+      audioDurationSeconds ?? getDurationSeconds(songDuration);
+
+    try {
+      if (!onAddToVideo) {
+        alert(
+          "Desktop video timeline connection is not ready."
+        );
+        return;
+      }
+
+      setSongStatus(
+        "Adding generated AI music to your video soundtrack..."
+      );
+
+      await onAddToVideo(
+        audioUrl,
+        durationSeconds,
+        tool
+      );
+
+      setSongStatus(
+        `AI music added to the video soundtrack (${Math.round(
+          durationSeconds
+        )} seconds).`
+      );
+    } catch (error) {
+      console.error(
+        "Add generated music to video failed:",
+        error
+      );
+
+      setSongStatus(
+        error instanceof Error
+          ? `Could not add music to video: ${error.message}`
+          : "Could not add generated music to video."
+      );
+    }
+  };
+
   return (
     <div className="rounded-[1.5rem] border border-white/10 bg-[#111827] p-5 text-white shadow-creator">
       <div>
         <div className="flex items-center gap-2">
           <Music className="h-5 w-5 text-cyan-300" />
-          <h3 className="text-lg font-extrabold">{config.title}</h3>
+          <h3 className="text-lg font-extrabold">
+            {config.title}
+          </h3>
         </div>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
@@ -696,36 +762,38 @@ export default function MusicStudioPanel({
         </summary>
 
         <div className="mt-4 space-y-2">
-          {Object.entries(musicPricing).map(([duration, price]) => (
-            <button
-              key={duration}
-              type="button"
-              onClick={(e) => {
-                setSongDuration(duration);
-                setSongPreviewReady(false);
-                setSongStatus("");
-                setAudioReady(false);
-                setAudioUrl("");
-                setAudioDurationSeconds(null);
+          {Object.entries(musicPricing).map(
+            ([duration, price]) => (
+              <button
+                key={duration}
+                type="button"
+                onClick={(e) => {
+                  setSongDuration(duration);
+                  setSongPreviewReady(false);
+                  setSongStatus("");
+                  setAudioReady(false);
+                  setAudioUrl("");
+                  setAudioDurationSeconds(null);
 
-                const details = e.currentTarget.closest(
-                  "details"
-                ) as HTMLDetailsElement | null;
+                  const details = e.currentTarget.closest(
+                    "details"
+                  ) as HTMLDetailsElement | null;
 
-                if (details) {
-                  details.open = false;
-                }
-              }}
-              className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
-                songDuration === duration
-                  ? "bg-cyan-500 text-black"
-                  : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
-              }`}
-            >
-              <span>{duration}</span>
-              <span>{price}</span>
-            </button>
-          ))}
+                  if (details) {
+                    details.open = false;
+                  }
+                }}
+                className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-xs font-bold transition ${
+                  songDuration === duration
+                    ? "bg-cyan-500 text-black"
+                    : "bg-slate-900/40 text-white hover:bg-cyan-500/20"
+                }`}
+              >
+                <span>{duration}</span>
+                <span>{price}</span>
+              </button>
+            )
+          )}
         </div>
       </details>
 
@@ -736,8 +804,8 @@ export default function MusicStudioPanel({
           </h4>
 
           <p className="mt-1 text-xs leading-5 text-slate-300">
-            Upload a voice note, beat, melody or sample for future reference
-            audio workflows.
+            Upload a voice note, beat, melody or sample for future
+            reference audio workflows.
           </p>
 
           <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-7 text-center transition hover:border-cyan-400/50 hover:bg-slate-950/90">
@@ -859,7 +927,9 @@ export default function MusicStudioPanel({
             <Wand2 className="mr-2 inline h-4 w-4" />
           )}
 
-          {isGeneratingAudio ? "Generating..." : config.button}
+          {isGeneratingAudio
+            ? "Generating..."
+            : config.button}
         </button>
 
         {songStatus && (
@@ -894,7 +964,8 @@ export default function MusicStudioPanel({
 
               {audioDurationSeconds !== null && (
                 <div className="mt-2 text-[11px] font-semibold text-slate-400">
-                  Generated duration: {Math.round(audioDurationSeconds)} seconds
+                  Generated duration:{" "}
+                  {Math.round(audioDurationSeconds)} seconds
                 </div>
               )}
             </div>
@@ -920,12 +991,9 @@ export default function MusicStudioPanel({
 
               <button
                 type="button"
-                onClick={() =>
-                  alert(
-                    "Generated audio is ready. Timeline attachment will be connected in the next Desktop Music timeline step."
-                  )
-                }
-                className="h-11 rounded-2xl bg-violet-600 px-4 text-xs font-extrabold text-white hover:bg-violet-500"
+                onClick={handleAddToVideo}
+                disabled={!audioUrl}
+                className="h-11 rounded-2xl bg-violet-600 px-4 text-xs font-extrabold text-white hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Plus className="mr-2 inline h-4 w-4" />
                 Add To Video
