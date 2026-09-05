@@ -105,6 +105,12 @@ export async function generateFalMusic(
       },
     });
 
+    // DEBUG: inspect exactly what fal.ai returned.
+    console.log(
+      "fal.ai MiniMax Music 3 raw result:",
+      result
+    );
+
     const audioUrl = result?.data?.audio?.url;
     const actualDuration = result?.data?.duration;
 
@@ -124,7 +130,10 @@ export async function generateFalMusic(
   } catch (error) {
     const errorMessage = getFalErrorMessage(error);
 
-    console.error("fal.ai MiniMax Music 3 generation failed:", error);
+    console.error(
+      "fal.ai MiniMax Music 3 generation failed:",
+      error
+    );
 
     return {
       id: generationId,
