@@ -576,7 +576,7 @@ setExportStatus("Exporting photo music video...");
       );
     } catch (error) {
       console.error(
-        "Desktop Dance Animation fal.ai generation failed:",
+        "Dance Animation fal.ai generation failed:",
         error
       );
 
@@ -1169,11 +1169,13 @@ return;
   duration: getTimelineDuration(),
 });
 
-        await ExportManager.exportCinematic(videoBlob);
-        return;
-        if (isAndroid()) {
+       await ExportManager.exportCinematic(videoBlob);
+
+if (isAndroid()) {
   setDownloadComplete(true);
 }
+
+return;
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
@@ -1186,6 +1188,9 @@ return;
     }
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
+      if (isAndroid()) {
+  setDownloadComplete(true);
+}
      } finally {
   if (!isAndroid()) {
     setTimeout(() => {
@@ -1205,18 +1210,24 @@ return;
   setExportStatus("Exporting silent MP4...");
 
   try {
-    await exportSilentMp4({
-      file: mediaFiles[currentIndex],
-      preview: mediaPreviews[currentIndex],
-    });
-  } finally {
-    setIsExporting(false);
-    setExportStatus("");
+  await exportSilentMp4({
+    file: mediaFiles[currentIndex],
+    preview: mediaPreviews[currentIndex],
+  });
 
+  if (isAndroid()) {
+    setDownloadComplete(true);
+  }
+
+  if (!isAndroid()) {
     setTimeout(() => {
       resetCurrentProject();
     }, 1000);
   }
+} finally {
+  setIsExporting(false);
+  setExportStatus("");
+}
 };
   
  const handleExportNarratedMp4 = async () => {
