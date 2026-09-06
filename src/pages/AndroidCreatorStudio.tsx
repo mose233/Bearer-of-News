@@ -835,14 +835,15 @@ alert(`${plan.length} scene plan generated successfully.`);
   };
 
   requestPaidGeneration(
-    {
-      tool: "Picture AI",
-      usdPrice: 0.10,
-      currency: "USD",
-      amount: 0.10,
-    },
-    generateAllScenes
-  );
+  {
+    tool: "Picture AI",
+    usdPrice: 0.10,
+    currency: "USD",
+    amount: 0.10,
+    description: "Picture AI Generation",
+  },
+  generateAllScenes
+);
 };
   const handleAddGeneratedImage = () => {
     if (!generatedImageFile || !generatedImagePreview) {
