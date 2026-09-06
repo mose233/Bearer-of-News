@@ -1009,27 +1009,33 @@ const resetCurrentProject = () => {
 
     // Clear multi-scene plan
   setMultiScenePlan([]);
+    setAiImagePrompt("");
 
   // Clear Picture AI
   setPictureFile(null);
   setPicturePreview("");
   setPictureFileName("");
+  setIsGeneratingImage(false);
 
-  // Clear Photo Music
-  setPhotoMusicImageFile(null);
-  setPhotoMusicImagePreview("");
-  setPhotoMusicAudioFile(null);
-  setPhotoMusicAudioName("");
+   // Clear Photo Music
+setPhotoMusicImageFile(null);
+setPhotoMusicImagePreview("");
+setPhotoMusicAudioFile(null);
+setPhotoMusicAudioName("");
+setPhotoMusicStyle("Music Video");
+setIsExportingPhotoMusic(false);
 
     // Clear background music
   setBackgroundMusic(null);
   setMusicPreview("");
   setIsMusicPlaying(false);
 
-  // Clear Dancing Photo
-  setDancingPhotoFile(null);
-  setDancingPhotoPreview("");
-
+   // Clear Dancing Photo
+setDancingPhotoFile(null);
+setDancingPhotoPreview("");
+setDanceStyle("Afrobeats");
+setIsGeneratingDance(false);
+setDanceResultMessage("");
   // Reset player
   setCurrentIndex(0);
   setIsPlaying(false);
