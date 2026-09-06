@@ -1040,11 +1040,13 @@ const resetCurrentProject = () => {
   setIsSpeaking(false);
   speechRef.current = null;
 
-  // Clear export state
+    // Clear export state
+  setIsRecording(false);
+  setIsExporting(false);
   setExportStatus("");
-  
+
   // Clear Android download state
-setDownloadComplete(false);
+  setDownloadComplete(false);
 };
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
