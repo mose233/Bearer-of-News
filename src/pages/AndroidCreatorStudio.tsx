@@ -460,8 +460,8 @@ const handleAddGeneratedMusicToVideo = async (
     return;
   }
 
-  setIsExporting(true);
-  setExportStatus("Exporting photo music video...");
+  setIsExportingPhotoMusic(true);
+setExportStatus("Exporting photo music video...");
 
   try {
     await exportPhotoMusicVideoMp4({
@@ -474,9 +474,9 @@ const handleAddGeneratedMusicToVideo = async (
     console.error(error);
     alert("Unable to export photo music video.");
   } finally {
-    setIsExporting(false);
-    setExportStatus("");
-  }
+  setIsExportingPhotoMusic(false);
+  setExportStatus("");
+}
 };
 
   const handleDancingPhotoUpload = (
@@ -774,36 +774,55 @@ alert(`${plan.length} scene plan generated successfully.`);
   };
 
   const handleGenerateAllScenesFromPlan = async () => {
-    try {
-      if (multiScenePlan.length === 0) {
-        alert("Please generate a scene plan first.");
-        return;
-      }
+  if (multiScenePlan.length === 0) {
+    alert("Please generate a scene plan first.");
+    return;
+  }
 
+  const generateAllScenes = async () => {
+    try {
       setIsGeneratingImage(true);
+
+      const generatedFiles: File[] = [];
+      const generatedPreviews: string[] = [];
+      const generatedDurations: number[] = [];
 
       for (const scene of multiScenePlan) {
         const result = await generateSingleScene(
-  scene.prompt,
-  "1024x1024"
-);
+          scene.prompt,
+          "1024x1024"
+        );
 
-        setMediaFiles((prev) => [...prev, result.file]);
-        setMediaPreviews((prev) => [...prev, result.previewUrl]);
-        setSceneDurations((prev) => [...prev, scene.duration]);
+        generatedFiles.push(result.file);
+        generatedPreviews.push(result.previewUrl);
+        generatedDurations.push(scene.duration);
       }
+
+      setMediaFiles((prev) => [...prev, ...generatedFiles]);
+      setMediaPreviews((prev) => [...prev, ...generatedPreviews]);
+      setSceneDurations((prev) => [...prev, ...generatedDurations]);
 
       setCurrentIndex(mediaFiles.length);
 
       alert("All scenes generated and added to timeline.");
     } catch (error) {
-      console.error(error);
+      console.error("Failed to generate all scenes:", error);
       alert("Failed to generate all scenes.");
     } finally {
       setIsGeneratingImage(false);
     }
   };
 
+  requestPaidGeneration(
+    {
+      tool: "Picture AI",
+      usdPrice: 0.10,
+      currency: "USD",
+      amount: 0.10,
+    },
+    generateAllScenes
+  );
+};
   const handleAddGeneratedImage = () => {
     if (!generatedImageFile || !generatedImagePreview) {
       alert("Please generate an AI scene image first.");
@@ -1132,7 +1151,12 @@ alert(`${plan.length} scene plan generated successfully.`);
 
     if (currentFile.type.startsWith("video/")) {
       await ExportManager.exportVideo(currentFile);
-      return;
+
+if (isAndroid()) {
+  setDownloadComplete(true);
+}
+
+return;
     }
 
     if (currentFile.type.startsWith("image/")) {
@@ -1147,6 +1171,9 @@ alert(`${plan.length} scene plan generated successfully.`);
 
         await ExportManager.exportCinematic(videoBlob);
         return;
+        if (isAndroid()) {
+  setDownloadComplete(true);
+}
       } catch (error) {
         console.error(error);
         alert("Failed to create video download. Downloading image instead.");
