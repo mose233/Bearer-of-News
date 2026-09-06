@@ -1178,39 +1178,39 @@ return;
     }
 
     if (currentFile.type.startsWith("image/")) {
-      try {
-        setIsExporting(true);
-        setExportStatus("Creating preview video download...");
+  try {
+    setIsExporting(true);
+    setExportStatus("Creating preview video download...");
 
-        const videoBlob = await renderPreviewVideo({
-  imageUrl: currentPreview,
-  duration: getTimelineDuration(),
-});
+    const videoBlob = await renderPreviewVideo({
+      imageUrl: currentPreview,
+      duration: getTimelineDuration(),
+    });
 
-       await ExportManager.exportCinematic(videoBlob);
+    await ExportManager.exportCinematic(videoBlob);
 
-if (isAndroid()) {
-  setDownloadComplete(true);
-}
+    if (isAndroid()) {
+      setDownloadComplete(true);
+    }
 
-return;
-} catch (error) {
-  console.error(error);
-  alert("Failed to create video download. Downloading image instead.");
+    return;
+  } catch (error) {
+    console.error(error);
+    alert("Failed to create video download. Downloading image instead.");
 
-  await ExportManager.exportImage(currentFile);
+    await ExportManager.exportImage(currentFile);
 
-  if (isAndroid()) {
-    setAndroidDownloadComplete(true);
-    setDownloadComplete(true);
+    if (isAndroid()) {
+      setAndroidDownloadComplete(true);
+      setDownloadComplete(true);
+    }
+
+    return;
+  } finally {
+    setIsExporting(false);
+    setExportStatus("");
   }
-
-  return;
-} finally {
-  setIsExporting(false);
-  setExportStatus("");
 }
-
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
       if (isAndroid()) {
   setDownloadComplete(true);
