@@ -1231,9 +1231,9 @@ const resetCurrentProject = () => {
   Android Creator Studio
 </div>
 
-          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Create AI videos, images and music
-          </h1>
+          <h1 className="max-w-4xl text-lg font-extrabold leading-tight tracking-tight text-white sm:text-2xl lg:text-3xl">
+  Create AI videos, images and music
+</h1>
 
           <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
             Choose a tool, create your media, then export and download.
