@@ -1033,6 +1033,9 @@ const resetCurrentProject = () => {
   // Reset player
   setCurrentIndex(0);
   setIsPlaying(false);
+
+  // Reset video settings
+  setSelectedVideoDurationSeconds(10);
   
   // Clear voice generation state
   setVoiceText("");
