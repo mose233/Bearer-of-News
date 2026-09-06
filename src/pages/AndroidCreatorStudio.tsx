@@ -1007,6 +1007,9 @@ const resetCurrentProject = () => {
   setGeneratedImageFile(null);
   setGeneratedImagePreview("");
 
+    // Clear multi-scene plan
+  setMultiScenePlan([]);
+
   // Clear Picture AI
   setPictureFile(null);
   setPicturePreview("");
