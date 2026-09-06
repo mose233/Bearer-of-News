@@ -1034,10 +1034,11 @@ const resetCurrentProject = () => {
   setCurrentIndex(0);
   setIsPlaying(false);
   
-    // Clear voice generation state
+  // Clear voice generation state
   setVoiceText("");
   setAiVoiceBlob(null);
   setIsSpeaking(false);
+  speechRef.current = null;
 
   // Clear export state
   setExportStatus("");
