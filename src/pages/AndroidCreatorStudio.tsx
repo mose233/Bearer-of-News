@@ -1036,6 +1036,8 @@ const resetCurrentProject = () => {
 
   // Reset video settings
   setSelectedVideoDurationSeconds(10);
+  setVideoCreativeType("General");
+  setVideoOutputFormat("Facebook Reel");
   
   // Clear voice generation state
   setVoiceText("");
