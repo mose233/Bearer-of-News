@@ -1226,7 +1226,7 @@ const resetCurrentProject = () => {
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto w-full px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
-        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
+       <header className="mb-3 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-3 shadow-creator sm:px-4 lg:mb-5 lg:py-4">
            <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
   Android Creator Studio
 </div>
