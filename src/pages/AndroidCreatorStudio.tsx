@@ -1018,6 +1018,11 @@ const resetCurrentProject = () => {
   setPhotoMusicAudioFile(null);
   setPhotoMusicAudioName("");
 
+    // Clear background music
+  setBackgroundMusic(null);
+  setMusicPreview("");
+  setIsMusicPlaying(false);
+
   // Clear Dancing Photo
   setDancingPhotoFile(null);
   setDancingPhotoPreview("");
