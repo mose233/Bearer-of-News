@@ -1401,15 +1401,15 @@ onRequestPayment={(amount, onSuccess) => {
       Tap below to start a new creation.
     </p>
 
-    <button
-      onClick={() => {
-        setDownloadComplete(false);
-        resetCurrentProject();
-      }}
-      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
-    >
-      Click to Generate Again
-    </button>
+   <button
+  onClick={() => {
+    setDownloadComplete(false);
+    resetCurrentProject();
+  }}
+  className="w-full rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-black hover:bg-emerald-400 sm:w-auto"
+>
+  Click to Generate Again
+</button>
   </div>
 )}
           </section>
