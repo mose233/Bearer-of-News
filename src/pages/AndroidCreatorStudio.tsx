@@ -982,12 +982,16 @@ alert(`${plan.length} scene plan generated successfully.`);
       "FFmpeg browser export has been removed for now. Video rendering will be handled by backend AI/rendering services later."
     );
   };
-const resetCurrentProject = () => {
+  const resetCurrentProject = () => {
   // Release preview URLs
   revokePreviews(mediaPreviews);
 
   if (generatedImagePreview) {
     URL.revokeObjectURL(generatedImagePreview);
+  }
+
+  if (picturePreview) {
+    URL.revokeObjectURL(picturePreview);
   }
 
   if (photoMusicImagePreview) {
@@ -1007,35 +1011,34 @@ const resetCurrentProject = () => {
   setGeneratedImageFile(null);
   setGeneratedImagePreview("");
 
-    // Clear multi-scene plan
-  setMultiScenePlan([]);
-    setAiImagePrompt("");
-
   // Clear Picture AI
+  setAiImagePrompt("");
   setPictureFile(null);
   setPicturePreview("");
   setPictureFileName("");
   setIsGeneratingImage(false);
+  setMultiScenePlan([]);
 
-   // Clear Photo Music
-setPhotoMusicImageFile(null);
-setPhotoMusicImagePreview("");
-setPhotoMusicAudioFile(null);
-setPhotoMusicAudioName("");
-setPhotoMusicStyle("Music Video");
-setIsExportingPhotoMusic(false);
+  // Clear Photo Music
+  setPhotoMusicImageFile(null);
+  setPhotoMusicImagePreview("");
+  setPhotoMusicAudioFile(null);
+  setPhotoMusicAudioName("");
+  setPhotoMusicStyle("Music Video");
+  setIsExportingPhotoMusic(false);
 
-    // Clear background music
+  // Clear background music
   setBackgroundMusic(null);
   setMusicPreview("");
   setIsMusicPlaying(false);
 
-   // Clear Dancing Photo
-setDancingPhotoFile(null);
-setDancingPhotoPreview("");
-setDanceStyle("Afrobeats");
-setIsGeneratingDance(false);
-setDanceResultMessage("");
+  // Clear Dancing Photo
+  setDancingPhotoFile(null);
+  setDancingPhotoPreview("");
+  setDanceStyle("Afrobeats");
+  setIsGeneratingDance(false);
+  setDanceResultMessage("");
+
   // Reset player
   setCurrentIndex(0);
   setIsPlaying(false);
@@ -1044,20 +1047,29 @@ setDanceResultMessage("");
   setSelectedVideoDurationSeconds(10);
   setVideoCreativeType("General");
   setVideoOutputFormat("Facebook Reel");
-  
+
   // Clear voice generation state
   setVoiceText("");
   setAiVoiceBlob(null);
   setIsSpeaking(false);
   speechRef.current = null;
 
-    // Clear export state
+  // Clear export state
   setIsRecording(false);
   setIsExporting(false);
   setExportStatus("");
 
   // Clear Android download state
   setDownloadComplete(false);
+
+  // Reset selected tool
+  setSelectedTool(null);
+
+  // Reset payment state
+  setPaymentOpen(false);
+  setPaymentPrice("");
+  setPaymentComplete(false);
+  setPendingGeneration(null);
 };
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
