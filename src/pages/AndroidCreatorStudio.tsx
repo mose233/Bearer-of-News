@@ -379,7 +379,7 @@ const handleAddGeneratedMusicToVideo = async (
         );
 
         const result = await generateSingleScene(
-  prompt,
+  scene.prompt,
   "1024x1024"
 );
 
@@ -746,33 +746,54 @@ alert(`${plan.length} scene plan generated successfully.`);
     }
   };
 
-  const handleGenerateSceneFromPlan = async (index: number) => {
-    try {
-      const scene = multiScenePlan[index];
+ const handleGenerateSceneFromPlan = async (index: number) => {
+  try {
+    const scene = multiScenePlan[index];
 
-      if (!scene) {
-        alert("Scene not found.");
-        return;
-      }
-
-      setIsGeneratingImage(true);
-
-      const result = await generateSingleScene(
-  scene.prompt,
-  "1024x1024"
-);
-
-      addSceneToTimeline(result.file, result.previewUrl, scene.duration);
-
-      alert(`Scene ${index + 1} added to timeline.`);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate scene.");
-    } finally {
-      setIsGeneratingImage(false);
+    if (!scene) {
+      alert("Scene not found.");
+      return;
     }
-  };
 
+    const usdPrice = getUSDPrice("Picture AI");
+
+    requestPaidGeneration(
+      {
+        tool: "Picture AI",
+        usdPrice,
+        currency: "USD",
+        amount: usdPrice,
+        description: "Picture AI Generation",
+      },
+      async () => {
+        try {
+          setIsGeneratingImage(true);
+
+          const result = await generateSingleScene(
+            scene.prompt,
+            "1024x1024"
+          );
+
+          addSceneToTimeline(
+            result.file,
+            result.previewUrl,
+            scene.duration
+          );
+
+          alert(`Scene ${index + 1} added to timeline.`);
+        } catch (error) {
+          console.error(error);
+          alert("Failed to generate scene.");
+        } finally {
+          setIsGeneratingImage(false);
+        }
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    alert("Failed to prepare scene generation.");
+  }
+};
   const handleGenerateAllScenesFromPlan = async () => {
   if (multiScenePlan.length === 0) {
     alert("Please generate a scene plan first.");
@@ -1032,9 +1053,6 @@ alert(`${plan.length} scene plan generated successfully.`);
 
   // Clear Picture AI
   setAiImagePrompt("");
-  setPictureFile(null);
-  setPicturePreview("");
-  setPictureFileName("");
   setIsGeneratingImage(false);
   setMultiScenePlan([]);
 
@@ -1176,16 +1194,22 @@ if (isAndroid()) {
 }
 
 return;
-      } catch (error) {
-        console.error(error);
-        alert("Failed to create video download. Downloading image instead.");
-        await ExportManager.exportImage(currentFile);
-        return;
-      } finally {
-        setIsExporting(false);
-        setExportStatus("");
-      }
-    }
+} catch (error) {
+  console.error(error);
+  alert("Failed to create video download. Downloading image instead.");
+
+  await ExportManager.exportImage(currentFile);
+
+  if (isAndroid()) {
+    setAndroidDownloadComplete(true);
+    setDownloadComplete(true);
+  }
+
+  return;
+} finally {
+  setIsExporting(false);
+  setExportStatus("");
+}
 
     await ExportManager.exportCustom(currentFile, currentFile.name || "xnewsapp-media");
       if (isAndroid()) {
