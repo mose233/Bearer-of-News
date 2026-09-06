@@ -1030,10 +1030,6 @@ alert(`${plan.length} scene plan generated successfully.`);
     URL.revokeObjectURL(generatedImagePreview);
   }
 
-  if (picturePreview) {
-    URL.revokeObjectURL(picturePreview);
-  }
-
   if (photoMusicImagePreview) {
     URL.revokeObjectURL(photoMusicImagePreview);
   }
