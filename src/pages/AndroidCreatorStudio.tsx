@@ -1028,6 +1028,8 @@ const resetCurrentProject = () => {
 
   // Clear export state
   setExportStatus("");
+  // Clear Android download state
+setDownloadComplete(false);
 };
   const handleDownloadGeneratedImage = async () => {
   if (generatedImageFile) {
