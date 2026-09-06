@@ -1033,9 +1033,15 @@ const resetCurrentProject = () => {
   // Reset player
   setCurrentIndex(0);
   setIsPlaying(false);
+  
+    // Clear voice generation state
+  setVoiceText("");
+  setAiVoiceBlob(null);
+  setIsSpeaking(false);
 
   // Clear export state
   setExportStatus("");
+  
   // Clear Android download state
 setDownloadComplete(false);
 };
