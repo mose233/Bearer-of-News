@@ -3589,7 +3589,7 @@ setHasPreviewedEnhancement(true);
         <div className="mt-5 flex flex-wrap gap-3">
           <Button
   type="button"
-  disabled={false}
+  disabled={isGeneratingPicture}
  onClick={() => {
   if (isPromptToImage) {
     onGenerateImage?.();
