@@ -87,8 +87,8 @@ const HomeContent: React.FC = () => {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-[#111827] p-5 shadow-2xl">
-            <div className="rounded-[1.5rem] bg-slate-950 p-4">
+         <div className="rounded-[2rem] border border-white/10 bg-[#111827] p-5 shadow-2xl max-[640px]:border-0 max-[640px]:bg-transparent max-[640px]:p-0 max-[640px]:shadow-none">
+  <div className="rounded-[1.5rem] bg-slate-950 p-4 max-[640px]:rounded-none max-[640px]:bg-transparent max-[640px]:p-0">
               <div className="overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-violet-700 via-slate-950 to-fuchsia-600 p-4">
                 <div className="mb-4 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
                   Creator Studio AI
