@@ -116,7 +116,6 @@ import {
 
   const [selectedTool, setSelectedTool] =
     useState<AiToolSelection | null>(null);
-  const [workspaceKey, setWorkspaceKey] = useState(0);
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
@@ -1375,7 +1374,6 @@ alert(`${plan.length} scene plan generated successfully.`);
 
         <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
           <DynamicToolWorkspace
-            key={workspaceKey}
             selectedTool={selectedTool}
             speechRate={speechRate}
             setSpeechRate={setSpeechRate}
