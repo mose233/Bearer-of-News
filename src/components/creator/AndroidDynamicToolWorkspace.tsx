@@ -2207,22 +2207,24 @@ export default function AndroidDynamicToolWorkspace(
   };
 
   const handleAddEnhancedPhotoToTimeline = () => {
-    if (!pictureFile || !picturePreview) {
-      alert("Please upload a photo first.");
-      return;
-    }
+     if (!pictureFile || !picturePreview) {
+  alert("Please upload a photo first.");
+  return;
+}
 
-    if (!hasPreviewedEnhancement) {
-      alert("Please generate the enhanced photo first.");
-      return;
-    }
+if (
+  !hasPreviewedEnhancement ||
+  !generatedPictureFile ||
+  !generatedPicturePreview
+) {
+  alert("Please generate the enhanced photo first.");
+  return;
+}
 
-    if (!onAddEnhancedPhotoToTimeline) {
-      alert("Timeline connection is not ready.");
-      return;
-    }
-
-    onAddEnhancedPhotoToTimeline(pictureFile, picturePreview);
+    onAddEnhancedPhotoToTimeline(
+  generatedPictureFile,
+  generatedPicturePreview
+);
     alert("Enhanced photo added to timeline.");
   };
 
@@ -2841,14 +2843,13 @@ Create a clean, realistic, high-quality result.`;
      * The old picturePreview may point to the uploaded source
      * image. Replace it with the generated AI result.
      */
-    if (picturePreview) {
-      URL.revokeObjectURL(picturePreview);
-    }
+     if (generatedPicturePreview) {
+  URL.revokeObjectURL(generatedPicturePreview);
+}
 
-    setPictureFile(generatedFile);
-    setPictureFileName(generatedFile.name);
-    setPicturePreview(result.imageUrl);
-    setHasPreviewedEnhancement(true);
+setGeneratedPictureFile(generatedFile);
+setGeneratedPicturePreview(result.imageUrl);
+setHasPreviewedEnhancement(true);
 
     console.log("=================================");
     console.log("REAL PICTURE AI EDIT COMPLETED");
