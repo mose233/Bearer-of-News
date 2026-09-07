@@ -2025,7 +2025,6 @@ export default function DynamicToolWorkspace({
     "Business Banner",
     "Product Ad Image",
     "Thumbnail Creator",
-    "Text to Image",
     "AI Art Generator",
   ];
 
