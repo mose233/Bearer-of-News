@@ -1939,6 +1939,8 @@ export default function AndroidDynamicToolWorkspace(
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
+  const [generatedPicturePreview, setGeneratedPicturePreview] = useState("");
+  const [generatedPictureFile, setGeneratedPictureFile] = useState<File | null>(null);
   const [quoteText, setQuoteText] = useState("");
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
