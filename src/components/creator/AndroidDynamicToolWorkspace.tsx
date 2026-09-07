@@ -2226,6 +2226,9 @@ if (
   generatedPictureFile,
   generatedPicturePreview
 );
+    setGeneratedPictureFile(null);
+setGeneratedPicturePreview("");
+setHasPreviewedEnhancement(false);
     alert("Enhanced photo added to timeline.");
   };
 
@@ -3607,7 +3610,12 @@ setHasPreviewedEnhancement(true);
 
           <Button
             type="button"
-            disabled={!picturePreview || !hasPreviewedEnhancement}
+            disabled={
+  !picturePreview ||
+  !hasPreviewedEnhancement ||
+  !generatedPicturePreview ||
+  !generatedPictureFile
+}
             onClick={handleAddEnhancedPhotoToTimeline}
             className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
           >
