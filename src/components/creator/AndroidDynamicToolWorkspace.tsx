@@ -1941,6 +1941,7 @@ export default function AndroidDynamicToolWorkspace(
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
   const [generatedPicturePreview, setGeneratedPicturePreview] = useState("");
   const [generatedPictureFile, setGeneratedPictureFile] = useState<File | null>(null);
+  const [isGeneratingPicture, setIsGeneratingPicture] = useState(false);
   const [quoteText, setQuoteText] = useState("");
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
@@ -2739,13 +2740,18 @@ const isMemeGenerator = tool === "Meme Generator";
                                     : isYoungerLook
                                       ? "Generate Younger Look"
                                       : "Generate Enhanced Photo";
-         const performUploadedPictureGeneration = async () => {
+          const performUploadedPictureGeneration = async () => {
   if (!pictureFile) {
     alert("Please upload a photo first.");
     return;
   }
 
+  if (isGeneratingPicture) {
+    return;
+  }
+
   try {
+    setIsGeneratingPicture(true);
     setHasPreviewedEnhancement(false);
 
     const prompt =
@@ -2941,14 +2947,25 @@ setHasPreviewedEnhancement(true);
               accept="image/*"
               className="hidden"
               onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                if (picturePreview) URL.revokeObjectURL(picturePreview);
-                setPictureFile(file);
-                setPicturePreview(URL.createObjectURL(file));
-                setPictureFileName(file.name);
-                setHasPreviewedEnhancement(false);
-              }}
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  if (picturePreview) {
+    URL.revokeObjectURL(picturePreview);
+  }
+
+  if (generatedPicturePreview) {
+    URL.revokeObjectURL(generatedPicturePreview);
+  }
+
+  setPictureFile(file);
+  setPicturePreview(URL.createObjectURL(file));
+  setPictureFileName(file.name);
+
+  setGeneratedPictureFile(null);
+  setGeneratedPicturePreview("");
+  setHasPreviewedEnhancement(false);
+}}
             />
           </label>
 
@@ -3466,7 +3483,11 @@ setHasPreviewedEnhancement(true);
               {hasPreviewedEnhancement ? (
                 <div className="relative overflow-hidden rounded-2xl">
                   <img
-                    src={isPromptToImage ? generatedImagePreview : picturePreview}
+                    src={
+  isPromptToImage
+    ? generatedImagePreview
+    : generatedPicturePreview
+}
                     alt="Enhanced preview"
                     className="max-h-[380px] w-full rounded-2xl object-cover"
                     style={{ filter: filterClass }}
