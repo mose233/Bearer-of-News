@@ -155,7 +155,7 @@ const PrivacyPolicy: React.FC = () => {
             <h2 className="mb-2 text-xl font-extrabold text-white">
               11. Copyright
             </h2>
-            <p>© 2026 xnewsapp.com. All rights reserved.</p>
+            <p>© 2024 xnewsapp.com. All rights reserved.</p>
           </section>
         </div>
       </div>
