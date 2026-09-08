@@ -1,10 +1,23 @@
-import { FileText, Shield, Users, Facebook, Copyright, AlertTriangle, XCircle, Mail } from 'lucide-react';
+import {
+  FileText,
+  Shield,
+  Users,
+  Facebook,
+  Copyright,
+  AlertTriangle,
+  XCircle,
+  Mail,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 export default function Terms() {
   const navigate = useNavigate();
-  const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -14,9 +27,18 @@ export default function Terms() {
           <div className="flex items-center justify-center mb-4">
             <FileText className="h-16 w-16" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">Terms of Service</h1>
-          <p className="text-xl text-center text-blue-100">Bearer of News Platform Agreement</p>
-          <p className="text-center text-blue-200 mt-2">Last Updated: {currentDate}</p>
+
+          <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
+            Terms of Service
+          </h1>
+
+          <p className="text-xl text-center text-blue-100">
+            xnewsapp.com Platform Agreement
+          </p>
+
+          <p className="text-center text-blue-200 mt-2">
+            Last Updated: {currentDate}
+          </p>
         </div>
       </div>
 
@@ -26,10 +48,16 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <Shield className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">1. Acceptance of Terms</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                1. Acceptance of Terms
+              </h2>
+
               <p className="text-gray-700 leading-relaxed">
-                By using Bearer of News, you agree to these Terms and Facebook's Platform Policies.
+                By using xnewsapp.com, you agree to these Terms of Service. If
+                you do not agree with these terms, please do not use the
+                service.
               </p>
             </div>
           </div>
@@ -39,10 +67,17 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <FileText className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">2. Service Description</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                2. Service Description
+              </h2>
+
               <p className="text-gray-700 leading-relaxed">
-                Bearer of News is a collaboration platform that helps Facebook Page administrators manage content creation and approval workflows.
+                xnewsapp.com is an AI Creator Studio that helps users create,
+                edit, review, export, download, and share AI-assisted videos,
+                images, voiceovers, music, captions, drafts, campaigns, and
+                other creative content.
               </p>
             </div>
           </div>
@@ -52,24 +87,44 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <Users className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">3. User Responsibilities</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                3. User Responsibilities
+              </h2>
+
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>You must have legitimate administrative rights to Facebook Pages you connect</span>
+                  <span>
+                    You are responsible for the content you create, upload,
+                    review, download, share, or publish.
+                  </span>
                 </li>
+
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>You comply with all applicable laws and Facebook's policies</span>
+                  <span>
+                    You must only use media, music, images, videos, names,
+                    likenesses, and other materials that you own or have
+                    permission to use.
+                  </span>
                 </li>
+
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>You are responsible for content created through our platform</span>
+                  <span>
+                    You must comply with applicable laws and the rules of
+                    platforms where you share or publish content.
+                  </span>
                 </li>
+
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>You maintain final approval authority for all published content</span>
+                  <span>
+                    You remain responsible for reviewing and approving content
+                    before sharing or publishing it.
+                  </span>
                 </li>
               </ul>
             </div>
@@ -80,21 +135,48 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <Facebook className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">4. Facebook Platform Compliance</h2>
-              <p className="text-gray-700 mb-3">Our app complies with Facebook Platform Policies:</p>
+              <h2 className="text-2xl font-bold mb-3">
+                4. Social Media &amp; Platform Use
+              </h2>
+
+              <p className="text-gray-700 mb-3">
+                xnewsapp.com may provide features that allow users to connect
+                with or share content to supported social media platforms.
+              </p>
+
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>No auto-posting - all publishing requires manual user action</span>
+                  <span>
+                    You may only connect accounts, Pages, or profiles that you
+                    are authorized to manage.
+                  </span>
                 </li>
+
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>We only access necessary data for collaboration features</span>
+                  <span>
+                    You are responsible for complying with the policies and
+                    requirements of each platform you use.
+                  </span>
                 </li>
+
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-1">•</span>
-                  <span>We don't store Facebook login credentials</span>
+                  <span>
+                    Publishing or sharing content requires user action and
+                    authorization.
+                  </span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-1">•</span>
+                  <span>
+                    xnewsapp.com does not require or store your social media
+                    login passwords.
+                  </span>
                 </li>
               </ul>
             </div>
@@ -105,10 +187,17 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <Copyright className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">5. Content Ownership</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                5. Content Ownership
+              </h2>
+
               <p className="text-gray-700 leading-relaxed">
-                You retain all rights to content created through Bearer of News. We claim no ownership over your posts or media.
+                You retain your rights to content you create or upload through
+                xnewsapp.com, subject to any rights belonging to third parties
+                and any applicable third-party service terms. xnewsapp.com does
+                not claim ownership of your original content.
               </p>
             </div>
           </div>
@@ -118,10 +207,18 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <AlertTriangle className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">6. Limitation of Liability</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                6. AI-Generated Content
+              </h2>
+
               <p className="text-gray-700 leading-relaxed">
-                We are not responsible for content posted to Facebook through our platform. Page administrators retain full control and responsibility.
+                AI-generated content may be inaccurate, incomplete, unexpected,
+                or unsuitable for publishing without review. You are
+                responsible for reviewing generated captions, visuals,
+                voiceovers, music, claims, and other content before downloading,
+                sharing, or publishing it.
               </p>
             </div>
           </div>
@@ -131,10 +228,20 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <XCircle className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">7. Termination</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                7. Acceptable Use &amp; Termination
+              </h2>
+
               <p className="text-gray-700 leading-relaxed">
-                We reserve the right to suspend accounts that violate these terms or Facebook's policies.
+                You agree not to use xnewsapp.com for spam, fake engagement,
+                harassment, impersonation, deceptive or fraudulent content,
+                copyright misuse, unauthorized media, harmful content,
+                misleading claims, or unlawful activities. We reserve the
+                right to suspend or restrict access where necessary if an
+                account or use of the service violates these terms or
+                applicable laws.
               </p>
             </div>
           </div>
@@ -144,10 +251,77 @@ export default function Terms() {
         <div className="mb-12">
           <div className="flex items-start gap-4 mb-4">
             <Mail className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
             <div>
-              <h2 className="text-2xl font-bold mb-3">8. Contact</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                8. Payments &amp; Third-Party Services
+              </h2>
+
               <p className="text-gray-700 leading-relaxed">
-                For questions: <a href="mailto:enockmose743@gmail.com" className="text-blue-600 hover:underline font-medium">enockmose743@gmail.com</a>
+                Some features of xnewsapp.com may require payment. Payment,
+                AI generation, hosting, storage, authentication, analytics,
+                social media, and other features may depend on third-party
+                service providers. Third-party services may have their own
+                terms and policies, and xnewsapp.com is not responsible for
+                interruptions, changes, or decisions made by those providers.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 9 */}
+        <div className="mb-12">
+          <div className="flex items-start gap-4 mb-4">
+            <AlertTriangle className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
+            <div>
+              <h2 className="text-2xl font-bold mb-3">
+                9. Service Availability &amp; Limitation of Liability
+              </h2>
+
+              <p className="text-gray-700 leading-relaxed">
+                xnewsapp.com may update, improve, pause, restrict, or
+                discontinue parts of the service at any time. To the extent
+                permitted by law, xnewsapp.com is not responsible for losses
+                resulting from user-created or AI-generated content, platform
+                decisions, third-party services, service interruptions,
+                payment provider issues, or misuse of the service.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 10 */}
+        <div className="mb-12">
+          <div className="flex items-start gap-4 mb-4">
+            <Mail className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
+            <div>
+              <h2 className="text-2xl font-bold mb-3">10. Contact</h2>
+
+              <p className="text-gray-700 leading-relaxed">
+                For questions about these Terms of Service:{' '}
+                <a
+                  href="mailto:enockmose743@gmail.com"
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  enockmose743@gmail.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mb-12">
+          <div className="flex items-start gap-4 mb-4">
+            <Copyright className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+
+            <div>
+              <h2 className="text-2xl font-bold mb-3">11. Copyright</h2>
+
+              <p className="text-gray-700 leading-relaxed">
+                © 2024 xnewsapp.com. All rights reserved.
               </p>
             </div>
           </div>
@@ -155,9 +329,19 @@ export default function Terms() {
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 text-center">
-          <h3 className="text-2xl font-bold mb-4">Questions About Our Terms?</h3>
-          <p className="text-gray-700 mb-6">Contact us or learn more about Bearer of News</p>
-          <Button onClick={() => navigate('/about')} size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+          <h3 className="text-2xl font-bold mb-4">
+            Questions About Our Terms?
+          </h3>
+
+          <p className="text-gray-700 mb-6">
+            Contact us or learn more about xnewsapp.com
+          </p>
+
+          <Button
+            onClick={() => navigate('/about')}
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
             Learn More About Us
           </Button>
         </div>
