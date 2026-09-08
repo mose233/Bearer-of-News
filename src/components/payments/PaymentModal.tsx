@@ -12,11 +12,6 @@ type PaymentModalProps = {
 
 const paymentMethods = [
   "M-Pesa Kenya",
-  "Airtel Money Kenya",
-  "MTN Mobile Money",
-  "Airtel Money Uganda",
-  "M-Pesa Tanzania",
-  "Airtel Money Tanzania",
   "Visa",
 ];
 
