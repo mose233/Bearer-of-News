@@ -94,7 +94,7 @@ const HomeContent: React.FC = () => {
                 </div>
 
                 <h2 className="text-2xl font-extrabold">
-                  Facebook-ready video campaign
+                  Create Content That Stands Out
                 </h2>
 
                 <p className="mt-3 text-sm leading-6 text-slate-200">
