@@ -395,12 +395,12 @@ export default function Terms() {
               <p className="text-gray-700 leading-relaxed">
                 For questions regarding these Terms of Service, please contact
                 us at:{' '}
-                <a
-                  href="mailto:support@xnewsapp.com"
-                  className="text-blue-600 hover:underline font-medium"
-                >
-                  enockmose743@gmail.com
-                </a>
+               <a
+  href="mailto:support@xnewsapp.com"
+  className="text-blue-600 hover:underline font-medium"
+>
+  support@xnewsapp.com
+</a>
               </p>
             </div>
           </div>
