@@ -396,7 +396,7 @@ export default function Terms() {
                 For questions regarding these Terms of Service, please contact
                 us at:{' '}
                 <a
-                  href="mailto:enockmose743@gmail.com"
+                  href="mailto:support@xnewsapp.com"
                   className="text-blue-600 hover:underline font-medium"
                 >
                   enockmose743@gmail.com
