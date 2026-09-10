@@ -47,7 +47,7 @@ const HomeContent: React.FC = () => {
             </div>
 
           <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-  Bearer of News: Turn What You Imagine Into Powerful Content That Gets Attention and Moves Your Ambitions Forward.
+  Bearer of News Turns Your Ideas Into Powerful Content That Gets You Noticed and Opens Doors.
 </h1>
 
 <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
