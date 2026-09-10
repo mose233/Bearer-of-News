@@ -43,11 +43,11 @@ const HomeContent: React.FC = () => {
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/15 px-4 py-2 text-sm font-bold text-violet-100">
               <Sparkles className="h-4 w-4" />
-              AI Creator Studio for Facebook Pages
+              Bearer Of News AI Creator Studio
             </div>
 
           <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-  Bring Your Ideas to Life With Powerful AI Creation Tools, Then Publish Directly to Social Media
+  Create With Bearer of News and Bring Your Ideas to Life With Powerful AI Creation Tools, Then Publish Directly to Social Media
 </h1>
 
 <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
