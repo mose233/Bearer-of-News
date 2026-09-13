@@ -158,7 +158,9 @@ export default function AiToolLauncher({
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
           const selectedInCategory =
-            selectedTool?.category === category.title ? selectedTool.tool : "";
+            selectedTool?.category === category.title
+              ? selectedTool.tool
+              : "";
 
           return (
             <div
@@ -171,7 +173,9 @@ export default function AiToolLauncher({
             >
               <button
                 type="button"
-                onClick={() => setOpenCategory(isOpen ? null : category.title)}
+                onClick={() =>
+                  setOpenCategory(isOpen ? null : category.title)
+                }
                 className="flex w-full items-start justify-between gap-3 text-left"
               >
                 <div className="min-w-0">
@@ -238,12 +242,3 @@ export default function AiToolLauncher({
   );
 }
 ```
-
-**Only two things changed:**
-
-1. Removed the entire `"Cinematic AI"` category from `categories`.
-2. Removed `Clapperboard` from the Lucide import.
-
-One small technical point: I **kept `"Cinematic AI"` in `AiToolCategoryTitle`**. That's intentional. It means the existing Cinematic AI code can continue using that type while the launcher simply doesn't display it.
-
-You can replace the current `src/components/creator/AiToolLauncher.tsx` with this version.
