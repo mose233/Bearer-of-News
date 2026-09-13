@@ -86,8 +86,9 @@ export async function generateFalVideo(
 
   const isTextToVideo = request.tool === "Text to Video";
   const isImageToVideo = request.tool === "Photo to Video";
+  const isTalkingAvatar = request.tool === "Talking Avatar";
 
-  if (!isTextToVideo && !isImageToVideo) {
+  if (!isTextToVideo && !isImageToVideo && !isTalkingAvatar) {
     return {
       id: generationId,
       status: "failed",
@@ -111,19 +112,187 @@ export async function generateFalVideo(
     };
   }
 
+  if (isTalkingAvatar && !request.imageFile && !request.imageUrl) {
+    return {
+      id: generationId,
+      status: "failed",
+      error: "Talking Avatar requires an avatar image.",
+    };
+  }
+
+  if (isTalkingAvatar && !request.audioBlob && !request.audioUrl) {
+    return {
+      id: generationId,
+      status: "failed",
+      error: "Talking Avatar requires generated voice audio.",
+    };
+  }
+
   const duration = normalizeDuration(request.durationSeconds);
   const aspectRatio = normalizeAspectRatio(request.aspectRatio);
 
   try {
-    console.log("Starting real fal.ai Wan 2.7 video generation:", {
-      tool: request.tool,
-      model,
-      prompt: request.prompt,
-      hasImageFile: Boolean(request.imageFile),
-      hasImageUrl: Boolean(request.imageUrl),
-      durationSeconds: duration,
-      aspectRatio,
-    });
+    /*
+     * ============================================================
+     * TALKING AVATAR
+     * fal.ai FlashTalk
+     * ============================================================
+     */
+
+    if (isTalkingAvatar) {
+      console.log(
+        "Starting real fal.ai FlashTalk Talking Avatar generation:",
+        {
+          tool: request.tool,
+          model,
+          hasImageFile: Boolean(request.imageFile),
+          hasImageUrl: Boolean(request.imageUrl),
+          hasAudioBlob: Boolean(request.audioBlob),
+          hasAudioUrl: Boolean(request.audioUrl),
+          durationSeconds: duration,
+          aspectRatio,
+        }
+      );
+
+      let imageUrl = request.imageUrl;
+
+      /*
+       * Upload the avatar image to fal.ai storage when the caller
+       * supplied a browser File.
+       */
+      if (request.imageFile) {
+        console.log(
+          "Uploading Talking Avatar image to fal.ai storage..."
+        );
+
+        imageUrl = await fal.storage.upload(
+          request.imageFile
+        );
+
+        console.log(
+          "Talking Avatar image uploaded:",
+          imageUrl
+        );
+      }
+
+      let audioUrl = request.audioUrl;
+
+      /*
+       * The existing xnewsapp.com voice system returns an
+       * audio/mpeg Blob from ElevenLabs.
+       *
+       * Convert that Blob into a File and upload it to fal.ai
+       * storage so FlashTalk receives a hosted audio URL.
+       */
+      if (request.audioBlob) {
+        const audioFile = new File(
+          [request.audioBlob],
+          "talking-avatar-voice.mp3",
+          {
+            type: request.audioBlob.type || "audio/mpeg",
+          }
+        );
+
+        console.log(
+          "Uploading Talking Avatar voice to fal.ai storage:",
+          {
+            size: audioFile.size,
+            type: audioFile.type,
+          }
+        );
+
+        audioUrl = await fal.storage.upload(
+          audioFile
+        );
+
+        console.log(
+          "Talking Avatar audio uploaded:",
+          audioUrl
+        );
+      }
+
+      if (!imageUrl) {
+        throw new Error(
+          "Talking Avatar image upload did not return a URL."
+        );
+      }
+
+      if (!audioUrl) {
+        throw new Error(
+          "Talking Avatar audio upload did not return a URL."
+        );
+      }
+
+      const input = {
+        image_url: imageUrl,
+        audio_url: audioUrl,
+      };
+
+      console.log(
+        "fal.ai FlashTalk request input:",
+        {
+          model,
+          input,
+        }
+      );
+
+      const result = await fal.subscribe(model, {
+        input,
+        logs: true,
+        onQueueUpdate(update) {
+          console.log(
+            "fal.ai FlashTalk queue update:",
+            update
+          );
+        },
+      });
+
+      console.log(
+        "fal.ai FlashTalk completed response:",
+        result
+      );
+
+      console.log(
+        "fal.ai FlashTalk response data:",
+        result?.data
+      );
+
+      const videoUrl = result?.data?.video?.url;
+
+      if (
+        typeof videoUrl !== "string" ||
+        videoUrl.trim().length === 0
+      ) {
+        throw new Error(
+          "fal.ai FlashTalk completed but did not return the expected data.video.url."
+        );
+      }
+
+      return {
+        id: generationId,
+        status: "completed",
+        videoUrl,
+      };
+    }
+
+    /*
+     * ============================================================
+     * EXISTING WAN 2.7 VIDEO GENERATION
+     * ============================================================
+     */
+
+    console.log(
+      "Starting real fal.ai Wan 2.7 video generation:",
+      {
+        tool: request.tool,
+        model,
+        prompt: request.prompt,
+        hasImageFile: Boolean(request.imageFile),
+        hasImageUrl: Boolean(request.imageUrl),
+        durationSeconds: duration,
+        aspectRatio,
+      }
+    );
 
     const input: Record<string, unknown> = {
       prompt: request.prompt.trim(),
@@ -138,13 +307,17 @@ export async function generateFalVideo(
     }
 
     if (isImageToVideo) {
-      input.image_url = request.imageFile ?? request.imageUrl;
+      input.image_url =
+        request.imageFile ?? request.imageUrl;
     }
 
-    console.log("fal.ai Wan 2.7 request input:", {
-      model,
-      input,
-    });
+    console.log(
+      "fal.ai Wan 2.7 request input:",
+      {
+        model,
+        input,
+      }
+    );
 
     const result = await fal.subscribe(model, {
       input,
@@ -157,7 +330,11 @@ export async function generateFalVideo(
       },
     });
 
-    console.log("fal.ai Wan 2.7 completed response:", result);
+    console.log(
+      "fal.ai Wan 2.7 completed response:",
+      result
+    );
+
     console.log(
       "fal.ai Wan 2.7 response data:",
       result?.data
@@ -183,7 +360,7 @@ export async function generateFalVideo(
     const errorMessage = getFalErrorMessage(error);
 
     console.error(
-      "fal.ai Wan 2.7 video generation failed:",
+      "fal.ai video generation failed:",
       {
         tool: request.tool,
         model,
