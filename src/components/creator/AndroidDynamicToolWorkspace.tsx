@@ -2675,17 +2675,14 @@ setHasPreviewedEnhancement(false);
               onChange={setQuoteOutputFormat}
             />
           </div>
-
-          {false && (
+              {false && (
   <TextFontStudio
-    tool={tool}
+    tool="AI Music Video Studio"
     selectedFont={selectedCreatorFont}
-    onFontChange={(font) => {
-      setSelectedCreatorFont(font);
-      setQuoteFont(font);
-    }}
+    onFontChange={setSelectedCreatorFont}
   />
 )}
+         
 
           {quoteStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -3584,9 +3581,9 @@ setHasPreviewedEnhancement(true);
             )}
         </div>
 
-       {false && showFontStudio && (
+         {false && (
   <TextFontStudio
-    tool={tool}
+    tool="AI Music Video Studio"
     selectedFont={selectedCreatorFont}
     onFontChange={setSelectedCreatorFont}
   />
