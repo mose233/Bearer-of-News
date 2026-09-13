@@ -19,7 +19,6 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
-import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 import MusicStudioPanel from "@/components/creator/MusicStudioPanel";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
@@ -2668,14 +2667,6 @@ export default function DynamicToolWorkspace({
             />
           </div>
 
-             {false && (
-  <TextFontStudio
-    tool="AI Music Video Studio"
-    selectedFont={selectedCreatorFont}
-    onFontChange={setSelectedCreatorFont}
-  />
-)}
-
           {quoteStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
               {quoteStatus}
@@ -3558,15 +3549,7 @@ Create a clean, realistic, high-quality result.`;
             )}
         </div>
 
-          {false && (
-  <TextFontStudio
-    tool={tool}
-    selectedFont={selectedCreatorFont}
-    onFontChange={setSelectedCreatorFont}
-  />
-)}
-
-        {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
+              {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
