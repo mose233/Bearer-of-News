@@ -1975,15 +1975,17 @@ function VideoTemplatePanel({
   label={`Generate ${tool}`}
   onClick={() => {
     const generateHandler =
-      tool === "Text to Video"
-        ? handleGenerateCinematicTextToVideo
-        : tool === "Photo to Video"
-          ? handleGenerateCinematicDraft
-          : async () => {
-              setCinematicStatus(
-                `${tool} is not connected to a supported fal.ai video model yet.`
-              );
-            };
+  tool === "Text to Video"
+    ? handleGenerateCinematicTextToVideo
+    : tool === "Photo to Video"
+      ? handleGenerateCinematicDraft
+      : tool === "Talking Avatar"
+        ? handleGenerateCinematicTalkingAvatar
+        : async () => {
+            setCinematicStatus(
+              `${tool} is not connected to a supported fal.ai video model yet.`
+            );
+          };
 
     if (requestGeneration) {
       requestGeneration("$0.72", generateHandler);
@@ -2020,7 +2022,7 @@ export default function AndroidDynamicToolWorkspace(
   voiceVolume: _voiceVolume,
   setVoiceVolume: _setVoiceVolume,
   isSpeaking: _isSpeaking,
-  aiVoiceBlob: _aiVoiceBlob,
+  aiVoiceBlob,
   isExporting: _isExporting,
   onPlayVoiceover: _onPlayVoiceover,
   onStopVoiceover: _onStopVoiceover,
