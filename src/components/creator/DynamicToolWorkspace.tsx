@@ -2022,7 +2022,7 @@ export default function DynamicToolWorkspace({
   voiceVolume: _voiceVolume,
   setVoiceVolume: _setVoiceVolume,
   isSpeaking: _isSpeaking,
-  aiVoiceBlob: _aiVoiceBlob,
+  aiVoiceBlob,
   isExporting: _isExporting,
   onPlayVoiceover: _onPlayVoiceover,
   onStopVoiceover: _onStopVoiceover,
