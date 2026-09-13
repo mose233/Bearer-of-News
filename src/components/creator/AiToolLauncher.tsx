@@ -1,7 +1,6 @@
-```tsx
 import { useState } from "react";
 import type { ElementType } from "react";
-import { Image, Music, Sparkles, Video } from "lucide-react";
+import { Image, Music, Sparkles, Video, Clapperboard } from "lucide-react";
 
 export type AiToolCategoryTitle =
   | "Picture AI"
@@ -123,6 +122,36 @@ const categories: AiToolCategory[] = [
       "Beat Generator",
     ],
   },
+  {
+    title: "Cinematic AI",
+    description: "Premium motion",
+    icon: Clapperboard,
+    accent: "from-amber-500 to-orange-600",
+    tools: [
+      "Talking Avatar",
+      "Singing Animation",
+      
+      "Lip Sync Video",
+      
+      "Photo to Video",
+      "Image to Video",
+      "AI News Presenter",
+      "AI Spokesperson",
+      "Virtual Influencer",
+      "Story-to-Video Generator",
+      "Short Film Generator",
+      "Movie Scene Generator",
+      "Trailer Generator",
+      "Text to Video",
+      "Wedding Cinematic Film",
+      "Travel Cinematic Film",
+      "Real Estate Cinematic Tour",
+      "Product Commercial Generator",
+      "Church Sermon Cinematic",
+      "Motivational Cinematic Video",
+      "Documentary Generator",
+    ],
+  },
 ];
 
 export default function AiToolLauncher({
@@ -157,60 +186,26 @@ export default function AiToolLauncher({
         {categories.map((category) => {
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
-
           const selectedInCategory =
-            selectedTool?.category === category.title
-              ? selectedTool.tool
-              : "";
-
-          const categoryClassName = [
-            "rounded-2xl",
-            "border",
-            "p-3",
-            "transition",
-            selectedInCategory
-              ? "border-violet-300/50 bg-violet-500/10"
-              : "border-white/10 bg-slate-950/50 hover:border-white/20 hover:bg-slate-950/80",
-          ].join(" ");
-
-          const arrowClassName = [
-            "mt-1",
-            "flex",
-            "h-7",
-            "w-7",
-            "items-center",
-            "justify-center",
-            "rounded-full",
-            "bg-white/10",
-            "text-[10px]",
-            "font-bold",
-            "text-white",
-            "transition",
-            isOpen ? "rotate-180" : "",
-          ].join(" ");
+            selectedTool?.category === category.title ? selectedTool.tool : "";
 
           return (
-            <div key={category.title} className={categoryClassName}>
+            <div
+              key={category.title}
+              className={`rounded-2xl border p-3 transition ${
+                selectedInCategory
+                  ? "border-violet-300/50 bg-violet-500/10"
+                  : "border-white/10 bg-slate-950/50 hover:border-white/20 hover:bg-slate-950/80"
+              }`}
+            >
               <button
                 type="button"
-                onClick={() =>
-                  setOpenCategory(isOpen ? null : category.title)
-                }
+                onClick={() => setOpenCategory(isOpen ? null : category.title)}
                 className="flex w-full items-start justify-between gap-3 text-left"
               >
                 <div className="min-w-0">
                   <div
-                    className={[
-                      "mb-2",
-                      "flex",
-                      "h-9",
-                      "w-9",
-                      "items-center",
-                      "justify-center",
-                      "rounded-xl",
-                      "bg-gradient-to-r",
-                      category.accent,
-                    ].join(" ")}
+                    className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r ${category.accent}`}
                   >
                     <Icon className="h-4 w-4 text-white" />
                   </div>
@@ -224,7 +219,13 @@ export default function AiToolLauncher({
                   </p>
                 </div>
 
-                <span className={arrowClassName}>▼</span>
+                <span
+                  className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-white transition ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                >
+                  ▼
+                </span>
               </button>
 
               {isOpen && (
@@ -233,21 +234,6 @@ export default function AiToolLauncher({
                     const active =
                       selectedTool?.category === category.title &&
                       selectedTool?.tool === tool;
-
-                    const toolClassName = [
-                      "w-full",
-                      "rounded-xl",
-                      "border",
-                      "px-3",
-                      "py-2.5",
-                      "text-left",
-                      "text-[11px]",
-                      "font-bold",
-                      "transition",
-                      active
-                        ? "border-violet-300 bg-violet-500/25 text-white"
-                        : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white",
-                    ].join(" ");
 
                     return (
                       <button
@@ -261,7 +247,11 @@ export default function AiToolLauncher({
 
                           setOpenCategory(null);
                         }}
-                        className={toolClassName}
+                        className={`w-full rounded-xl border px-3 py-2.5 text-left text-[11px] font-bold transition ${
+                          active
+                            ? "border-violet-300 bg-violet-500/25 text-white"
+                            : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+                        }`}
                       >
                         {tool}
                       </button>
@@ -276,4 +266,3 @@ export default function AiToolLauncher({
     </div>
   );
 }
-```
