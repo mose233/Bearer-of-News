@@ -1,6 +1,7 @@
+```tsx
 import { useState } from "react";
 import type { ElementType } from "react";
-import { Image, Music, Sparkles, Video, Clapperboard } from "lucide-react";
+import { Image, Music, Sparkles, Video } from "lucide-react";
 
 export type AiToolCategoryTitle =
   | "Picture AI"
@@ -122,36 +123,6 @@ const categories: AiToolCategory[] = [
       "Beat Generator",
     ],
   },
-  {
-    title: "Cinematic AI",
-    description: "Premium motion",
-    icon: Clapperboard,
-    accent: "from-amber-500 to-orange-600",
-    tools: [
-      "Talking Avatar",
-      "Singing Animation",
-      
-      "Lip Sync Video",
-      
-      "Photo to Video",
-      "Image to Video",
-      "AI News Presenter",
-      "AI Spokesperson",
-      "Virtual Influencer",
-      "Story-to-Video Generator",
-      "Short Film Generator",
-      "Movie Scene Generator",
-      "Trailer Generator",
-      "Text to Video",
-      "Wedding Cinematic Film",
-      "Travel Cinematic Film",
-      "Real Estate Cinematic Tour",
-      "Product Commercial Generator",
-      "Church Sermon Cinematic",
-      "Motivational Cinematic Video",
-      "Documentary Generator",
-    ],
-  },
 ];
 
 export default function AiToolLauncher({
@@ -266,3 +237,13 @@ export default function AiToolLauncher({
     </div>
   );
 }
+```
+
+**Only two things changed:**
+
+1. Removed the entire `"Cinematic AI"` category from `categories`.
+2. Removed `Clapperboard` from the Lucide import.
+
+One small technical point: I **kept `"Cinematic AI"` in `AiToolCategoryTitle`**. That's intentional. It means the existing Cinematic AI code can continue using that type while the launcher simply doesn't display it.
+
+You can replace the current `src/components/creator/AiToolLauncher.tsx` with this version.
