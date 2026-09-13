@@ -1,4 +1,3 @@
-```tsx
 import { useState } from "react";
 import type { ElementType } from "react";
 import { Image, Music, Sparkles, Video, Clapperboard } from "lucide-react";
@@ -131,7 +130,9 @@ const categories: AiToolCategory[] = [
     tools: [
       "Talking Avatar",
       "Singing Animation",
+      
       "Lip Sync Video",
+      
       "Photo to Video",
       "Image to Video",
       "AI News Presenter",
@@ -181,94 +182,87 @@ export default function AiToolLauncher({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {categories
-          .filter((category) => category.title !== "Cinematic AI")
-          .map((category) => {
-            const Icon = category.icon;
-            const isOpen = openCategory === category.title;
-            const selectedInCategory =
-              selectedTool?.category === category.title
-                ? selectedTool.tool
-                : "";
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 [&>div:nth-child(4)]:hidden">
+        {categories.map((category) => {
+          const Icon = category.icon;
+          const isOpen = openCategory === category.title;
+          const selectedInCategory =
+            selectedTool?.category === category.title ? selectedTool.tool : "";
 
-            return (
-              <div
-                key={category.title}
-                className={`rounded-2xl border p-3 transition ${
-                  selectedInCategory
-                    ? "border-violet-300/50 bg-violet-500/10"
-                    : "border-white/10 bg-slate-950/50 hover:border-white/20 hover:bg-slate-950/80"
-                }`}
+          return (
+            <div
+              key={category.title}
+              className={`rounded-2xl border p-3 transition ${
+                selectedInCategory
+                  ? "border-violet-300/50 bg-violet-500/10"
+                  : "border-white/10 bg-slate-950/50 hover:border-white/20 hover:bg-slate-950/80"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => setOpenCategory(isOpen ? null : category.title)}
+                className="flex w-full items-start justify-between gap-3 text-left"
               >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setOpenCategory(isOpen ? null : category.title)
-                  }
-                  className="flex w-full items-start justify-between gap-3 text-left"
-                >
-                  <div className="min-w-0">
-                    <div
-                      className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r ${category.accent}`}
-                    >
-                      <Icon className="h-4 w-4 text-white" />
-                    </div>
-
-                    <h3 className="text-sm font-extrabold text-white">
-                      {category.title}
-                    </h3>
-
-                    <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-300">
-                      {selectedInCategory || category.description}
-                    </p>
-                  </div>
-
-                  <span
-                    className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-white transition ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
+                <div className="min-w-0">
+                  <div
+                    className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r ${category.accent}`}
                   >
-                    ▼
-                  </span>
-                </button>
-
-                {isOpen && (
-                  <div className="mt-3 max-h-[300px] space-y-1.5 overflow-y-auto pr-1">
-                    {category.tools.map((tool) => {
-                      const active =
-                        selectedTool?.category === category.title &&
-                        selectedTool?.tool === tool;
-
-                      return (
-                        <button
-                          key={tool}
-                          type="button"
-                          onClick={() => {
-                            onSelectTool({
-                              category: category.title,
-                              tool,
-                            });
-
-                            setOpenCategory(null);
-                          }}
-                          className={`w-full rounded-xl border px-3 py-2.5 text-left text-[11px] font-bold transition ${
-                            active
-                              ? "border-violet-300 bg-violet-500/25 text-white"
-                              : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
-                          }`}
-                        >
-                          {tool}
-                        </button>
-                      );
-                    })}
+                    <Icon className="h-4 w-4 text-white" />
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  <h3 className="text-sm font-extrabold text-white">
+                    {category.title}
+                  </h3>
+
+                  <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-300">
+                    {selectedInCategory || category.description}
+                  </p>
+                </div>
+
+                <span
+                  className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-white transition ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                >
+                  ▼
+                </span>
+              </button>
+
+              {isOpen && (
+                <div className="mt-3 max-h-[300px] space-y-1.5 overflow-y-auto pr-1">
+                  {category.tools.map((tool) => {
+                    const active =
+                      selectedTool?.category === category.title &&
+                      selectedTool?.tool === tool;
+
+                    return (
+                      <button
+                        key={tool}
+                        type="button"
+                        onClick={() => {
+                          onSelectTool({
+                            category: category.title,
+                            tool,
+                          });
+
+                          setOpenCategory(null);
+                        }}
+                        className={`w-full rounded-xl border px-3 py-2.5 text-left text-[11px] font-bold transition ${
+                          active
+                            ? "border-violet-300 bg-violet-500/25 text-white"
+                            : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        {tool}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
-```
