@@ -837,13 +837,7 @@ function VideoTemplatePanel({
           </div>
         )}
 
-        <TextFontStudio
-          tool={tool}
-          selectedFont={selectedCreatorFont}
-          onFontChange={setSelectedCreatorFont}
-        />
-
-        <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
           <SelectField
             label="2. Video Type"
             value={localVideoType}
@@ -4043,13 +4037,7 @@ setHasPreviewedEnhancement(true);
           />
         </label>
 
-        <TextFontStudio
-          tool="AI Music Video Studio"
-          selectedFont={selectedCreatorFont}
-          onFontChange={setSelectedCreatorFont}
-        />
-
-        {musicVideoDraftStatus && (
+               {musicVideoDraftStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold text-emerald-100">
             {musicVideoDraftStatus}
           </div>
