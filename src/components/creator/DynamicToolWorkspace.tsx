@@ -2668,14 +2668,16 @@ export default function DynamicToolWorkspace({
             />
           </div>
 
-          <TextFontStudio
-            tool={tool}
-            selectedFont={selectedCreatorFont}
-            onFontChange={(font) => {
-              setSelectedCreatorFont(font);
-              setQuoteFont(font);
-            }}
-          />
+          {false && (
+  <TextFontStudio
+    tool={tool}
+    selectedFont={selectedCreatorFont}
+    onFontChange={(font) => {
+      setSelectedCreatorFont(font);
+      setQuoteFont(font);
+    }}
+  />
+)}
 
           {quoteStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -3559,13 +3561,13 @@ Create a clean, realistic, high-quality result.`;
             )}
         </div>
 
-        {showFontStudio && (
-          <TextFontStudio
-            tool={tool}
-            selectedFont={selectedCreatorFont}
-            onFontChange={setSelectedCreatorFont}
-          />
-        )}
+        {false && showFontStudio && (
+  <TextFontStudio
+    tool={tool}
+    selectedFont={selectedCreatorFont}
+    onFontChange={setSelectedCreatorFont}
+  />
+)}
 
         {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
