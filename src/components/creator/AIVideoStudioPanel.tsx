@@ -1,6 +1,4 @@
 import React, { useMemo, useState } from "react";
-
-import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 import { getFontByName } from "@/lib/creator/fontLibrary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
