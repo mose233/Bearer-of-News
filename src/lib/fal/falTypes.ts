@@ -12,6 +12,7 @@ export type FalVideoRequest = {
   imageUrl?: string;
   imageFile?: File;
   audioUrl?: string;
+  audioBlob?: Blob;
   durationSeconds: number;
   aspectRatio: "9:16" | "1:1" | "16:9";
 };
