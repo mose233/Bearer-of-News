@@ -182,7 +182,7 @@ export default function AiToolLauncher({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 [&>div:nth-child(4)]:hidden">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 [&>div:nth-child(4)]:hidden">
         {categories.map((category) => {
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
