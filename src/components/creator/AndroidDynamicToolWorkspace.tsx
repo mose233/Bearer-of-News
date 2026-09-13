@@ -1974,7 +1974,7 @@ function VideoTemplatePanel({
             <PrimaryGenerateButton
   label={`Generate ${tool}`}
   onClick={() => {
-    const generateHandler =
+   const generateHandler =
   tool === "Text to Video"
     ? handleGenerateCinematicTextToVideo
     : tool === "Photo to Video"
