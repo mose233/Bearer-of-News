@@ -2668,14 +2668,11 @@ export default function DynamicToolWorkspace({
             />
           </div>
 
-          {false && (
+             {false && (
   <TextFontStudio
-    tool={tool}
+    tool="AI Music Video Studio"
     selectedFont={selectedCreatorFont}
-    onFontChange={(font) => {
-      setSelectedCreatorFont(font);
-      setQuoteFont(font);
-    }}
+    onFontChange={setSelectedCreatorFont}
   />
 )}
 
@@ -3561,7 +3558,7 @@ Create a clean, realistic, high-quality result.`;
             )}
         </div>
 
-        {false && showFontStudio && (
+          {false && (
   <TextFontStudio
     tool={tool}
     selectedFont={selectedCreatorFont}
