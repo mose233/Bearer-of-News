@@ -837,13 +837,7 @@ function VideoTemplatePanel({
           </div>
         )}
 
-        <TextFontStudio
-          tool={tool}
-          selectedFont={selectedCreatorFont}
-          onFontChange={setSelectedCreatorFont}
-        />
-
-        <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
           <SelectField
             label="2. Video Type"
             value={localVideoType}
@@ -4010,12 +4004,6 @@ Create a clean, realistic, high-quality result.`;
             placeholder="Example: Nairobi nightlife, dancers, colorful lights, beat synced transitions, luxury cars, fast captions."
           />
         </label>
-
-        <TextFontStudio
-          tool="AI Music Video Studio"
-          selectedFont={selectedCreatorFont}
-          onFontChange={setSelectedCreatorFont}
-        />
 
         {musicVideoDraftStatus && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold text-emerald-100">
