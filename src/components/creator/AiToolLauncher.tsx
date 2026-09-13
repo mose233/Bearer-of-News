@@ -190,10 +190,7 @@ export default function AiToolLauncher({
           ].join(" ");
 
           return (
-            <div
-              key={category.title}
-              className={categoryClassName}
-            >
+            <div key={category.title} className={categoryClassName}>
               <button
                 type="button"
                 onClick={() =>
@@ -227,9 +224,7 @@ export default function AiToolLauncher({
                   </p>
                 </div>
 
-                <span className={arrowClassName}>
-                  ▼
-                </span>
+                <span className={arrowClassName}>▼</span>
               </button>
 
               {isOpen && (
