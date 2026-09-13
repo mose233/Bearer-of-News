@@ -6,7 +6,7 @@ export const falModelByTool: Record<FalVideoTool, string | null> = {
 
   // These tools do not have a dedicated fal.ai implementation yet.
   // They must not fall back to fake/mock video generation.
-  "Talking Avatar": null,
+  "Talking Avatar": "fal-ai/flashtalk",
   "AI News Presenter": null,
   "Dance Animation": null,
   "AI Music Video Studio": null,
