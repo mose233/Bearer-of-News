@@ -19,7 +19,6 @@ import { AiToolSelection } from "@/components/creator/AiToolLauncher";
 
 import PhotoMusicVideoPanel from "@/components/creator/PhotoMusicVideoPanel";
 import DancingPhotoPanel from "@/components/creator/DancingPhotoPanel";
-import TextFontStudio from "@/components/creator/TextFontStudio.tsx";
 import MusicStudioPanel from "@/components/creator/MusicStudioPanel";
 
 import { DanceStyle } from "@/lib/ai/videoProviders";
@@ -2675,14 +2674,6 @@ setHasPreviewedEnhancement(false);
               onChange={setQuoteOutputFormat}
             />
           </div>
-              {false && (
-  <TextFontStudio
-    tool="AI Music Video Studio"
-    selectedFont={selectedCreatorFont}
-    onFontChange={setSelectedCreatorFont}
-  />
-)}
-         
 
           {quoteStatus && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-xs font-bold leading-5 text-emerald-100">
@@ -3580,14 +3571,6 @@ setHasPreviewedEnhancement(true);
               </p>
             )}
         </div>
-
-         {false && (
-  <TextFontStudio
-    tool="AI Music Video Studio"
-    selectedFont={selectedCreatorFont}
-    onFontChange={setSelectedCreatorFont}
-  />
-)}
 
         {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
