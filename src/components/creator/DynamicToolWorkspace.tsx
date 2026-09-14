@@ -2145,6 +2145,7 @@ export default function DynamicToolWorkspace({
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
+  const [isGeneratingPicture, setIsGeneratingPicture] = useState(false);
   const [quoteText, setQuoteText] = useState("");
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
