@@ -33,9 +33,7 @@ const categories: AiToolCategory[] = [
     icon: Image,
     accent: "from-pink-500 to-fuchsia-600",
     tools: [
-           "Quote Image Creator",
-      "Meme Generator",
-
+          
       "Running",
       "Swimming",
       "Dancing",
