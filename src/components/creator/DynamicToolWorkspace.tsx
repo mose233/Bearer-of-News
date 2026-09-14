@@ -3023,8 +3023,9 @@ const isMemeGenerator = tool === "Meme Generator";
     return;
   }
 
-  try {
-    setHasPreviewedEnhancement(false);
+ try {
+  setHasPreviewedEnhancement(false);
+  setIsGeneratingPicture(true);
 
     const prompt =
       isPhotoEnhancer
