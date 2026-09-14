@@ -3969,14 +3969,14 @@ setIsGeneratingPicture(false);
   {generateLabel}
 </Button>
 
-          <Button
-            type="button"
-            disabled={!picturePreview || !hasPreviewedEnhancement}
-            onClick={handleAddEnhancedPhotoToTimeline}
-            className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
-          >
-            Add to Timeline
-          </Button>
+         <Button
+  type="button"
+  disabled={!picturePreview || !hasPreviewedEnhancement}
+  onClick={handleAddEnhancedPhotoToTimeline}
+  className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
+>
+  Add to Preview to Download
+</Button>
         </div>
       </div>
     );
