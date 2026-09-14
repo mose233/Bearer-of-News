@@ -3064,11 +3064,26 @@ Use a ${enhancementStyle} visual style.
 Preserve the person's exact identity, face, facial structure, skin tone, hairstyle, pose, and body.
 Only change the clothing and make the result realistic.`
                     : isSceneChanger
-                      ? `Place the person or main subject into the following scene: ${sceneChoice}.
+  ? `Place the person or main subject into the following scene: ${sceneChoice}.
 Use a ${enhancementStyle} visual mood.
 Preserve the person's exact identity, face, facial structure, skin tone, body, clothing, and pose.
 Create a realistic scene integration with appropriate lighting and perspective.`
-                      : `Improve this uploaded image using a ${enhancementStyle} style.
+  : isAmazingScene
+    ? `Transform the uploaded photo into a realistic photograph showing the same person actively ${enhancementStyle.toLowerCase()}.
+
+The selected activity or scene is: ${enhancementStyle}.
+
+IMPORTANT:
+- The person must actually be participating in the selected activity or be physically present in the selected scene.
+- Change the person's pose, body position, environment, clothing, and composition when necessary to make the activity or scene believable.
+- Preserve the person's recognizable identity, facial characteristics, and overall appearance.
+- Create a complete realistic photograph, not an enhancement of the original photo.
+- Make the selected activity or location clearly visible.
+- Use realistic lighting, perspective, anatomy, environment, and photographic detail.
+- Do not simply return the original uploaded photo.
+
+Selected activity/scene: ${enhancementStyle}`
+    : `Improve this uploaded image using a ${enhancementStyle} style.
 Preserve the original subject and identity.
 Create a clean, realistic, high-quality result.`;
 
