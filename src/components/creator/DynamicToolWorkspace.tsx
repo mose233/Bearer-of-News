@@ -3295,7 +3295,8 @@ Create a clean, realistic, high-quality result.`;
     setPictureFile(generatedFile);
     setPictureFileName(generatedFile.name);
     setPicturePreview(result.imageUrl);
-    setHasPreviewedEnhancement(true);
+setHasPreviewedEnhancement(true);
+setIsGeneratingPicture(false);
 
     console.log("=================================");
     console.log("REAL PICTURE AI EDIT COMPLETED");
