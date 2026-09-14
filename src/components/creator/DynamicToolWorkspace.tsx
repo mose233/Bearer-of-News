@@ -3029,217 +3029,220 @@ setIsGeneratingPicture(false);
   setIsGeneratingPicture(true);
 
     const prompt =
-      isPhotoEnhancer
-        ? `Enhance this photo with ${pictureStrength} strength.
+  isPhotoEnhancer
+    ? `Enhance this photo with ${pictureStrength} strength.
+
+Create an authentic, highly photorealistic photograph.
+The result must look like a real photograph captured by a professional
+camera, not AI-generated artwork, a digital render, or an illustration.
+
+Preserve the exact identity of the person in the uploaded photo.
+The person must remain immediately recognizable as the same individual.
+
+Preserve the person's facial structure, face shape, eyes, eyebrows, nose,
+lips, jawline, skin tone, hairline, and distinctive facial characteristics.
+
+Preserve realistic human anatomy, natural body proportions, hands, fingers,
+feet, joints, clothing, and interaction with surrounding objects.
+
+Use natural skin texture, realistic pores, subtle natural imperfections,
+realistic hair strands, authentic fabric texture, natural lighting,
+physically believable shadows, reflections, perspective, and depth of field.
+
+Avoid plastic-looking skin, excessive beauty retouching, artificial sharpness,
+unnatural symmetry, distorted hands, extra fingers, deformed limbs,
+warped objects, or unrealistic facial features.
+
 Improve sharpness, lighting, color, clarity, and overall image quality.
 HD upscale: ${pictureUpscale}.
-Preserve the person's identity, facial features, body, clothing, pose, and composition.
-Do not change the subject or add unnecessary elements.`
-        : isStudioPortrait
-          ? `Transform this uploaded photo into a professional ${portraitRole} portrait.
+
+Do not change who the person is or add unnecessary elements.`
+
+    : isStudioPortrait
+      ? `Transform this uploaded photo into a professional ${portraitRole} portrait.
+
+Create a genuine professional photograph, not an AI-looking portrait.
+
+Preserve the person's exact identity and recognizable facial characteristics.
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hairline, and natural skin texture.
+
+Keep realistic skin pores, subtle imperfections, natural hair detail,
+realistic lighting, believable shadows, natural facial proportions,
+and authentic camera depth of field.
+
+Do not beautify, reshape, redesign, age, de-age, or replace the person's face.
+
 Use a ${portraitBackground} background.
-Preserve the person's exact identity, facial structure, skin tone, facial features, pose, and clothing.
-Create a clean, professional, realistic photographic result.`
-          : isBeautyGlow
-            ? `Apply a ${beautyLevel} beauty enhancement using a ${enhancementStyle} look.
-Improve lighting, skin appearance, facial presentation, and overall polish.
-Keep the result natural and realistic.
-Preserve the person's exact identity and facial features.`
-            : isYoungerLook
-              ? `Make the person appear approximately ${youngerAge} younger.
-Use a ${enhancementStyle} look.
-Preserve the person's identity, facial structure, recognizable features, pose, and natural appearance.
-Create a realistic age-reduction result without changing who the person is.`
-              : isBackgroundChanger
-                ? `Replace the existing background with a ${backgroundChoice} background.
-Use a ${enhancementStyle} visual style.
+Preserve the person's pose and clothing unless the requested portrait
+requires a natural adjustment.
+
+The final result must look like a real professional camera photograph.`
+
+      : isBeautyGlow
+        ? `Apply a ${beautyLevel} beauty enhancement using a ${enhancementStyle} look.
+
+Keep the person's exact identity immediately recognizable.
+
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hairline, and distinctive facial characteristics.
+
+Use realistic skin texture and natural pores.
+Do not make the skin plastic, overly smooth, airbrushed, or artificial.
+
+Use natural photographic lighting, realistic shadows, believable skin texture,
+and subtle imperfections.
+
+Improve lighting, skin appearance, facial presentation, and overall polish
+without changing who the person is.
+
+The final result must look like a real photograph, not an AI-generated beauty image.`
+
+        : isYoungerLook
+          ? `Make the person appear approximately ${youngerAge} younger.
+
+Preserve the person's exact identity and make them immediately recognizable
+as the same individual.
+
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hairline, and distinctive facial characteristics.
+
+Make only natural age-related changes.
+Do not redesign, replace, reshape, beautify, or substantially alter the face.
+
+Use realistic skin texture, natural pores, subtle imperfections,
+realistic hair, believable lighting, natural shadows, and authentic
+photographic detail.
+
+The final result must look like a real photograph of the same person,
+not an AI-generated face.`
+
+          : isBackgroundChanger
+            ? `Replace the existing background with a ${backgroundChoice} background.
+
 Keep the person or main subject exactly preserved.
-Do not change the person's face, identity, body, clothing, pose, or proportions.
-Create a realistic and natural separation between the subject and the new background.`
-                : isHairstyleChanger
-                  ? `Change the person's hairstyle to ${hairStyleChoice}.
-Use a ${enhancementStyle} visual style.
-Preserve the person's exact identity, face, facial structure, skin tone, pose, clothing, and body.
-Only change the hairstyle and make the result realistic.`
-                  : isOutfitChanger
-                    ? `Change the person's outfit to ${outfitChoice}.
-Use a ${enhancementStyle} visual style.
-Preserve the person's exact identity, face, facial structure, skin tone, hairstyle, pose, and body.
-Only change the clothing and make the result realistic.`
-                             : isSceneChanger
-            ? `Place the person or main subject into the following scene: ${sceneChoice}.
-Use a ${enhancementStyle} visual mood.
-Preserve the person's exact identity, face, facial structure, skin tone, body, clothing, and pose.
-Create a realistic scene integration with appropriate lighting and perspective.`
-            : isAmazingScene
-              ? (() => {
-                  const actionActivities = new Set([
-                    "Running",
-                    "Swimming",
-                    "Dancing",
-                    "Mountain Climbing",
-                    "Hiking",
-                    "Cycling",
-                    "Fitness",
-                    "Boxing",
-                    "Playing Football",
-                    "Basketball",
-                    "Tennis",
-                    "Horse Riding",
-                    "Skydiving",
-                    "Surfing",
-                    "Scuba Diving",
-                    "Kayaking",
-                  ]);
 
-                  const locationActivities = new Set([
-                    "Nairobi",
-                    "Mombasa",
-                    "Diani Beach",
-                    "Maasai Mara",
-                    "Mount Kenya",
-                    "London",
-                    "Paris",
-                    "New York",
-                    "Dubai",
-                    "Tokyo",
-                    "Singapore",
-                    "Sydney",
-                    "Rome",
-                    "Barcelona",
-                    "Santorini",
-                    "Washington DC",
-                    "White House",
-                    "Great Wall of China",
-                    "Pyramids of Egypt",
-                    "Colosseum",
-                    "Taj Mahal",
-                    "Buckingham Palace",
-                    "Eiffel Tower",
-                    "Statue of Liberty",
-                    "Times Square",
-                    "Golden Gate Bridge",
-                    "Mount Fuji",
-                  ]);
+Preserve the person's exact identity, face, facial structure, skin tone,
+body, clothing, pose, proportions, hair, and natural skin texture.
 
-                  const environmentActivities = new Set([
-                    "Safari",
-                    "Camping",
-                    "Campfire",
-                    "Waterfall",
-                    "Forest",
-                    "Desert",
-                    "Snow Adventure",
-                    "Beach",
-                    "Tropical Island",
-                    "Sunset",
-                    "City Night",
-                    "Rooftop",
-                    "Garden",
-                    "Ocean",
-                    "Dream Destination",
-                  ]);
+Do not regenerate or redesign the person's face.
 
-                  const travelActivities = new Set([
-                    "In the Plane",
-                    "At Airport",
-                    "Luxury Train",
-                    "Luxury Car",
-                    "Yacht",
-                    "Helicopter Ride",
-                    "Luxury Hotel",
-                  ]);
+Create realistic subject-to-background integration with physically believable
+lighting, shadows, perspective, reflections, depth of field, and edges.
 
-                  const socialActivities = new Set([
-                    "Fine Dining",
-                    "Concert",
-                    "On Stage",
-                    "Party",
-                    "Red Carpet",
-                    "Wedding",
-                    "Graduation",
-                    "Birthday",
-                    "Celebration",
-                    "Political Rally",
-                    "Family Gathering",
-                    "Fashion Photoshoot",
-                    "Magazine Photoshoot",
-                    "Café",
-                    "Restaurant",
-                    "Shopping",
-                    "Movie Scene",
-                  ]);
+Keep natural photographic imperfections and realistic skin detail.
 
-                  if (actionActivities.has(tool)) {
-                    return `Transform the person in the uploaded photo into a realistic ${tool.toLowerCase()} scene.
+The final result must look like a genuine photograph taken in the new location.`
 
-The person must be actively ${tool.toLowerCase()}.
-Show the actual activity clearly through a natural full-body or appropriate action pose, realistic body movement, correct environment, perspective, lighting and physical interaction with the surroundings.
+            : isHairstyleChanger
+              ? `Change the person's hairstyle to ${hairStyleChoice}.
 
-The result must unmistakably show the person performing the selected activity, not merely posing beside it.
+Preserve the person's exact identity and make the person immediately
+recognizable as the same individual.
 
-Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
-Keep the result photorealistic and believable.
-Do not simply apply "${tool}" as a visual style.
-Do not create a static portrait that does not show the activity.`;
-                  }
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hairline, skin texture, body, pose, and clothing.
 
-                  if (locationActivities.has(tool)) {
-                    return `Transform the uploaded photo into a photorealistic scene showing the person at ${tool}.
+Only change the hairstyle.
 
-The selected location or landmark must be clearly recognizable and visibly present in the scene.
-Place the person naturally within the location with realistic scale, perspective, lighting, shadows and environmental details.
+Make individual hair strands, hair texture, lighting, shadows, and edges
+physically believable.
 
-Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
-The person should look naturally present at this location, not pasted onto the background.
-Do not simply apply "${tool}" as a visual style.`;
-                  }
+Do not change or redesign the person's face.
 
-                  if (environmentActivities.has(tool)) {
-                    return `Transform the uploaded photo into a photorealistic ${tool.toLowerCase()} scene.
+The final result must look like a real photograph.`
 
-Place the person naturally inside this environment and make the selected environment clearly visible.
-Create realistic surroundings, lighting, depth, perspective and interaction between the person and the environment.
+              : isOutfitChanger
+                ? `Change the person's outfit to ${outfitChoice}.
 
-Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
-Do not simply apply "${tool}" as a visual style.
-Create a believable photograph of the person experiencing this environment.`;
-                  }
+Preserve the person's exact identity and make the person immediately
+recognizable as the same individual.
 
-                  if (travelActivities.has(tool)) {
-                    return `Transform the uploaded photo into a photorealistic scene showing the person ${tool.toLowerCase()}.
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hair, skin texture, body, pose, and proportions.
 
-The selected travel experience must be obvious from the image.
-Show the person naturally participating in or being present within the experience, with realistic surroundings, perspective, lighting and details.
+Only change the clothing.
 
-Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
-Do not simply place the person beside the experience.
-Do not simply apply "${tool}" as a visual style.`;
-                  }
+Make the fabric, folds, shadows, lighting, and interaction between clothing
+and the body physically believable.
 
-                  if (socialActivities.has(tool)) {
-                    return `Transform the uploaded photo into a photorealistic ${tool.toLowerCase()} scene.
+The final result must look like a genuine photograph of the same person.`
 
-The person must clearly be participating in or experiencing the selected occasion or setting.
-Show appropriate surroundings, people, objects, clothing and body positioning where naturally relevant.
+                : isSceneChanger
+                  ? `Place the person or main subject into the following scene: ${sceneChoice}.
 
-Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
-Make the selected occasion or setting immediately understandable from the image.
-Do not simply apply "${tool}" as a visual style.`;
-                  }
+Preserve the person's exact identity and make them immediately recognizable
+as the same individual.
 
-                  return `Transform the uploaded photo into a photorealistic scene based on "${tool}".
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hairline, skin texture, body proportions, and distinctive features.
 
-The selected activity, experience or location must be clearly visible and unmistakable.
-Show the person naturally participating in or experiencing it.
+Keep the person naturally integrated into the new environment.
 
-Preserve the person's recognizable identity and facial characteristics.
-Create a realistic photographic result.
-Do not simply apply "${tool}" as a visual style.`;
-                })()
-              : `Improve this uploaded image using a ${enhancementStyle} style.
+Use realistic perspective, natural lighting, believable shadows,
+physically accurate scale, depth of field, reflections, and environmental
+interaction.
+
+Avoid plastic skin, artificial facial features, distorted anatomy,
+unnatural hands, warped objects, or obvious AI artifacts.
+
+The final result must look like a genuine photograph taken in that scene.`
+
+                  : isAmazingScene
+                    ? `Create a highly photorealistic photograph showing the
+same person naturally participating in or experiencing this requested scene:
+
+${tool}
+
+IDENTITY PRESERVATION:
+Preserve the exact identity of the person in the uploaded photo.
+The person must be immediately recognizable as the same individual.
+
+Preserve facial structure, face shape, eyes, eyebrows, nose, lips, jawline,
+skin tone, hairline, hairstyle, and distinctive facial characteristics.
+
+Do not replace, redesign, beautify, reshape, age, de-age, or substantially
+alter the person's face.
+
+PHOTOGRAPHIC REALISM:
+The result must look like a genuine photograph captured by a real camera.
+
+Use realistic human anatomy and natural body proportions.
+Make hands, fingers, feet, joints, clothing, hair, and body positioning
+physically believable.
+
+Use natural skin texture, visible pores, subtle imperfections, realistic
+hair strands, authentic fabric texture, natural lighting, believable shadows,
+realistic reflections, accurate perspective, and natural depth of field.
+
+Make the person interact naturally with the environment and surrounding
+objects.
+
+Avoid plastic-looking skin, excessive beauty retouching, artificial
+sharpness, perfect symmetry, distorted hands, extra fingers, deformed limbs,
+warped objects, unrealistic facial features, or other obvious AI artifacts.
+
+The final image should look like a real photograph of the same person
+actually doing or experiencing ${tool}.`
+
+                    : `Improve this uploaded image using a ${enhancementStyle} style.
+
 Preserve the original subject and identity.
-Create a clean, realistic, high-quality result.`;
+
+Create an authentic, highly photorealistic photograph.
+The person must remain recognizable as the same individual.
+
+Preserve natural facial structure, facial features, skin tone, body
+proportions, and distinctive characteristics.
+
+Use realistic skin texture, natural pores, subtle imperfections,
+realistic hair and fabric detail, natural lighting, believable shadows,
+accurate perspective, and authentic camera depth of field.
+
+Avoid plastic-looking skin, excessive retouching, artificial sharpness,
+unnatural symmetry, distorted anatomy, or warped objects.
+
+The final result must look like a genuine photograph, not an AI-generated image.`;
 
     console.log("=================================");
     console.log("REAL PICTURE AI EDIT REQUEST");
