@@ -2145,6 +2145,7 @@ export default function AndroidDynamicToolWorkspace(
   const [enhancementStyle, setEnhancementStyle] =
     useState("Studio Portrait Pro");
   const [hasPreviewedEnhancement, setHasPreviewedEnhancement] = useState(false);
+  const [isGeneratingPicture, setIsGeneratingPicture] = useState(false);
   const [generatedPicturePreview, setGeneratedPicturePreview] = useState("");
   const [generatedPictureFile, setGeneratedPictureFile] = useState<File | null>(null);
   const [isGeneratingPicture, setIsGeneratingPicture] = useState(false);
@@ -3033,10 +3034,9 @@ const isMemeGenerator = tool === "Meme Generator";
   if (isGeneratingPicture) {
     return;
   }
-
-  try {
-    setIsGeneratingPicture(true);
-    setHasPreviewedEnhancement(false);
+   try {
+  setHasPreviewedEnhancement(false);
+  setIsGeneratingPicture(true);
 
     const prompt =
       isPhotoEnhancer
@@ -4018,12 +4018,26 @@ setHasPreviewedEnhancement(true);
                   )}
                 </div>
               ) : (
-                <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80 p-6 text-center">
-                  <p className="text-sm font-medium leading-6 text-slate-300">
-                    Click {generateLabel} to see the {tool} result.
-                  </p>
-                </div>
-              )}
+  <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80 p-6 text-center">
+    {isGeneratingPicture ? (
+      <div className="space-y-3">
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-pink-400" />
+        <div>
+          <p className="text-base font-extrabold text-white">
+            ✨ Generating {tool}
+          </p>
+          <p className="mt-1 text-sm font-medium leading-6 text-slate-300">
+            AI is creating your image. Please wait…
+          </p>
+        </div>
+      </div>
+    ) : (
+      <p className="text-sm font-medium leading-6 text-slate-300">
+        Click {generateLabel} to see the {tool} result.
+      </p>
+    )}
+  </div>
+)}
             </div>
           </div>
         )}
