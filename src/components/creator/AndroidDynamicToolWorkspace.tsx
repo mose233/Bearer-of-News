@@ -3076,12 +3076,178 @@ Only change the hairstyle and make the result realistic.`
 Use a ${enhancementStyle} visual style.
 Preserve the person's exact identity, face, facial structure, skin tone, hairstyle, pose, and body.
 Only change the clothing and make the result realistic.`
-                    : isSceneChanger
-                      ? `Place the person or main subject into the following scene: ${sceneChoice}.
+                             : isSceneChanger
+            ? `Place the person or main subject into the following scene: ${sceneChoice}.
 Use a ${enhancementStyle} visual mood.
 Preserve the person's exact identity, face, facial structure, skin tone, body, clothing, and pose.
 Create a realistic scene integration with appropriate lighting and perspective.`
-                      : `Improve this uploaded image using a ${enhancementStyle} style.
+            : isAmazingScene
+              ? (() => {
+                  const actionActivities = new Set([
+                    "Running",
+                    "Swimming",
+                    "Dancing",
+                    "Mountain Climbing",
+                    "Hiking",
+                    "Cycling",
+                    "Fitness",
+                    "Boxing",
+                    "Playing Football",
+                    "Basketball",
+                    "Tennis",
+                    "Horse Riding",
+                    "Skydiving",
+                    "Surfing",
+                    "Scuba Diving",
+                    "Kayaking",
+                  ]);
+
+                  const locationActivities = new Set([
+                    "Nairobi",
+                    "Mombasa",
+                    "Diani Beach",
+                    "Maasai Mara",
+                    "Mount Kenya",
+                    "London",
+                    "Paris",
+                    "New York",
+                    "Dubai",
+                    "Tokyo",
+                    "Singapore",
+                    "Sydney",
+                    "Rome",
+                    "Barcelona",
+                    "Santorini",
+                    "Washington DC",
+                    "White House",
+                    "Great Wall of China",
+                    "Pyramids of Egypt",
+                    "Colosseum",
+                    "Taj Mahal",
+                    "Buckingham Palace",
+                    "Eiffel Tower",
+                    "Statue of Liberty",
+                    "Times Square",
+                    "Golden Gate Bridge",
+                    "Mount Fuji",
+                  ]);
+
+                  const environmentActivities = new Set([
+                    "Safari",
+                    "Camping",
+                    "Campfire",
+                    "Waterfall",
+                    "Forest",
+                    "Desert",
+                    "Snow Adventure",
+                    "Beach",
+                    "Tropical Island",
+                    "Sunset",
+                    "City Night",
+                    "Rooftop",
+                    "Garden",
+                    "Ocean",
+                    "Dream Destination",
+                  ]);
+
+                  const travelActivities = new Set([
+                    "In the Plane",
+                    "At Airport",
+                    "Luxury Train",
+                    "Luxury Car",
+                    "Yacht",
+                    "Helicopter Ride",
+                    "Luxury Hotel",
+                  ]);
+
+                  const socialActivities = new Set([
+                    "Fine Dining",
+                    "Concert",
+                    "On Stage",
+                    "Party",
+                    "Red Carpet",
+                    "Wedding",
+                    "Graduation",
+                    "Birthday",
+                    "Celebration",
+                    "Political Rally",
+                    "Family Gathering",
+                    "Fashion Photoshoot",
+                    "Magazine Photoshoot",
+                    "Café",
+                    "Restaurant",
+                    "Shopping",
+                    "Movie Scene",
+                  ]);
+
+                  if (actionActivities.has(tool)) {
+                    return `Transform the person in the uploaded photo into a realistic ${tool.toLowerCase()} scene.
+
+The person must be actively ${tool.toLowerCase()}.
+Show the actual activity clearly through a natural full-body or appropriate action pose, realistic body movement, correct environment, perspective, lighting and physical interaction with the surroundings.
+
+The result must unmistakably show the person performing the selected activity, not merely posing beside it.
+
+Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
+Keep the result photorealistic and believable.
+Do not simply apply "${tool}" as a visual style.
+Do not create a static portrait that does not show the activity.`;
+                  }
+
+                  if (locationActivities.has(tool)) {
+                    return `Transform the uploaded photo into a photorealistic scene showing the person at ${tool}.
+
+The selected location or landmark must be clearly recognizable and visibly present in the scene.
+Place the person naturally within the location with realistic scale, perspective, lighting, shadows and environmental details.
+
+Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
+The person should look naturally present at this location, not pasted onto the background.
+Do not simply apply "${tool}" as a visual style.`;
+                  }
+
+                  if (environmentActivities.has(tool)) {
+                    return `Transform the uploaded photo into a photorealistic ${tool.toLowerCase()} scene.
+
+Place the person naturally inside this environment and make the selected environment clearly visible.
+Create realistic surroundings, lighting, depth, perspective and interaction between the person and the environment.
+
+Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
+Do not simply apply "${tool}" as a visual style.
+Create a believable photograph of the person experiencing this environment.`;
+                  }
+
+                  if (travelActivities.has(tool)) {
+                    return `Transform the uploaded photo into a photorealistic scene showing the person ${tool.toLowerCase()}.
+
+The selected travel experience must be obvious from the image.
+Show the person naturally participating in or being present within the experience, with realistic surroundings, perspective, lighting and details.
+
+Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
+Do not simply place the person beside the experience.
+Do not simply apply "${tool}" as a visual style.`;
+                  }
+
+                  if (socialActivities.has(tool)) {
+                    return `Transform the uploaded photo into a photorealistic ${tool.toLowerCase()} scene.
+
+The person must clearly be participating in or experiencing the selected occasion or setting.
+Show appropriate surroundings, people, objects, clothing and body positioning where naturally relevant.
+
+Preserve the person's recognizable identity, facial characteristics, natural skin tone and overall appearance.
+Make the selected occasion or setting immediately understandable from the image.
+Do not simply apply "${tool}" as a visual style.`;
+                  }
+
+                  return `Transform the uploaded photo into a photorealistic scene based on "${tool}".
+
+The selected activity, experience or location must be clearly visible and unmistakable.
+Show the person naturally participating in or experiencing it.
+
+Preserve the person's recognizable identity and facial characteristics.
+Create a realistic photographic result.
+Do not simply apply "${tool}" as a visual style.`;
+                })()
+              : `Improve this uploaded image using a ${enhancementStyle} style.
 Preserve the original subject and identity.
 Create a clean, realistic, high-quality result.`;
 
