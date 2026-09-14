@@ -3025,6 +3025,7 @@ const isMemeGenerator = tool === "Meme Generator";
 
  try {
   setHasPreviewedEnhancement(false);
+setIsGeneratingPicture(false);
   setIsGeneratingPicture(true);
 
     const prompt =
