@@ -678,24 +678,40 @@ function VideoTemplatePanel({
           ? "Example: Create a fast Facebook Reel about my new product launch. Make it catchy, short, and suitable for young buyers."
           : "Example: Create a motivational video about never giving up, hard work, and building a better future.";
 
-  const buildDraftPrompt = () => {
-    const cleanMessage = localMessage.trim() || videoPrompt?.trim() || "Create a social video.";
+ const buildDraftPrompt = () => {
+  const cleanMessage =
+    localMessage.trim() ||
+    videoPrompt?.trim() ||
+    "Create a social video.";
 
-    return [
-      `Tool: ${tool}`,
-      `Video type: ${localVideoType}`,
-      `Visual style: ${localVisualStyle}`,
-      `Language: ${localLanguage}`,
-      `Output format: ${localOutputFormat}`,
-      `Video duration: ${selectedVideoDuration}`,
-      `Selected font: ${selectedCreatorFont}`,
-      "",
-      "User instructions:",
-      cleanMessage,
-      "",
-      "Create a short standard video using uploaded media, captions, music, voice narration, transitions and timeline export.",
-    ].join("\n");
-  };
+  const generationInstruction =
+    tool === "Text to Video"
+      ? "Create the requested video entirely from the text instructions."
+      : [
+          `Create a realistic image-to-video transformation for the selected experience: ${tool}.`,
+          "Use the uploaded photo as the primary subject and visual reference.",
+          `Animate the person naturally according to the selected experience: ${tool}.`,
+          "Preserve the person's identity, face, skin tone, body proportions, and recognizable features.",
+          "Do not replace the person with a different person.",
+          "Keep the motion physically natural and coherent.",
+          "Create a realistic photographic result rather than an illustration or cartoon.",
+        ].join(" ");
+
+  return [
+    `Tool: ${tool}`,
+    `Video type: ${localVideoType}`,
+    `Visual style: ${localVisualStyle}`,
+    `Language: ${localLanguage}`,
+    `Output format: ${localOutputFormat}`,
+    `Video duration: ${selectedVideoDuration}`,
+    `Selected font: ${selectedCreatorFont}`,
+    "",
+    "User instructions:",
+    cleanMessage,
+    "",
+    generationInstruction,
+  ].join("\n");
+};
 
   const handleStageVideoMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
