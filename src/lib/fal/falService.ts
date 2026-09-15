@@ -74,8 +74,6 @@ export async function generateFalVideo(
     };
   }
 
-  const model = falModelByTool[request.tool];
-
   if (!model) {
     return {
       id: generationId,
@@ -216,6 +214,17 @@ const isTalkingAvatar = [
   "Lip Sync Video",
   "Singing Photo",
 ].includes(request.tool);
+  const configuredModel = falModelByTool[request.tool];
+
+const model =
+  configuredModel ??
+  (isTextToVideo
+    ? "fal-ai/wan/v2.7/text-to-video"
+    : isImageToVideo
+      ? "fal-ai/wan/v2.7/image-to-video"
+      : isTalkingAvatar
+        ? "fal-ai/flashtalk"
+        : null);
 
   if (!isTextToVideo && !isImageToVideo && !isTalkingAvatar) {
     return {
