@@ -741,9 +741,13 @@ function VideoTemplatePanel({
     try {
       const { generateFalVideo } = await import("@/lib/fal/falService");
 
-      const result = await generateFalVideo({
+        const result = await generateFalVideo({
   tool,
   prompt: draftPrompt,
+  imageFile:
+    (isImageToVideo || isActionVideo) && stagedVideoFiles.length > 0
+      ? stagedVideoFiles[0]
+      : undefined,
   durationSeconds: getDurationSecondsFromLabel(selectedVideoDuration),
   aspectRatio: "9:16",
 });
