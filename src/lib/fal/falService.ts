@@ -74,14 +74,6 @@ export async function generateFalVideo(
     };
   }
 
-  if (!model) {
-    return {
-      id: generationId,
-      status: "failed",
-      error: `${request.tool} is not connected to a fal.ai video model yet.`,
-    };
-  }
-
   const isTextToVideo = request.tool === "Text to Video";
 
 const isImageToVideo = [
