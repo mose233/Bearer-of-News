@@ -225,6 +225,13 @@ const model =
       error: `${request.tool} is not connected to a supported fal.ai video model yet.`,
     };
   }
+  if (!model) {
+  return {
+    id: generationId,
+    status: "failed",
+    error: `${request.tool} is not connected to a fal.ai video model yet.`,
+  };
+}
 
   if (!request.prompt?.trim()) {
     return {
