@@ -745,7 +745,7 @@ function VideoTemplatePanel({
   tool,
   prompt: draftPrompt,
   imageFile:
-    (isImageToVideo || isActionVideo) && stagedVideoFiles.length > 0
+    stagedVideoFiles.length > 0
       ? stagedVideoFiles[0]
       : undefined,
   durationSeconds: getDurationSecondsFromLabel(selectedVideoDuration),
