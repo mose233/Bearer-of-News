@@ -443,10 +443,32 @@ const model =
       input.aspect_ratio = aspectRatio;
     }
 
-    if (isImageToVideo) {
-      input.image_url =
-        request.imageFile ?? request.imageUrl;
-    }
+   if (isImageToVideo) {
+  let imageUrl = request.imageUrl;
+
+  if (request.imageFile) {
+    console.log(
+      "Uploading Wan Image-to-Video source image to fal.ai storage..."
+    );
+
+    imageUrl = await fal.storage.upload(
+      request.imageFile
+    );
+
+    console.log(
+      "Wan Image-to-Video source image uploaded:",
+      imageUrl
+    );
+  }
+
+  if (!imageUrl) {
+    throw new Error(
+      "Image-to-Video source image upload did not return a URL."
+    );
+  }
+
+  input.image_url = imageUrl;
+}
 
     console.log(
       "fal.ai Wan 2.7 request input:",
