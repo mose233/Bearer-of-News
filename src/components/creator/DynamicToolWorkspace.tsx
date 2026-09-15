@@ -745,6 +745,15 @@ function VideoTemplatePanel({
 
     const handleGenerateVideoDraft = async () => {
     const draftPrompt = buildDraftPrompt();
+    if (
+  tool !== "Text to Video" &&
+  stagedVideoFiles.length === 0
+) {
+  setVideoDraftStatus(
+    `${tool} requires an uploaded photo. Please upload a photo before generating.`
+  );
+  return;
+}
 
     setVideoPrompt?.(draftPrompt);
     setVideoCreativeType?.(localVideoType);
