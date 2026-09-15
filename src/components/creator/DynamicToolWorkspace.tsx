@@ -620,6 +620,56 @@ function VideoTemplatePanel({
     "Travel Video",
   ].includes(tool);
 
+  // Shared Video AI routing:
+  // Text to Video is the only text-only workflow in this panel.
+  // All other Video AI experiences use the uploaded source photo/media
+  // as the visual input for the shared fal.ai image-to-video path.
+  const isImageToVideo = tool !== "Text to Video";
+
+  const isActionVideo = [
+    "Dancing",
+    "Running",
+    "Swimming",
+    "Mountain Climbing",
+    "Hiking",
+    "Cycling",
+    "Fitness",
+    "Boxing",
+    "Playing Football",
+    "Basketball",
+    "Tennis",
+    "Horse Riding",
+    "Skydiving",
+    "Surfing",
+    "Scuba Diving",
+    "Kayaking",
+    "Safari",
+    "Camping",
+    "Campfire",
+    "Waterfall",
+    "Forest",
+    "Desert",
+    "Snow Adventure",
+    "In the Plane",
+    "At Airport",
+    "Luxury Train",
+    "Luxury Car",
+    "Yacht",
+    "Helicopter Ride",
+    "Beach",
+    "Tropical Island",
+    "Sunset",
+    "Political Rally",
+    "Fashion Photoshoot",
+    "Magazine Photoshoot",
+    "City Night",
+    "Rooftop",
+    "Garden",
+    "Ocean",
+    "Dream Destination",
+    "Movie Scene",
+  ].includes(tool);
+
   const typeOptions = isSocial
     ? [
         "Trending Reel",
