@@ -741,12 +741,12 @@ function VideoTemplatePanel({
     try {
       const { generateFalVideo } = await import("@/lib/fal/falService");
 
-      const result = await generateFalVideo({
-        tool: "Text to Video",
-        prompt: draftPrompt,
-        durationSeconds: getDurationSecondsFromLabel(selectedVideoDuration),
-        aspectRatio: "9:16",
-      });
+     const result = await generateFalVideo({
+  tool,
+  prompt: draftPrompt,
+  durationSeconds: getDurationSecondsFromLabel(selectedVideoDuration),
+  aspectRatio: "9:16",
+});
 
       if (result.status === "failed" || !result.videoUrl) {
         throw new Error(
