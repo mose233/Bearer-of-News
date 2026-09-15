@@ -127,7 +127,19 @@ const imageToVideoTools: FalVideoTool[] = [
   "Transformation Video",
 ];
 
-export const falModelByTool: Record<FalVideoTool, string | null> =
-  Object.fromEntries(
-    Object.values({}) as FalVideoTool[]
-  ) as Record<FalVideoTool, string | null>;
+export const falModelByTool: Partial<Record<FalVideoTool, string>> = {
+  "Text to Video": WAN_TEXT_TO_VIDEO,
+  "Photo to Video": WAN_IMAGE_TO_VIDEO,
+  "Image to Video": WAN_IMAGE_TO_VIDEO,
+  "Talking Avatar": FLASHTALK,
+  "AI Talking Avatar": FLASHTALK,
+  "Talking Photo": FLASHTALK,
+  "Lip Sync Video": FLASHTALK,
+  "Singing Photo": FLASHTALK,
+};
+
+for (const tool of imageToVideoTools) {
+  if (!(tool in falModelByTool)) {
+    falModelByTool[tool] = WAN_IMAGE_TO_VIDEO;
+  }
+}
