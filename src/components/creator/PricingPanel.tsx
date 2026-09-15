@@ -81,7 +81,7 @@ export default function PricingPanel({
             <p className="text-xs font-semibold leading-5 text-blue-100">
               💡 Prices shown are generation costs per request.
               Downloaded content is royalty-free for use within
-              XNewsApp's Terms of Service.
+              xnewsApp's Terms of Service.
             </p>
           </div>
         </div>
