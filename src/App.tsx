@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 import Index from "./pages/Index";
@@ -16,7 +16,7 @@ import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
 import CreatorStudio from "./pages/CreatorStudio";
 import AndroidCreatorStudio from "./pages/AndroidCreatorStudio";
-import LaunchingSoon from "./pages/LaunchingSoon";
+import { AuthProvider } from "@/contexts/AuthContext";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -27,17 +27,7 @@ import FacebookCallback from "./pages/FacebookCallback";
 
 const queryClient = new QueryClient();
 
-const ADMIN_EMAIL = "enockmose743@gmail.com";
-
 function CreatorStudioEntry() {
-  const { user } = useAuth();
-
-  const isAdmin = user?.email === ADMIN_EMAIL;
-
-  if (!isAdmin) {
-    return <LaunchingSoon />;
-  }
-
   const isAndroid = navigator.userAgent
     .toLowerCase()
     .includes("android");
