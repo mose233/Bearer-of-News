@@ -29,92 +29,58 @@ export class ImageProvider {
   static async generate(
     request: ImageGenerationRequest
   ): Promise<ImageGenerationResult> {
-    const queueResponse = await fetch(
-      "https://queue.fal.run/fal-ai/flux/dev",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Key ${request.falApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+    try {
+      // Use fal.ai direct synchronous inference instead of queue polling.
+      // This keeps the Cloudflare Worker invocation to a small number of
+      // subrequests and avoids the Workers subrequest limit.
+      fal.config({
+        credentials: request.falApiKey,
+      });
+
+      const result = await fal.run("fal-ai/flux/dev", {
+        input: {
           prompt: request.prompt,
-        }),
-      }
-    );
+        },
+      });
 
-    if (!queueResponse.ok) {
-      const error = await queueResponse.text();
-      throw new Error(`fal.ai request failed: ${error}`);
-    }
+      const imageUrl = result.data?.images?.[0]?.url;
 
-    const queueResult = await queueResponse.json();
-    const requestId = queueResult.request_id;
-
-    if (!requestId) {
-      throw new Error("fal.ai did not return a request ID.");
-    }
-
-    let imageUrl: string | undefined;
-
-    while (!imageUrl) {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const statusResponse = await fetch(
-        `https://queue.fal.run/fal-ai/flux/dev/requests/${requestId}`,
-        {
-          headers: {
-            Authorization: `Key ${request.falApiKey}`,
-          },
-        }
-      );
-
-      if (!statusResponse.ok) {
-        const error = await statusResponse.text();
-        throw new Error(error);
+      if (!imageUrl) {
+        throw new Error("fal.ai completed but returned no image URL.");
       }
 
-      const status = await statusResponse.json();
+      const imageResponse = await fetch(imageUrl);
 
-      if (status.status === "COMPLETED") {
-        imageUrl = status.response?.images?.[0]?.url;
+      if (!imageResponse.ok) {
+        throw new Error(
+          `Unable to download the generated image from fal.ai (${imageResponse.status}).`
+        );
       }
 
-      if (status.status === "FAILED") {
-        throw new Error(status.error ?? "fal.ai generation failed.");
+      const blob = await imageResponse.blob();
+      const buffer = await blob.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+
+      let binary = "";
+      for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
       }
+
+      return {
+        imageBase64: btoa(binary),
+        mimeType: blob.type || "image/png",
+      };
+    } catch (error) {
+      console.error("FAL.AI IMAGE GENERATION ERROR:", error);
+
+      if (error instanceof Error) {
+        throw new Error(`fal.ai image generation failed: ${error.message}`);
+      }
+
+      throw new Error(`fal.ai image generation failed: ${String(error)}`);
     }
-
-    const imageResponse = await fetch(imageUrl);
-
-    if (!imageResponse.ok) {
-      throw new Error("Unable to download generated image.");
-    }
-
-    const blob = await imageResponse.blob();
-    const buffer = await blob.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    let binary = "";
-
-    for (const byte of bytes) {
-      binary += String.fromCharCode(byte);
-    }
-
-    const imageBase64 = btoa(binary);
-
-    return {
-      imageBase64,
-      mimeType: blob.type || "image/png",
-    };
   }
 
-  /**
-   * Uploaded-photo image editing.
-   *
-   * Uses fal.ai's direct subscribe flow with Flux Kontext.
-   * The uploaded image is supplied as image_url and the returned
-   * generated image is downloaded and returned as base64.
-   */
   static async edit(
     request: ImageEditRequest
   ): Promise<ImageGenerationResult> {
@@ -131,11 +97,15 @@ export class ImageProvider {
     console.log("=================================");
 
     try {
+      // IMPORTANT: use direct fal.ai inference here.
+      // The previous implementation submitted a queue job and then polled
+      // it from the same Cloudflare Worker invocation. A long generation
+      // could therefore exceed Cloudflare's 50-subrequest limit.
       fal.config({
         credentials: request.falApiKey,
       });
 
-      const result = await fal.subscribe("fal-ai/flux-kontext/dev", {
+      const result = await fal.run("fal-ai/flux-kontext/dev", {
         input: {
           prompt: request.prompt,
           image_url: request.imageData,
@@ -143,23 +113,6 @@ export class ImageProvider {
           num_images: 1,
           output_format: "png",
           safety_tolerance: "2",
-        },
-        logs: true,
-        onQueueUpdate: (update) => {
-          console.log("fal.ai Kontext status:", update.status);
-
-          if (update.status === "IN_QUEUE") {
-            console.log(
-              "fal.ai Kontext queue position:",
-              update.queue_position
-            );
-          }
-
-          if (update.status === "IN_PROGRESS") {
-            update.logs?.forEach((log) => {
-              console.log("fal.ai Kontext:", log.message);
-            });
-          }
         },
       });
 
@@ -170,7 +123,6 @@ export class ImageProvider {
           "fal.ai Kontext completed but returned no image URL:",
           result.data
         );
-
         throw new Error(
           "fal.ai completed the image edit but returned no image URL."
         );
@@ -192,8 +144,8 @@ export class ImageProvider {
       const blob = await imageResponse.blob();
       const buffer = await blob.arrayBuffer();
       const bytes = new Uint8Array(buffer);
-      let binary = "";
 
+      let binary = "";
       for (const byte of bytes) {
         binary += String.fromCharCode(byte);
       }
@@ -220,4 +172,5 @@ export class ImageProvider {
       throw new Error(`fal.ai image editing failed: ${String(error)}`);
     }
   }
+
 }
