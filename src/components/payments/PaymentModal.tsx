@@ -12,7 +12,6 @@ type PaymentModalProps = {
 
 const paymentMethods = [
   "M-Pesa Kenya",
-  "Visa",
 ];
 
 export default function PaymentModal({
