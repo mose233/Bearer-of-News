@@ -19,20 +19,21 @@ export type ImageGenerationResult = {
   mimeType: string;
 };
 
+export type ImageEditJob = {
+  requestId: string;
+};
+
 export class ImageProvider {
   /**
    * Existing text-to-image generation.
    *
-   * This remains unchanged and continues using:
-   * fal-ai/flux/dev
+   * Kept on the current direct fal.ai path. This change does not alter
+   * the uploaded-photo editing architecture.
    */
   static async generate(
     request: ImageGenerationRequest
   ): Promise<ImageGenerationResult> {
     try {
-      // Use fal.ai direct synchronous inference instead of queue polling.
-      // This keeps the Cloudflare Worker invocation to a small number of
-      // subrequests and avoids the Workers subrequest limit.
       fal.config({
         credentials: request.falApiKey,
       });
@@ -81,96 +82,180 @@ export class ImageProvider {
     }
   }
 
-  static async edit(
-    request: ImageEditRequest
-  ): Promise<ImageGenerationResult> {
+  /**
+   * Start an uploaded-photo edit and return immediately with the fal.ai
+   * request ID. IMPORTANT: do not wait for completion inside the Cloudflare
+   * request. The browser will poll our lightweight status endpoint instead.
+   */
+  static async submitEdit(request: ImageEditRequest): Promise<ImageEditJob> {
     if (!request.imageData) {
       throw new Error("An uploaded image is required for image editing.");
     }
 
     console.log("=================================");
-    console.log("FAL.AI IMAGE EDIT");
+    console.log("FAL.AI IMAGE EDIT SUBMIT");
     console.log("Model: fal-ai/flux-kontext/dev");
     console.log("Tool:", request.tool);
     console.log("Prompt:", request.prompt);
     console.log("Image data received: YES");
     console.log("=================================");
 
-    try {
-      // IMPORTANT: use direct fal.ai inference here.
-      // The previous implementation submitted a queue job and then polled
-      // it from the same Cloudflare Worker invocation. A long generation
-      // could therefore exceed Cloudflare's 50-subrequest limit.
-      fal.config({
-        credentials: request.falApiKey,
-      });
+    fal.config({
+      credentials: request.falApiKey,
+    });
 
-      const result = await fal.run("fal-ai/flux-kontext/dev", {
-        input: {
-          prompt: request.prompt,
-          image_url: request.imageData,
-          resolution_mode: "match_input",
-          num_images: 1,
-          output_format: "png",
-          safety_tolerance: "2",
-        },
-      });
+    const submitResult = await fal.queue.submit("fal-ai/flux-kontext/dev", {
+      input: {
+        prompt: request.prompt,
+        image_url: request.imageData,
+        resolution_mode: "match_input",
+        num_images: 1,
+        output_format: "png",
+        safety_tolerance: "2",
+      },
+    });
 
-      const imageUrl = result.data?.images?.[0]?.url;
+    const requestId = submitResult.request_id;
 
-      if (!imageUrl) {
-        console.error(
-          "fal.ai Kontext completed but returned no image URL:",
-          result.data
-        );
-        throw new Error(
-          "fal.ai completed the image edit but returned no image URL."
-        );
-      }
-
-      console.log("fal.ai Kontext result received:", {
-        imageUrlPresent: true,
-        imageCount: result.data?.images?.length ?? 0,
-      });
-
-      const imageResponse = await fetch(imageUrl);
-
-      if (!imageResponse.ok) {
-        throw new Error(
-          `Unable to download the edited image from fal.ai (${imageResponse.status}).`
-        );
-      }
-
-      const blob = await imageResponse.blob();
-      const buffer = await blob.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-
-      let binary = "";
-      for (const byte of bytes) {
-        binary += String.fromCharCode(byte);
-      }
-
-      const imageBase64 = btoa(binary);
-
-      console.log("=================================");
-      console.log("FAL.AI IMAGE EDIT COMPLETED");
-      console.log("Mime type:", blob.type || "image/png");
-      console.log("Image size:", blob.size);
-      console.log("=================================");
-
-      return {
-        imageBase64,
-        mimeType: blob.type || "image/png",
-      };
-    } catch (error) {
-      console.error("FAL.AI IMAGE EDIT ERROR:", error);
-
-      if (error instanceof Error) {
-        throw new Error(`fal.ai image editing failed: ${error.message}`);
-      }
-
-      throw new Error(`fal.ai image editing failed: ${String(error)}`);
+    if (!requestId) {
+      console.error("fal.ai Kontext submit response:", submitResult);
+      throw new Error("fal.ai did not return an image editing request ID.");
     }
+
+    console.log("fal.ai Kontext request submitted:", requestId);
+
+    return { requestId };
   }
 
+  /**
+   * Check one edit job. Each call is intentionally short so Cloudflare does
+   * not hold one invocation open while fal.ai generates the image.
+   */
+  static async getEditStatus(
+    requestId: string,
+    falApiKey: string
+  ): Promise<
+    | { status: "IN_QUEUE" | "IN_PROGRESS"; queuePosition?: number; logs?: string[] }
+    | { status: "COMPLETED"; imageBase64: string; mimeType: string }
+    | { status: "FAILED"; error: string }
+  > {
+    if (!requestId) {
+      throw new Error("fal.ai image editing request ID is required.");
+    }
+
+    fal.config({
+      credentials: falApiKey,
+    });
+
+    const status = await fal.queue.status("fal-ai/flux-kontext/dev", {
+      requestId,
+      logs: true,
+    });
+
+    console.log("fal.ai Kontext status:", status.status, requestId);
+
+    if (status.status === "IN_QUEUE") {
+      return {
+        status: "IN_QUEUE",
+        queuePosition: status.queue_position,
+      };
+    }
+
+    if (status.status === "IN_PROGRESS") {
+      return {
+        status: "IN_PROGRESS",
+        logs: status.logs?.map((log) => log.message) ?? [],
+      };
+    }
+
+    if (status.status !== "COMPLETED") {
+      const failedStatus = status as typeof status & {
+        error?: string;
+        error_type?: string;
+      };
+
+      return {
+        status: "FAILED",
+        error:
+          failedStatus.error ??
+          `fal.ai image editing failed with status ${status.status}.`,
+      };
+    }
+
+    const result = await fal.queue.result("fal-ai/flux-kontext/dev", {
+      requestId,
+    });
+
+    const imageUrl = result.data?.images?.[0]?.url;
+
+    if (!imageUrl) {
+      return {
+        status: "FAILED",
+        error: "fal.ai completed the image edit but returned no image URL.",
+      };
+    }
+
+    const imageResponse = await fetch(imageUrl);
+
+    if (!imageResponse.ok) {
+      return {
+        status: "FAILED",
+        error: `Unable to download the edited image from fal.ai (${imageResponse.status}).`,
+      };
+    }
+
+    const blob = await imageResponse.blob();
+    const buffer = await blob.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+
+    let binary = "";
+    for (const byte of bytes) {
+      binary += String.fromCharCode(byte);
+    }
+
+    console.log("FAL.AI IMAGE EDIT COMPLETED:", {
+      requestId,
+      imageSize: blob.size,
+      mimeType: blob.type || "image/png",
+    });
+
+    return {
+      status: "COMPLETED",
+      imageBase64: btoa(binary),
+      mimeType: blob.type || "image/png",
+    };
+  }
+
+  /**
+   * Kept for compatibility with any code that may still call ImageProvider.edit.
+   * It uses the new submit/status architecture, but the long wait happens only
+   * when this compatibility method itself is called. PictureAIService does NOT
+   * use this method; it uses submitEdit + getEditStatus through the API.
+   */
+  static async edit(
+    request: ImageEditRequest
+  ): Promise<ImageGenerationResult> {
+    const { requestId } = await this.submitEdit(request);
+
+    for (let attempt = 0; attempt < 45; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const result = await this.getEditStatus(requestId, request.falApiKey);
+
+      if (result.status === "COMPLETED") {
+        return {
+          imageBase64: result.imageBase64,
+          mimeType: result.mimeType,
+        };
+      }
+
+      if (result.status === "FAILED") {
+        throw new Error(result.error);
+      }
+    }
+
+    throw new Error(
+      "fal.ai image editing is taking longer than expected. Please try again."
+    );
+  }
 }
