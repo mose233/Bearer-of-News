@@ -2105,6 +2105,7 @@ export default function AndroidDynamicToolWorkspace(
   const [isGeneratingPicture, setIsGeneratingPicture] = useState(false);
   const [generatedPicturePreview, setGeneratedPicturePreview] = useState("");
   const [generatedPictureFile, setGeneratedPictureFile] = useState<File | null>(null);
+  const [isGeneratingPicture, setIsGeneratingPicture] = useState(false);
   const [quoteText, setQuoteText] = useState("");
   const [quoteAuthor, setQuoteAuthor] = useState("");
   const [quoteCategory, setQuoteCategory] = useState("Motivational");
@@ -3265,7 +3266,6 @@ The final result must look like a genuine photograph, not an AI-generated image.
 setGeneratedPictureFile(generatedFile);
 setGeneratedPicturePreview(result.imageUrl);
 setHasPreviewedEnhancement(true);
-setIsGeneratingPicture(false);
 
     console.log("=================================");
     console.log("REAL PICTURE AI EDIT COMPLETED");
@@ -3286,7 +3286,6 @@ setIsGeneratingPicture(false);
     );
 
     setHasPreviewedEnhancement(false);
-    setIsGeneratingPicture(false);
   }
 };
     return (
@@ -4033,7 +4032,7 @@ setIsGeneratingPicture(false);
             onClick={handleAddEnhancedPhotoToTimeline}
             className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
           >
-            Add to Preview to Download
+            Add to Timeline
           </Button>
         </div>
       </div>
