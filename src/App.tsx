@@ -16,7 +16,6 @@ import TeamManagement from "./pages/TeamManagement";
 import ContentApproval from "./pages/ContentApproval";
 import CreatorStudio from "./pages/CreatorStudio";
 import AndroidCreatorStudio from "./pages/AndroidCreatorStudio";
-import { AuthProvider } from "@/contexts/AuthContext";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
