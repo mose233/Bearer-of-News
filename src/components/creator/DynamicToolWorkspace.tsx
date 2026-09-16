@@ -2483,13 +2483,19 @@ export default function DynamicToolWorkspace({
     alert("Quote image added to timeline.");
   };
 
-  const handleAddEnhancedPhotoToTimeline = () => {
-    if (!pictureFile || !picturePreview) {
+  const handleAddEnhancedPhotoToTimeline = (
+    fileOverride?: File,
+    previewOverride?: string
+  ) => {
+    const fileToAdd = fileOverride ?? pictureFile;
+    const previewToAdd = previewOverride ?? picturePreview;
+
+    if (!fileToAdd || !previewToAdd) {
       alert("Please upload a photo first.");
       return;
     }
 
-    if (!hasPreviewedEnhancement) {
+    if (!fileOverride && !hasPreviewedEnhancement) {
       alert("Please generate the enhanced photo first.");
       return;
     }
@@ -2499,8 +2505,7 @@ export default function DynamicToolWorkspace({
       return;
     }
 
-    onAddEnhancedPhotoToTimeline(pictureFile, picturePreview);
-    alert("Enhanced photo added to timeline.");
+    onAddEnhancedPhotoToTimeline(fileToAdd, previewToAdd);
   };
 
   const buildSongPrompt = () => {
@@ -3371,8 +3376,12 @@ The final result must look like a genuine photograph, not an AI-generated image.
     setPictureFile(generatedFile);
     setPictureFileName(generatedFile.name);
     setPicturePreview(result.imageUrl);
-setHasPreviewedEnhancement(true);
-setIsGeneratingPicture(false);
+    setHasPreviewedEnhancement(true);
+    setIsGeneratingPicture(false);
+
+    // Automatically send the completed Picture AI result to Preview/Timeline.
+    // Pass the generated values directly so we do not depend on asynchronous React state updates.
+    handleAddEnhancedPhotoToTimeline(generatedFile, result.imageUrl);
 
     console.log("=================================");
     console.log("REAL PICTURE AI EDIT COMPLETED");
@@ -4113,14 +4122,6 @@ setIsGeneratingPicture(false);
   {generateLabel}
 </Button>
 
-         <Button
-  type="button"
-  disabled={!picturePreview || !hasPreviewedEnhancement}
-  onClick={handleAddEnhancedPhotoToTimeline}
-  className="h-12 rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700 disabled:opacity-60"
->
-  Add to Preview to Download
-</Button>
         </div>
       </div>
     );
