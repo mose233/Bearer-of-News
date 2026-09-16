@@ -29,8 +29,6 @@ export class ImageProvider {
   static async generate(
     request: ImageGenerationRequest
   ): Promise<ImageGenerationResult> {
-
-    // Step 1: Submit generation request
     const queueResponse = await fetch(
       "https://queue.fal.run/fal-ai/flux/dev",
       {
@@ -51,14 +49,12 @@ export class ImageProvider {
     }
 
     const queueResult = await queueResponse.json();
-
     const requestId = queueResult.request_id;
 
     if (!requestId) {
       throw new Error("fal.ai did not return a request ID.");
     }
 
-    // Step 2: Poll until finished
     let imageUrl: string | undefined;
 
     while (!imageUrl) {
@@ -85,13 +81,10 @@ export class ImageProvider {
       }
 
       if (status.status === "FAILED") {
-        throw new Error(
-          status.error ?? "fal.ai generation failed."
-        );
+        throw new Error(status.error ?? "fal.ai generation failed.");
       }
     }
 
-    // Step 3: Download generated image
     const imageResponse = await fetch(imageUrl);
 
     if (!imageResponse.ok) {
@@ -99,11 +92,8 @@ export class ImageProvider {
     }
 
     const blob = await imageResponse.blob();
-
     const buffer = await blob.arrayBuffer();
-
     const bytes = new Uint8Array(buffer);
-
     let binary = "";
 
     for (const byte of bytes) {
@@ -121,18 +111,9 @@ export class ImageProvider {
   /**
    * Uploaded-photo image editing.
    *
-   * Uses the official fal.ai JavaScript client for:
-   *
-   * submit -> status -> result
-   *
-   * Model:
-   * fal-ai/flux-kontext/dev
-   *
-   * The uploaded image arrives as a data URI:
-   *
-   * data:image/jpeg;base64,...
-   *
-   * This is passed directly to fal.ai as image_url.
+   * Uses fal.ai's direct subscribe flow with Flux Kontext.
+   * The uploaded image is supplied as image_url and the returned
+   * generated image is downloaded and returned as base64.
    */
   static async edit(
     request: ImageEditRequest
@@ -150,121 +131,37 @@ export class ImageProvider {
     console.log("=================================");
 
     try {
-      /*
-       * Configure the server-side fal.ai client with the API key.
-       *
-       * The key never reaches the browser. This code runs inside
-       * the Cloudflare server function.
-       */
       fal.config({
         credentials: request.falApiKey,
       });
 
-      // Step 1: Submit editing request
-      const submitResult = await fal.queue.submit(
-        "fal-ai/flux-kontext/dev",
-        {
-          input: {
-            prompt: request.prompt,
-            image_url: request.imageData,
-            resolution_mode: "match_input",
-            num_images: 1,
-            output_format: "png",
-            safety_tolerance: "2",
-          },
-        }
-      );
+      const result = await fal.subscribe("fal-ai/flux-kontext/dev", {
+        input: {
+          prompt: request.prompt,
+          image_url: request.imageData,
+          resolution_mode: "match_input",
+          num_images: 1,
+          output_format: "png",
+          safety_tolerance: "2",
+        },
+        logs: true,
+        onQueueUpdate: (update) => {
+          console.log("fal.ai Kontext status:", update.status);
 
-      const requestId = submitResult.request_id;
-
-      if (!requestId) {
-        console.error(
-          "fal.ai Kontext submit response did not contain request_id:",
-          submitResult
-        );
-
-        throw new Error(
-          "fal.ai did not return an image editing request ID."
-        );
-      }
-
-      console.log(
-        "fal.ai Kontext request submitted:",
-        requestId
-      );
-
-      /*
-       * Step 2: Poll using the official fal.ai SDK.
-       *
-       * IMPORTANT:
-       * Do not construct the REST /status URL ourselves.
-       * The SDK handles the current queue API correctly.
-       */
-      let status: Awaited<
-        ReturnType<typeof fal.queue.status>
-      >;
-
-      while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        status = await fal.queue.status(
-          "fal-ai/flux-kontext/dev",
-          {
-            requestId,
-            logs: true,
-          }
-        );
-
-        console.log(
-          "fal.ai Kontext status:",
-          status.status
-        );
-
-        if (status.status === "IN_QUEUE") {
-          console.log(
-            "fal.ai Kontext queue position:",
-            status.queue_position
-          );
-          continue;
-        }
-
-        if (status.status === "IN_PROGRESS") {
-          status.logs?.forEach((log) => {
+          if (update.status === "IN_QUEUE") {
             console.log(
-              "fal.ai Kontext:",
-              log.message
+              "fal.ai Kontext queue position:",
+              update.queue_position
             );
-          });
-          continue;
-        }
+          }
 
-        if (status.status === "COMPLETED") {
-          break;
-        }
-
-        /*
-         * The queue API can report an error on a completed request.
-         * Surface the actual fal.ai error instead of returning an
-         * empty generic message.
-         */
-        const failedStatus = status as typeof status & {
-          error?: string;
-          error_type?: string;
-        };
-
-        throw new Error(
-          failedStatus.error ??
-            `fal.ai image editing failed with status ${status.status}.`
-        );
-      }
-
-      // Step 3: Retrieve the completed result using the official SDK
-      const result = await fal.queue.result(
-        "fal-ai/flux-kontext/dev",
-        {
-          requestId,
-        }
-      );
+          if (update.status === "IN_PROGRESS") {
+            update.logs?.forEach((log) => {
+              console.log("fal.ai Kontext:", log.message);
+            });
+          }
+        },
+      });
 
       const imageUrl = result.data?.images?.[0]?.url;
 
@@ -279,15 +176,11 @@ export class ImageProvider {
         );
       }
 
-      console.log(
-        "fal.ai Kontext result received:",
-        {
-          imageUrlPresent: true,
-          imageCount: result.data?.images?.length ?? 0,
-        }
-      );
+      console.log("fal.ai Kontext result received:", {
+        imageUrlPresent: true,
+        imageCount: result.data?.images?.length ?? 0,
+      });
 
-      // Step 4: Download generated image
       const imageResponse = await fetch(imageUrl);
 
       if (!imageResponse.ok) {
@@ -297,11 +190,8 @@ export class ImageProvider {
       }
 
       const blob = await imageResponse.blob();
-
       const buffer = await blob.arrayBuffer();
-
       const bytes = new Uint8Array(buffer);
-
       let binary = "";
 
       for (const byte of bytes) {
@@ -321,20 +211,13 @@ export class ImageProvider {
         mimeType: blob.type || "image/png",
       };
     } catch (error) {
-      console.error(
-        "FAL.AI IMAGE EDIT ERROR:",
-        error
-      );
+      console.error("FAL.AI IMAGE EDIT ERROR:", error);
 
       if (error instanceof Error) {
-        throw new Error(
-          `fal.ai image editing failed: ${error.message}`
-        );
+        throw new Error(`fal.ai image editing failed: ${error.message}`);
       }
 
-      throw new Error(
-        `fal.ai image editing failed: ${String(error)}`
-      );
+      throw new Error(`fal.ai image editing failed: ${String(error)}`);
     }
   }
 }
