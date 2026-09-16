@@ -9,6 +9,8 @@ type GenerateImageRequest = {
   prompt?: string;
   size?: "1024x1024" | "1024x1536" | "1536x1024";
   imageData?: string;
+  tool?: string;
+  style?: string;
 };
 
 function jsonResponse(data: unknown, status = 200) {
@@ -16,19 +18,13 @@ function jsonResponse(data: unknown, status = 200) {
     status,
     headers: {
       "Content-Type": "application/json",
+      "Cache-Control": "no-store",
     },
   });
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  /*
-   * Diagnostic check:
-   * We never expose the actual FAL API key.
-   * We only report whether it exists.
-   */
-
   const aiEnabledRaw = context.env.AI_ENABLED;
-
   const aiEnabled =
     String(aiEnabledRaw ?? "")
       .trim()
@@ -44,9 +40,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         diagnostic: {
           AI_ENABLED: aiEnabledRaw ?? "MISSING",
           AI_ENABLED_NORMALIZED: aiEnabled,
-          FAL_API_KEY: context.env.FAL_API_KEY
-            ? "PRESENT"
-            : "MISSING",
+          FAL_API_KEY: context.env.FAL_API_KEY ? "PRESENT" : "MISSING",
         },
       },
       503
@@ -73,7 +67,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     const body = (await context.request.json()) as GenerateImageRequest;
-
     const prompt = body.prompt?.trim();
 
     if (!prompt) {
@@ -87,29 +80,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    const size = body.size || "1024x1024";
-
-    /*
-     * ============================================================
-     * IMAGE-TO-IMAGE / UPLOADED PHOTO EDITING
-     * ============================================================
-     *
-     * When imageData is supplied, use fal.ai FLUX Kontext [dev].
-     *
-     * This is intentionally separate from the existing text-to-image
-     * path below so the current Picture AI text generation continues
-     * working exactly as before.
-     */
+    // Uploaded-photo editing is asynchronous. We submit to fal.ai and return
+    // immediately with a request ID so Cloudflare never waits for the AI job.
     if (body.imageData) {
       console.log("=================================");
-      console.log("FAL.AI IMAGE-TO-IMAGE EDITING");
+      console.log("FAL.AI IMAGE-TO-IMAGE EDITING STARTED");
       console.log("Model: fal-ai/flux-kontext/dev");
+      console.log("Tool:", body.tool ?? "Image Editing");
       console.log("Prompt:", prompt);
       console.log("Uploaded image present: YES");
       console.log("=================================");
 
-      const image = await ImageProvider.edit({
-        tool: "Image Editing",
+      const job = await ImageProvider.submitEdit({
+        tool: body.tool ?? "Image Editing",
         prompt,
         imageData: body.imageData,
         falApiKey,
@@ -117,21 +100,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
       return jsonResponse({
         ok: true,
-        imageBase64: image.imageBase64,
-        mimeType: image.mimeType,
+        pending: true,
+        requestId: job.requestId,
       });
     }
 
-    /*
-     * ============================================================
-     * EXISTING TEXT-TO-IMAGE PATH
-     * ============================================================
-     *
-     * DO NOT CHANGE this behavior.
-     *
-     * Prompt-based Picture AI continues to use fal-ai/flux/dev
-     * through ImageProvider.generate().
-     */
+    const size = body.size || "1024x1024";
+
     const imagePrompt = `Create a clean, high-quality social media video scene image.
 
 Style:
