@@ -78,6 +78,7 @@ export async function generateFalVideo(
 
 const isImageToVideo = [
   "Photo to Video",
+  "Birthday Video",
   "Image to Video",
   "Dance Animation",
   "Dancing",
