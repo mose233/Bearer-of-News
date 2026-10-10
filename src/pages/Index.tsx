@@ -30,21 +30,72 @@ const DevTools: React.FC = () => {
 };
 
 const HomeContent: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   const startCreatingLink = user
     ? "/creator-studio"
     : "/signup?redirect=/creator-studio";
 
-  return (
-    <main className="min-h-screen bg-[#0B1020] text-white">
-      <section className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-5 py-10 sm:px-8 lg:px-10">
-        <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/15 px-4 py-2 text-sm font-bold text-violet-100">
-              <Sparkles className="h-4 w-4" />
-              Bearer Of News AI Creator Studio
-            </div>
+      
+return (
+  <main className="min-h-screen bg-[#0B1020] text-white">
+    <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-10">
+      <Link to="/" className="text-lg font-extrabold text-white">
+        xnewsapp.com
+      </Link>
+
+      <div className="flex flex-wrap items-center gap-3">
+        {user ? (
+          <>
+            <Link
+              to="/creator-studio"
+              className="rounded-lg bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-500"
+            >
+              Creator Studio
+            </Link>
+
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await signOut();
+                } catch (error) {
+                  console.error("Sign out failed:", error);
+                }
+              }}
+              className="rounded-lg border border-white/20 px-4 py-2 font-semibold text-white hover:bg-white/10"
+            >
+              Sign Out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              className="rounded-lg border border-white/20 px-4 py-2 font-semibold text-white hover:bg-white/10"
+            >
+              Sign In
+            </Link>
+
+            <Link
+              to="/signup"
+              className="rounded-lg bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-500"
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
+      </div>
+    </nav>
+
+    <section className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-5 py-10 sm:px-8 lg:px-10">
+      <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/15 px-4 py-2 text-sm font-bold text-violet-100">
+            <Sparkles className="h-4 w-4" />
+            Bearer Of News AI Creator Studio
+          </div>
+
 
           <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
   Bearer of News Turns Your Ideas Into Powerful Content That Gets You Noticed and Opens Doors.
