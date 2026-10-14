@@ -100,7 +100,7 @@ const HomeContent: React.FC = () => {
     <main className="min-h-screen overflow-hidden bg-[#030817] text-white">
       {/* Header: existing account controls are preserved. */}
       <header className="relative z-20 border-b border-white/10 bg-[#030817]/95">
-        <nav className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-8 lg:px-12">
+        <nav className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-8 sm:py-4 lg:px-12">
           <Link
             to="/"
             aria-label="xnewsapp.com home"
@@ -158,9 +158,9 @@ const HomeContent: React.FC = () => {
       <section className="relative isolate">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_70%_30%,rgba(91,33,182,0.25),transparent_45%),radial-gradient(ellipse_at_90%_70%,rgba(8,145,178,0.14),transparent_40%)]" />
 
-        <div className="mx-auto grid max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-4 lg:px-12 lg:py-16">
+        <div className="mx-auto grid max-w-[1600px] items-center gap-4 px-5 pt-5 pb-2 sm:gap-8 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-4 lg:px-12 lg:pt-16 lg:pb-5">
           <div className="relative z-10">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/50 bg-violet-950/60 px-4 py-2 text-sm font-semibold text-violet-100 shadow-lg shadow-violet-950/40">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/50 bg-violet-950/60 px-4 py-2 text-sm font-semibold text-violet-100 shadow-lg shadow-violet-950/40 sm:mb-6">
               <Sparkles className="h-4 w-4 text-fuchsia-300" />
               Bearer Of News AI Creator Studio
             </div>
@@ -173,12 +173,12 @@ const HomeContent: React.FC = () => {
               <span className="block">all-in-one stage.</span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-xl text-base leading-7 text-slate-300 sm:mt-6 sm:text-lg sm:leading-8">
               Create stunning AI videos, images, voiceovers, music, and
               campaigns in minutes.
             </p>
 
-            <div className="mt-8">
+            <div className="mt-5 sm:mt-8">
               <Link
                 to={startCreatingLink}
                 className="inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 px-7 py-4 text-base font-extrabold shadow-[0_12px_45px_rgba(168,85,247,0.32)] transition hover:-translate-y-0.5 hover:brightness-110 sm:px-9 sm:text-lg"
@@ -191,7 +191,7 @@ const HomeContent: React.FC = () => {
           </div>
 
           {/* Cinematic artwork collage */}
-          <div className="relative mx-auto mt-2 min-h-[350px] w-full max-w-2xl sm:min-h-[460px] lg:mt-0 lg:min-h-[530px]">
+          <div className="relative mx-auto mt-0 min-h-[290px] w-full max-w-2xl sm:min-h-[460px] lg:mt-0 lg:min-h-[530px]">
             <div className="pointer-events-none absolute inset-8 rounded-full bg-violet-600/30 blur-[90px]" />
 
             <div className="pointer-events-none absolute inset-x-8 top-1/3 h-40 rounded-full border-2 border-fuchsia-500/80 shadow-[0_0_35px_rgba(217,70,239,0.8)] [transform:perspective(500px)_rotateX(62deg)]" />
@@ -239,11 +239,11 @@ const HomeContent: React.FC = () => {
       </section>
 
       {/* Creator Tools: feature strip removed. */}
-      <section className="relative mx-auto max-w-[1500px] px-5 pb-16 sm:px-8 lg:px-12">
+      <section className="relative mx-auto max-w-[1500px] px-5 pt-1 pb-5 sm:px-8 sm:pt-4 sm:pb-10 lg:px-12 lg:pt-2 lg:pb-8">
         <div className="pointer-events-none absolute inset-x-12 top-8 -z-10 h-48 rounded-full bg-violet-700/20 blur-[80px]" />
 
-        <div className="mb-8 text-center">
-          <div className="mb-3 text-sm font-extrabold uppercase tracking-[0.2em] text-fuchsia-400">
+        <div className="mb-4 text-center sm:mb-6">
+          <div className="mb-2 text-sm font-extrabold uppercase tracking-[0.2em] text-fuchsia-400 sm:mb-3">
             Creator Tools
           </div>
 
@@ -254,13 +254,13 @@ const HomeContent: React.FC = () => {
             </span>
           </h2>
 
-          <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
+          <p className="mx-auto mt-2 max-w-3xl text-sm leading-6 text-slate-300 sm:mt-3 sm:text-base">
             Generate scenes, voice, music, captions, and MP4 exports from your
             phone or desktop.
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
           {toolCards.map((tool) => {
             const Icon = tool.icon;
 
@@ -292,7 +292,7 @@ const HomeContent: React.FC = () => {
                 </div>
 
                 <div
-                  className={`mt-4 grid gap-1.5 ${
+                  className={`mt-3 grid gap-1.5 sm:mt-4 ${
                     tool.images.length === 3 ? "grid-cols-3" : "grid-cols-4"
                   }`}
                 >
@@ -313,7 +313,7 @@ const HomeContent: React.FC = () => {
       </section>
 
       {/* Footer: existing links and contact details preserved. */}
-      <footer className="border-t border-blue-400/30 bg-slate-950/80 px-5 py-10 sm:px-8 lg:px-12">
+      <footer className="border-t border-blue-400/30 bg-slate-950/80 px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
         <div className="mx-auto grid max-w-[1500px] gap-8 md:grid-cols-[1.5fr_0.7fr_1fr]">
           <div>
             <h3 className="text-2xl font-extrabold">
