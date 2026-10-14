@@ -158,7 +158,7 @@ const HomeContent: React.FC = () => {
       <section className="relative isolate">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_70%_30%,rgba(91,33,182,0.25),transparent_45%),radial-gradient(ellipse_at_90%_70%,rgba(8,145,178,0.14),transparent_40%)]" />
 
-        <div className="mx-auto grid max-w-[1600px] items-center gap-4 px-5 pt-5 pb-2 sm:gap-8 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-4 lg:px-12 lg:pt-16 lg:pb-5">
+        <div className="mx-auto grid max-w-[1600px] items-start gap-4 px-5 pt-5 pb-2 sm:gap-8 sm:px-8 sm:pt-8 sm:pb-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-4 lg:px-12 lg:pt-8 lg:pb-5">
           <div className="relative z-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/50 bg-violet-950/60 px-4 py-2 text-sm font-semibold text-violet-100 shadow-lg shadow-violet-950/40 sm:mb-6">
               <Sparkles className="h-4 w-4 text-fuchsia-300" />
