@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  CheckCircle2,
   Facebook,
   Image as ImageIcon,
   MessageCircle,
@@ -93,17 +92,13 @@ const HomeContent: React.FC = () => {
       color: "from-cyan-400 to-blue-600",
       border: "border-cyan-400/80",
       images: [media.singer, media.studio, media.microphone],
-      imageAlt: [
-        "Singer",
-        "Music studio",
-        "Studio microphone",
-      ],
+      imageAlt: ["Singer", "Music studio", "Studio microphone"],
     },
   ];
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030817] text-white">
-      {/* Header: preserve the existing account and navigation behavior. */}
+      {/* Header: existing account controls are preserved. */}
       <header className="relative z-20 border-b border-white/10 bg-[#030817]/95">
         <nav className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-8 lg:px-12">
           <Link
@@ -146,6 +141,7 @@ const HomeContent: React.FC = () => {
                 >
                   Sign In
                 </Link>
+
                 <Link
                   to="/signup"
                   className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-bold transition hover:brightness-110"
@@ -197,6 +193,7 @@ const HomeContent: React.FC = () => {
           {/* Cinematic artwork collage */}
           <div className="relative mx-auto mt-2 min-h-[350px] w-full max-w-2xl sm:min-h-[460px] lg:mt-0 lg:min-h-[530px]">
             <div className="pointer-events-none absolute inset-8 rounded-full bg-violet-600/30 blur-[90px]" />
+
             <div className="pointer-events-none absolute inset-x-8 top-1/3 h-40 rounded-full border-2 border-fuchsia-500/80 shadow-[0_0_35px_rgba(217,70,239,0.8)] [transform:perspective(500px)_rotateX(62deg)]" />
 
             <div className="absolute right-1 top-3 z-10 w-[48%] rotate-[6deg] overflow-hidden rounded-2xl border-2 border-fuchsia-400 shadow-[0_0_25px_rgba(217,70,239,0.5)] sm:right-4 sm:top-4">
@@ -241,28 +238,7 @@ const HomeContent: React.FC = () => {
         </div>
       </section>
 
-      {/* Existing platform benefits, kept as one compact row. */}
-      <section className="mx-auto grid max-w-[1500px] grid-cols-2 gap-3 px-5 pb-12 sm:px-8 md:grid-cols-3 lg:grid-cols-5 lg:px-12">
-        {[
-          { label: "AI video creation", icon: Video, color: "text-fuchsia-400" },
-          { label: "AI image generation", icon: ImageIcon, color: "text-orange-400" },
-          { label: "AI music & voiceovers", icon: Music2, color: "text-cyan-300" },
-          { label: "Team review & approval", icon: CheckCircle2, color: "text-emerald-300" },
-          { label: "Mobile-first MP4 export", icon: Sparkles, color: "text-violet-300" },
-        ].map(({ label, icon: Icon, color }) => (
-          <div
-            key={label}
-            className="flex min-h-[76px] items-center gap-3 rounded-2xl border border-blue-400/30 bg-slate-950/60 px-3 py-4 sm:px-4"
-          >
-            <Icon className={`h-6 w-6 shrink-0 ${color}`} />
-            <span className="text-xs font-semibold leading-5 text-slate-200 sm:text-sm">
-              {label}
-            </span>
-          </div>
-        ))}
-      </section>
-
-      {/* Creator tools */}
+      {/* Creator Tools: feature strip removed. */}
       <section className="relative mx-auto max-w-[1500px] px-5 pb-16 sm:px-8 lg:px-12">
         <div className="pointer-events-none absolute inset-x-12 top-8 -z-10 h-48 rounded-full bg-violet-700/20 blur-[80px]" />
 
@@ -270,12 +246,14 @@ const HomeContent: React.FC = () => {
           <div className="mb-3 text-sm font-extrabold uppercase tracking-[0.2em] text-fuchsia-400">
             Creator Tools
           </div>
+
           <h2 className="text-3xl font-black italic leading-tight sm:text-4xl lg:text-5xl">
             Create Content That{" "}
             <span className="bg-gradient-to-r from-violet-400 to-fuchsia-500 bg-clip-text text-transparent">
               Stands Out
             </span>
           </h2>
+
           <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
             Generate scenes, voice, music, captions, and MP4 exports from your
             phone or desktop.
@@ -334,7 +312,7 @@ const HomeContent: React.FC = () => {
         </div>
       </section>
 
-      {/* Original footer links and contact details */}
+      {/* Footer: existing links and contact details preserved. */}
       <footer className="border-t border-blue-400/30 bg-slate-950/80 px-5 py-10 sm:px-8 lg:px-12">
         <div className="mx-auto grid max-w-[1500px] gap-8 md:grid-cols-[1.5fr_0.7fr_1fr]">
           <div>
@@ -381,6 +359,7 @@ const HomeContent: React.FC = () => {
               >
                 <Facebook className="h-5 w-5 text-white" />
               </a>
+
               <a
                 href="https://x.com/en_mose"
                 target="_blank"
@@ -390,6 +369,7 @@ const HomeContent: React.FC = () => {
               >
                 X
               </a>
+
               <a
                 href="https://wa.me/"
                 target="_blank"
