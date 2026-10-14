@@ -165,7 +165,7 @@ const HomeContent: React.FC = () => {
               Bearer Of News AI Creator Studio
             </div>
 
-            <h1 className="max-w-3xl text-4xl font-black italic leading-[1.02] tracking-tight sm:text-5xl md:text-6xl xl:text-7xl">
+            <h1 className="max-w-3xl text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl md:text-5xl xl:text-6xl">
               Your Imagination,
               <span className="block bg-gradient-to-r from-violet-400 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
                 powered by an
