@@ -380,74 +380,56 @@ export default function AiToolLauncher({
     useState<AiToolCategoryTitle | null>(null);
 
   return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-[#111827] p-3 text-white shadow-creator sm:p-4">
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/15 px-2.5 py-1 text-[11px] font-bold text-violet-100">
-            <Sparkles className="h-3.5 w-3.5" />
-            Creator Tools
-          </div>
-
-          <h2 className="text-base font-extrabold tracking-tight text-white sm:text-lg">
-            Choose a tool
-          </h2>
-        </div>
-
-        {selectedTool && (
-          <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-200">
-            {selectedTool.category}: {selectedTool.tool}
-          </div>
-        )}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 [&>div:nth-child(4)]:hidden">
-        {categories.map((category) => {
+    <div className="w-full text-white">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+        {categories.filter((category) => category.title !== "Cinematic AI").map((category) => {
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
           const selectedInCategory =
             selectedTool?.category === category.title ? selectedTool.tool : "";
+          const isSelected = selectedTool?.category === category.title;
 
           return (
-            <div
-              key={category.title}
-              className={`rounded-2xl border p-3 transition ${
-                selectedInCategory
-                  ? "border-violet-300/50 bg-violet-500/10"
-                  : "border-white/10 bg-slate-950/50 hover:border-white/20 hover:bg-slate-950/80"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => setOpenCategory(isOpen ? null : category.title)}
-                className="flex w-full items-start justify-between gap-3 text-left"
+            <div key={category.title} className="min-w-0">
+              <div
+                className={`h-full rounded-[1rem] border bg-[#031329] transition-all duration-200 ${
+                  isSelected || isOpen
+                    ? "border-fuchsia-500 bg-[#0b1430] shadow-[0_0_0_1px_rgba(217,70,239,0.22),0_0_22px_rgba(168,85,247,0.12)]"
+                    : "border-sky-300/15 hover:border-sky-300/40"
+                }`}
               >
-                <div className="min-w-0">
-                  <div
-                    className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r ${category.accent}`}
-                  >
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-
-                  <h3 className="text-sm font-extrabold text-white">
-                    {category.title}
-                  </h3>
-
-                  <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-300">
-                    {selectedInCategory || category.description}
-                  </p>
-                </div>
-
-                <span
-                  className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-white transition ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  onClick={() => setOpenCategory(isOpen ? null : category.title)}
+                  className="flex min-h-[70px] w-full items-center gap-3 rounded-[1rem] px-3 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 sm:min-h-[72px] sm:px-3.5"
                 >
-                  ▼
-                </span>
-              </button>
+                  <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${category.accent} shadow-lg sm:h-[52px] sm:w-[52px]`}>
+                    <Icon className="h-6 w-6 text-white sm:h-7 sm:w-7" aria-hidden="true" />
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-extrabold leading-5 text-white sm:text-base">
+                      {category.title}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs font-medium leading-4 text-slate-300 sm:text-[13px]">
+                      {selectedInCategory || category.description}
+                    </span>
+                  </span>
+
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-800 text-slate-100 transition-transform ${
+                      isOpen ? "rotate-180 bg-violet-700" : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span className="text-sm leading-none">{isOpen ? "⌃" : "▾"}</span>
+                  </span>
+                </button>
+              </div>
 
               {isOpen && (
-                <div className="mt-3 max-h-[300px] space-y-1.5 overflow-y-auto pr-1">
+                <div className="mt-2 max-h-[300px] space-y-1.5 overflow-y-auto rounded-xl border border-sky-300/15 bg-[#061329] p-2 shadow-xl">
                   {category.tools.map((tool) => {
                     const active =
                       selectedTool?.category === category.title &&
@@ -458,17 +440,13 @@ export default function AiToolLauncher({
                         key={tool}
                         type="button"
                         onClick={() => {
-                          onSelectTool({
-                            category: category.title,
-                            tool,
-                          });
-
+                          onSelectTool({ category: category.title, tool });
                           setOpenCategory(null);
                         }}
-                        className={`w-full rounded-xl border px-3 py-2.5 text-left text-[11px] font-bold transition ${
+                        className={`w-full rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition-colors ${
                           active
-                            ? "border-violet-300 bg-violet-500/25 text-white"
-                            : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+                            ? "border-fuchsia-400 bg-fuchsia-500/20 text-white"
+                            : "border-white/10 bg-white/[0.03] text-slate-200 hover:border-violet-300/40 hover:bg-white/[0.07] hover:text-white"
                         }`}
                       >
                         {tool}
