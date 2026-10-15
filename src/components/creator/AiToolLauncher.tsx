@@ -381,18 +381,19 @@ export default function AiToolLauncher({
 
   return (
     <div className="w-full text-white">
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
-        {categories.filter((category) => category.title !== "Cinematic AI").map((category) => {
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {categories.map((category) => {
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
           const selectedInCategory =
             selectedTool?.category === category.title ? selectedTool.tool : "";
           const isSelected = selectedTool?.category === category.title;
+          const listId = `ai-tools-${category.title.toLowerCase().replace(/\s+/g, "-")}`;
 
           return (
             <div key={category.title} className="min-w-0">
               <div
-                className={`h-full rounded-[1rem] border bg-[#031329] transition-all duration-200 ${
+                className={`overflow-hidden rounded-2xl border bg-[#031329] transition-all duration-200 ${
                   isSelected || isOpen
                     ? "border-fuchsia-500 bg-[#0b1430] shadow-[0_0_0_1px_rgba(217,70,239,0.22),0_0_22px_rgba(168,85,247,0.12)]"
                     : "border-sky-300/15 hover:border-sky-300/40"
@@ -401,10 +402,17 @@ export default function AiToolLauncher({
                 <button
                   type="button"
                   aria-expanded={isOpen}
-                  onClick={() => setOpenCategory(isOpen ? null : category.title)}
-                  className="flex min-h-[70px] w-full items-center gap-3 rounded-[1rem] px-3 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 sm:min-h-[72px] sm:px-3.5"
+                  aria-controls={listId}
+                  onClick={() =>
+                    setOpenCategory((current) =>
+                      current === category.title ? null : category.title
+                    )
+                  }
+                  className="flex min-h-[70px] w-full items-center gap-3 px-3 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 sm:min-h-[76px] sm:px-3.5"
                 >
-                  <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${category.accent} shadow-lg sm:h-[52px] sm:w-[52px]`}>
+                  <span
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${category.accent} shadow-lg sm:h-[52px] sm:w-[52px]`}
+                  >
                     <Icon className="h-6 w-6 text-white sm:h-7 sm:w-7" aria-hidden="true" />
                   </span>
 
@@ -423,38 +431,41 @@ export default function AiToolLauncher({
                     }`}
                     aria-hidden="true"
                   >
-                    <span className="text-sm leading-none">{isOpen ? "⌃" : "▾"}</span>
+                    <span className="text-sm leading-none">▾</span>
                   </span>
                 </button>
+
+                {isOpen && (
+                  <div
+                    id={listId}
+                    className="max-h-[360px] space-y-1.5 overflow-y-auto border-t border-sky-300/15 bg-[#061329] p-2"
+                  >
+                    {category.tools.map((tool) => {
+                      const active =
+                        selectedTool?.category === category.title &&
+                        selectedTool?.tool === tool;
+
+                      return (
+                        <button
+                          key={tool}
+                          type="button"
+                          onClick={() => {
+                            onSelectTool({ category: category.title, tool });
+                            setOpenCategory(null);
+                          }}
+                          className={`w-full rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition-colors ${
+                            active
+                              ? "border-fuchsia-400 bg-fuchsia-500/20 text-white"
+                              : "border-white/10 bg-white/[0.03] text-slate-200 hover:border-violet-300/40 hover:bg-white/[0.07] hover:text-white"
+                          }`}
+                        >
+                          {tool}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-
-              {isOpen && (
-                <div className="mt-2 max-h-[300px] space-y-1.5 overflow-y-auto rounded-xl border border-sky-300/15 bg-[#061329] p-2 shadow-xl">
-                  {category.tools.map((tool) => {
-                    const active =
-                      selectedTool?.category === category.title &&
-                      selectedTool?.tool === tool;
-
-                    return (
-                      <button
-                        key={tool}
-                        type="button"
-                        onClick={() => {
-                          onSelectTool({ category: category.title, tool });
-                          setOpenCategory(null);
-                        }}
-                        className={`w-full rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition-colors ${
-                          active
-                            ? "border-fuchsia-400 bg-fuchsia-500/20 text-white"
-                            : "border-white/10 bg-white/[0.03] text-slate-200 hover:border-violet-300/40 hover:bg-white/[0.07] hover:text-white"
-                        }`}
-                      >
-                        {tool}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           );
         })}
