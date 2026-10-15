@@ -114,8 +114,12 @@ export default function CreatorStudio() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  const [selectedTool, setSelectedTool] =
-    useState<AiToolSelection | null>(null);
+  // Open Creator Studio on the same useful starting point as the target mockup.
+  // Users can still switch to Picture AI, Music AI, or any other Video AI tool.
+  const [selectedTool, setSelectedTool] = useState<AiToolSelection | null>({
+    category: "Video AI",
+    tool: "Text to Video",
+  });
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
