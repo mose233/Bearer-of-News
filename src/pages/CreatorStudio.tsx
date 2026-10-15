@@ -13,7 +13,7 @@ import { getUSDPrice } from "@/lib/pricing/pricingEngine";
 import { convertUSDToKES } from "@/lib/pricing/exchangeService";
 import type { PaymentRequest } from "@/lib/payments/PaymentRequest";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import AiToolLauncher, {
   AiToolSelection,
@@ -114,12 +114,8 @@ export default function CreatorStudio() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  // Open Creator Studio on the same useful starting point as the target mockup.
-  // Users can still switch to Picture AI, Music AI, or any other Video AI tool.
-  const [selectedTool, setSelectedTool] = useState<AiToolSelection | null>({
-    category: "Video AI",
-    tool: "Text to Video",
-  });
+  const [selectedTool, setSelectedTool] =
+    useState<AiToolSelection | null>(null);
   const [videoCreativeType, setVideoCreativeType] = useState("General");
   const [videoOutputFormat, setVideoOutputFormat] = useState("Facebook Reel");
   const [selectedVideoDurationSeconds, setSelectedVideoDurationSeconds] = useState(10);
@@ -1251,119 +1247,93 @@ const resetCurrentProject = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
-          <section
-            ref={workspaceSectionRef}
-            className="min-w-0 scroll-mt-4 space-y-3 lg:col-span-7"
-          >
-            <div className="flex items-center gap-3 px-1">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/15 text-sm font-extrabold text-violet-200">
-                2
-              </span>
-              <div>
-                <h2 className="text-base font-extrabold text-white sm:text-lg">
-                  Create with AI
-                </h2>
-                <p className="text-xs leading-5 text-slate-400">
-                  Configure your selected tool and create your content.
-                </p>
-              </div>
-            </div>
+        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
+          <DynamicToolWorkspace
+            selectedTool={selectedTool}
+            speechRate={speechRate}
+            setSpeechRate={setSpeechRate}
+            voiceVolume={voiceVolume}
+            setVoiceVolume={setVoiceVolume}
+            isSpeaking={isSpeaking}
+            aiVoiceBlob={aiVoiceBlob}
+            isExporting={isExporting}
+            onPlayVoiceover={startVoiceover}
+            onStopVoiceover={stopVoiceover}
+            onGenerateRealVoice={generateRealVoice}
+            backgroundMusic={backgroundMusic}
+            musicPreview={musicPreview}
+            musicVolume={musicVolume}
+            setMusicVolume={setMusicVolume}
+            isMusicPlaying={isMusicPlaying}
+            audioRef={audioRef}
+            onMusicUpload={handleMusicUpload}
+            onToggleMusic={toggleMusic}
+            onAddMusicToVideo={handleAddGeneratedMusicToVideo}
+            photoMusicImagePreview={photoMusicImagePreview}
+            photoMusicAudioName={photoMusicAudioName}
+            photoMusicStyle={photoMusicStyle}
+            isExportingPhotoMusic={isExportingPhotoMusic}
+            setPhotoMusicStyle={setPhotoMusicStyle}
+            onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
+            onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
+            onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+            onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
+            dancingPhotoPreview={dancingPhotoPreview}
+            danceStyle={danceStyle}
+            isGeneratingDance={isGeneratingDance}
+            danceResultMessage={danceResultMessage}
+            setDanceStyle={setDanceStyle}
+            onDancingPhotoUpload={handleDancingPhotoUpload}
+            onGenerateDance={handleGenerateDancingVideo}
+            videoPrompt={videoPrompt}
+            setVideoPrompt={setVideoPrompt}
+            videoCreativeType={videoCreativeType}
+            setVideoCreativeType={setVideoCreativeType}
+            videoOutputFormat={videoOutputFormat}
+            setVideoOutputFormat={setVideoOutputFormat}
+            onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
+            aiImagePrompt={aiImagePrompt}
+            setAiImagePrompt={setAiImagePrompt}
+            isGeneratingImage={isGeneratingImage}
+            generatedImagePreview={generatedImagePreview}
+            multiScenePlan={multiScenePlan}
+            onGenerateImage={handleGenerateImage}
+            onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
+            onAddGeneratedImage={handleAddGeneratedImage}
+            onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
+            onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
+            onMediaUpload={handleMediaUpload}
+            onPublishToFacebook={openFacebookAfterExport}
+            onDownloadGeneratedImage={handleDownloadGeneratedImage}
+            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+  addSceneToTimeline(
+    file,
+    preview,
+    durationSeconds || getTimelineDuration()
+  )
+}
+onVideoDurationChange={setSelectedVideoDurationSeconds}
 
-            <DynamicToolWorkspace
-              selectedTool={selectedTool}
-              speechRate={speechRate}
-              setSpeechRate={setSpeechRate}
-              voiceVolume={voiceVolume}
-              setVoiceVolume={setVoiceVolume}
-              isSpeaking={isSpeaking}
-              aiVoiceBlob={aiVoiceBlob}
-              isExporting={isExporting}
-              onPlayVoiceover={startVoiceover}
-              onStopVoiceover={stopVoiceover}
-              onGenerateRealVoice={generateRealVoice}
-              backgroundMusic={backgroundMusic}
-              musicPreview={musicPreview}
-              musicVolume={musicVolume}
-              setMusicVolume={setMusicVolume}
-              isMusicPlaying={isMusicPlaying}
-              audioRef={audioRef}
-              onMusicUpload={handleMusicUpload}
-              onToggleMusic={toggleMusic}
-              onAddMusicToVideo={handleAddGeneratedMusicToVideo}
-              photoMusicImagePreview={photoMusicImagePreview}
-              photoMusicAudioName={photoMusicAudioName}
-              photoMusicStyle={photoMusicStyle}
-              isExportingPhotoMusic={isExportingPhotoMusic}
-              setPhotoMusicStyle={setPhotoMusicStyle}
-              onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
-              onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
-              onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
-              onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
-              dancingPhotoPreview={dancingPhotoPreview}
-              danceStyle={danceStyle}
-              isGeneratingDance={isGeneratingDance}
-              danceResultMessage={danceResultMessage}
-              setDanceStyle={setDanceStyle}
-              onDancingPhotoUpload={handleDancingPhotoUpload}
-              onGenerateDance={handleGenerateDancingVideo}
-              videoPrompt={videoPrompt}
-              setVideoPrompt={setVideoPrompt}
-              videoCreativeType={videoCreativeType}
-              setVideoCreativeType={setVideoCreativeType}
-              videoOutputFormat={videoOutputFormat}
-              setVideoOutputFormat={setVideoOutputFormat}
-              onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
-              aiImagePrompt={aiImagePrompt}
-              setAiImagePrompt={setAiImagePrompt}
-              isGeneratingImage={isGeneratingImage}
-              generatedImagePreview={generatedImagePreview}
-              multiScenePlan={multiScenePlan}
-              onGenerateImage={handleGenerateImage}
-              onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
-              onAddGeneratedImage={handleAddGeneratedImage}
-              onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
-              onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
-              onMediaUpload={handleMediaUpload}
-              onPublishToFacebook={openFacebookAfterExport}
-              onDownloadGeneratedImage={handleDownloadGeneratedImage}
-              onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-                addSceneToTimeline(
-                  file,
-                  preview,
-                  durationSeconds || getTimelineDuration()
-                )
-              }
-              onVideoDurationChange={setSelectedVideoDurationSeconds}
-              requestGeneration={requestPaidGeneration}
-              onRequestPayment={(amount, onSuccess) => {
-                setPaymentPrice(amount);
-                setPendingGeneration(() => onSuccess);
-                setPaymentOpen(true);
-              }}
-            />
-          </section>
+requestGeneration={requestPaidGeneration}
 
-          <section
-            ref={livePreviewSectionRef}
-            className="min-w-0 space-y-3 lg:col-span-5 lg:flex lg:flex-col"
-          >
-            <div className="flex items-center gap-3 px-1">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/15 text-sm font-extrabold text-violet-200">
-                3
-              </span>
-              <div>
-                <h2 className="text-base font-extrabold text-white sm:text-lg">
+onRequestPayment={(amount, onSuccess) => {
+  setPaymentPrice(amount);
+  setPendingGeneration(() => onSuccess);
+  setPaymentOpen(true);
+}}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <section ref={livePreviewSectionRef} className="space-y-4">
+            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
                   Preview
-                </h2>
-                <p className="text-xs leading-5 text-slate-400">
-                  Review scenes and playback before exporting.
-                </p>
-              </div>
-            </div>
+                </CardTitle>
+              </CardHeader>
 
-            <Card className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator lg:flex-1 lg:min-h-[520px]">
-              <CardContent className="h-full p-3 sm:p-4 lg:flex lg:flex-col">
+              <CardContent className="px-3 py-4 sm:px-4">
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
@@ -1389,65 +1359,63 @@ const resetCurrentProject = () => {
                 )}
               </CardContent>
             </Card>
-          </section>
-
-          <section className="min-w-0 space-y-3 lg:col-span-12">
-            <div className="flex items-center gap-3 px-1">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/15 text-sm font-extrabold text-fuchsia-200">
-                4
-              </span>
-              <div>
-                <h2 className="text-base font-extrabold text-white sm:text-lg">
-                  Export &amp; Download
-                </h2>
-                <p className="text-xs leading-5 text-slate-400">
-                  Download your creation or continue sharing it.
-                </p>
-              </div>
-            </div>
 
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardContent className="p-3 sm:p-4">
-                <ExportPanel
-                  isRecording={isRecording}
-                  isExporting={isExporting}
-                  exportStatus={exportStatus}
-                  exportPrimaryLabel={
-                    selectedTool?.category === "Picture AI"
-                      ? "Download Image"
-                      : "Download Media"
-                  }
-                  onExportPrimary={handleExportPrimaryMedia}
-                  onOpenFacebook={openFacebookAfterExport}
-                  onInitializeFFmpeg={initializeFFmpeg}
-                  onExportSilentMp4={handleExportSilentMp4}
-                  onExportNarratedMp4={handleExportNarratedMp4}
-                  onExportFinalMixedMp4={handleExportFinalMixedMp4}
-                />
-              </CardContent>
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Export & Download
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-3 py-4 sm:px-4">
+  <ExportPanel
+  isRecording={isRecording}
+  isExporting={isExporting}
+  exportStatus={exportStatus}
+  exportPrimaryLabel={
+    selectedTool?.category === "Picture AI"
+      ? "Download Image"
+      : "Download Media"
+  }
+  onExportPrimary={handleExportPrimaryMedia}
+  onOpenFacebook={openFacebookAfterExport}
+  onInitializeFFmpeg={initializeFFmpeg}
+  onExportSilentMp4={handleExportSilentMp4}
+  onExportNarratedMp4={handleExportNarratedMp4}
+  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+/>
+               
+</CardContent>
             </Card>
 
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
+              Review your content before downloading or sharing.
+            </div>
             {isAndroid() && downloadComplete && (
-              <div className="rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-                <p className="mb-3 font-semibold text-emerald-300">
-                  ✅ Download complete.
-                </p>
-                <p className="mb-4 text-sm text-slate-300">
-                  Tap below to start a new creation.
-                </p>
-                <button
-                  onClick={() => {
-                    setDownloadComplete(false);
-                    resetCurrentProject();
-                  }}
-                  className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
-                >
-                  Click to Generate Again
-                </button>
-              </div>
-            )}
+  <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
+    <p className="mb-3 font-semibold text-emerald-300">
+      ✅ Download complete.
+    </p>
+
+    <p className="mb-4 text-sm text-slate-300">
+      Tap below to start a new creation.
+    </p>
+
+    <button
+      onClick={() => {
+        setDownloadComplete(false);
+        resetCurrentProject();
+      }}
+      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
+    >
+      Click to Generate Again
+    </button>
+  </div>
+)}
           </section>
         </div>
+
+            </div> {/* closes grid */}
 
       <PaymentModal
   open={paymentOpen}
@@ -1474,7 +1442,7 @@ const resetCurrentProject = () => {
     }
   }}
 />
-      </div>
-    </main>
-  );
+
+  </main>
+);
 }
