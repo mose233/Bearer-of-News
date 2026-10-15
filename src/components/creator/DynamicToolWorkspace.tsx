@@ -116,13 +116,13 @@ type DynamicToolWorkspaceProps = {
 };
 
 const boxClass =
-  "rounded-[1.1rem] border border-[#19345a] bg-[#06142b] p-3.5 text-white shadow-[0_10px_28px_rgba(0,0,0,0.22)] sm:p-4";
+  "rounded-[1.5rem] border border-white/10 bg-[#111827] p-5 text-white shadow-creator";
 
 const inputClass =
-  "w-full min-w-0 rounded-xl border border-[#29466e] bg-[#08152a] px-3 py-2.5 text-sm font-medium text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/25";
+  "w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
 
 const textareaClass =
-  "min-h-[92px] w-full min-w-0 rounded-xl border border-[#29466e] bg-[#08152a] px-3 py-2.5 text-sm font-medium leading-5 text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/25";
+  "min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
 
 const enhancementFilters: Record<string, string> = {
   "Natural Glow": "brightness(1.08) contrast(1.08) saturate(1.12)",
@@ -450,9 +450,9 @@ function ToolHeader({
     <div>
       <div className="flex items-center gap-2">
         {icon}
-        <h3 className="text-base font-extrabold tracking-tight text-white sm:text-lg">{title}</h3>
+        <h3 className="text-lg font-extrabold">{title}</h3>
       </div>
-      <p className="mt-1.5 max-w-3xl text-xs leading-5 text-slate-300 sm:text-sm">
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
         {description}
       </p>
     </div>
@@ -535,7 +535,7 @@ function PrimaryGenerateButton({
     <button
       type="button"
       onClick={onClick || (() => alert("This workflow is ready for mock mode, but the generator is not connected yet."))}
-      className="h-11 w-full rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 px-4 text-sm font-extrabold text-white shadow-[0_5px_18px_rgba(168,85,247,0.18)] transition hover:brightness-110 md:w-auto"
+      className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
     >
       {label}
     </button>
@@ -1022,6 +1022,53 @@ function VideoTemplatePanel({
           </button>
         </div>
 
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80">
+          <div className="border-b border-white/10 px-4 py-3">
+            <h3 className="text-base font-extrabold text-white">Preview</h3>
+          </div>
+
+          <div className="flex min-h-[300px] items-center justify-center p-5 text-center">
+            {isGeneratingVideo ? (
+              <div className="w-full max-w-md space-y-5">
+                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-8 border-white/10 border-t-violet-400 border-r-blue-400 animate-spin">
+                  <Clapperboard className="h-9 w-9 text-white" />
+                </div>
+                <div>
+                  <p className="text-lg font-extrabold text-white">
+                    Your video is being generated
+                  </p>
+                  <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
+                    Please wait while xnewsapp.com creates your video.
+                    <br />
+                    This may take a few moments...
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-medium leading-6 text-slate-300">
+                  💡 Tip: You can keep this page open. We’ll show your video here as soon as it’s ready.
+                </div>
+              </div>
+            ) : generatedVideoPreview ? (
+              <div className="w-full space-y-3">
+                <p className="text-sm font-extrabold text-emerald-300">
+                  ✓ Your video is ready
+                </p>
+                <video
+                  src={generatedVideoPreview}
+                  controls
+                  playsInline
+                  className="mx-auto max-h-[520px] w-full rounded-2xl bg-black object-contain"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Clapperboard className="mx-auto h-10 w-10 text-slate-500" />
+                <p className="text-sm font-medium leading-6 text-slate-300">
+                  Your generated video will appear here.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
