@@ -7,6 +7,7 @@ import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Image as ImageIcon, Video, Music2, Sparkles, Play } from "lucide-react";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
 import { getUSDPrice } from "@/lib/pricing/pricingEngine";
@@ -1226,18 +1227,32 @@ const resetCurrentProject = () => {
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
-        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
-          <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
-            Creator Studio
+        <header className="relative mb-4 overflow-hidden rounded-[1.25rem] border border-sky-300/15 bg-[radial-gradient(ellipse_at_78%_45%,rgba(91,33,182,0.42),transparent_42%),linear-gradient(110deg,#071329_0%,#0b1534_55%,#160b3c_100%)] px-4 py-5 shadow-creator sm:px-6 lg:mb-5 lg:min-h-[150px] lg:px-6">
+          <div className="relative z-10 max-w-[62%] sm:max-w-[65%]">
+            <div className="mb-3 inline-flex items-center rounded-full border border-violet-300/30 bg-violet-500/20 px-3 py-1 text-[11px] font-bold text-violet-100">
+              Creator Studio
+            </div>
+            <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-4xl">
+              Create <span className="bg-gradient-to-r from-sky-300 via-fuchsia-400 to-violet-300 bg-clip-text text-transparent">AI videos,</span> images and music
+            </h1>
+            <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+              Choose a tool, create your media, then export and download.
+            </p>
           </div>
-
-          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Create AI videos, images and music
-          </h1>
-
-          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-            Choose a tool, create your media, then export and download.
-          </p>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 flex w-[42%] items-center justify-center overflow-hidden">
+            <div className="absolute right-[8%] h-28 w-28 rounded-full bg-fuchsia-500/20 blur-3xl sm:h-40 sm:w-40" />
+            <div className="relative flex -rotate-6 items-center gap-2 sm:gap-3">
+              <div className="hidden h-16 w-20 rotate-[-10deg] items-center justify-center rounded-xl border border-sky-300/50 bg-gradient-to-br from-sky-500/30 to-indigo-950/90 shadow-[0_0_24px_rgba(56,189,248,0.2)] sm:flex">
+                <Sparkles className="h-7 w-7 text-sky-200" />
+              </div>
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-fuchsia-300/60 bg-gradient-to-br from-fuchsia-500/50 via-violet-700/70 to-slate-950 shadow-[0_0_28px_rgba(217,70,239,0.35)] sm:h-28 sm:w-28">
+                <Sparkles className="h-9 w-9 text-white sm:h-12 sm:w-12" />
+              </div>
+              <div className="flex h-14 w-14 rotate-[12deg] items-center justify-center rounded-xl border border-cyan-300/50 bg-gradient-to-br from-cyan-500/40 to-blue-950/90 shadow-[0_0_22px_rgba(34,211,238,0.25)] sm:h-20 sm:w-20">
+                <Music2 className="h-7 w-7 text-cyan-100 sm:h-9 sm:w-9" />
+              </div>
+            </div>
+          </div>
         </header>
 
         <div className="mb-5">
@@ -1247,8 +1262,55 @@ const resetCurrentProject = () => {
           />
         </div>
 
-        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
-          <DynamicToolWorkspace
+        <div className="mb-5 grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.15fr_0.85fr]"><div ref={workspaceSectionRef} className="min-w-0 scroll-mt-4">
+          {!selectedTool && (
+            <section className="overflow-hidden rounded-[1.25rem] border border-violet-300/15 bg-[radial-gradient(ellipse_at_50%_70%,rgba(76,29,149,0.34),transparent_58%),linear-gradient(135deg,#0b1732,#081225)] p-4 shadow-creator sm:p-5">
+              <div className="mb-1 flex items-center gap-2 text-lg font-bold text-slate-100">
+                <Sparkles className="h-5 w-5 text-fuchsia-300" />
+                Choose a tool to begin
+              </div>
+              <p className="text-sm text-slate-300">Select a tool above to start creating.</p>
+              <div className="relative mt-5 grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="absolute inset-x-0 top-1/2 h-16 -translate-y-1/2 rounded-full bg-gradient-to-r from-pink-500/20 via-violet-500/25 to-cyan-400/20 blur-2xl" />
+                <div className="relative flex min-w-0 flex-col items-center text-center">
+                  <div className="mb-3 flex h-20 w-full max-w-[150px] items-center justify-center rounded-2xl border border-pink-300/40 bg-gradient-to-br from-pink-500/25 via-fuchsia-800/35 to-slate-950 shadow-[0_0_24px_rgba(236,72,153,0.2)] sm:h-28">
+                    <div className="relative flex items-center gap-1">
+                      <div className="h-10 w-7 -rotate-12 rounded-md border border-pink-200/60 bg-gradient-to-br from-orange-300/80 to-purple-700/80 sm:h-14 sm:w-10" />
+                      <ImageIcon className="h-10 w-10 text-pink-200 sm:h-14 sm:w-14" />
+                      <div className="h-9 w-6 rotate-12 rounded-md border border-violet-200/60 bg-gradient-to-br from-violet-300/70 to-blue-700/80 sm:h-12 sm:w-8" />
+                    </div>
+                  </div>
+                  <span className="text-sm font-bold text-white sm:text-base">Picture AI</span>
+                  <span className="mt-1 text-[11px] text-slate-300 sm:text-xs">Images, photos &amp; designs</span>
+                </div>
+                <div className="relative flex min-w-0 flex-col items-center text-center">
+                  <div className="mb-3 flex h-20 w-full max-w-[150px] items-center justify-center rounded-2xl border border-violet-300/40 bg-gradient-to-br from-violet-500/30 via-purple-900/45 to-slate-950 shadow-[0_0_24px_rgba(139,92,246,0.24)] sm:h-28">
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute -top-3 h-3 w-20 -skew-x-12 rounded-t-md border border-white/30 bg-gradient-to-r from-pink-400 to-violet-500 sm:w-24" />
+                      <div className="flex h-12 w-16 items-center justify-center rounded-lg border border-violet-200/50 bg-slate-950/80 sm:h-16 sm:w-20">
+                        <Play className="h-7 w-7 fill-fuchsia-300 text-fuchsia-300 sm:h-9 sm:w-9" />
+                      </div>
+                      <Video className="absolute -bottom-3 -right-5 h-7 w-7 text-violet-200 sm:h-9 sm:w-9" />
+                    </div>
+                  </div>
+                  <span className="text-sm font-bold text-white sm:text-base">Video AI</span>
+                  <span className="mt-1 text-[11px] text-slate-300 sm:text-xs">Social videos</span>
+                </div>
+                <div className="relative flex min-w-0 flex-col items-center text-center">
+                  <div className="mb-3 flex h-20 w-full max-w-[150px] items-center justify-center rounded-2xl border border-cyan-300/40 bg-gradient-to-br from-cyan-500/25 via-blue-900/45 to-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.2)] sm:h-28">
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute h-12 w-16 rounded-full border-[5px] border-cyan-400/70 sm:h-16 sm:w-20" />
+                      <Music2 className="relative z-10 h-10 w-10 text-cyan-200 sm:h-14 sm:w-14" />
+                    </div>
+                  </div>
+                  <span className="text-sm font-bold text-white sm:text-base">Music AI</span>
+                  <span className="mt-1 text-[11px] text-slate-300 sm:text-xs">Songs &amp; audio</span>
+                </div>
+              </div>
+              <p className="mt-4 text-center text-xs font-medium text-slate-400">Choose Picture AI, Video AI or Music AI above to get started.</p>
+            </section>
+          )}
+          {selectedTool && <DynamicToolWorkspace
             selectedTool={selectedTool}
             speechRate={speechRate}
             setSpeechRate={setSpeechRate}
@@ -1321,10 +1383,10 @@ onRequestPayment={(amount, onSuccess) => {
   setPendingGeneration(() => onSuccess);
   setPaymentOpen(true);
 }}
-          />
+          />}
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="min-w-0">
           <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
@@ -1415,7 +1477,8 @@ onRequestPayment={(amount, onSuccess) => {
           </section>
         </div>
 
-            </div> {/* closes grid */}
+            </div> {/* closes responsive workspace grid */}
+      </div>
 
       <PaymentModal
   open={paymentOpen}
