@@ -1474,7 +1474,7 @@ const resetCurrentProject = () => {
     }
   }}
 />
-
-  </main>
-);
+      </div>
+    </main>
+  );
 }
