@@ -1342,7 +1342,7 @@ const resetCurrentProject = () => {
 
           <section
             ref={livePreviewSectionRef}
-            className="min-w-0 space-y-3 lg:col-span-5"
+            className="min-w-0 space-y-3 lg:col-span-5 lg:flex lg:flex-col"
           >
             <div className="flex items-center gap-3 px-1">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/15 text-sm font-extrabold text-violet-200">
@@ -1358,8 +1358,8 @@ const resetCurrentProject = () => {
               </div>
             </div>
 
-            <Card className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardContent className="p-3 sm:p-4">
+            <Card className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator lg:flex-1 lg:min-h-[520px]">
+              <CardContent className="h-full p-3 sm:p-4 lg:flex lg:flex-col">
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
@@ -1422,10 +1422,6 @@ const resetCurrentProject = () => {
                 />
               </CardContent>
             </Card>
-
-            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Review your content before downloading or sharing.
-            </div>
 
             {isAndroid() && downloadComplete && (
               <div className="rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
