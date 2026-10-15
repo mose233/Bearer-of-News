@@ -1424,6 +1424,8 @@ onRequestPayment={(amount, onSuccess) => {
           )}
         </section>
 
+      </div>
+
       <PaymentModal
   open={paymentOpen}
   price={paymentPrice}
