@@ -170,7 +170,7 @@ useEffect(() => {
 
   if (mediaFiles.length === 0 && imagePreviews.length === 0) {
     return (
-      <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted sm:min-h-[260px] lg:min-h-[300px]">
+      <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 text-center text-creator-muted sm:min-h-[380px] lg:min-h-[520px]">
         <div className="mb-3 rounded-2xl bg-white/10 p-4">
           <ImageIcon className="h-9 w-9 text-creator-muted" />
         </div>
@@ -185,9 +185,9 @@ useEffect(() => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[220px] sm:max-w-[260px] lg:max-w-[300px]">
+    <div className="w-full min-w-0">
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black p-1.5 shadow-creator">
-        <div className="relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black">
+        <div className="relative aspect-video min-h-[220px] w-full overflow-hidden rounded-xl bg-black sm:min-h-[280px] lg:min-h-[340px]">
           {isCurrentVideo && previewUrl ? (
             <video
               ref={videoRef}
