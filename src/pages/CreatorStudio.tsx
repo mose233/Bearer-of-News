@@ -1247,10 +1247,10 @@ const resetCurrentProject = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
+        <div className="flex flex-col gap-4 lg:gap-5">
           <section
             ref={workspaceSectionRef}
-            className="min-w-0 scroll-mt-4 space-y-3 lg:col-span-7"
+            className="min-w-0 scroll-mt-4 space-y-3"
           >
             <div className="flex items-center gap-3 px-1">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/15 text-sm font-extrabold text-violet-200">
@@ -1342,7 +1342,7 @@ const resetCurrentProject = () => {
 
           <section
             ref={livePreviewSectionRef}
-            className="min-w-0 space-y-3 lg:col-span-5"
+            className="min-w-0 space-y-3"
           >
             <div className="flex items-center gap-3 px-1">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/15 text-sm font-extrabold text-violet-200">
@@ -1387,7 +1387,7 @@ const resetCurrentProject = () => {
             </Card>
           </section>
 
-          <section className="min-w-0 space-y-3 lg:col-span-12">
+          <section className="min-w-0 space-y-3">
             <div className="flex items-center gap-3 px-1">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/15 text-sm font-extrabold text-fuchsia-200">
                 4
