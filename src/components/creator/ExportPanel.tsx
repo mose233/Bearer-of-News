@@ -3,9 +3,9 @@ import {
   Facebook,
   Film,
   Loader2,
-  Settings2,
-  Volume2,
   MessageCircle,
+  Music2,
+  Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +19,7 @@ type ExportPanelProps = {
   onInitializeFFmpeg: () => void;
   onExportSilentMp4: () => void;
   onExportNarratedMp4: () => void;
+  onExportFinalMixedMp4?: () => void;
 };
 
 export default function ExportPanel({
@@ -28,25 +29,23 @@ export default function ExportPanel({
   exportPrimaryLabel,
   onExportPrimary,
   onOpenFacebook,
-  onInitializeFFmpeg,
-  onExportSilentMp4,
-  onExportNarratedMp4,
 }: ExportPanelProps) {
   const busy = isRecording || isExporting;
-  
+
   const openExternal = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const socialButton =
+    "h-11 w-full rounded-xl text-sm font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 disabled:opacity-60 sm:h-12";
+
   return (
-    <div className="space-y-4 text-white">
-       {exportStatus && (
-        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
+    <div className="space-y-3 text-white sm:space-y-4">
+      {exportStatus && (
+        <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3">
           <div className="flex items-center gap-3">
             {busy && <Loader2 className="h-4 w-4 animate-spin text-cyan-200" />}
-
-            <p className="text-sm font-bold leading-5 text-cyan-100">
-              {exportStatus}
-            </p>
+            <p className="text-sm font-bold leading-5 text-cyan-100">{exportStatus}</p>
           </div>
         </div>
       )}
@@ -55,22 +54,22 @@ export default function ExportPanel({
         type="button"
         onClick={onExportPrimary}
         disabled={busy}
-        className="h-14 w-full rounded-3xl bg-cyan-600 text-base font-extrabold text-white shadow-2xl hover:bg-cyan-700 disabled:opacity-60"
+        className="h-14 w-full rounded-xl border border-cyan-200/50 bg-gradient-to-r from-cyan-500 to-sky-500 text-base font-extrabold text-white shadow-[0_0_22px_rgba(6,182,212,0.22)] hover:from-cyan-400 hover:to-sky-400 disabled:opacity-60 sm:h-14"
       >
         {busy ? (
           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         ) : (
           <Download className="mr-2 h-5 w-5" />
         )}
-        {exportPrimaryLabel || "Export / Download Media"}
+        {exportPrimaryLabel || "Download Media"}
       </Button>
-       
-      <div className="grid grid-cols-2 gap-3">
+
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
         <Button
           type="button"
           onClick={onOpenFacebook}
           disabled={busy}
-          className="h-12 rounded-2xl bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60 sm:text-sm"
+          className={`${socialButton} bg-[#1877F2] hover:bg-[#1669d8]`}
         >
           <Facebook className="mr-2 h-4 w-4" />
           Facebook
@@ -80,7 +79,7 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://www.tiktok.com/upload")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-black text-xs font-bold text-white hover:bg-zinc-900 disabled:opacity-60 sm:text-sm"
+          className={`${socialButton} bg-black hover:bg-zinc-900`}
         >
           <Film className="mr-2 h-4 w-4" />
           TikTok
@@ -90,7 +89,7 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://web.whatsapp.com/")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-green-600 text-xs font-bold text-white hover:bg-green-700 disabled:opacity-60 sm:text-sm"
+          className={`${socialButton} bg-[#16A34A] hover:bg-green-700`}
         >
           <MessageCircle className="mr-2 h-4 w-4" />
           WhatsApp
@@ -100,9 +99,9 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://www.instagram.com/")}
           disabled={busy}
-          className="h-12 rounded-2xl bg-pink-600 text-xs font-bold text-white hover:bg-pink-700 disabled:opacity-60 sm:text-sm"
+          className={`${socialButton} bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:brightness-110`}
         >
-          <Film className="mr-2 h-4 w-4" />
+          <Instagram className="mr-2 h-4 w-4" />
           Instagram
         </Button>
 
@@ -110,13 +109,11 @@ export default function ExportPanel({
           type="button"
           onClick={() => openExternal("https://www.messenger.com/")}
           disabled={busy}
-          className="col-span-2 h-12 rounded-2xl bg-sky-600 text-xs font-bold text-white hover:bg-sky-700 disabled:opacity-60 sm:text-sm"
+          className={`${socialButton} col-span-2 bg-[#087EEC] hover:bg-blue-700`}
         >
           <MessageCircle className="mr-2 h-4 w-4" />
           Messenger
         </Button>
-
-
       </div>
     </div>
   );
