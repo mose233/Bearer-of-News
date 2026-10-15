@@ -1022,53 +1022,6 @@ function VideoTemplatePanel({
           </button>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80">
-          <div className="border-b border-white/10 px-4 py-3">
-            <h3 className="text-base font-extrabold text-white">Preview</h3>
-          </div>
-
-          <div className="flex min-h-[300px] items-center justify-center p-5 text-center">
-            {isGeneratingVideo ? (
-              <div className="w-full max-w-md space-y-5">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-8 border-white/10 border-t-violet-400 border-r-blue-400 animate-spin">
-                  <Clapperboard className="h-9 w-9 text-white" />
-                </div>
-                <div>
-                  <p className="text-lg font-extrabold text-white">
-                    Your video is being generated
-                  </p>
-                  <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-                    Please wait while xnewsapp.com creates your video.
-                    <br />
-                    This may take a few moments...
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-medium leading-6 text-slate-300">
-                  💡 Tip: You can keep this page open. We’ll show your video here as soon as it’s ready.
-                </div>
-              </div>
-            ) : generatedVideoPreview ? (
-              <div className="w-full space-y-3">
-                <p className="text-sm font-extrabold text-emerald-300">
-                  ✓ Your video is ready
-                </p>
-                <video
-                  src={generatedVideoPreview}
-                  controls
-                  playsInline
-                  className="mx-auto max-h-[520px] w-full rounded-2xl bg-black object-contain"
-                />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Clapperboard className="mx-auto h-10 w-10 text-slate-500" />
-                <p className="text-sm font-medium leading-6 text-slate-300">
-                  Your generated video will appear here.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -2212,7 +2165,6 @@ export default function DynamicToolWorkspace({
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
   const [picturePreview, setPicturePreview] = useState("");
-  const [originalPicturePreview, setOriginalPicturePreview] = useState("");
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [pictureFileName, setPictureFileName] = useState("");
   const [enhancementStyle, setEnhancementStyle] =
@@ -3370,9 +3322,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
      * The old picturePreview may point to the uploaded source
      * image. Replace it with the generated AI result.
      */
-    // Keep the uploaded source preview separate from the generated result.
-    // Revoke only a previous generated preview, never the original source.
-    if (picturePreview && picturePreview !== originalPicturePreview) {
+    if (picturePreview) {
       URL.revokeObjectURL(picturePreview);
     }
 
@@ -3478,16 +3428,9 @@ The final result must look like a genuine photograph, not an AI-generated image.
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
-                if (picturePreview && picturePreview !== originalPicturePreview) {
-                  URL.revokeObjectURL(picturePreview);
-                }
-                if (originalPicturePreview) {
-                  URL.revokeObjectURL(originalPicturePreview);
-                }
-                const sourcePreviewUrl = URL.createObjectURL(file);
+                if (picturePreview) URL.revokeObjectURL(picturePreview);
                 setPictureFile(file);
-                setPicturePreview(sourcePreviewUrl);
-                setOriginalPicturePreview(sourcePreviewUrl);
+                setPicturePreview(URL.createObjectURL(file));
                 setPictureFileName(file.name);
                 setHasPreviewedEnhancement(false);
               }}
@@ -3966,15 +3909,14 @@ The final result must look like a genuine photograph, not an AI-generated image.
             )}
         </div>
 
-              {(originalPicturePreview || (!isPromptToImage && picturePreview) || (isPromptToImage && generatedImagePreview)) && (
-          <div className={`mt-5 grid gap-4 ${originalPicturePreview ? "lg:grid-cols-2" : "grid-cols-1"}`}>
-            {(originalPicturePreview || (!isPromptToImage && picturePreview && !hasPreviewedEnhancement)) && (
+              {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
                 Original
               </div>
               <img
-                src={originalPicturePreview || picturePreview}
+                src={picturePreview}
                 alt="Original preview"
                 className="max-h-[380px] w-full rounded-2xl object-cover"
               />
@@ -3984,7 +3926,6 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 </p>
               )}
             </div>
-            )}
 
             <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
               <div className="mb-2 flex items-center justify-between gap-3">
