@@ -2212,6 +2212,7 @@ export default function DynamicToolWorkspace({
   const [selectedCreatorFont, setSelectedCreatorFont] = useState("Bebas Neue");
   const creatorFontCss = getFontByName(selectedCreatorFont).cssFamily;
   const [picturePreview, setPicturePreview] = useState("");
+  const [originalPicturePreview, setOriginalPicturePreview] = useState("");
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [pictureFileName, setPictureFileName] = useState("");
   const [enhancementStyle, setEnhancementStyle] =
@@ -3369,7 +3370,9 @@ The final result must look like a genuine photograph, not an AI-generated image.
      * The old picturePreview may point to the uploaded source
      * image. Replace it with the generated AI result.
      */
-    if (picturePreview) {
+    // Keep the uploaded source preview separate from the generated result.
+    // Revoke only a previous generated preview, never the original source.
+    if (picturePreview && picturePreview !== originalPicturePreview) {
       URL.revokeObjectURL(picturePreview);
     }
 
@@ -3475,9 +3478,16 @@ The final result must look like a genuine photograph, not an AI-generated image.
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
-                if (picturePreview) URL.revokeObjectURL(picturePreview);
+                if (picturePreview && picturePreview !== originalPicturePreview) {
+                  URL.revokeObjectURL(picturePreview);
+                }
+                if (originalPicturePreview) {
+                  URL.revokeObjectURL(originalPicturePreview);
+                }
+                const sourcePreviewUrl = URL.createObjectURL(file);
                 setPictureFile(file);
-                setPicturePreview(URL.createObjectURL(file));
+                setPicturePreview(sourcePreviewUrl);
+                setOriginalPicturePreview(sourcePreviewUrl);
                 setPictureFileName(file.name);
                 setHasPreviewedEnhancement(false);
               }}
@@ -3956,14 +3966,15 @@ The final result must look like a genuine photograph, not an AI-generated image.
             )}
         </div>
 
-              {(picturePreview || (isPromptToImage && generatedImagePreview)) && (
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              {(originalPicturePreview || (!isPromptToImage && picturePreview) || (isPromptToImage && generatedImagePreview)) && (
+          <div className={`mt-5 grid gap-4 ${originalPicturePreview ? "lg:grid-cols-2" : "grid-cols-1"}`}>
+            {(originalPicturePreview || (!isPromptToImage && picturePreview && !hasPreviewedEnhancement)) && (
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-3">
               <div className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">
                 Original
               </div>
               <img
-                src={picturePreview}
+                src={originalPicturePreview || picturePreview}
                 alt="Original preview"
                 className="max-h-[380px] w-full rounded-2xl object-cover"
               />
@@ -3973,6 +3984,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 </p>
               )}
             </div>
+            )}
 
             <div className="overflow-hidden rounded-3xl border border-pink-400/20 bg-black p-3">
               <div className="mb-2 flex items-center justify-between gap-3">
