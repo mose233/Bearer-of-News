@@ -116,13 +116,13 @@ type DynamicToolWorkspaceProps = {
 };
 
 const boxClass =
-  "rounded-2xl border border-[#263b62] bg-[#071226] p-4 text-white shadow-creator sm:p-5";
+  "rounded-[1.5rem] border border-white/10 bg-[#111827] p-5 text-white shadow-creator";
 
 const inputClass =
-  "w-full rounded-xl border border-white/15 bg-[#050d1d] px-3 py-2.5 text-sm font-semibold text-white outline-none placeholder:text-slate-400 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/25 sm:px-4 sm:text-sm";
+  "w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
 
 const textareaClass =
-  "min-h-[120px] w-full rounded-xl border border-white/15 bg-[#050d1d] px-3 py-3 text-sm font-semibold text-white outline-none placeholder:text-slate-400 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/25 sm:min-h-[130px] sm:px-4";
+  "min-h-[150px] w-full rounded-2xl border border-white/20 bg-slate-950/70 px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30";
 
 const enhancementFilters: Record<string, string> = {
   "Natural Glow": "brightness(1.08) contrast(1.08) saturate(1.12)",
@@ -452,7 +452,7 @@ function ToolHeader({
         {icon}
         <h3 className="text-lg font-extrabold">{title}</h3>
       </div>
-      <p className="mt-1.5 max-w-3xl text-sm leading-5 text-slate-300">
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
         {description}
       </p>
     </div>
@@ -473,12 +473,12 @@ function UploadMediaBox({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#050d1d]/80 p-3 sm:p-4">
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
       <h4 className="text-sm font-extrabold text-white">{title}</h4>
       <p className="mt-1 text-xs leading-5 text-slate-300">{description}</p>
 
-      <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-violet-300/25 bg-[#071226] px-4 py-6 text-center transition hover:border-fuchsia-400/60 hover:bg-violet-950/30 sm:py-7">
-        <Upload className="mb-2 h-6 w-6 text-fuchsia-300" />
+      <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/70 px-5 py-8 text-center transition hover:border-violet-400/50 hover:bg-slate-950/90">
+        <Upload className="mb-3 h-7 w-7 text-violet-300" />
         <span className="text-sm font-extrabold text-white">
           Upload Media
         </span>
@@ -510,7 +510,7 @@ function SelectField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">{label}</span>
+      <span className="mb-2 block text-sm font-extrabold">{label}</span>
       <select
         className={inputClass}
         value={value}
@@ -535,7 +535,7 @@ function PrimaryGenerateButton({
     <button
       type="button"
       onClick={onClick || (() => alert("This workflow is ready for mock mode, but the generator is not connected yet."))}
-      className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-500 px-5 text-sm font-extrabold text-white shadow-lg shadow-violet-950/30 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300 md:w-auto"
+      className="h-12 w-full rounded-2xl bg-violet-600 px-5 text-sm font-extrabold text-white transition hover:bg-violet-500 md:w-auto"
     >
       {label}
     </button>
@@ -912,7 +912,7 @@ function VideoTemplatePanel({
         description="Create videos with photos, captions, music, voice and export."
       />
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-5 space-y-5">
         <VideoPricingCard
           tool={tool}
           selectedDuration={selectedVideoDuration}
@@ -936,7 +936,7 @@ function VideoTemplatePanel({
           </div>
         )}
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
           <SelectField
             label="2. Video Type"
             value={localVideoType}
@@ -977,7 +977,7 @@ function VideoTemplatePanel({
         </div>
 
         <label className="block">
-          <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+          <span className="mb-2 block text-sm font-extrabold">
             {messageLabel}
           </span>
           <textarea
@@ -1022,53 +1022,6 @@ function VideoTemplatePanel({
           </button>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80">
-          <div className="border-b border-white/10 px-4 py-3">
-            <h3 className="text-base font-extrabold text-white">Preview</h3>
-          </div>
-
-          <div className="flex min-h-[300px] items-center justify-center p-5 text-center">
-            {isGeneratingVideo ? (
-              <div className="w-full max-w-md space-y-5">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-8 border-white/10 border-t-violet-400 border-r-blue-400 animate-spin">
-                  <Clapperboard className="h-9 w-9 text-white" />
-                </div>
-                <div>
-                  <p className="text-lg font-extrabold text-white">
-                    Your video is being generated
-                  </p>
-                  <p className="mt-2 text-sm font-medium leading-6 text-slate-300">
-                    Please wait while xnewsapp.com creates your video.
-                    <br />
-                    This may take a few moments...
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-medium leading-6 text-slate-300">
-                  💡 Tip: You can keep this page open. We’ll show your video here as soon as it’s ready.
-                </div>
-              </div>
-            ) : generatedVideoPreview ? (
-              <div className="w-full space-y-3">
-                <p className="text-sm font-extrabold text-emerald-300">
-                  ✓ Your video is ready
-                </p>
-                <video
-                  src={generatedVideoPreview}
-                  controls
-                  playsInline
-                  className="mx-auto max-h-[520px] w-full rounded-2xl bg-black object-contain"
-                />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Clapperboard className="mx-auto h-10 w-10 text-slate-500" />
-                <p className="text-sm font-medium leading-6 text-slate-300">
-                  Your generated video will appear here.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -1250,7 +1203,7 @@ function VideoTemplatePanel({
         }
       />
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-5 space-y-5">
         <VideoPricingCard
           tool={tool}
           selectedDuration={selectedVideoDuration}
@@ -1279,9 +1232,9 @@ function VideoTemplatePanel({
         )}
 
         {isTribute ? (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <label className="block md:col-span-2">
-              <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+              <span className="mb-2 block text-sm font-extrabold">
                 2. Full Name
               </span>
               <Input
@@ -1293,7 +1246,7 @@ function VideoTemplatePanel({
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+              <span className="mb-2 block text-sm font-extrabold">
                 3. Birth Date
               </span>
               <Input
@@ -1305,7 +1258,7 @@ function VideoTemplatePanel({
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+              <span className="mb-2 block text-sm font-extrabold">
                 4. Date of Passing
               </span>
               <Input
@@ -1348,7 +1301,7 @@ function VideoTemplatePanel({
             />
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <SelectField
               label="2. Occasion"
               value={occasion}
@@ -1367,7 +1320,7 @@ function VideoTemplatePanel({
             />
 
             <label className="block">
-              <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+              <span className="mb-2 block text-sm font-extrabold">
                 4. Recipient Name
               </span>
               <Input
@@ -1379,7 +1332,7 @@ function VideoTemplatePanel({
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+              <span className="mb-2 block text-sm font-extrabold">
                 5. Sender Name
               </span>
               <Input
@@ -1430,7 +1383,7 @@ function VideoTemplatePanel({
         />
 
         <label className="block">
-          <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+          <span className="mb-2 block text-sm font-extrabold">
             {isTribute ? "10. Tribute Message" : "10. Personal Message"}
           </span>
           <textarea
@@ -1952,7 +1905,7 @@ function VideoTemplatePanel({
   description="Cinematic AI is the premium AI motion-video workspace. Upload source media, choose motion style, then generate a real AI video with fal.ai."
 />
 
-<div className="mt-4 space-y-4">
+<div className="mt-5 space-y-5">
         <VideoPricingCard
           tool={tool}
           selectedDuration={selectedCinematicDuration}
@@ -1980,7 +1933,7 @@ function VideoTemplatePanel({
           </div>
         )}
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <SelectField
             label="2. Motion Style"
             value={cinematicMotionStyle}
@@ -2060,7 +2013,7 @@ function VideoTemplatePanel({
         </div>
 
         <label className="block">
-          <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+          <span className="mb-2 block text-sm font-extrabold">
             {instructionLabel}
           </span>
           <textarea
@@ -2723,9 +2676,9 @@ export default function DynamicToolWorkspace({
           description="Create Facebook, Instagram, WhatsApp, or poster-ready quote graphics without uploading a photo first."
         />
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-5 space-y-5">
           <label className="block">
-            <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+            <span className="mb-2 block text-sm font-extrabold">
               1. Write Quote
             </span>
             <textarea
@@ -2739,9 +2692,9 @@ export default function DynamicToolWorkspace({
             />
           </label>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+              <span className="mb-2 block text-sm font-extrabold">
                 2. Author / Source
               </span>
               <Input
@@ -3445,9 +3398,9 @@ The final result must look like a genuine photograph, not an AI-generated image.
           </div>
         </>
         {isPromptToImage ? (
-  <div className="mt-4 space-y-4">
+  <div className="mt-5 space-y-5">
     <label className="block">
-      <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+      <span className="mb-2 block text-sm font-extrabold">
         Describe what you want to create
       </span>
 
@@ -3521,7 +3474,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
   </div>
 )}
           {isPhotoEnhancer && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Enhancement Strength"
                 value={pictureStrength}
@@ -3538,7 +3491,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isStudioPortrait && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Portrait Style"
                 value={portraitRole}
@@ -3564,7 +3517,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isBeautyGlow && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Beauty Level"
                 value={beautyLevel}
@@ -3590,7 +3543,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isYoungerLook && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Age Reduction"
                 value={youngerAge}
@@ -3615,7 +3568,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isBackgroundChanger && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="New Background"
                 value={backgroundChoice}
@@ -3649,7 +3602,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isHairstyleChanger && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Hairstyle"
                 value={hairStyleChoice}
@@ -3686,7 +3639,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isOutfitChanger && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Outfit Style"
                 value={outfitChoice}
@@ -3738,7 +3691,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isSceneChanger && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Scene"
                 value={sceneChoice}
@@ -3815,9 +3768,9 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isProductAdImage && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Product Name
                 </span>
                 <Input
@@ -3828,7 +3781,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Price
                 </span>
                 <Input
@@ -3839,7 +3792,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Offer Text
                 </span>
                 <Input
@@ -3850,7 +3803,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Phone / WhatsApp
                 </span>
                 <Input
@@ -3864,9 +3817,9 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
 
           {isFacebookPostImage && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Headline
                 </span>
                 <Input
@@ -3877,7 +3830,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block md:col-span-2">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Description
                 </span>
                 <textarea
@@ -3891,9 +3844,9 @@ The final result must look like a genuine photograph, not an AI-generated image.
           )}
          
           {isPosterFlyer && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Event Name
                 </span>
                 <Input
@@ -3904,7 +3857,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Date / Time
                 </span>
                 <Input
@@ -3915,7 +3868,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Venue
                 </span>
                 <Input
@@ -3926,7 +3879,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+                <span className="mb-2 block text-sm font-extrabold">
                   Phone / Contact
                 </span>
                 <Input
@@ -4248,10 +4201,10 @@ The final result must look like a genuine photograph, not an AI-generated image.
         description="Create music videos using your song, uploaded audio, visuals, captions, and social-ready formats."
       />
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-5 space-y-5">
 
         {/* AUDIO SOURCE */}
-        <div className="rounded-2xl border border-white/10 bg-[#050d1d]/80 p-3 sm:p-4">
+        <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
           <h4 className="text-sm font-extrabold text-white">
             1. Audio Source
           </h4>
@@ -4336,7 +4289,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
         </div>
 
         {/* STYLE OPTIONS */}
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <SelectField
             label="2. Music Video Type"
             value={musicVideoStyle}
@@ -4410,7 +4363,7 @@ The final result must look like a genuine photograph, not an AI-generated image.
 
         {/* STORYBOARD */}
         <label className="block">
-          <span className="mb-1.5 block text-xs font-extrabold tracking-wide text-slate-200 sm:text-sm">
+          <span className="mb-2 block text-sm font-extrabold">
             7. Lyrics / Visual Storyboard
           </span>
 
