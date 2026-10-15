@@ -380,16 +380,16 @@ export default function AiToolLauncher({
     useState<AiToolCategoryTitle | null>(null);
 
   return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-[#111827] p-3 text-white shadow-creator sm:p-4">
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className="rounded-[1.25rem] border border-violet-400/15 bg-[#071226] p-3 text-white shadow-creator sm:p-4 lg:p-5">
+      <div className="mb-3 flex flex-col gap-2 border-b border-white/10 pb-3 sm:mb-4 sm:flex-row sm:items-end sm:justify-between sm:pb-4">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/15 px-2.5 py-1 text-[11px] font-bold text-violet-100">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/35 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
             <Sparkles className="h-3.5 w-3.5" />
             Creator Tools
           </div>
 
           <h2 className="text-base font-extrabold tracking-tight text-white sm:text-lg">
-            Choose a tool
+            1. Choose a tool
           </h2>
         </div>
 
@@ -400,7 +400,7 @@ export default function AiToolLauncher({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 [&>div:nth-child(4)]:hidden">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 [&>div:nth-child(4)]:hidden">
         {categories.map((category) => {
           const Icon = category.icon;
           const isOpen = openCategory === category.title;
@@ -410,35 +410,35 @@ export default function AiToolLauncher({
           return (
             <div
               key={category.title}
-              className={`rounded-2xl border p-3 transition ${
+              className={`rounded-2xl border p-3.5 transition duration-200 sm:p-4 ${
                 selectedInCategory
-                  ? "border-violet-300/50 bg-violet-500/10"
-                  : "border-white/10 bg-slate-950/50 hover:border-white/20 hover:bg-slate-950/80"
+                  ? "border-fuchsia-400/70 bg-gradient-to-br from-violet-500/15 via-fuchsia-500/10 to-cyan-500/5 shadow-[0_0_0_1px_rgba(217,70,239,0.12)]"
+                  : "border-white/10 bg-[#0A1730]/90 hover:border-violet-300/40 hover:bg-[#0D1B37]"
               }`}
             >
               <button
                 type="button"
                 onClick={() => setOpenCategory(isOpen ? null : category.title)}
-                className="flex w-full items-start justify-between gap-3 text-left"
+                className="flex w-full items-center justify-between gap-3 text-left"
               >
                 <div className="min-w-0">
                   <div
-                    className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r ${category.accent}`}
+                    className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg shadow-black/20 ${category.accent}`}
                   >
                     <Icon className="h-4 w-4 text-white" />
                   </div>
 
-                  <h3 className="text-sm font-extrabold text-white">
+                  <h3 className="text-sm font-extrabold tracking-tight text-white sm:text-base">
                     {category.title}
                   </h3>
 
-                  <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-300">
+                  <p className="mt-1 line-clamp-2 min-h-8 text-xs font-medium leading-4 text-slate-300">
                     {selectedInCategory || category.description}
                   </p>
                 </div>
 
                 <span
-                  className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-white transition ${
+                  className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-white transition ${
                     isOpen ? "rotate-180" : ""
                   }`}
                 >
@@ -447,7 +447,7 @@ export default function AiToolLauncher({
               </button>
 
               {isOpen && (
-                <div className="mt-3 max-h-[300px] space-y-1.5 overflow-y-auto pr-1">
+                <div className="mt-3 max-h-[300px] space-y-1.5 overflow-y-auto border-t border-white/10 pt-3 pr-1">
                   {category.tools.map((tool) => {
                     const active =
                       selectedTool?.category === category.title &&
@@ -467,8 +467,8 @@ export default function AiToolLauncher({
                         }}
                         className={`w-full rounded-xl border px-3 py-2.5 text-left text-[11px] font-bold transition ${
                           active
-                            ? "border-violet-300 bg-violet-500/25 text-white"
-                            : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+                            ? "border-fuchsia-300 bg-gradient-to-r from-violet-500/30 to-fuchsia-500/25 text-white shadow-[0_0_0_1px_rgba(217,70,239,0.15)]"
+                            : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-violet-300/30 hover:bg-violet-500/10 hover:text-white"
                         }`}
                       >
                         {tool}
