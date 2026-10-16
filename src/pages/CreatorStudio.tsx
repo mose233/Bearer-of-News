@@ -1335,33 +1335,11 @@ onRequestPayment={(amount, onSuccess) => {
 
               <CardContent className="px-3 py-4 sm:px-4">
                 {mediaFiles.length === 0 && imagePreviews.length === 0 && !generatedImagePreview ? (
-                  <div className="relative isolate overflow-hidden rounded-2xl border border-blue-400/30 bg-[#030b1b] p-3 sm:p-4">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_35%,rgba(0,153,255,0.22),transparent_45%),radial-gradient(ellipse_at_75%_40%,rgba(255,112,0,0.18),transparent_42%)]" />
-                    <div className="relative mx-auto max-w-5xl py-3 sm:py-5">
-                      <div className="relative mx-auto w-full [perspective:1000px]">
-                        <div className="relative overflow-hidden rounded-[1.25rem] border-y-[9px] border-[#07182e] bg-[#020713] shadow-[0_0_24px_rgba(0,153,255,0.45),0_0_34px_rgba(255,115,0,0.18)] sm:rounded-[2rem] sm:border-y-[13px]">
-                          <div className="grid grid-cols-4 gap-1.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-orange-400 p-1.5 sm:gap-2 sm:p-2">
-                            <img className="h-24 w-full rounded-md object-cover sm:h-44 sm:rounded-xl" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=700&q=85" alt="Mountain landscape cinematic preview" />
-                            <img className="h-24 w-full rounded-md object-cover sm:h-44 sm:rounded-xl" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85" alt="Portrait cinematic preview" />
-                            <img className="h-24 w-full rounded-md object-cover sm:h-44 sm:rounded-xl" src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=700&q=85" alt="Concert cinematic preview" />
-                            <img className="h-24 w-full rounded-md object-cover sm:h-44 sm:rounded-xl" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=85" alt="Tropical beach cinematic preview" />
-                          </div>
-                          <div className="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#06162c_0_12px,#35c9ff_12px_24px,#06162c_24px_36px)] opacity-95 sm:h-3" />
-                          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#06162c_0_12px,#ff9d35_12px_24px,#06162c_24px_36px)] opacity-95 sm:h-3" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-cyan-300 bg-slate-950/80 text-white shadow-[0_0_22px_rgba(0,195,255,0.9)] sm:h-16 sm:w-16">
-                              <svg viewBox="0 0 24 24" className="ml-1 h-6 w-6 fill-current sm:h-8 sm:w-8" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" /></svg>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="pointer-events-none absolute inset-x-8 -bottom-3 h-8 rounded-full bg-gradient-to-r from-cyan-500/25 via-blue-500/20 to-orange-500/25 blur-xl sm:inset-x-16 sm:h-12" />
-                      </div>
-                      <div className="relative mt-5 text-center sm:mt-7">
-                        <div className="text-base font-bold text-white sm:text-xl">Preview</div>
-                        <p className="mx-auto mt-1 max-w-xl text-xs leading-5 text-slate-300 sm:text-sm">Generate or upload photos/videos to preview them here.</p>
-                      </div>
-                    </div>
-                  </div>
+                  <img
+                    src="/creator-preview-cinematic.png"
+                    alt="Cinematic preview placeholder with a curved neon film strip, four media frames, and a glowing play button"
+                    className="block h-auto w-full rounded-2xl"
+                  />
                 ) : selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
