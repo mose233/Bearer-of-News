@@ -1224,35 +1224,20 @@ const resetCurrentProject = () => {
   }
 };
   return (
-    <main className="creator-studio-neon min-h-screen bg-[#050b1c] text-slate-100">
+    <main className="min-h-screen bg-[#0B1020] text-slate-100">
       <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
-        <header className="relative isolate mb-4 overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
-          {/* Decorative image stays inside the existing header; it does not add height. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-[43%] overflow-hidden sm:block"
-          >
-            <img
-              src="/images/creator-studio-hero-neon.png"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover object-right"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#111827] via-[#111827]/35 to-transparent" />
+        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
+          <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
+            Creator Studio
           </div>
 
-          <div className="relative z-10 sm:max-w-[62%]">
-            <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
-              Creator Studio
-            </div>
+          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
+            Create AI videos, images and music
+          </h1>
 
-            <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-              Create AI videos, images and music
-            </h1>
-
-            <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-              Choose a tool, create your media, then export and download.
-            </p>
-          </div>
+          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+            Choose a tool, create your media, then export and download.
+          </p>
         </header>
 
         <div className="mb-5">
@@ -1457,50 +1442,6 @@ onRequestPayment={(amount, onSuccess) => {
     }
   }}
 />
-
-      {/* Visual styling only: preserve existing layout, controls, and behavior. */}
-      <style>{`
-        .creator-studio-neon {
-          background: radial-gradient(ellipse at 50% -12%, rgba(37, 99, 235, .20), transparent 45%),
-                      radial-gradient(ellipse at 100% 35%, rgba(147, 51, 234, .12), transparent 34%),
-                      #050b1c !important;
-        }
-        .creator-studio-neon header,
-        .creator-studio-neon [class*="rounded-"][class*="bg-[#111827]"],
-        .creator-studio-neon [class*="rounded-"][class*="bg-[#0f172a]"] {
-          border-color: rgba(59, 130, 246, .42) !important;
-          box-shadow: 0 0 0 1px rgba(59,130,246,.06), 0 0 20px rgba(37,99,235,.10), inset 0 0 22px rgba(59,130,246,.035);
-        }
-        .creator-studio-neon header {
-          background: linear-gradient(110deg, rgba(8,20,48,.98), rgba(13,20,48,.96) 58%, rgba(45,15,88,.45)) !important;
-          border-color: rgba(124,58,237,.55) !important;
-          box-shadow: 0 0 24px rgba(37,99,235,.16), inset 0 0 24px rgba(124,58,237,.08);
-        }
-        .creator-studio-neon [class*="border-white/10"] { border-color: rgba(59,130,246,.34) !important; }
-        .creator-studio-neon [class*="text-slate-200"],
-        .creator-studio-neon [class*="text-slate-300"] { color: #dbeafe !important; }
-        .creator-studio-neon [class*="bg-violet-500/15"] {
-          background: linear-gradient(90deg, rgba(124,58,237,.35), rgba(217,70,239,.22)) !important;
-          border-color: rgba(217,70,239,.65) !important;
-          box-shadow: 0 0 14px rgba(168,85,247,.22);
-        }
-        .creator-studio-neon [class*="bg-amber-400/10"] {
-          background: linear-gradient(90deg, rgba(120,53,15,.28), rgba(30,20,35,.8)) !important;
-          border-color: rgba(251,191,36,.8) !important;
-          box-shadow: 0 0 14px rgba(245,158,11,.10);
-        }
-        .creator-studio-neon button { transition: filter .18s ease, box-shadow .18s ease; }
-        .creator-studio-neon button:hover { filter: brightness(1.12); }
-        .creator-studio-neon button[class*="bg-cyan"],
-        .creator-studio-neon button[class*="bg-sky"] {
-          box-shadow: 0 0 16px rgba(34,211,238,.22);
-        }
-        .creator-studio-neon button[class*="bg-violet"],
-        .creator-studio-neon button[class*="bg-fuchsia"],
-        .creator-studio-neon button[class*="bg-purple"] {
-          box-shadow: 0 0 16px rgba(217,70,239,.22);
-        }
-      `}</style>
 
   </main>
 );
