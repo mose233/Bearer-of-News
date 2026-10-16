@@ -1459,7 +1459,17 @@ onRequestPayment={(amount, onSuccess) => {
               </CardHeader>
 
               <CardContent className="px-3 py-4 sm:px-4">
-                {selectedTool?.category === "Picture AI" ? (
+                {mediaFiles.length === 0 &&
+                imagePreviews.length === 0 &&
+                !generatedImagePreview ? (
+                  <img
+                    src="/creator-preview-cinematic.png"
+                    alt="Cinematic preview artwork with a curved neon film strip, four media frames, and a glowing play button"
+                    className="block h-auto w-full rounded-2xl"
+                    loading="eager"
+                    decoding="async"
+                  />
+                ) : selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
                     imagePreviews={imagePreviews}
