@@ -7,6 +7,7 @@ import { generateVoice } from "@/lib/voice";
 import { exportVoice } from "@/lib/creator/VoiceExporter";
 import { renderPreviewVideo } from "@/lib/creator/PreviewRenderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Image as ImageIcon, Video, Music2, Sparkles, Play, ShieldCheck } from "lucide-react";
 import { ExportManager } from "@/lib/creator/ExportManager";
 
 import { getUSDPrice } from "@/lib/pricing/pricingEngine";
@@ -1224,20 +1225,24 @@ const resetCurrentProject = () => {
   }
 };
   return (
-    <main className="min-h-screen bg-[#0B1020] text-slate-100">
-      <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
-        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
-          <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
-            Creator Studio
+    <main className="min-h-screen bg-[#031027] text-slate-100">
+      <div className="mx-auto max-w-[1512px] px-3 py-3 pb-10 sm:px-4 lg:px-6 lg:py-4">
+        <header className="relative mb-2 min-h-[132px] overflow-hidden rounded-[1.2rem] border border-blue-300/20 bg-[radial-gradient(ellipse_at_76%_50%,rgba(91,33,182,0.48),transparent_43%),linear-gradient(105deg,#06132c,#071635_55%,#180b45)] px-4 py-4 shadow-creator sm:px-6 lg:min-h-[154px]">
+          <div className="relative z-10 max-w-[66%] sm:max-w-[62%]">
+            <div className="mb-2 inline-flex items-center rounded-full border border-violet-300/30 bg-violet-600/30 px-3 py-1 text-[11px] font-bold text-violet-50">Creator Studio</div>
+            <h1 className="text-xl font-extrabold leading-tight tracking-tight text-white sm:text-2xl lg:text-[38px]">
+              Create <span className="bg-gradient-to-r from-sky-300 via-fuchsia-400 to-violet-300 bg-clip-text text-transparent">AI videos,</span> images and music
+            </h1>
+            <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-200 sm:text-sm lg:text-base">Choose a tool, create your media, then export and download.</p>
           </div>
-
-          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Create AI videos, images and music
-          </h1>
-
-          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-            Choose a tool, create your media, then export and download.
-          </p>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden sm:w-[52%]">
+            <img
+              src="/images/creator-studio-hero-neon.png"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-[right_center]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#06132c] via-[#06132c]/35 to-transparent" />
+          </div>
         </header>
 
         <div className="mb-5">
@@ -1247,7 +1252,8 @@ const resetCurrentProject = () => {
           />
         </div>
 
-        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
+        <div className="mb-2 grid grid-cols-1 items-stretch gap-2 lg:grid-cols-[1.15fr_0.85fr]"><div ref={workspaceSectionRef} className="min-w-0 scroll-mt-4">
+          {selectedTool ? (
           <DynamicToolWorkspace
             selectedTool={selectedTool}
             speechRate={speechRate}
@@ -1322,18 +1328,42 @@ onRequestPayment={(amount, onSuccess) => {
   setPaymentOpen(true);
 }}
           />
+          ) : (
+            <section className="relative flex h-full min-h-[280px] flex-col overflow-hidden rounded-[1.2rem] border border-blue-300/20 bg-[radial-gradient(ellipse_at_50%_65%,rgba(91,33,182,0.35),transparent_55%),linear-gradient(130deg,#081a39,#06142b)] p-4 sm:min-h-[285px] sm:p-5">
+              <h2 className="flex items-center gap-2 text-lg font-bold leading-tight text-slate-100 sm:text-xl"><Sparkles className="h-6 w-6 text-fuchsia-300"/>Choose a tool to begin</h2>
+              <p className="mt-1 text-sm text-slate-200 sm:text-base">Select a tool above to start creating.</p>
+              <div aria-hidden="true" className="relative mt-3 flex min-h-[170px] flex-1 items-end justify-center overflow-hidden">
+                <div className="absolute bottom-0 h-16 w-[95%] rounded-[50%] bg-fuchsia-600/30 blur-2xl"/>
+                <div className="absolute bottom-4 left-[3%] right-[3%] h-10 -rotate-3 rounded-[50%] border-t-4 border-fuchsia-500/90"/>
+                <div className="absolute bottom-5 left-[7%] flex h-[112px] w-[31%] -rotate-[8deg] items-center justify-center rounded-xl border-2 border-cyan-300/80 bg-gradient-to-br from-sky-400/70 via-indigo-700 to-purple-950 shadow-[0_0_28px_rgba(56,189,248,0.32)] sm:h-[135px]">
+                  <div className="absolute inset-2 rounded-lg border border-white/30 bg-gradient-to-tr from-orange-300/70 via-pink-500/50 to-blue-500/80"/>
+                  <ImageIcon className="relative h-12 w-12 text-white drop-shadow-lg sm:h-16 sm:w-16"/>
+                  <div className="absolute -bottom-3 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl bg-pink-600"><ImageIcon className="h-6 w-6 text-white"/></div>
+                </div>
+                <div className="absolute bottom-6 left-[37%] flex h-[105px] w-[31%] rotate-[-3deg] flex-col items-center justify-center rounded-xl border-2 border-violet-300/70 bg-gradient-to-br from-slate-800 via-violet-950 to-fuchsia-900 shadow-[0_0_30px_rgba(168,85,247,0.35)] sm:h-[130px]">
+                  <div className="absolute -top-3 left-2 right-2 h-4 -skew-x-12 border border-white/40 bg-[repeating-linear-gradient(135deg,#f5d0fe_0_10px,#312e81_10px_20px)]"/>
+                  <div className="flex h-[65%] w-[82%] items-center justify-center rounded-lg border border-violet-300/50 bg-slate-950/80"><Play className="h-10 w-10 fill-fuchsia-300 text-fuchsia-300 sm:h-12 sm:w-12"/></div>
+                  <div className="absolute -bottom-3 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl bg-violet-600"><Video className="h-6 w-6 text-white"/></div>
+                </div>
+                <div className="absolute bottom-5 right-[5%] flex h-[112px] w-[27%] -rotate-[5deg] items-center justify-center rounded-[2rem] border-2 border-cyan-300/70 bg-gradient-to-br from-blue-500/70 via-indigo-950 to-slate-950 shadow-[0_0_32px_rgba(34,211,238,0.35)] sm:h-[140px]">
+                  <div className="absolute inset-3 rounded-[1.5rem] border-[5px] border-sky-400/80"/>
+                  <Music2 className="relative h-12 w-12 text-cyan-100 sm:h-16 sm:w-16"/>
+                  <div className="absolute -bottom-3 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl bg-sky-500"><Music2 className="h-6 w-6 text-white"/></div>
+                </div>
+                <Sparkles className="absolute left-[8%] top-[15%] h-5 w-5 text-cyan-300"/>
+                <Sparkles className="absolute left-[47%] top-[2%] h-5 w-5 text-fuchsia-300"/>
+                <Sparkles className="absolute right-[8%] top-[12%] h-6 w-6 text-cyan-300"/>
+              </div>
+            </section>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <section ref={livePreviewSectionRef} className="space-y-4">
-            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-sm font-semibold text-slate-200">
-                  Preview
-                </CardTitle>
+          <section ref={livePreviewSectionRef} className="min-w-0">
+            <Card className="h-full rounded-[1.2rem] border border-blue-300/20 bg-[linear-gradient(135deg,#081a35,#061329)] text-white shadow-creator">
+              <CardHeader className="px-4 py-3">
+                <CardTitle className="text-base font-bold text-slate-100 sm:text-lg">Preview</CardTitle>
               </CardHeader>
-
-              <CardContent className="px-3 py-4 sm:px-4">
+              <CardContent className="px-3 pb-3 sm:px-4">
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
                     mediaFiles={mediaFiles}
@@ -1359,63 +1389,41 @@ onRequestPayment={(amount, onSuccess) => {
                 )}
               </CardContent>
             </Card>
-
-            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-                <CardTitle className="text-sm font-semibold text-slate-200">
-                  Export & Download
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="px-3 py-4 sm:px-4">
-  <ExportPanel
-  isRecording={isRecording}
-  isExporting={isExporting}
-  exportStatus={exportStatus}
-  exportPrimaryLabel={
-    selectedTool?.category === "Picture AI"
-      ? "Download Image"
-      : "Download Media"
-  }
-  onExportPrimary={handleExportPrimaryMedia}
-  onOpenFacebook={openFacebookAfterExport}
-  onInitializeFFmpeg={initializeFFmpeg}
-  onExportSilentMp4={handleExportSilentMp4}
-  onExportNarratedMp4={handleExportNarratedMp4}
-  onExportFinalMixedMp4={handleExportFinalMixedMp4}
-/>
-               
-</CardContent>
-            </Card>
-
-            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-              Review your content before downloading or sharing.
-            </div>
-            {isAndroid() && downloadComplete && (
-  <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-    <p className="mb-3 font-semibold text-emerald-300">
-      ✅ Download complete.
-    </p>
-
-    <p className="mb-4 text-sm text-slate-300">
-      Tap below to start a new creation.
-    </p>
-
-    <button
-      onClick={() => {
-        setDownloadComplete(false);
-        resetCurrentProject();
-      }}
-      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
-    >
-      Click to Generate Again
-    </button>
-  </div>
-)}
           </section>
         </div>
 
-            </div> {/* closes grid */}
+        <section className="rounded-[1.2rem] border border-blue-300/20 bg-[linear-gradient(110deg,#071731,#061329)] p-3 shadow-creator sm:p-4">
+          <h2 className="mb-1.5 text-base font-bold text-slate-100 sm:text-lg">Export &amp; Download</h2>
+          <Card className="border-0 bg-transparent text-white shadow-none">
+            <CardContent className="p-0">
+              <ExportPanel
+                isRecording={isRecording}
+                isExporting={isExporting}
+                exportStatus={exportStatus}
+                exportPrimaryLabel={selectedTool?.category === "Picture AI" ? "Download Image" : "Download Media"}
+                onExportPrimary={handleExportPrimaryMedia}
+                onOpenFacebook={openFacebookAfterExport}
+                onInitializeFFmpeg={initializeFFmpeg}
+                onExportSilentMp4={handleExportSilentMp4}
+                onExportNarratedMp4={handleExportNarratedMp4}
+                onExportFinalMixedMp4={handleExportFinalMixedMp4}
+              />
+            </CardContent>
+          </Card>
+          <div className="mt-2 rounded-xl border border-amber-400/70 bg-amber-500/[0.04] px-3 py-2 text-xs font-semibold text-amber-300 sm:text-sm">
+            <ShieldCheck className="mr-2 inline h-4 w-4 align-middle text-amber-400" />
+            Review your content before downloading or sharing.
+          </div>
+          {isAndroid() && downloadComplete && (
+            <div className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
+              <p className="mb-3 font-semibold text-emerald-300">✅ Download complete.</p>
+              <p className="mb-4 text-sm text-slate-300">Tap below to start a new creation.</p>
+              <button onClick={() => { setDownloadComplete(false); resetCurrentProject(); }} className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400">Click to Generate Again</button>
+            </div>
+          )}
+        </section>
+
+      </div>
 
       <PaymentModal
   open={paymentOpen}
