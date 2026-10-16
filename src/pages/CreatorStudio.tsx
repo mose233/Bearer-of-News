@@ -1235,14 +1235,13 @@ const resetCurrentProject = () => {
             </h1>
             <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-200 sm:text-sm lg:text-base">Choose a tool, create your media, then export and download.</p>
           </div>
-          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 flex w-[43%] items-center justify-center overflow-hidden">
-            <div className="absolute bottom-[-40%] right-[8%] h-36 w-72 rotate-[-12deg] rounded-[50%] border-t-[3px] border-fuchsia-500/80 shadow-[0_-8px_28px_rgba(217,70,239,0.25)]"/>
-            <div className="relative flex items-center gap-2">
-              <div className="hidden h-16 w-20 -rotate-12 items-center justify-center rounded-xl border border-cyan-300/60 bg-gradient-to-br from-cyan-400/40 to-indigo-950 shadow-[0_0_24px_rgba(34,211,238,0.28)] sm:flex"><Sparkles className="h-8 w-8 text-cyan-100"/></div>
-              <div className="flex h-16 w-16 -rotate-6 items-center justify-center rounded-xl border border-fuchsia-300/70 bg-gradient-to-br from-pink-500/70 via-violet-700 to-indigo-950 shadow-[0_0_24px_rgba(217,70,239,0.35)] sm:h-24 sm:w-24"><Sparkles className="h-9 w-9 text-white sm:h-12 sm:w-12"/></div>
-              <div className="flex h-12 w-12 rotate-9 items-center justify-center rounded-xl border border-sky-300/60 bg-gradient-to-br from-sky-400/70 to-blue-950 shadow-[0_0_22px_rgba(56,189,248,0.3)] sm:h-16 sm:w-16"><Music2 className="h-7 w-7 text-white sm:h-9 sm:w-9"/></div>
-              <div className="hidden h-14 w-16 rotate-12 items-center justify-center rounded-xl border border-pink-300/60 bg-gradient-to-br from-orange-400/50 to-fuchsia-950 md:flex"><Play className="h-7 w-7 fill-white text-white"/></div>
-            </div>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-[56%] overflow-hidden">
+            <img
+              src="/images/creator-studio-hero-neon.png"
+              alt=""
+              className="h-full w-full object-cover object-[68%_center] opacity-95"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#06132c] via-[#06132c]/35 to-transparent" />
           </div>
         </header>
 
@@ -1333,27 +1332,12 @@ onRequestPayment={(amount, onSuccess) => {
             <section className="relative flex h-full min-h-[280px] flex-col overflow-hidden rounded-[1.2rem] border border-blue-300/20 bg-[radial-gradient(ellipse_at_50%_65%,rgba(91,33,182,0.35),transparent_55%),linear-gradient(130deg,#081a39,#06142b)] p-4 sm:min-h-[285px] sm:p-5">
               <h2 className="flex items-center gap-2 text-lg font-bold leading-tight text-slate-100 sm:text-xl"><Sparkles className="h-6 w-6 text-fuchsia-300"/>Choose a tool to begin</h2>
               <p className="mt-1 text-sm text-slate-200 sm:text-base">Select a tool above to start creating.</p>
-              <div aria-hidden="true" className="relative mt-3 flex min-h-[170px] flex-1 items-end justify-center overflow-hidden">
-                <div className="absolute bottom-0 h-16 w-[95%] rounded-[50%] bg-fuchsia-600/30 blur-2xl"/>
-                <div className="absolute bottom-4 left-[3%] right-[3%] h-10 -rotate-3 rounded-[50%] border-t-4 border-fuchsia-500/90"/>
-                <div className="absolute bottom-5 left-[7%] flex h-[112px] w-[31%] -rotate-[8deg] items-center justify-center rounded-xl border-2 border-cyan-300/80 bg-gradient-to-br from-sky-400/70 via-indigo-700 to-purple-950 shadow-[0_0_28px_rgba(56,189,248,0.32)] sm:h-[135px]">
-                  <div className="absolute inset-2 rounded-lg border border-white/30 bg-gradient-to-tr from-orange-300/70 via-pink-500/50 to-blue-500/80"/>
-                  <ImageIcon className="relative h-12 w-12 text-white drop-shadow-lg sm:h-16 sm:w-16"/>
-                  <div className="absolute -bottom-3 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl bg-pink-600"><ImageIcon className="h-6 w-6 text-white"/></div>
-                </div>
-                <div className="absolute bottom-6 left-[37%] flex h-[105px] w-[31%] rotate-[-3deg] flex-col items-center justify-center rounded-xl border-2 border-violet-300/70 bg-gradient-to-br from-slate-800 via-violet-950 to-fuchsia-900 shadow-[0_0_30px_rgba(168,85,247,0.35)] sm:h-[130px]">
-                  <div className="absolute -top-3 left-2 right-2 h-4 -skew-x-12 border border-white/40 bg-[repeating-linear-gradient(135deg,#f5d0fe_0_10px,#312e81_10px_20px)]"/>
-                  <div className="flex h-[65%] w-[82%] items-center justify-center rounded-lg border border-violet-300/50 bg-slate-950/80"><Play className="h-10 w-10 fill-fuchsia-300 text-fuchsia-300 sm:h-12 sm:w-12"/></div>
-                  <div className="absolute -bottom-3 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl bg-violet-600"><Video className="h-6 w-6 text-white"/></div>
-                </div>
-                <div className="absolute bottom-5 right-[5%] flex h-[112px] w-[27%] -rotate-[5deg] items-center justify-center rounded-[2rem] border-2 border-cyan-300/70 bg-gradient-to-br from-blue-500/70 via-indigo-950 to-slate-950 shadow-[0_0_32px_rgba(34,211,238,0.35)] sm:h-[140px]">
-                  <div className="absolute inset-3 rounded-[1.5rem] border-[5px] border-sky-400/80"/>
-                  <Music2 className="relative h-12 w-12 text-cyan-100 sm:h-16 sm:w-16"/>
-                  <div className="absolute -bottom-3 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl bg-sky-500"><Music2 className="h-6 w-6 text-white"/></div>
-                </div>
-                <Sparkles className="absolute left-[8%] top-[15%] h-5 w-5 text-cyan-300"/>
-                <Sparkles className="absolute left-[47%] top-[2%] h-5 w-5 text-fuchsia-300"/>
-                <Sparkles className="absolute right-[8%] top-[12%] h-6 w-6 text-cyan-300"/>
+              <div aria-hidden="true" className="relative mt-3 flex min-h-[170px] flex-1 items-end justify-center overflow-hidden sm:min-h-[190px]">
+                <img
+                  src="/images/creator-studio-media-collage.png"
+                  alt=""
+                  className="h-full max-h-[230px] w-full object-contain object-bottom drop-shadow-[0_0_24px_rgba(168,85,247,0.22)]"
+                />
               </div>
             </section>
           )}
