@@ -1225,129 +1225,114 @@ const resetCurrentProject = () => {
 };
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100">
-      <div className="mx-auto max-w-[1500px] px-3 py-3 pb-20 sm:px-4 lg:px-6 lg:py-5">
-        {/* Compact hero: keeps the title prominent without wasting vertical space. */}
-        <header className="mb-4 overflow-hidden rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-[#111827] via-[#111827] to-[#171638] px-4 py-4 shadow-creator sm:px-5 lg:mb-5 lg:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
-                Creator Studio
-              </div>
-              <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-                Create AI videos, images and music
-              </h1>
-              <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
-                Choose a tool, create your media, then export and download.
-              </p>
-            </div>
-            <div aria-hidden="true" className="hidden h-[100px] w-[240px] shrink-0 grid-cols-3 gap-2 sm:grid lg:h-[112px] lg:w-[300px]">
-              <div className="relative overflow-hidden rounded-xl border border-cyan-300/20 bg-[#0B1020]">
-                <img src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=360&q=80" alt="" className="h-full w-full object-cover opacity-75" />
-                <div className="absolute inset-0 bg-gradient-to-t from-cyan-950/70 to-transparent" />
-              </div>
-              <div className="relative mt-3 overflow-hidden rounded-xl border border-violet-300/20 bg-[#0B1020]">
-                <img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=360&q=80" alt="" className="h-full w-full object-cover opacity-75" />
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-950/70 to-transparent" />
-              </div>
-              <div className="relative mb-3 overflow-hidden rounded-xl border border-fuchsia-300/20 bg-[#0B1020]">
-                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=360&q=80" alt="" className="h-full w-full object-cover opacity-75" />
-                <div className="absolute inset-0 bg-gradient-to-t from-fuchsia-950/70 to-transparent" />
-              </div>
-            </div>
+      <div className="mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 lg:px-6 lg:py-5">
+        <header className="mb-4 rounded-[1.25rem] border border-white/10 bg-[#111827] px-3 py-4 shadow-creator sm:px-4 lg:mb-5">
+          <div className="mb-2 inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/15 px-3 py-1 text-[11px] font-bold text-violet-100">
+            Creator Studio
           </div>
+
+          <h1 className="max-w-4xl text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
+            Create AI videos, images and music
+          </h1>
+
+          <p className="mt-2 max-w-3xl text-xs font-medium leading-5 text-slate-300 sm:text-sm">
+            Choose a tool, create your media, then export and download.
+          </p>
         </header>
 
-        <div className="mb-4 lg:mb-5">
+        <div className="mb-5">
           <AiToolLauncher
             selectedTool={selectedTool}
             onSelectTool={handleSelectTool}
           />
         </div>
 
-        {/* Workspace and preview sit side-by-side on desktop and stack on mobile. */}
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:gap-5">
-          <div ref={workspaceSectionRef} className="min-w-0 scroll-mt-4">
-            <DynamicToolWorkspace
-              selectedTool={selectedTool}
-              speechRate={speechRate}
-              setSpeechRate={setSpeechRate}
-              voiceVolume={voiceVolume}
-              setVoiceVolume={setVoiceVolume}
-              isSpeaking={isSpeaking}
-              aiVoiceBlob={aiVoiceBlob}
-              isExporting={isExporting}
-              onPlayVoiceover={startVoiceover}
-              onStopVoiceover={stopVoiceover}
-              onGenerateRealVoice={generateRealVoice}
-              backgroundMusic={backgroundMusic}
-              musicPreview={musicPreview}
-              musicVolume={musicVolume}
-              setMusicVolume={setMusicVolume}
-              isMusicPlaying={isMusicPlaying}
-              audioRef={audioRef}
-              onMusicUpload={handleMusicUpload}
-              onToggleMusic={toggleMusic}
-              onAddMusicToVideo={handleAddGeneratedMusicToVideo}
-              photoMusicImagePreview={photoMusicImagePreview}
-              photoMusicAudioName={photoMusicAudioName}
-              photoMusicStyle={photoMusicStyle}
-              isExportingPhotoMusic={isExportingPhotoMusic}
-              setPhotoMusicStyle={setPhotoMusicStyle}
-              onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
-              onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
-              onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
-              onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
-              dancingPhotoPreview={dancingPhotoPreview}
-              danceStyle={danceStyle}
-              isGeneratingDance={isGeneratingDance}
-              danceResultMessage={danceResultMessage}
-              setDanceStyle={setDanceStyle}
-              onDancingPhotoUpload={handleDancingPhotoUpload}
-              onGenerateDance={handleGenerateDancingVideo}
-              videoPrompt={videoPrompt}
-              setVideoPrompt={setVideoPrompt}
-              videoCreativeType={videoCreativeType}
-              setVideoCreativeType={setVideoCreativeType}
-              videoOutputFormat={videoOutputFormat}
-              setVideoOutputFormat={setVideoOutputFormat}
-              onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
-              aiImagePrompt={aiImagePrompt}
-              setAiImagePrompt={setAiImagePrompt}
-              isGeneratingImage={isGeneratingImage}
-              generatedImagePreview={generatedImagePreview}
-              multiScenePlan={multiScenePlan}
-              onGenerateImage={handleGenerateImage}
-              onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
-              onAddGeneratedImage={handleAddGeneratedImage}
-              onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
-              onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
-              onMediaUpload={handleMediaUpload}
-              onPublishToFacebook={openFacebookAfterExport}
-              onDownloadGeneratedImage={handleDownloadGeneratedImage}
-              onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
-                addSceneToTimeline(
-                  file,
-                  preview,
-                  durationSeconds || getTimelineDuration()
-                )
-              }
-              onVideoDurationChange={setSelectedVideoDurationSeconds}
-              requestGeneration={requestPaidGeneration}
-              onRequestPayment={(amount, onSuccess) => {
-                setPaymentPrice(amount);
-                setPendingGeneration(() => onSuccess);
-                setPaymentOpen(true);
-              }}
-            />
-          </div>
+        <div ref={workspaceSectionRef} className="mb-5 scroll-mt-4">
+          <DynamicToolWorkspace
+            selectedTool={selectedTool}
+            speechRate={speechRate}
+            setSpeechRate={setSpeechRate}
+            voiceVolume={voiceVolume}
+            setVoiceVolume={setVoiceVolume}
+            isSpeaking={isSpeaking}
+            aiVoiceBlob={aiVoiceBlob}
+            isExporting={isExporting}
+            onPlayVoiceover={startVoiceover}
+            onStopVoiceover={stopVoiceover}
+            onGenerateRealVoice={generateRealVoice}
+            backgroundMusic={backgroundMusic}
+            musicPreview={musicPreview}
+            musicVolume={musicVolume}
+            setMusicVolume={setMusicVolume}
+            isMusicPlaying={isMusicPlaying}
+            audioRef={audioRef}
+            onMusicUpload={handleMusicUpload}
+            onToggleMusic={toggleMusic}
+            onAddMusicToVideo={handleAddGeneratedMusicToVideo}
+            photoMusicImagePreview={photoMusicImagePreview}
+            photoMusicAudioName={photoMusicAudioName}
+            photoMusicStyle={photoMusicStyle}
+            isExportingPhotoMusic={isExportingPhotoMusic}
+            setPhotoMusicStyle={setPhotoMusicStyle}
+            onPhotoMusicPhotoUpload={handlePhotoMusicPhotoUpload}
+            onPhotoMusicAudioUpload={handlePhotoMusicAudioUpload}
+            onAddPhotoMusicSceneToTimeline={handleAddPhotoMusicSceneToTimeline}
+            onExportPhotoMusicVideo={handleExportPhotoMusicVideo}
+            dancingPhotoPreview={dancingPhotoPreview}
+            danceStyle={danceStyle}
+            isGeneratingDance={isGeneratingDance}
+            danceResultMessage={danceResultMessage}
+            setDanceStyle={setDanceStyle}
+            onDancingPhotoUpload={handleDancingPhotoUpload}
+            onGenerateDance={handleGenerateDancingVideo}
+            videoPrompt={videoPrompt}
+            setVideoPrompt={setVideoPrompt}
+            videoCreativeType={videoCreativeType}
+            setVideoCreativeType={setVideoCreativeType}
+            videoOutputFormat={videoOutputFormat}
+            setVideoOutputFormat={setVideoOutputFormat}
+            onPrepareTextToVideoPrompt={handlePrepareTextToVideoPrompt}
+            aiImagePrompt={aiImagePrompt}
+            setAiImagePrompt={setAiImagePrompt}
+            isGeneratingImage={isGeneratingImage}
+            generatedImagePreview={generatedImagePreview}
+            multiScenePlan={multiScenePlan}
+            onGenerateImage={handleGenerateImage}
+            onGenerateMultiScenePlan={handleGenerateMultiScenePlan}
+            onAddGeneratedImage={handleAddGeneratedImage}
+            onGenerateSceneFromPlan={handleGenerateSceneFromPlan}
+            onGenerateAllScenesFromPlan={handleGenerateAllScenesFromPlan}
+            onMediaUpload={handleMediaUpload}
+            onPublishToFacebook={openFacebookAfterExport}
+            onDownloadGeneratedImage={handleDownloadGeneratedImage}
+            onAddEnhancedPhotoToTimeline={(file, preview, durationSeconds) =>
+  addSceneToTimeline(
+    file,
+    preview,
+    durationSeconds || getTimelineDuration()
+  )
+}
+onVideoDurationChange={setSelectedVideoDurationSeconds}
 
-          <section ref={livePreviewSectionRef} className="min-w-0 scroll-mt-4">
+requestGeneration={requestPaidGeneration}
+
+onRequestPayment={(amount, onSuccess) => {
+  setPaymentPrice(amount);
+  setPendingGeneration(() => onSuccess);
+  setPaymentOpen(true);
+}}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <section ref={livePreviewSectionRef} className="space-y-4">
             <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
               <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
                 <CardTitle className="text-sm font-semibold text-slate-200">
                   Preview
                 </CardTitle>
               </CardHeader>
+
               <CardContent className="px-3 py-4 sm:px-4">
                 {selectedTool?.category === "Picture AI" ? (
                   <PicturePreviewPanel
@@ -1374,82 +1359,90 @@ const resetCurrentProject = () => {
                 )}
               </CardContent>
             </Card>
+
+            <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
+              <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
+                <CardTitle className="text-sm font-semibold text-slate-200">
+                  Export & Download
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="px-3 py-4 sm:px-4">
+  <ExportPanel
+  isRecording={isRecording}
+  isExporting={isExporting}
+  exportStatus={exportStatus}
+  exportPrimaryLabel={
+    selectedTool?.category === "Picture AI"
+      ? "Download Image"
+      : "Download Media"
+  }
+  onExportPrimary={handleExportPrimaryMedia}
+  onOpenFacebook={openFacebookAfterExport}
+  onInitializeFFmpeg={initializeFFmpeg}
+  onExportSilentMp4={handleExportSilentMp4}
+  onExportNarratedMp4={handleExportNarratedMp4}
+  onExportFinalMixedMp4={handleExportFinalMixedMp4}
+/>
+               
+</CardContent>
+            </Card>
+
+            <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
+              Review your content before downloading or sharing.
+            </div>
+            {isAndroid() && downloadComplete && (
+  <div className="mt-4 rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
+    <p className="mb-3 font-semibold text-emerald-300">
+      ✅ Download complete.
+    </p>
+
+    <p className="mb-4 text-sm text-slate-300">
+      Tap below to start a new creation.
+    </p>
+
+    <button
+      onClick={() => {
+        setDownloadComplete(false);
+        resetCurrentProject();
+      }}
+      className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
+    >
+      Click to Generate Again
+    </button>
+  </div>
+)}
           </section>
         </div>
 
-        {/* Export remains full-width beneath the workspace and preview. */}
-        <section className="mt-4 space-y-4 lg:mt-5">
-          <Card className="rounded-[1.25rem] border border-white/10 bg-[#111827] text-white shadow-creator">
-            <CardHeader className="border-b border-white/10 px-3 py-3 sm:px-4">
-              <CardTitle className="text-sm font-semibold text-slate-200">
-                Export &amp; Download
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 py-4 sm:px-4">
-              <ExportPanel
-                isRecording={isRecording}
-                isExporting={isExporting}
-                exportStatus={exportStatus}
-                exportPrimaryLabel={
-                  selectedTool?.category === "Picture AI"
-                    ? "Download Image"
-                    : "Download Media"
-                }
-                onExportPrimary={handleExportPrimaryMedia}
-                onOpenFacebook={openFacebookAfterExport}
-                onInitializeFFmpeg={initializeFFmpeg}
-                onExportSilentMp4={handleExportSilentMp4}
-                onExportNarratedMp4={handleExportNarratedMp4}
-                onExportFinalMixedMp4={handleExportFinalMixedMp4}
-              />
-            </CardContent>
-          </Card>
-
-          <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] font-medium leading-5 text-amber-100">
-            Review your content before downloading or sharing.
-          </div>
-
-          {isAndroid() && downloadComplete && (
-            <div className="rounded-[1.25rem] border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-              <p className="mb-3 font-semibold text-emerald-300">
-                ✅ Download complete.
-              </p>
-              <p className="mb-4 text-sm text-slate-300">
-                Tap below to start a new creation.
-              </p>
-              <button
-                onClick={() => {
-                  setDownloadComplete(false);
-                  resetCurrentProject();
-                }}
-                className="rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-black hover:bg-emerald-400"
-              >
-                Click to Generate Again
-              </button>
-            </div>
-          )}
-        </section>
-      </div>
+            </div> {/* closes grid */}
 
       <PaymentModal
-        open={paymentOpen}
-        price={paymentPrice}
-        onClose={() => setPaymentOpen(false)}
-        onPaymentSuccess={() => {
-          console.log("✅ PaymentModal: Payment confirmed");
-          setPaymentOpen(false);
-          setPaymentComplete(true);
-          console.log("pendingGeneration =", pendingGeneration);
-          if (pendingGeneration) {
-            console.log("🚀 Executing pending generation...");
-            pendingGeneration();
-            console.log("✅ pendingGeneration finished");
-            setPendingGeneration(null);
-          } else {
-            console.log("❌ pendingGeneration is NULL");
-          }
-        }}
-      />
-    </main>
-  );
+  open={paymentOpen}
+  price={paymentPrice}
+  onClose={() => setPaymentOpen(false)}
+  onPaymentSuccess={() => {
+    console.log("✅ PaymentModal: Payment confirmed");
+
+    setPaymentOpen(false);
+    setPaymentComplete(true);
+
+    console.log("pendingGeneration =", pendingGeneration);
+
+    if (pendingGeneration) {
+      console.log("🚀 Executing pending generation...");
+
+      pendingGeneration();
+
+      console.log("✅ pendingGeneration finished");
+
+      setPendingGeneration(null);
+    } else {
+      console.log("❌ pendingGeneration is NULL");
+    }
+  }}
+/>
+
+  </main>
+);
 }
