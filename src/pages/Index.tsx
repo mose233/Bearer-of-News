@@ -52,9 +52,7 @@ const DevTools: React.FC = () => {
 const HomeContent: React.FC = () => {
   const { user } = useAuth();
 
-  const startCreatingLink = user
-    ? "/creator-studio"
-    : "/signup?redirect=/creator-studio";
+const startCreatingLink = "/creator-studio";
 
   const toolCards = [
     {
