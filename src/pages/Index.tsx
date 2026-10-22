@@ -50,7 +50,7 @@ const DevTools: React.FC = () => {
 };
 
 const HomeContent: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   const startCreatingLink = user
     ? "/creator-studio"
@@ -98,7 +98,7 @@ const HomeContent: React.FC = () => {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030817] text-white">
-      {/* Header: existing account controls are preserved. */}
+      {/* Homepage header: Sign In and Sign Up buttons removed. */}
       <header className="relative z-20 border-b border-white/10 bg-[#030817]/95">
         <nav className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-8 sm:py-4 lg:px-12">
           <Link
@@ -108,49 +108,6 @@ const HomeContent: React.FC = () => {
           >
             xnewsapp<span className="text-fuchsia-500">.com</span>
           </Link>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user ? (
-              <>
-                <Link
-                  to="/creator-studio"
-                  className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-bold shadow-lg shadow-fuchsia-600/20 transition hover:brightness-110 sm:px-6"
-                >
-                  Creator Studio
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await signOut();
-                    } catch (error) {
-                      console.error("Sign out failed:", error);
-                    }
-                  }}
-                  className="rounded-xl border border-blue-400/40 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/10 sm:px-6"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="rounded-xl border border-blue-400/40 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/10"
-                >
-                  Sign In
-                </Link>
-
-                <Link
-                  to="/signup"
-                  className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-bold transition hover:brightness-110"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
         </nav>
       </header>
 
@@ -238,7 +195,7 @@ const HomeContent: React.FC = () => {
         </div>
       </section>
 
-      {/* Creator Tools: feature strip removed. */}
+      {/* Creator Tools */}
       <section className="relative mx-auto max-w-[1500px] px-5 pt-1 pb-5 sm:px-8 sm:pt-4 sm:pb-10 lg:px-12 lg:pt-2 lg:pb-8">
         <div className="pointer-events-none absolute inset-x-12 top-8 -z-10 h-48 rounded-full bg-violet-700/20 blur-[80px]" />
 
@@ -312,7 +269,7 @@ const HomeContent: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer: existing links and contact details preserved. */}
+      {/* Footer */}
       <footer className="border-t border-blue-400/30 bg-slate-950/80 px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
         <div className="mx-auto grid max-w-[1500px] gap-8 md:grid-cols-[1.5fr_0.7fr_1fr]">
           <div>
