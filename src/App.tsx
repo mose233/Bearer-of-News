@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -85,22 +86,15 @@ function AppRoutes() {
         }
       />
 
+      {/* Temporarily allow visitors to access Creator Studio without signing in */}
       <Route
         path="/creator-studio"
-        element={
-          <ProtectedRoute>
-            <CreatorStudioEntry />
-          </ProtectedRoute>
-        }
+        element={<CreatorStudioEntry />}
       />
 
       <Route
         path="/content-studio"
-        element={
-          <ProtectedRoute>
-            <CreatorStudioEntry />
-          </ProtectedRoute>
-        }
+        element={<CreatorStudioEntry />}
       />
 
       <Route path="/about" element={<About />} />
